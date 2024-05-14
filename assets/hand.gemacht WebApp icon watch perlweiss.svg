@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="content" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 47.72">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: linen;
+        stroke-width: 0px;
+      }
+    </style>
+  </defs>
+  <circle class="cls-1" cx="23.35" cy="25.7" r="5.31"/>
+  <path class="cls-1" d="M36.98,26.32c-8.45-6.65-20.77-6.08-28.56,1.71l-1.27-1.27c-1.28-1.28-1.15-3.4.28-4.5,10.41-8.05,25.47-7.3,35.01,2.24l-1.54,1.55c-1.05,1.05-2.74,1.2-3.91.28Z"/>
+</svg>

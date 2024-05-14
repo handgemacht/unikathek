@@ -1,0 +1,62 @@
+{
+  "name": "hand.gemacht 3D Viewer alpha",
+  "short_name": "hand.gemacht",
+  "description": "hand.gemacht 3D Viewer Web App Description",
+  "start_url": ".",
+  "scope": "../",
+  "display": "standalone",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./assets/hand.gemacht icon alpha.svg",
+      "type": "image/svg+xml",
+      "sizes": "150x150",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/hand.gemacht icon alpha.svg",
+      "type": "image/svg+xml",
+      "sizes": "150x150",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./assets/hand.gemacht icon alpha 192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/hand.gemacht icon alpha 512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    }
+  ],
+  "theme_color": "#F7EBE3",
+  "background_color": "#F7EBE3",
+  "prefer_related_applications ": "false",
+  "screenshots": [
+    {
+      "src": "./assets/pwa-screenshots/hand.gemacht pwa screenshot 1.png",
+      "type": "image/png",
+      "sizes": "1194x835",
+      "form_factor": "wide"
+    },
+    {
+      "src": "./assets/pwa-screenshots/hand.gemacht pwa screenshot 2.png",
+      "type": "image/png",
+      "sizes": "623x969",
+      "form_factor": "narrow"
+    }
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "web+model",
+      "url": "model?id=%s"
+    },
+    {
+      "protocol": "web+modelhotspot",
+      "url": "hotspot?id=%s&hotspot=%s"
+    }
+  ]
+}

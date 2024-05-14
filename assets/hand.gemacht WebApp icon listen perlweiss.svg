@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="content" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 47.72">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: linen;
+        stroke-width: 0px;
+      }
+    </style>
+  </defs>
+  <path class="cls-1" d="M7.08,21.38h5.63c2.76,0,5,2.24,5,5v11.96h-5.63c-2.76,0-5-2.24-5-5v-11.96h0Z"/>
+  <path class="cls-1" d="M35.74,21.38h5.18v11.51c0,3.01-2.44,5.45-5.45,5.45h-5.18v-11.51c0-3.01,2.44-5.45,5.45-5.45Z"/>
+  <path class="cls-1" d="M38.27,22.53h-5c0-5.15-4.19-9.34-9.34-9.34s-9.34,4.19-9.34,9.34h-5c0-7.91,6.43-14.34,14.34-14.34s14.34,6.43,14.34,14.34Z"/>
+</svg>
