@@ -105,7 +105,7 @@ let collectionViewerHTML=
 + '  <a-assets></a-assets>'
 + '  <a-sky color="#FAF0E6"></a-sky>'
 + '</a-scene>'
-+ '<div id="forcegraph-tooltip"></div>'
++ '<div id="forcegraph-tooltip" class="hide"></div>'
 + '<!-- END COLLECTION VIEWER -->'
 //END collectionViewerHTML for initCollectionViewer
 

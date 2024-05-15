@@ -28,6 +28,7 @@ urlParams.get('m')==='c' ? loadCV=true : loadCV=false;
 
 //START DOM Manipulation 
 window.addEventListener("DOMContentLoaded", () => {
+
 });
 //END DOM Manipulation
 
@@ -175,7 +176,7 @@ AFRAME.registerComponent('load-json-models', {
 								gltf.scene.visible = false;
 								scene.add( gltf.scene );
 							}, (xhr) =>{ 
-								//console.log( ( 'dev --- model: ' + object.name + ' - ' + xhr.loaded / xhr.total * 100 ) + '% loaded' );
+								devMode && console.log( ( 'dev --- load model: ' + object.name + ' - ' + xhr.loaded / xhr.total * 100 ) + '% loaded' );
 							}, (error) => {		
 								console.log( 'An error happened: ' + error );
 							});
@@ -204,16 +205,12 @@ AFRAME.registerComponent('load-json-models', {
 						nodeRelSize: 4,
 						nodeThreeObjectExtend: false,
 						onLinkHover: link => { 
-							//document.querySelector("#forcegraph-tooltip").setAttribute("content", link ? link.name : "");
 							fgTooltipHandler(link);
 						},
 						onLinkClick: link => { 
 							devMode && console.log('dev --- onLinkClick: ', link);
-							link.material.emissive.setHex(0xffffff) ;
-							link.material.emissiveIntensity.setValue(100);
 						},
 						onNodeHover: node => { 
-							//document.querySelector("#forcegraph-tooltip").setAttribute("content", node ? node.name : "");
 							fgTooltipHandler(node);
 						},
 						onNodeClick: node => { 
@@ -279,7 +276,6 @@ AFRAME.registerComponent('camera-focus-target', {
 	},
 
 	init: function () {
-		self = this;
 		this.cameraEl = this.el;
 		this.camera = this.el.object3D;
 
@@ -293,7 +289,7 @@ AFRAME.registerComponent('camera-focus-target', {
 		let camera = this.camera;
 
 		this.cameraEl.addEventListener('camera-focus-target', (e) => {
-			self.cameraFocusTarget();
+			this.cameraFocusTarget();
 		})
 
 		this.cameraEl.addEventListener('animationcomplete__cptt-z', (e) => {
@@ -307,7 +303,6 @@ AFRAME.registerComponent('camera-focus-target', {
 			let cameraWorldPosition = new THREE.Vector3();
 			camera.getWorldPosition(cameraWorldPosition);
 			cameraEl.setAttribute('look-controls', {enabled: true, orientation: {'position': cameraWorldPosition, 'rotation': camera.rotation}});
-			devMode && console.log('dev --- camera-focus-target camera.rotation: ', camera.rotation);
 			cameraEl.setAttribute('wasd-controls', {enabled: true});
 		});
 	},
@@ -350,7 +345,7 @@ AFRAME.registerComponent('camera-focus-target', {
 		newCameraRotation.z = this.focus.rotation.z;
 
 		//fix cone geometry to correct direction
-		devMode && this.focus.rotation.x -= Math.PI/2;
+		devMode ? this.focus.rotation.x -= Math.PI/2 : '';
 
 		//animation camera move to target x
 		this.cameraEl.setAttribute('animation__cmtt-x', {
@@ -599,7 +594,6 @@ AFRAME.registerComponent('look-controls', {
 			this.addEventListeners();
 			if (this.pointerLocked) { this.exitPointerLock(); }
 		}
-
 	},
 
 	tick: function (t) {
@@ -739,8 +733,6 @@ AFRAME.registerComponent('look-controls', {
 		object3D.rotation.x = this.magicWindowDeltaEuler.x + pitchObject.rotation.x;
 		object3D.rotation.y = this.magicWindowDeltaEuler.y + yawObject.rotation.y;
 		object3D.rotation.z = this.magicWindowDeltaEuler.z;	
-
-			
 	},
 
 	updateMagicWindowOrientation: function () {
