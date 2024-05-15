@@ -86,7 +86,7 @@ let collectionViewerHTML=
 + '<a-scene gltf-model="dracoDecoderPath: ./draco/" load-json-models>'
 + '	 <a-entity cursor="rayOrigin: mouse; mouseCursorStylesEnabled: true;" raycaster="objects: [forcegraph];"></a-entity>'
 + '  <a-camera look-controls="pointerLockEnabled: false" wasd-controls="fly: true; acceleration: 600;" position="0 0 150">'
-+ '    <a-text id="forcegraph-tooltip" font="./assets/font3D/RobotoSlab-Regular-msdf.json" position="0 -0.25 -1" width="2" align="center" color="#9B9691"></a-text>'
++ '    <a-text id="forcegraph-tooltip" font="./assets/font3d/RobotoSlab-Regular-msdf.json" position="0 -0.25 -1" width="2" align="center" color="#9B9691"></a-text>'
 + '  </a-camera>'
 + '  <a-assets></a-assets>'
 + '  <a-sky color="#FAF0E6"></a-sky>'
