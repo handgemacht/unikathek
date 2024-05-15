@@ -6,6 +6,19 @@
 
 
 
+//START collectionViewerHTML for initCollectionViewer
+let appStartHTML=
+'<!-- START AR VIEWER -->'
++ '<div class="flex-container">'
++ '  <button id="collection" class="nav">Sammlung</button>'
++ '  <button id="model" class="nav">Modell</button>'
++ '  <button id="ar" class="nav">AR</button>'
++ '</div>'
++ '<!-- END AR VIEWER -->'
+//END collectionViewerHTML for initCollectionViewer
+
+
+
 //START modelViewerHTML for initViewer
 let modelViewerHTML = 
 '<!-- START INFO AND UTILITY -->'
@@ -85,13 +98,25 @@ let collectionViewerHTML=
 '<!-- START COLLECTION VIEWER -->'
 + '<a-scene gltf-model="dracoDecoderPath: ./draco/" load-json-models>'
 + '	 <a-entity cursor="rayOrigin: mouse; mouseCursorStylesEnabled: true;" raycaster="objects: [forcegraph];"></a-entity>'
-+ '  <a-camera look-controls="pointerLockEnabled: false" wasd-controls="fly: true; acceleration: 600;" position="0 0 150">'
-+ '    <a-text id="forcegraph-tooltip" font="./assets/font3d/RobotoSlab-Regular-msdf.json" position="0 -0.25 -1" width="2" align="center" color="#9B9691"></a-text>'
-+ '  </a-camera>'
++ '  <a-camera look-controls="pointerLockEnabled: false" wasd-controls="fly: true; acceleration: 300;" position="0 0 150" camera-focus-target></a-camera>'
+//+ '    <a-entity position="0 0 0">'
+//+ '      <a-text id="forcegraph-tooltip" font="./assets/font3d/RobotoSlab-Regular-msdf.json" position="0 0 0" width="0.5" align="left" color="#9B9691"></a-text>'
+//+ '    </a-entity>'
 + '  <a-assets></a-assets>'
 + '  <a-sky color="#FAF0E6"></a-sky>'
 + '</a-scene>'
++ '<div id="forcegraph-tooltip"></div>'
 + '<!-- END COLLECTION VIEWER -->'
+//END collectionViewerHTML for initCollectionViewer
+
+
+
+//START collectionViewerHTML for initCollectionViewer
+let arViewerHTML=
+'<!-- START AR VIEWER -->'
++ '<a-scene gltf-model="dracoDecoderPath: ./draco/">'
++ '</a-scene>'
++ '<!-- END AR VIEWER -->'
 //END collectionViewerHTML for initCollectionViewer
 
 
@@ -99,8 +124,13 @@ let collectionViewerHTML=
 //START Search URL Parameters
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
+if(urlParams.get('m')!=='m' ||	urlParams.get('m')!=='c' ||	urlParams.get('m')!=='a') {
+	initViewer(appStartHTML);
+	navListener();
+};
 urlParams.get('m')==='m' && initViewer(modelViewerHTML);
 urlParams.get('m')==='c' && initViewer(collectionViewerHTML);
+urlParams.get('m')==='a' && initViewer(arViewerHTML);
 //END Search URL Parameters
 
 
@@ -110,6 +140,25 @@ function initViewer(html) {
 	document.querySelector('body').innerHTML = html;
 }
 //END initViewer
+
+
+
+//START nav EventListener
+function navListener() {
+	document.querySelector('#collection').addEventListener('click', (evt) => {
+		let url='?m=c&dev=true';
+  		window.location.href = url;
+	});
+	document.querySelector('#model').addEventListener('click', (evt) => {
+		let url='?m=m&model=6D0549BE-3890-8245-9D95-9B5E526327DB';
+  		window.location.href = url;
+	});
+	document.querySelector('#ar').addEventListener('click', (evt) => {
+		let url='?m=a&model=6D0549BE-3890-8245-9D95-9B5E526327DB';
+  		window.location.href = url;
+	});
+}
+//END nav EventListener
 
 
 

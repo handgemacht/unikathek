@@ -7,6 +7,7 @@ const dirPath_Files = './files/';
 const dirPath_CollectionJSON = 'json/handgemacht-collection.json';
 let loadMV = false;
 let primaryKey;
+let setError = '';
 //END Global Variables
 
 
@@ -16,7 +17,7 @@ const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 urlParams.get('dev')==='true' ? devMode=true : devMode=false;
 urlParams.get('m')==='m' ? loadMV=true : loadMV=false;
-urlParams.get('model') ? primaryKey=urlParams.get('model') : primaryKey='00000000-0000-0000-0000-000000000000';
+urlParams.get('model') ? primaryKey=urlParams.get('model') : setError = '001';
 //END Search URL Parameters
 
 
@@ -25,14 +26,27 @@ urlParams.get('model') ? primaryKey=urlParams.get('model') : primaryKey='0000000
 window.addEventListener('DOMContentLoaded', () => {
 
   //JSON fetch and loading model viewer
-  loadMV && fetch(dirPath_Files + 'json/' + primaryKey + '.json')
+  if(loadMV && !setError){
+    fetch(dirPath_Files + 'json/' + primaryKey + '.json')
     .then((response) => response.json())
     .then((json) => {
       loadModelViewer(json);
     });
+  }else if(loadMV && setError === '001'){
+    falsePrimKey();
+  }
 
 });
 //END DOM Manipulation
+
+
+
+//START falsePrimKey
+function falsePrimKey() {
+  let url='?m=c&error=001';
+  window.location.href = url;
+}
+//END falsePrimKey
 
 
 
