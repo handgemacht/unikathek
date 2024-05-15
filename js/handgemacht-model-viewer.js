@@ -3,7 +3,7 @@
 
 //START Global Variables
 let devMode = false;
-const dirPath_Files = '../files/';
+const dirPath_Files = './files/';
 const dirPath_CollectionJSON = 'json/handgemacht-collection.json';
 let loadMV = false;
 let primaryKey;
