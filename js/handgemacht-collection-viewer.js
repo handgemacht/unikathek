@@ -82,9 +82,9 @@ AFRAME.registerComponent('load-json-models', {
 					'category': category, 
 					'name': category, 
 					'type': 'node-category',
-					'color': '#FF00FF',
+					'color': '#FFC800',
 					'opacity': 0.5, 
-					'val': 20, 
+					'val': 0.01, 
 					'gltf': '' 
 				};
 				if(category !== ''){
@@ -99,7 +99,7 @@ AFRAME.registerComponent('load-json-models', {
 					'category': object.categorys[0], 
 					'name': object.name, 
 					'type': 'node-object',
-					'color': '#FFFFFF', 
+					'color': '#000000', 
 					'opacity': 0, 
 					'val': 0, 
 					'gltf': ''
@@ -116,8 +116,8 @@ AFRAME.registerComponent('load-json-models', {
 							'target': object.primaryKey, 
 							'name': category,
 							'type': 'link-category',
-							'value': 10,
-							'color': '#FF00FF'
+							'value': 0,
+							'color': '#FFC800'
 						};
 						fgData.links.push(newLink);
 					}
@@ -134,8 +134,8 @@ AFRAME.registerComponent('load-json-models', {
 								'target': object2.primaryKey, 
 								'name': tag,
 								'type': 'link-tag',
-								'value': 1,
-								'color': '#000000'
+								'value': 0,
+								'color': '#46AAC8'
 							};
 							fgData.links.push(newLink);
 						}
@@ -198,11 +198,11 @@ AFRAME.registerComponent('load-json-models', {
 					newEntity.setAttribute('forcegraph', {
 						nodes: newNodes,
 						links: newLinks,
-						warmupTicks: 100,
-						linkOpacity: 0.1,
-						linkCurvature: 0,
-						linkWidth: 0.5,
-						nodeRelSize: 4,
+						warmupTicks: 0,
+						linkOpacity: 0.25,
+						linkCurvature: 0.1,
+						linkWidth: 0.2,
+						nodeRelSize: 10,
 						nodeThreeObjectExtend: false,
 						onLinkHover: link => { 
 							fgTooltipHandler(link);
@@ -327,7 +327,7 @@ AFRAME.registerComponent('camera-focus-target', {
 		//set focus element
 		this.focusEl.setAttribute('position', this.camera.position.x + ' ' + this.camera.position.y + ' ' + this.camera.position.z);
 		//geometry for debugging
-		devMode && this.focusEl.setAttribute('geometry', 'primitive: cone; height: 40; radius-top: 0; radius-bottom: 1');
+		devMode && this.focusEl.setAttribute('geometry', 'primitive: cone; height: 10; radius-top: 0; radius-bottom: 1');
 
 		//set new camera position in front of object
 		let newCameraPosition = new THREE.Vector3(); 

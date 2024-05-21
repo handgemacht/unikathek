@@ -59,10 +59,6 @@ function loadModelViewer(modelJSON) {
   loadContent(modelJSON, modelViewer, annotationContainer);
 
   devMode && console.log(modelViewer);
-  modelViewer.dataset.cameraOrbit = '1.5292885498579336rad 1.5746998961954812rad 4.623746050667694m';
-  modelViewer.dataset.cameraTarget = '0.15940660993146252m 0.09032926525484263m -0.006002114165868171m';
-  modelViewer.dataset.fieldOfView = '20.46845334942335deg';
-
 
   //hide context story on small screens
   let isMobile = window.matchMedia('only screen and (max-width: 600px)').matches;
@@ -306,9 +302,9 @@ function toolbarBehavior(modelViewer, annotationContainer) {
     //ar-button
     if(toolFunction === 'ar' && toolActive === 'true'){
       document.querySelector('#main-viewer').activateAR();
-      document.querySelector('.ar-loading-container').classList.remove('hide');
+      document.querySelector('.loading-animation-container').classList.remove('hide');
     }else if(toolFunction === 'ar' && (toolActive === 'false' || state === 'inactive')){
-      document.querySelector('.ar-loading-container').classList.add('hide');
+      document.querySelector('.loading-animation-container').classList.add('hide');
     }  
   };
   toolbarBehavior.toggleToolState = toggleToolState;
@@ -354,8 +350,6 @@ function hotspotBehavior(modelViewer, annotationContainer) {
           annotation.querySelectorAll('audio').forEach((audio) => {
             audio.currentTime = 0;
           });
-          let audioFiles = annotation.querySelectorAll('audio');
-          audioFiles[0].play();
         }
       });
     }
