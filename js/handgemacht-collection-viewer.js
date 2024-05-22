@@ -28,7 +28,7 @@ urlParams.get('m')==='c' ? loadCV=true : loadCV=false;
 
 //START DOM Manipulation 
 window.addEventListener("DOMContentLoaded", () => {
-
+	devMode && document.querySelector('a-scene').setAttribute('stats', '');
 });
 //END DOM Manipulation
 
@@ -43,6 +43,15 @@ AFRAME.registerComponent('load-json-models', {
 
 		init: function () {
 			const comp = this;
+
+			//create category model 
+			this.categoryModelEl = document.createElement('a-entity');
+			this.categoryModelEl.setAttribute('id', 'category-model');
+			this.categoryModelEl.setAttribute('geometry', 'primitive: sphere; radius: 2');
+			this.categoryModelEl.setAttribute('material', 'color: #FFC800; shader: flat');
+			this.categoryModelEl.setAttribute('visible', false);
+			this.el.sceneEl.appendChild(this.categoryModelEl);
+
 			comp.loadJSONObjects();
 
 			this.el.sceneEl.addEventListener("JSON-models-loaded", (e) => {
@@ -83,8 +92,8 @@ AFRAME.registerComponent('load-json-models', {
 					'name': category, 
 					'type': 'node-category',
 					'color': '#FFC800',
-					'opacity': 0.5, 
-					'val': 0.01, 
+					'opacity': 1, 
+					'val': 0.1, 
 					'gltf': '' 
 				};
 				if(category !== ''){
@@ -198,12 +207,14 @@ AFRAME.registerComponent('load-json-models', {
 					newEntity.setAttribute('forcegraph', {
 						nodes: newNodes,
 						links: newLinks,
-						warmupTicks: 0,
-						linkOpacity: 0.25,
-						linkCurvature: 0.1,
-						linkWidth: 0.2,
-						nodeRelSize: 10,
-						nodeThreeObjectExtend: false,
+						warmupTicks: 1000,
+						cooldownTicks: 1,
+						linkWidth: 0.3,
+						linkCurvature: 0.15,
+						linkThreeObjectExtend: true,
+						nodeRelSize: 6,
+						nodeThreeObjectExtend: true,
+						nodeOpacity: 0,
 						onLinkHover: link => { 
 							fgTooltipHandler(link);
 						},
@@ -227,6 +238,7 @@ AFRAME.registerComponent('load-json-models', {
 		}, 
 
 		assignModelsToNodes: function () {
+			let sceneEl = document.querySelector('a-scene');
 			let scene = document.querySelector('a-scene').object3D;
 			let fgComp = document.querySelector('#forcegraph').getAttribute('forcegraph');
 
@@ -234,7 +246,7 @@ AFRAME.registerComponent('load-json-models', {
 				let thisNode = fgComp.nodes[node];
 				for (let child in scene.children){
 					let thisChild = scene.children[child];
-					if(thisNode.id != '' && thisChild.name != '' && thisChild.name === thisNode.id){
+					if(thisNode.id != '' && thisChild.name != '' && thisChild.name === thisNode.id && thisNode.type === 'node-object'){
 						
 						//find highest value of x, y, z in bounding box of object
 						let bBoxSize = new THREE.Vector3();
@@ -251,6 +263,10 @@ AFRAME.registerComponent('load-json-models', {
 						//devMode && console.log('dev --- normScale: ', normScale);
 						
 						thisNode.gltf = thisChild.children[0];
+						devMode && console.log('dev --- thisNode: ', thisNode);
+					}else if(thisNode.id != '' && thisChild.name != '' && thisNode.type === 'node-category' ){
+						thisNode.gltf = sceneEl.querySelector('#category-model').object3D.children[0].clone();
+						devMode && console.log('dev --- thisNode: ', thisNode);
 					}
 				}
 			}
@@ -259,7 +275,6 @@ AFRAME.registerComponent('load-json-models', {
 				nodeThreeObject: node => { return node.gltf; }
 			});
 
-			devMode && console.log('dev --- forcegraph Component: ', fgComp);
 		}
 
 });
