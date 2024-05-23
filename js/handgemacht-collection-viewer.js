@@ -29,6 +29,7 @@ urlParams.get('m')==='c' ? loadCV=true : loadCV=false;
 //START DOM Manipulation 
 window.addEventListener("DOMContentLoaded", () => {
 	devMode && document.querySelector('a-scene').setAttribute('stats', '');
+	devMode && console.log('dev --- scene', document.querySelector('a-scene').object3D);
 });
 //END DOM Manipulation
 
@@ -50,13 +51,30 @@ AFRAME.registerComponent('load-json-models', {
 			this.categoryModelEl.setAttribute('geometry', 'primitive: sphere; radius: 2');
 			this.categoryModelEl.setAttribute('material', 'color: #FFC800; shader: flat');
 			this.categoryModelEl.setAttribute('visible', false);
-			this.el.sceneEl.appendChild(this.categoryModelEl);
+			this.el.sceneEl.querySelector('a-assets').appendChild(this.categoryModelEl);
+
+			//create link category model 
+			this.linkCategoryModelEl = document.createElement('a-entity');
+			this.linkCategoryModelEl.setAttribute('id', 'link-category-model');
+			this.linkCategoryModelEl.setAttribute('geometry', 'primitive: sphere; radius: 2');			
+			this.linkCategoryModelEl.setAttribute('material', 'color: #FFC800; shader: flat; opacity: 0.2');
+			this.linkCategoryModelEl.setAttribute('visible', false);
+			this.el.sceneEl.querySelector('a-assets').appendChild(this.linkCategoryModelEl);
+
+			//create link tag model 
+			this.linkTagModelEl = document.createElement('a-entity');
+			this.linkTagModelEl.setAttribute('id', 'link-tag-model');
+			this.linkTagModelEl.setAttribute('geometry', 'primitive: sphere; radius: 2');			
+			this.linkTagModelEl.setAttribute('material', 'color: #46AAC8; shader: flat; opacity: 0.2');
+			this.linkTagModelEl.setAttribute('visible', false);
+			this.el.sceneEl.querySelector('a-assets').appendChild(this.linkTagModelEl);
 
 			comp.loadJSONObjects();
 
 			this.el.sceneEl.addEventListener("JSON-models-loaded", (e) => {
 				devMode && console.log('dev --- JSON-models-loaded', e);
 				comp.assignModelsToNodes();	
+				comp.assignModelToLinks();
 			}, {once: true});
 		},
 
@@ -93,7 +111,7 @@ AFRAME.registerComponent('load-json-models', {
 					'type': 'node-category',
 					'color': '#FFC800',
 					'opacity': 1, 
-					'val': 0.1, 
+					'val': 0, 
 					'gltf': '' 
 				};
 				if(category !== ''){
@@ -110,7 +128,7 @@ AFRAME.registerComponent('load-json-models', {
 					'type': 'node-object',
 					'color': '#000000', 
 					'opacity': 0, 
-					'val': 0, 
+					'val': 1, 
 					'gltf': ''
 				};
 				fgData.nodes.push(newObject);
@@ -126,7 +144,8 @@ AFRAME.registerComponent('load-json-models', {
 							'name': category,
 							'type': 'link-category',
 							'value': 0,
-							'color': '#FFC800'
+							'color': '#FFC800',
+							'gltf': ''
 						};
 						fgData.links.push(newLink);
 					}
@@ -144,7 +163,8 @@ AFRAME.registerComponent('load-json-models', {
 								'name': tag,
 								'type': 'link-tag',
 								'value': 0,
-								'color': '#46AAC8'
+								'color': '#46AAC8',
+								'gltf': ''
 							};
 							fgData.links.push(newLink);
 						}
@@ -212,7 +232,7 @@ AFRAME.registerComponent('load-json-models', {
 						linkWidth: 0.3,
 						linkCurvature: 0.15,
 						linkThreeObjectExtend: true,
-						nodeRelSize: 6,
+						nodeRelSize: 1,
 						nodeThreeObjectExtend: true,
 						nodeOpacity: 0,
 						onLinkHover: link => { 
@@ -263,16 +283,40 @@ AFRAME.registerComponent('load-json-models', {
 						//devMode && console.log('dev --- normScale: ', normScale);
 						
 						thisNode.gltf = thisChild.children[0];
-						devMode && console.log('dev --- thisNode: ', thisNode);
+						//devMode && console.log('dev --- thisNode: ', thisNode);
 					}else if(thisNode.id != '' && thisChild.name != '' && thisNode.type === 'node-category' ){
-						thisNode.gltf = sceneEl.querySelector('#category-model').object3D.children[0].clone();
-						devMode && console.log('dev --- thisNode: ', thisNode);
+						thisNode.gltf = this.categoryModelEl.object3D.children[0].clone();
+						//devMode && console.log('dev --- thisNode: ', thisNode);
 					}
 				}
 			}
 
 			document.querySelector('#forcegraph').setAttribute('forcegraph', {
 				nodeThreeObject: node => { return node.gltf; }
+			});
+
+		}, 
+
+		assignModelToLinks: function () {
+			let sceneEl = document.querySelector('a-scene');
+			let scene = document.querySelector('a-scene').object3D;
+			let fgComp = document.querySelector('#forcegraph').getAttribute('forcegraph');
+
+			for(let link in fgComp.links){
+				let thisLink = fgComp.links[link];
+					if(thisLink.id != '' && thisLink.type === 'link-category'){
+						thisLink.gltf = this.linkCategoryModelEl.object3D.children[0].clone();
+						devMode && console.log('dev --- thisLink: ', thisLink);
+					}else if(thisLink.id != '' && thisLink.type === 'link-tag'){
+						thisLink.gltf = this.linkTagModelEl.object3D.children[0].clone();
+						devMode && console.log('dev --- thisLink: ', thisLink);
+					}
+			}
+
+			document.querySelector('#forcegraph').setAttribute('forcegraph', {
+				//bug? link objects are placed at 0 0 0 for some reason
+				//linkThreeObject: link => { return link.gltf; },
+				linkMaterial: link => { return link.gltf.material; }
 			});
 
 		}
