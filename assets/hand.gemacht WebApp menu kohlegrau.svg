@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="content" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 47.72">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #41403f;
+        stroke-width: 0px;
+      }
+    </style>
+  </defs>
+  <path class="cls-1" d="M20.49-6.72h1.57c3,0,5.44,2.44,5.44,5.44v31.25h-1.57c-3,0-5.44-2.44-5.44-5.44V-6.72h0Z" transform="translate(35.62 -12.38) rotate(90)"/>
+  <path class="cls-1" d="M20.49,17.85h1.56c3.01,0,5.45,2.44,5.45,5.45v31.24h-1.56c-3.01,0-5.45-2.44-5.45-5.45v-31.24h0Z" transform="translate(60.2 12.2) rotate(90)"/>
+  <path class="cls-1" d="M20.49,5.56h1.56c3.01,0,5.45,2.44,5.45,5.45v31.24h-1.56c-3.01,0-5.45-2.44-5.45-5.45V5.56h0Z" transform="translate(47.91 -.09) rotate(90)"/>
+</svg>

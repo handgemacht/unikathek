@@ -2,35 +2,383 @@
 
 
 //START Global Variables
+let setError = '';
 //END Global Variables
 
-//START infoHTML
-let infoHTML =
-'<!-- START INFO AND UTILITY -->'
-+ '<div class="version-container">Version: a0.8-2025/05/16</div>'
-+ '<div class="logo-container">'
-+ '  <img src="assets/hand.gemacht Logo-kohlegrau.svg" alt="hand.gemacht Logo" class="logo" width="100px" height="100px">'
-+ '</div>'
-+ '<div class="loading-animation-container">'
-+ '  <object type="image/svg+xml" data="assets/hand.gemacht loading.svg" alt="hand.gemacht Lade-Animation" class="loading-animation" width="100px" height="100px"></object>'
-+ '</div>'
-+ '<div class="fullscreen-image-container hide">'
-+ ' <img class="fullscreen-image hide" src="" alt="" width="100px" height="100px">'
-+ '</div>'
-+ '<!-- END INFO AND UTILITY -->'
-//END infoHTML
 
 
-//START appStartHTML
-let appStartHTML=
-'<!-- START AR VIEWER -->'
-+ '<div class="flex-container">'
-+ '  <button id="collection" class="nav">Sammlung</button>'
-+ '  <button id="model" class="nav">Modell</button>'
-+ '  <button id="ar" class="nav">AR</button>'
-+ '</div>'
-+ '<!-- END AR VIEWER -->'
-//END appStartHTML
+//START app 
+const app = {
+	title: 'Kulturspur',
+	version: 'Version: a0.8-2025/05/16',
+	devMode: false,
+	viewerMode: false,
+
+	init() {
+		this.gui.init();
+
+		this.devMode = this.getDevModeFromURL();
+		this.viewerMode = this.getViewerModeFromURL();
+		this.devMode && console.log('dev --- viewerMode: ', this.viewerMode);
+
+		if (!this.viewerMode) {
+			//redirect to collection viewer if no viewerMode is set in URL
+			let url='?m=c';
+			this.devMode ? url='?m=c&dev=true' : '';
+  			window.location.href = url;
+		}
+
+		if (this.viewerMode === 'c') {
+			this.collectionViewer.init();
+			app.gui.loadingScreen.content = 'loading collection';
+			app.gui.loadingScreen.show();
+		}
+
+		if (this.viewerMode === 'm') {
+		}
+
+		if (this.viewerMode === 'a') {
+		}		
+		
+	}, //init
+
+	gui: {
+			
+		init() {
+			this.title.init();
+			this.logo.init();
+			this.version.init();
+			this.loadingScreen.init();
+			this.error.init();
+			this.menu.init();
+		},
+
+		title: {
+			
+			init() {
+				this.createElements();
+			},
+
+			createElements() {
+				const guiTitle = document.createElement('div');
+				document.body.appendChild(guiTitle);
+				guiTitle.className = 'gui-title';
+				guiTitle.appendChild(document.createTextNode(app.title));
+			}
+		},
+
+		logo: {
+			src: 'assets/hand.gemacht logo kohlegrau.svg',
+			alt: 'hand.gemacht Logo',
+
+			init() {
+				this.createElements();
+			},
+
+			createElements() {
+				const guiLogo = document.createElement('div');
+				document.body.appendChild(guiLogo);
+				guiLogo.className = 'gui-logo';
+		
+				const guiLogoImage = document.createElement('img');
+				guiLogo.appendChild(guiLogoImage);
+				guiLogoImage.className = 'logo';
+				guiLogoImage.src = this.src;
+				guiLogoImage.alt = this.alt;
+				guiLogoImage.width = 100;
+				guiLogoImage.height = 100;
+			}
+		},
+
+		version: {
+			
+			init() {
+				this.createElements();
+			},
+
+			createElements() {
+				const guiVersion = document.createElement('div');
+				document.body.appendChild(guiVersion);
+				guiVersion.className = 'gui-version';
+				guiVersion.appendChild(document.createTextNode(app.version));
+			}
+		},
+
+		loadingScreen: {
+			content: 'loading...',
+
+			init() {
+				this.createElements();
+			}, 
+
+			createElements() {
+				const guiLoadingScreen = document.createElement('div');
+				this.loadingScreenEl = guiLoadingScreen;
+				document.body.appendChild(guiLoadingScreen);
+				guiLoadingScreen.className = 'gui-loading-screen hide';
+		
+				const guiLoadingAnimation = document.createElement('object');
+				this.loadingAnimationEl = guiLoadingAnimation;
+				guiLoadingScreen.appendChild(guiLoadingAnimation);
+				guiLoadingAnimation.className = 'gui-loading-animation';
+				guiLoadingAnimation.type = 'image/svg+xml';
+				guiLoadingAnimation.data = 'assets/hand.gemacht loading.svg';
+				guiLoadingAnimation.alt = 'hand.gemacht Lade-Animation';
+				guiLoadingAnimation.width = '100px';
+				guiLoadingAnimation.height = '100px';
+		
+				const guiLoadingText = document.createElement('div');
+				this.loadingTextEl = guiLoadingText;
+				guiLoadingScreen.appendChild(guiLoadingText);
+				guiLoadingText.className = 'gui-loading-text';
+				guiLoadingText.appendChild(document.createTextNode(this.content));
+			}, 
+
+			show() {
+				this.loadingScreenEl.classList.remove('hide');
+				this.loadingTextEl.innerHTML = this.content;
+			}, 
+
+			hide() {
+				this.loadingScreenEl.classList.add('hide');
+			}
+		},
+
+		error: {
+			content: 'error ...',
+			buttonText: 'OK',
+
+			init() {
+				this.createElements();
+			}, 
+
+			createElements() {
+				const guiError = document.createElement('div');
+				this.errorEl = guiError;
+				document.body.appendChild(guiError);
+				guiError.className = 'gui-error hide';
+				guiError.appendChild(document.createTextNode(this.content));
+
+				const guiErrorButton = document.createElement('button');
+				this.errorButtonEl = guiErrorButton;
+				guiError.appendChild(guiErrorButton);
+				guiErrorButton.className = 'gui-error-button hide';
+				guiErrorButton.appendChild(document.createTextNode(this.buttonText));
+			}
+		},
+	
+		menu: {
+			content: 'Mehr über uns erfährst du hier:',
+	
+			init(){
+				this.createElements();
+				this.setEventListener();
+			},
+	
+			createElements() {
+				const burgerContainer = document.createElement('div');
+				this.burgerEl = burgerContainer;
+				document.body.appendChild(burgerContainer);
+				burgerContainer.className = 'gui-menu-icon';
+	
+				const burgerSymbol = document.createElement('img');
+				this.burgerSymbolEl = burgerSymbol;
+				burgerContainer.appendChild(burgerSymbol);
+				burgerSymbol.className = 'gui-menu-icon-symbol';
+				burgerSymbol.src = 'assets/hand.gemacht WebApp menu kohlegrau.svg';
+				burgerSymbol.alt = 'Menu-Icon';
+				burgerSymbol.width = 100;
+				burgerSymbol.height = 100;
+	
+				const container = document.createElement('div');
+				this.containerEl = container;
+				document.body.appendChild(container);
+				container.className = 'gui-menu-container hide';
+	
+				const closeContainer = document.createElement('div');
+				this.closeEl = closeContainer;
+				container.appendChild(closeContainer);
+				closeContainer.className = 'gui-menu-close';
+	
+				const closeSymbol = document.createElement('img');
+				closeContainer.appendChild(closeSymbol);
+				closeSymbol.className = 'gui-menu-close-symbol';
+				closeSymbol.src = 'assets/hand.gemacht WebApp close perlweiss.svg';
+				closeSymbol.alt = 'Schließen-Icon';
+				closeSymbol.width = 100;
+				closeSymbol.height = 100;
+	
+				const logoContainer = document.createElement('div');
+				container.appendChild(logoContainer);
+				logoContainer.className = 'gui-menu-logo';
+	
+				const logoImage = document.createElement('img');
+				logoContainer.appendChild(logoImage);
+				logoImage.className = 'logo';
+				logoImage.src = 'assets/hand.gemacht logo perlweiss.svg';
+				logoImage.alt = 'hand.gemacht Logo';
+				logoImage.width = 100;
+				logoImage.height = 100;
+	
+				const title = document.createElement('div');
+				container.appendChild(title);
+				title.className = 'gui-menu-title';
+				title.appendChild(document.createTextNode(app.title));
+	
+				const content = document.createElement('div');
+				container.appendChild(content);
+				content.className = 'gui-menu-text';
+				content.appendChild(document.createTextNode(this.content));
+	
+				const buttons = document.createElement('div');
+				container.appendChild(buttons);
+				buttons.className = 'gui-menu-buttons';
+	
+				const buttonsLinkProject = document.createElement('a');
+				buttonsLinkProject.href = '#'; //Links anpassen
+				buttons.appendChild(buttonsLinkProject);
+				const projectButton = document.createElement('button');
+				buttonsLinkProject.appendChild(projectButton);
+				projectButton.appendChild(document.createTextNode('Das Projekt'));
+	
+				const buttonsLinkPatronage = document.createElement('a');
+				buttonsLinkPatronage.href = '#'; //Links anpassen
+				buttons.appendChild(buttonsLinkPatronage);
+				const patronageButton = document.createElement('button');
+				buttonsLinkPatronage.appendChild(patronageButton);
+				patronageButton.appendChild(document.createTextNode('Die Förderung'));
+	
+				const links = document.createElement('div');
+				container.appendChild(links);
+				links.className = 'gui-menu-links';
+	
+				const linksLinkContact = document.createElement('a');
+				linksLinkContact.href = '#'; //Links anpassen
+				links.appendChild(linksLinkContact);
+				linksLinkContact.appendChild(document.createTextNode('Kontakt'));
+	
+				const linksLinkImprint = document.createElement('a');
+				linksLinkImprint.href = '#'; //Links anpassen
+				links.appendChild(linksLinkImprint);
+				linksLinkImprint.appendChild(document.createTextNode('Impressum'));
+	
+				const version = document.createElement('div');
+				container.appendChild(version);
+				version.className = 'gui-menu-version';
+				version.appendChild(document.createTextNode(app.version));
+	
+				const patronage = document.createElement('div');
+				container.appendChild(patronage);
+				patronage.className = 'gui-menu-patronage-logo';
+	
+				const patronageImage = document.createElement('img');
+				patronage.appendChild(patronageImage);
+				patronageImage.className = 'logo';
+				patronageImage.src = 'assets/stmfh foerderung.png';
+				patronageImage.alt = 'Bayerisches Staatsministerium der Finanzen und für Heimat als Förderer Logo';
+				patronageImage.width = 100;
+				patronageImage.height = 100;
+			},
+	
+			setEventListener() {
+				if(this.closeEl) {
+					this.closeEl.addEventListener('click', (evt) => {
+						this.close();
+					});
+				}
+				if(this.burgerEl) {
+					this.burgerEl.addEventListener('click', (evt) => {
+						this.open();
+					});
+				}
+			},
+	
+			open() {
+				if(this.containerEl && this.burgerEl) {
+					this.containerEl.classList.remove('hide');
+					this.burgerEl.classList.add('hide');
+				}	
+			},
+	
+			close() {
+				if(this.containerEl && this.burgerEl) {
+					this.containerEl.classList.add('hide');
+					this.burgerEl.classList.remove('hide');
+				}
+			}
+		}
+	}, //gui
+
+	collectionViewer: {
+
+		init() {
+			this.createElements();
+		},
+
+		createElements() {
+
+			const collectionViewerElement = document.createElement('a-scene');
+			this.collectionViewerEl = collectionViewerElement;
+			document.body.appendChild(collectionViewerElement);
+			collectionViewerElement.className = 'hide';
+			collectionViewerElement.setAttribute('gltf-model', 'dracoDecoderPath: ./draco/');
+			collectionViewerElement.setAttribute('load-json-models', '');
+			collectionViewerElement.setAttribute('xr-mode-ui', 'enabled: false');
+
+			const cursorEntity = document.createElement('a-entity');
+			collectionViewerElement.appendChild(cursorEntity);
+			cursorEntity.setAttribute('cursor', 'rayOrigin: mouse; mouseCursorStylesEnabled: true');
+			cursorEntity.setAttribute('raycaster', 'objects: [forcegraph]');
+
+			const camera = document.createElement('a-camera');
+			collectionViewerElement.appendChild(camera);
+			camera.setAttribute('look-controls', 'pointerLockEnabled: false');
+			camera.setAttribute('wasd-controls', 'fly: true; acceleration: 300');
+			camera.setAttribute('position', '0 0 150');
+			camera.setAttribute('camera-focus-target', '');
+
+			const assets = document.createElement('a-assets');
+			collectionViewerElement.appendChild(assets);
+
+			const sky = document.createElement('a-sky');
+			collectionViewerElement.appendChild(sky);
+			sky.setAttribute('color', '#FAF0E6');
+
+			const forcegraphTooltip = document.createElement('div');
+			document.body.appendChild(forcegraphTooltip);
+			forcegraphTooltip.className = 'hide';
+			forcegraphTooltip.id = 'forcegraph-tooltip';
+
+		}
+	},
+
+	getViewerModeFromURL() {
+		const queryString = window.location.search;
+		this.urlParams = new URLSearchParams(queryString);
+
+		if(this.urlParams.get('m')==='m' ||	this.urlParams.get('m')==='c' || this.urlParams.get('m')==='a') {
+			return this.urlParams.get('m');
+		}else{
+			return false;
+		}
+	},
+
+	getDevModeFromURL() {
+		const queryString = window.location.search;
+		this.urlParams = new URLSearchParams(queryString);
+
+		if(this.urlParams.get('dev')==='true') {
+			return true;
+		}else{
+			return false;
+		}
+	}
+}
+
+//END app 
+
+app.init();
+export { app };
 
 
 
@@ -92,72 +440,10 @@ let modelViewerHTML =
 
 
 
-//START collectionViewerHTML
-let collectionViewerHTML=
-'<!-- START COLLECTION VIEWER -->'
-+ '<a-scene gltf-model="dracoDecoderPath: ./draco/" load-json-models xr-mode-ui="enabled: false">'
-+ '	 <a-entity cursor="rayOrigin: mouse; mouseCursorStylesEnabled: true;" raycaster="objects: [forcegraph];"></a-entity>'
-+ '  <a-camera look-controls="pointerLockEnabled: false" wasd-controls="fly: true; acceleration: 300;" position="0 0 150" camera-focus-target></a-camera>'
-//+ '    <a-entity position="0 0 0">'
-//+ '      <a-text id="forcegraph-tooltip" font="./assets/font3d/RobotoSlab-Regular-msdf.json" position="0 0 0" width="0.5" align="left" color="#9B9691"></a-text>'
-//+ '    </a-entity>'
-+ '  <a-assets></a-assets>'
-+ '  <a-sky color="#FAF0E6"></a-sky>'
-+ '</a-scene>'
-+ '<div id="forcegraph-tooltip" class="hide"></div>'
-+ '<!-- END COLLECTION VIEWER -->'
-//END collectionViewerHTML
 
 
 
-//START arViewerHTML
-let arViewerHTML=
-'<!-- START AR VIEWER -->'
-+ '<a-scene gltf-model="dracoDecoderPath: ./draco/">'
-+ '</a-scene>'
-+ '<!-- END AR VIEWER -->'
-//END arViewerHTML
 
-
-
-//START Search URL Parameters
-const queryString = window.location.search;
-const urlParams = new URLSearchParams(queryString);
-if(urlParams.get('m')!=='m' ||	urlParams.get('m')!=='c' ||	urlParams.get('m')!=='a') {
-	initViewer(appStartHTML);
-	navListener();
-};
-urlParams.get('m')==='m' && initViewer(infoHTML+modelViewerHTML);
-urlParams.get('m')==='c' && initViewer(infoHTML+collectionViewerHTML);
-urlParams.get('m')==='a' && initViewer(infoHTML+arViewerHTML);
-//END Search URL Parameters
-
-
-
-//START initViewer
-function initViewer(html) {
-	document.querySelector('body').innerHTML = html;
-}
-//END initViewer
-
-
-
-//START nav EventListener
-function navListener() {
-	document.querySelector('#collection').addEventListener('click', (evt) => {
-		let url='?m=c&dev=true';
-  		window.location.href = url;
-	});
-	document.querySelector('#model').addEventListener('click', (evt) => {
-		let url='?m=m&model=6D0549BE-3890-8245-9D95-9B5E526327DB';
-  		window.location.href = url;
-	});
-	document.querySelector('#ar').addEventListener('click', (evt) => {
-		let url='?m=a&model=6D0549BE-3890-8245-9D95-9B5E526327DB';
-  		window.location.href = url;
-	});
-}
-//END nav EventListener
 
 
 

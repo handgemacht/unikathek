@@ -1,6 +1,9 @@
 
 
 
+import { app } from './handgemacht-main.js';
+
+
 //START Global Variables
 let devMode = false;
 const dirPath_Files = './files/';
@@ -12,6 +15,8 @@ var loader = new THREE.GLTFLoader();
 const dracoLoader = new THREE.DRACOLoader();
 dracoLoader.setDecoderPath( './draco/' );
 loader.setDRACOLoader( dracoLoader );
+
+
 
 //END Global Variables
 
@@ -65,7 +70,7 @@ AFRAME.registerComponent('load-json-models', {
 			this.linkTagModelEl = document.createElement('a-entity');
 			this.linkTagModelEl.setAttribute('id', 'link-tag-model');
 			this.linkTagModelEl.setAttribute('geometry', 'primitive: sphere; radius: 2');			
-			this.linkTagModelEl.setAttribute('material', 'color: #46AAC8; shader: flat; opacity: 0.2');
+			this.linkTagModelEl.setAttribute('material', 'color: #9B9691; shader: flat; opacity: 0.2');
 			this.linkTagModelEl.setAttribute('visible', false);
 			this.el.sceneEl.querySelector('a-assets').appendChild(this.linkTagModelEl);
 
@@ -75,6 +80,8 @@ AFRAME.registerComponent('load-json-models', {
 				devMode && console.log('dev --- JSON-models-loaded', e);
 				comp.assignModelsToNodes();	
 				comp.assignModelToLinks();
+				this.el.sceneEl.classList.remove('hide');
+				app.gui.loadingScreen.hide();
 			}, {once: true});
 		},
 
@@ -163,7 +170,7 @@ AFRAME.registerComponent('load-json-models', {
 								'name': tag,
 								'type': 'link-tag',
 								'value': 0,
-								'color': '#46AAC8',
+								'color': '#9B9691',
 								'gltf': ''
 							};
 							fgData.links.push(newLink);
@@ -205,7 +212,7 @@ AFRAME.registerComponent('load-json-models', {
 								gltf.scene.visible = false;
 								scene.add( gltf.scene );
 							}, (xhr) =>{ 
-								devMode && console.log( ( 'dev --- load model: ' + object.name + ' - ' + xhr.loaded / xhr.total * 100 ) + '% loaded' );
+								//devMode && console.log( ( 'dev --- load model: ' + object.name + ' - ' + xhr.loaded / xhr.total * 100 ) + '% loaded' );
 							}, (error) => {		
 								console.log( 'An error happened: ' + error );
 							});
@@ -306,10 +313,10 @@ AFRAME.registerComponent('load-json-models', {
 				let thisLink = fgComp.links[link];
 					if(thisLink.id != '' && thisLink.type === 'link-category'){
 						thisLink.gltf = this.linkCategoryModelEl.object3D.children[0].clone();
-						devMode && console.log('dev --- thisLink: ', thisLink);
+						//devMode && console.log('dev --- thisLink: ', thisLink);
 					}else if(thisLink.id != '' && thisLink.type === 'link-tag'){
 						thisLink.gltf = this.linkTagModelEl.object3D.children[0].clone();
-						devMode && console.log('dev --- thisLink: ', thisLink);
+						//devMode && console.log('dev --- thisLink: ', thisLink);
 					}
 			}
 
