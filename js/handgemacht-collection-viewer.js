@@ -342,7 +342,26 @@ AFRAME.registerComponent('camera-focus-target', {
 		}		
 	},
 
-	tick: function () {},
+	tick: function () {
+		if(this.data.target){
+			let canvas = document.querySelector('.a-canvas');
+			let targetPosition = new THREE.Vector3();
+
+			this.camera.children[0].updateMatrixWorld();
+
+			targetPosition.setFromMatrixPosition(this.data.target.__threeObj.matrixWorld);
+			targetPosition.project(this.camera.children[0])
+
+			let targetScreenPosition = {
+				x: Math.round((0.5 + targetPosition.x / 2) * (canvas.width / window.devicePixelRatio)),
+				y: Math.round((0.5 - targetPosition.y / 2) * (canvas.height / window.devicePixelRatio))
+			}
+
+			app.collectionViewer.tooltip.highlightEl.style.left = (targetScreenPosition.x - app.collectionViewer.tooltip.highlightContentEl.clientWidth / 2) + "px";
+			app.collectionViewer.tooltip.highlightEl.style.top = (targetScreenPosition.y + 50) + "px";
+		}
+		
+	},
 
 	remove: function () {},
 
@@ -386,7 +405,7 @@ AFRAME.registerComponent('camera-focus-target', {
 		cameraRotY < -180 ? cameraRotY = cameraRotY+360 : cameraRotY = cameraRotY;
 
 		//animation camera point to focus X
-		this.cameraEl.setAttribute('animation__cptt-x', {
+		this.cameraEl.setAttribute('animation__cft-x', {
 			'property': 'object3D.rotation.x',
 			'from': cameraRotX,
 			'to': newCameraRotX,
@@ -396,7 +415,7 @@ AFRAME.registerComponent('camera-focus-target', {
 		});
 
 		//animation camera point to focus Y
-		this.cameraEl.setAttribute('animation__cptt-y', {
+		this.cameraEl.setAttribute('animation__cft-y', {
 			'property': 'object3D.rotation.y',
 			'from': cameraRotY,
 			'to': newCameraRotY,
@@ -406,7 +425,7 @@ AFRAME.registerComponent('camera-focus-target', {
 		});
 
 		//animation camera point to focus Z
-		this.cameraEl.setAttribute('animation__cptt-z', {
+		this.cameraEl.setAttribute('animation__cft-z', {
 			'property': 'object3D.rotation.z',
 			'from': cameraRotZ,
 			'to': newCameraRotZ,
@@ -416,6 +435,8 @@ AFRAME.registerComponent('camera-focus-target', {
 		});
 
 		this.cameraEl.emit('anim-camera-focus-target', null, false);
+
+		app.collectionViewer.tooltip.onclickHandler(this.data.target);
 	},
 
 	lookAtVector: function (origin, target) {
@@ -435,7 +456,7 @@ AFRAME.registerComponent('camera-focus-target', {
 		let cameraEl = this.cameraEl;
 		let comp = this;
 
-		this.cameraEl.addEventListener('animationcomplete__cptt-z', (e) => {
+		this.cameraEl.addEventListener('animationcomplete__cft-z', (e) => {
 			comp.cameraFocusFinished();
 		});
 	}, 
@@ -445,9 +466,9 @@ AFRAME.registerComponent('camera-focus-target', {
 		let cameraEl = this.cameraEl;
 		let camera = this.camera;
 
-		cameraEl.removeAttribute('animation__cptt-x');
-		cameraEl.removeAttribute('animation__cptt-y');
-		cameraEl.removeAttribute('animation__cptt-z');
+		cameraEl.removeAttribute('animation__cft-x');
+		cameraEl.removeAttribute('animation__cft-y');
+		cameraEl.removeAttribute('animation__cft-z');
 
 		let cameraWorldPosition = new THREE.Vector3();
 		camera.getWorldPosition(cameraWorldPosition);
@@ -457,8 +478,7 @@ AFRAME.registerComponent('camera-focus-target', {
 		cameraEl.setAttribute('my-look-controls', {enabled: true, orientation: {'position': cameraWorldPosition, 'rotation': cameraWorldRotation}});
 		cameraEl.setAttribute('wasd-controls', {enabled: true});
 
-		app.collectionViewer.tooltip.onclickHandler(this.data.target);
-		
+		cameraEl.setAttribute('camera-focus-target', {target: ''});
 	}
 
 });
@@ -624,7 +644,7 @@ AFRAME.registerComponent('camera-move-to-target', {
 		let cameraEl = this.cameraEl;
 		let comp = this;
 
-		this.cameraEl.addEventListener('animation__cmtt-z', (e) => {
+		this.cameraEl.addEventListener('animationcomplete__cptt-z', (e) => {
 			comp.cameraMoveFinished();
 		});
 	},
@@ -648,7 +668,30 @@ AFRAME.registerComponent('camera-move-to-target', {
 
 		cameraEl.setAttribute('my-look-controls', {enabled: true, orientation: {'position': cameraWorldPosition, 'rotation': cameraWorldRotation}});
 		cameraEl.setAttribute('wasd-controls', {enabled: true});
-		
+
+		cameraEl.setAttribute('camera-move-to-target', {target: null, distance: null, duration: null});
+
+		this.setGuiMessage(this.data.target);
+	}, 
+
+	setGuiMessage: function(targetData) {
+
+		app.gui.message.messageEl.classList.add('skyblue');
+		app.gui.message.messageButtonEl.classList.add('skyblue');
+
+		app.gui.message.content = '<h3>' + targetData.name + '</h3>'
+								+ '<ul><li>' + targetData.type + '</li>'
+								+ '<li>' + targetData.category + '</li>'
+								+ '<li>' + targetData.id + '</li></ul>';
+
+		app.gui.message.buttonText = 'Ansehen';
+
+		app.gui.message.show();
+
+		app.gui.message.messageButtonEl.addEventListener('click', (e) => {
+			let url = '?m=mv&model=' + targetData.id + '';
+			window.location.href = url;
+		})
 	}
 
 });

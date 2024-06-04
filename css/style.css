@@ -194,6 +194,10 @@ div.gui-message {
   z-index: 6;
 }
 
+div.gui-message.skyblue {
+  background-color: #46AAC8;
+}
+
 div.gui-message-content-container {
   position: relative;
   margin-right: 5px;
@@ -206,10 +210,15 @@ div.gui-message-content {
   text-align: left;
 }
 
+div.gui-message-content > h3 {
+  margin-top: 0;
+}
+
 button.gui-message-button {
   position: absolute;
   bottom: 12px;
   right: 30px;
+  padding: 0 15px 0 15px;
   box-shadow: 3px 3px #9B9691;
   overflow-y: visible;
   z-index: 6;
@@ -217,6 +226,14 @@ button.gui-message-button {
 
 button.gui-message-button:hover {
   box-shadow: 5px 5px #9B9691;
+}
+
+button.gui-message-button.skyblue {
+  box-shadow: 3px 3px #46AAC8;
+}
+
+button.gui-message-button.skyblue:hover {
+  box-shadow: 5px 5px #46AAC8;
 }
 
 div.gui-error-container {
@@ -255,6 +272,7 @@ button.gui-error-button {
   position: absolute;
   bottom: 12px;
   right: 30px;
+  padding: 0 15px 0 15px;
   box-shadow: 3px 3px #FF7850;
   overflow-y: visible;
   z-index: 6;
@@ -680,7 +698,7 @@ button.dim {
 
 /* START a-frame */
 
-/* --- forcegraph --- */
+/* --- collection viewer --- */
 
 div.cv-tooltip {
   position: absolute;
@@ -716,8 +734,6 @@ div.cv-tooltip-content {
 
 div.cv-highlight {
   position: absolute;
-  top: 60%;
-  left: 50%;
   z-index: 1;
 }
 

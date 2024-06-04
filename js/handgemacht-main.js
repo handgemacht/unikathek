@@ -368,7 +368,7 @@ const app = {
 
 			show() {
 				this.messageContainerEl.classList.remove('hide');
-				this.messageEl.innerHTML = this.content;
+				this.messageContentEl.innerHTML = this.content;
 				this.messageButtonEl.innerHTML = this.buttonText;
 			}, 
 
@@ -811,8 +811,9 @@ const app = {
 			collectionViewerElement.appendChild(camera);
 			camera.setAttribute('my-look-controls', 'pointerLockEnabled: false;');
 			camera.setAttribute('wasd-controls', 'fly: true; acceleration: 300;');
-			camera.setAttribute('position', '0 0 150');
+			camera.setAttribute('position', '0 0 125');
 			camera.setAttribute('camera-focus-target', '');
+			camera.setAttribute('camera-move-to-target', '')
 
 			const assets = document.createElement('a-assets');
 			collectionViewerElement.appendChild(assets);
