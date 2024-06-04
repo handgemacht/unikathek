@@ -2,6 +2,7 @@
 let devMode = false;
 const dirPath_Files = './files/';
 const dirPath_CollectionJSON = 'json/handgemacht-collection.json';
+const dirPath_Media = './files/annotation-media/';
 let loadAV = false;
 let primaryKey;
 let setError = '';
@@ -543,12 +544,12 @@ window.addEventListener("DOMContentLoaded", function () {
                 name: currentTask.name,
                 description_drag: currentTask.descriptionDrag,
                 description_drop: currentTask.descriptionDrop,
-                /*TODO right path to images + image alt...
-              src_image: path + currentTask.image.filename,
+               
+              src_image: dirPath_Media + currentTask.image.filename,
               alt_image: currentTask.image.imageAlt,
               caption_image: currentTask.image.imageCaption,
-              copyright_image: currenTask.image.fileCopyright,
-              */
+              copyright_image: currentTask.image.fileCopyright,
+              
               });
               let dragElement = document.createElement("a-entity");
               dragElement.classList.add(currentClass, "drag");
@@ -610,16 +611,21 @@ window.addEventListener("DOMContentLoaded", function () {
               taskEl.setAttribute("point-task", {
                 name: currentTask.name,
                 description: currentTask.description,
-                /*TODO
-              src_image: currentTask.image.filename,
+              });
+              if(currentTask.image){
+                taskEl.setAttribute("point-task", {
+                  src_image: dirPath_Media+ currentTask.image.filename,
               alt_image: currentTask.image.imageAlt,
               caption_image: currentTask.image.imageCaption,
-              copyright_image: currenTask.image.fileCopyright,
-              
-              src_audio: path + currentTask.audio.filename,
+              copyright_image: currentTask.image.fileCopyright,
+                })
+              }
+              if(currentTask.audio){
+                taskEl.setAttribute("point-task", {
+                src_audio: dirPath_Media+ currentTask.audio.filename,
               copyright_audio: currentTask.audio.fileCopyright
-              */
               });
+            }
               let element = document.createElement("a-entity");
               element.classList.add(currentClass);
   
@@ -1567,7 +1573,7 @@ window.addEventListener("DOMContentLoaded", function () {
       text.textContent = desc;
       image.src = imgSrc;
       image.alt = imgAlt;
-      //TODO imageCopyright.textContent = "Foto: "+imgCr;
+      imageCopyright.textContent = "Foto: "+imgCr;
       imageCaption.textContent = imgCaption;
   
       headline.textContent = name;
