@@ -18,7 +18,7 @@ loader.setDRACOLoader( dracoLoader );
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 urlParams.get('dev')==='true' ? devMode=true : devMode=false;
-urlParams.get('m')==='a' ? loadAV=true : loadAV=false;
+urlParams.get('m')==='ar' ? loadAV=true : loadAV=false;
 urlParams.get('model') ? primaryKey=urlParams.get('model') : setError = '001';
 //END Search URL Parameters
 
