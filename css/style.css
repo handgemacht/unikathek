@@ -622,6 +622,271 @@ div#forcegraph-tooltip > .content {
   white-space: nowrap;
 }
 
+/* --- AR-MODE specific ----*/
+/* a-dom overlay ar */
+.a-dom-overlay{
+  cursor:auto;
+}
+.a-dom-overlay:not(.a-no-style){
+  padding: 0 !important;
+pointer-events: auto !important;
+}
+
+#overlay {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+}
+/* BOTTOM MENU*/
+.bottom-menu {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  padding: 10px 0;
+}
+
+button.menu-btn {
+  padding: 15px 30px;
+  margin: 0 5px;
+  cursor: pointer;
+  font-size: 20px;
+  font-family: "Roboto Slab", serif;
+  background-color: transparent;
+  position: relative;
+}
+
+.menu-btn::after {
+  content: "";
+  display: block;
+  width: 0;
+  height: 2px;
+  background: black;
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  transition: width 0.3s;
+}
+
+.menu-btn.active::after {
+  width: 80px;
+}
+
+/* TOOL toggles */
+.toggle-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 20px;
+  padding-right: 10px;
+  position: fixed;
+  right: 5%;
+  bottom: 100px;
+  font-size: 20px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #faf0e6;
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #46aac8;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+/*SCORE overlay*/
+#score-container {
+  position: fixed;
+  width: 50px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  left: 2%;
+  top: 2%;
+}
+
+.book-container {
+  flex-direction: row;
+  align-items: center;
+  display: flex;
+}
+img.annotation-book-symbol {
+  position: relative;
+
+  width: 50px;
+  height: 50px;
+}
+/*mission overview image*/
+.book-symbol {
+  height: 150px;
+}
+
+div.annotation.mission {
+  top: 5% !important;
+}
+
+/* QUIZ overlay*/
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.answer-container {
+  width: 90%;
+}
+
+.answer-option {
+  background-color: #ffaf96;
+  margin-bottom: 10px;
+  padding: 10px;
+  font-size: 1.2em;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+
+  transition: background-color 0.3s;
+}
+
+/* Hide the radio buttons */
+input[type="radio"] {
+  display: none;
+}
+
+.answer-option input[type="radio"] {
+  margin-right: 10px;
+}
+/* Change color of the checked label */
+input[type="radio"]:checked + .answer-option {
+  background-color: #ff7850;
+}
+
+/* INVENTAR */
+#inventar {
+  will-change: transform;
+  position: fixed;
+  bottom: 8%;
+  width: 100%;
+  display: flex;
+  flex-direction: row; 
+  align-items: center; 
+  justify-content: center; 
+}
+
+.round-container {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  justify-content: center;
+  align-items: center;
+  margin: 15px;
+  bottom: 8%;
+  left: 40%;
+  background-color: white;
+}
+
+/* Image styling */
+.round-container img {
+  width: 80%;
+  height: auto;
+}
+
+.clicked {
+  box-shadow: 3px 1px #ff7850;
+}
+
+/*close AR container*/
+#close-cont {
+  padding: 10px;
+}
+
+/*small and big MESSAGE*/
+#big-message {
+  top: 20%;
+  min-height: 450px;
+}
+
+div.message {
+  position: fixed;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 5px 5px 5px 15px;
+  margin: 0;
+  min-width: 150px;
+  max-width: 80%;
+  min-height: 30px;
+  max-height: 35%;
+  top: 55%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(250, 240, 230, 0.5);
+  font-size: 0.7em;
+  border-radius: 0px 15px 0px 15px;
+  box-shadow: 5px 5px #9b9691;
+}
+
+.message-btn {
+  display: inline-block;
+  margin: 5px 5px 0 0;
+  padding: 5px 10px;
+  font-size: 0.7em;
+  color: #333333;
+  background-color: rgba(250, 240, 230, 0.5);
+  border: 1px solid #9b9691;
+  border-radius: 5px;
+}
+/* Center the buttons horizontally */
+.button-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+
+
 /* END a-frame */
 
 
