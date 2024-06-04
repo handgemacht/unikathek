@@ -2,10 +2,10 @@
 	"appData": {
 		"tasks": [
 			{
-				"id": "1",
+				"id": 1,
 				"taskType": "dragDrop",
-				"dependable": "false",
-				"activates": "0",
+				"dependable": false,
+				"activates": 0,
 				"name": "„Rosshaar und Leinen“: Das Material",
 				"descriptionDrag": "Großen Wert hat Florian auf die Verwendung von Naturmaterialien gelegt. Um dem Mieder Festigkeit zu verleihen, hat er nicht etwa Vlieseline verwendet, sondern ein Gewebe aus Rosshaar und Leinen.",
 				"descriptionDrop": "„[A]uch die Volkstrachten und so, die haben ja auch so schwere Stoffe und so. So schwere Mieder und so Sachen, haben die dann Rosshaar genommen und das haben sie dann quasi irgendwie, ich glaube mit Leinen verwebt. Und genau das habe ich dann auch genommen und das ist dann da, weil ich mir gedacht hab: Na ja, Polyester ist halt das blanke Plastik. Und das habe ich dann da auch eingearbeitet. Das ist quasi das, was dem Ganzen irgendwie die Festigkeit gibt.“",
@@ -15,36 +15,36 @@
 					"imageAlt": "Stoffauswahl für ein Dirndl",
 					"imageCaption": "Die Stoffauswahl für das selbstgemachte Dirndl."
 				},
-				"positionDrop": "-0.14790788800034876m 0.5384058376358197m 0.04591705382322835m",
-				"positionDrag": "-0.8m 0m 0.8m"
+				"positionDrop": "-0.01m 0.538m 0.182m",
+				"positionDrag": "-0.03m 0m 0.18m"
 			},
 			{
-				"id": "2",
+				"id": 2,
 				"taskType": "point",
-				"dependable": "false",
-				"activates": "0",
+				"dependable": false,
+				"activates": 0,
 				"name": "Ein Identitätsanker: Das Dirndl als Ausdruck von Tradition und Lebensstil",
 				"description": "Über die Dinge, die wir besitzen, die Kleidung, die wir tragen, zeigen wir, dass wir zu einer bestimmten sozialen Gruppe gehören oder eben nicht gehören. So verhält es sich auch mit dem Dirndl: Es dient der sozialen Positionierung. Sowohl Eva als auch Florian sind heimatverbunden und präsentieren sich dementsprechend in den sozialen Medien. Tracht, das Ländliche und das Traditionelle sind in ihren Beiträgen stark vertreten. #lederhosnlifestyle. Das Dirndl passt in diese Bilderwelt, spiegelt den Lebensstil und die soziale Identität der beiden wider.",
-				"position": "-0.013793639750171439m 0.3125808615403411m 0.12239348885427345m"
+				"position": "-0.01m 0.3125808615403411m -0.598m"
 			},
 			{
-				"id": "3",
+				"id": 3,
 				"taskType": "point",
-				"dependable": "false",
-				"activates": "0",
+				"dependable": false,
+				"activates": 0,
 				"name": "Kontakte und Anerkennung: Einfluss des Dirndls auf soziale Beziehungen",
 				"audio": {
 					"fileCopyright": "Florian Gröninger",
 					"filename": "6D0549BE-3890-8245-9D95-9B5E526327DB_zitat-leute.mp3"
 				},
 				"description": "Das Dirndl hat – wie selbstgemachte Gegenstände es oft tun – Anerkennung, Lob und Respekt hervorgerufen und ist ein Prestigeobjekt. Deutlich wird das etwa anhand der Kommentare unter einem Post auf Evas Instagram-Account, aber auch anhand der folgenden Aussage:",
-				"position": "0.06548471336084594m 0.16577030529531384m -0.13144942281303598m"
+				"position": "0.06548471336084594m 0.494m -0.075m"
 			},
 			{
-				"id": "4",
+				"id": 4,
 				"taskType": "quiz",
-				"dependable": "false",
-				"activates": "5",
+				"dependable": false,
+				"activates": 5,
 				"position": "-0.268m 0.774m 0.055m",
 				"name": "Wie viele Knöpfe sind am Dirndl angebracht?",
 				"answers": [
@@ -56,9 +56,9 @@
 				"description": "Das Tragen des Dirndls hinterließ Spuren: Der Aufsatz eines Knopfes ist bereits abgegangen. Finde am Knopf heraus, wieso."
 			},
 			{
-				"id": "5",
-				"dependable": "true",
-				"activates": "0",
+				"id": 5,
+				"dependable": true,
+				"activates": 0,
 				"taskType":"point",
 				"position": "-0.168m 0.774m 0.035m",
 				"name": "Knopf",
@@ -68,7 +68,7 @@
 		"model": {
 			"quality16k": "modelfiles/6D0549BE-3890-8245-9D95-9B5E526327DB_16k.glb",
 			"quality1k": "modelfiles/6D0549BE-3890-8245-9D95-9B5E526327DB_512.glb",
-			"quality2k": "modelfiles/6D0549BE-3890-8245-9D95-9B5E526327DB_2k.glb",
+			"quality2k": "modelfiles/00000000-0000-0000-0000-000000000000_2k.glb",
 			"quality4k": "modelfiles/6D0549BE-3890-8245-9D95-9B5E526327DB_4k.glb",
 			"quality8k": "modelfiles/6D0549BE-3890-8245-9D95-9B5E526327DB_8k.glb"
 		},
