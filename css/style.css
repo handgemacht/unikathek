@@ -463,9 +463,12 @@ button.tool:hover {
 /* --- Hotspots --- */
 
 button.hotspot {
+  min-width: 0;
+  min-height: 0;
   width: 25px;
   height: 25px;
   background-color: transparent;
+  box-shadow: none;
   margin: 0;
   padding: 0;
   --min-hotspot-opacity: 0.2;

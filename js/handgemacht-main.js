@@ -185,7 +185,12 @@ const app = {
 
 		this.devMode = this.getDevModeFromURL();
 		this.viewerMode = this.getViewerModeFromURL();
+		this.error = this.getErrorFromURL();
 		this.devMode && console.log('dev --- viewerMode: ', this.viewerMode);
+
+		if(this.error) {
+			this.errorHandler(this.error);
+		}
 
 		if (!this.viewerMode) {
 			//redirect to collection viewer if no viewerMode is set in URL
@@ -196,16 +201,17 @@ const app = {
 
 		if (this.viewerMode === 'cv') {
 			this.collectionViewer.init();
-			app.gui.loadingScreen.content = 'loading collection';
-			app.gui.loadingScreen.show();
+			this.gui.title.init();
+			this.gui.loadingScreen.content = 'loading collection';
+			this.gui.loadingScreen.show();
 		}
 
 		if (this.viewerMode === 'mv') {
-			document.body.innerHTML = modelViewerHTML;
+			document.body.innerHTML += modelViewerHTML;
 		}
 
 		if (this.viewerMode === 'ar') {
-			document.body.innerHTML = arViewerHTML;
+			document.body.innerHTML += arViewerHTML;
 		}		
 		
 	}, //init
@@ -213,7 +219,6 @@ const app = {
 	gui: {
 			
 		init() {
-			this.title.init();
 			this.logo.init();
 			this.version.init();
 			this.loadingScreen.init();
@@ -376,16 +381,17 @@ const app = {
 			},
 
 			setEventlistener() {
-				if(this.messageButtonEl && !this.messageContainerEl.classList.contains('hide')) {
+				const self = this;
+				if(this.messageButtonEl) {
 					this.messageButtonEl.addEventListener('click', (evt) => {
-						this.hide();
+						self.hide();
 					});
 				}
 			}
 		},
 
 		error: {
-			content: 'error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...error ...',
+			content: 'error...',
 			buttonText: 'OK',
 
 			init() {
@@ -437,9 +443,10 @@ const app = {
 			}, 
 
 			setEventlistener() {
-				if(this.errorButtonEl && !this.errorContainerEl.classList.contains('hide')) {
+				const self = this;
+				if(this.errorButtonEl) {
 					this.errorButtonEl.addEventListener('click', (evt) => {
-						this.hide();
+						self.hide();
 					});
 				}
 			}
@@ -814,7 +821,7 @@ const app = {
 			collectionViewerElement.appendChild(sky);
 			sky.setAttribute('color', '#FAF0E6');
 		}
-	},
+	}, //collectionViewer
 
 	getViewerModeFromURL() {
 		const queryString = window.location.search;
@@ -836,6 +843,28 @@ const app = {
 		}else{
 			return false;
 		}
+	}, 
+
+	getErrorFromURL() {
+		const queryString = window.location.search;
+		this.urlParams = new URLSearchParams(queryString);
+
+		if(this.urlParams.get('error')) {
+			return this.urlParams.get('error');
+		}else{
+			return false;
+		}
+	}, 
+
+	errorHandler(error){
+		this.devMode && console.log('dev --- error: ', error);
+
+		if(error === '001'){
+			this.gui.error.content = 'Error 001: A wrong or no model id was found in the URL.';
+			this.gui.error.buttonText = 'OK'
+			this.gui.error.show();
+		}
+		
 	}
 }
 
