@@ -16,7 +16,7 @@ let setError = '';
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 urlParams.get('dev')==='true' ? devMode=true : devMode=false;
-urlParams.get('m')==='m' ? loadMV=true : loadMV=false;
+urlParams.get('m')==='mv' ? loadMV=true : loadMV=false;
 urlParams.get('model') ? primaryKey=urlParams.get('model') : setError = '001';
 //END Search URL Parameters
 
@@ -43,7 +43,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 //START falsePrimKey
 function falsePrimKey() {
-  let url='?m=c&error=001';
+  let url='?m=cv&error=001';
   window.location.href = url;
 }
 //END falsePrimKey

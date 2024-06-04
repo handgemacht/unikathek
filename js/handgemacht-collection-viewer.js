@@ -20,7 +20,7 @@ loader.setDRACOLoader( dracoLoader );
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 urlParams.get('dev')==='true' ? devMode=true : devMode=false;
-urlParams.get('m')==='c' ? loadCV=true : loadCV=false;
+urlParams.get('m')==='cv' ? loadCV=true : loadCV=false;
 //END Search URL Parameters
 
 

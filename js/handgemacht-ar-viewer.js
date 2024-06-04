@@ -513,7 +513,7 @@ window.addEventListener("DOMContentLoaded", function () {
       }
       //START falsePrimKey
     function falsePrimKey() {
-        let url='?m=c&error=001';
+        let url='?m=cv&error=001';
         window.location.href = url;
     }
   //END falsePrimKey
