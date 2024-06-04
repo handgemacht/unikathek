@@ -4,6 +4,7 @@ const dirPath_Files = './files/';
 const dirPath_CollectionJSON = 'json/handgemacht-collection.json';
 let loadAV = false;
 let primaryKey;
+let setError = '';
 
 var loader = new THREE.GLTFLoader();
 const dracoLoader = new THREE.DRACOLoader();
@@ -17,11 +18,12 @@ loader.setDRACOLoader( dracoLoader );
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 urlParams.get('dev')==='true' ? devMode=true : devMode=false;
-urlParams.get('a')==='a' ? loadAV=true : loadAV=false;
+urlParams.get('m')==='a' ? loadAV=true : loadAV=false;
 urlParams.get('model') ? primaryKey=urlParams.get('model') : setError = '001';
 //END Search URL Parameters
 
 //UI click listener
+if(loadAV){
 window.addEventListener("DOMContentLoaded", function () {
     const scene = document.querySelector("a-scene");
   
@@ -175,8 +177,7 @@ window.addEventListener("DOMContentLoaded", function () {
       }
     }
   });
-  
-  /* global AFRAME, THREE */
+}
   
   //HIDE-ON-START-AR: hide 3d objects in AR while placing them
   AFRAME.registerComponent("hide-on-start-ar", {
@@ -382,7 +383,7 @@ window.addEventListener("DOMContentLoaded", function () {
       mission: { type: "boolean", default: false },
       tool: { type: "boolean", default: false },
     },
-    init: function () {
+    init: function () {     
       let self = this.el;
       let it = this;
   
@@ -503,6 +504,9 @@ window.addEventListener("DOMContentLoaded", function () {
           it.initMissions(json);
           //mission UI
           it.initMissionUI();
+        })
+        .catch((error) => {
+          console.error("There was a problem with the fetch operation:", error);
         });
       }else if(loadAV && setError === '001'){
         falsePrimKey();
@@ -517,7 +521,7 @@ window.addEventListener("DOMContentLoaded", function () {
     loadModel: function (json) {
       const object = document.getElementById("object");
       const placeObject = document.getElementById("place-object");
-      const gltf_src = `url(${json.appData.model.quality2k})`;
+      const gltf_src = `url(${"./files/"+json.appData.model.quality2k})`;
       object.setAttribute("gltf-model", gltf_src);
       placeObject.setAttribute("gltf-model", gltf_src);
     },
