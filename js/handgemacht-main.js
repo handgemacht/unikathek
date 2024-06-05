@@ -301,8 +301,8 @@ const app = {
 				guiLoadingAnimation.type = 'image/svg+xml';
 				guiLoadingAnimation.data = 'assets/hand.gemacht loading.svg';
 				guiLoadingAnimation.alt = 'hand.gemacht Lade-Animation';
-				guiLoadingAnimation.width = '100px';
-				guiLoadingAnimation.height = '100px';
+				guiLoadingAnimation.width = 100;
+				guiLoadingAnimation.height = 100;
 		
 				const guiLoadingText = document.createElement('div');
 				this.loadingTextEl = guiLoadingText;
@@ -573,6 +573,12 @@ const app = {
 				const links = document.createElement('div');
 				container.appendChild(links);
 				links.className = 'gui-menu-links';
+
+				//Test AR Button vor release entfernen
+				const linksLinkTest = document.createElement('a');
+				linksLinkTest.href = 'https://dev.handgemacht.bayern/?m=ar&model=00000000-0000-0000-0000-000000000000&dev=true';
+				links.appendChild(linksLinkTest);
+				linksLinkTest.appendChild(document.createTextNode('Test AR'));
 	
 				const linksLinkContact = document.createElement('a');
 				linksLinkContact.href = '#'; //Links anpassen
