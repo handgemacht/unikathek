@@ -5,8 +5,6 @@ import { app } from './handgemacht-main.js';
 let devMode = false;
 const dirPath_Files = './files/';
 const dirPath_CollectionJSON = 'json/handgemacht-collection.json';
-let loadCV = false;
-let primaryKey;
 
 var loader = new THREE.GLTFLoader();
 const dracoLoader = new THREE.DRACOLoader();
@@ -20,7 +18,6 @@ loader.setDRACOLoader( dracoLoader );
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 urlParams.get('dev')==='true' ? devMode=true : devMode=false;
-urlParams.get('m')==='cv' ? loadCV=true : loadCV=false;
 //END Search URL Parameters
 
 
@@ -625,6 +622,8 @@ AFRAME.registerComponent('camera-move-to-target', {
 		});
 
 		this.cameraEl.emit('anim-camera-move-to-target', null, false);
+
+		this.setGuiMessage(this.data.target);
 	},
 
 	lookAtVector: function (origin, target) {
@@ -670,30 +669,7 @@ AFRAME.registerComponent('camera-move-to-target', {
 		cameraEl.setAttribute('wasd-controls', {enabled: true});
 
 		cameraEl.setAttribute('camera-move-to-target', {target: null, distance: null, duration: null});
-
-		this.setGuiMessage(this.data.target);
-	}, 
-
-	setGuiMessage: function(targetData) {
-
-		app.gui.message.messageEl.classList.add('skyblue');
-		app.gui.message.messageButtonEl.classList.add('skyblue');
-
-		app.gui.message.content = '<h3>' + targetData.name + '</h3>'
-								+ '<ul><li>' + targetData.type + '</li>'
-								+ '<li>' + targetData.category + '</li>'
-								+ '<li>' + targetData.id + '</li></ul>';
-
-		app.gui.message.buttonText = 'Ansehen';
-
-		app.gui.message.show();
-
-		app.gui.message.messageButtonEl.addEventListener('click', (e) => {
-			let url = '?m=mv&model=' + targetData.id + '';
-			window.location.href = url;
-		})
 	}
-
 });
 //END camera-move-to-target
 

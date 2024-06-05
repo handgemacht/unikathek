@@ -34,7 +34,7 @@ body {
 }
 
 ::-webkit-scrollbar-button:start:increment {
-  height: 20px;
+  height: 40px;
   display: block;
 }
 
@@ -194,8 +194,31 @@ div.gui-message {
   z-index: 6;
 }
 
+div.gui-message.smokegrey {
+  background-color: #9B9691;
+}
+
 div.gui-message.skyblue {
   background-color: #46AAC8;
+}
+
+div.gui-message.terracotta {
+  background-color: #FF7850;
+}
+
+div.gui-message-close {
+  position: relative;
+  z-index: 6;
+}
+
+img.gui-message-close-symbol {
+  display: block;
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  float: right;
+  width: 16px;
+  height: 16px;
 }
 
 div.gui-message-content-container {
@@ -214,17 +237,24 @@ div.gui-message-content > h3 {
   margin-top: 0;
 }
 
-button.gui-message-button {
+div.gui-message-button-container {
   position: absolute;
   bottom: 12px;
-  right: 30px;
+  right: 0;
   padding: 0 15px 0 15px;
-  box-shadow: 3px 3px #9B9691;
-  overflow-y: visible;
   z-index: 6;
 }
 
-button.gui-message-button:hover {
+button.gui-message-button {
+  margin: 0 5px 0 5px;
+  padding: 0 15px 0 15px;
+}
+
+button.gui-message-button.smokegrey {
+  box-shadow: 3px 3px #9B9691;
+}
+
+button.gui-message-button.smokegrey:hover {
   box-shadow: 5px 5px #9B9691;
 }
 
@@ -234,6 +264,14 @@ button.gui-message-button.skyblue {
 
 button.gui-message-button.skyblue:hover {
   box-shadow: 5px 5px #46AAC8;
+}
+
+button.gui-message-button.terracotta {
+  box-shadow: 3px 3px #FF7850;
+}
+
+button.gui-message-button.terracotta:hover {
+  box-shadow: 5px 5px #FF7850;
 }
 
 div.gui-error-container {
@@ -342,7 +380,8 @@ div.gui-menu-container {
 }
 
 div.gui-menu-close {
-
+  position: relative;
+  z-index: 6;
 }
 
 img.gui-menu-close-symbol {
@@ -423,10 +462,6 @@ model-viewer {
   width: 100%;
   height: 100vh;
   opacity: 1;
-}
-
-model-viewer.pre-loading {
-  opacity: 0;
 }
 
 /* --- Toolbar and Tools --- */
@@ -554,10 +589,6 @@ div.annotation.context-story {
   right: 5%;
   opacity: 1;
   box-shadow: 3px 3px #FF7850; 
-}
-
-div.annotation.context-story.pre-loading {
-  opacity: 0;
 }
 
 img.context-story-icon {
