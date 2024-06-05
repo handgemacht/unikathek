@@ -179,201 +179,6 @@ window.addEventListener("DOMContentLoaded", function () {
     }
   });
 }
-  
-  //HIDE-ON-START-AR: hide 3d objects in AR while placing them
-  AFRAME.registerComponent("hide-on-start-ar", {
-    init: function () {
-      let self = this.el;
-      self.sceneEl.addEventListener("start-placing", function () {
-        this.wasVisible = self.object3D.visible;
-        if (self.sceneEl.is("ar-mode")) {
-          self.object3D.visible = false;
-        }
-      });
-    },
-  });
-  
-  //AR-HIT-TEST-SPECIAL: place object with 3D-object
-  AFRAME.registerComponent("ar-hit-test-special", {
-    init: function () {
-      const self = this.el;
-      const it = this;
-      it.xrHitTestSource = null;
-      it.viewerSpace = null;
-      it.refSpace = null;
-      it.firstTime = true;
-      it.objectEl = document.getElementById("container");
-  
-      it.placeObject = it.placeObject.bind(it);
-      it.placeEnd = it.placeEnd.bind(it);
-      it.placeAgain = it.placeAgain.bind(it);
-      it.showMessage = it.showMessage.bind(it);
-  
-      self.sceneEl.renderer.xr.addEventListener("sessionend", (ev) => {
-        this.viewerSpace = null;
-        this.refSpace = null;
-        this.xrHitTestSource = null;
-      });
-      self.sceneEl.renderer.xr.addEventListener("sessionstart", (ev) => {
-        let session = this.el.sceneEl.renderer.xr.getSession();
-        it.finished = true;
-        it.hideMenu();
-        it.finished = false;
-        it.firstPose = false;
-        self.emit("start-placing", null, true);
-        it.showMessage("start");
-  
-        session.requestReferenceSpace("viewer").then((space) => {
-          this.viewerSpace = space;
-          session
-            .requestHitTestSource({ space: this.viewerSpace })
-            .then((hitTestSource) => {
-              this.xrHitTestSource = hitTestSource;
-            });
-        });
-  
-        session.requestReferenceSpace("local").then((space) => {
-          this.refSpace = space;
-        });
-        //})
-  
-        self.addEventListener("first-pose", function () {
-          it.showMessage("move");
-          self.object3D.visible = true;
-        });
-  
-        self.sceneEl.addEventListener("new-placement", function () {
-          self.emit("start-placing", null, true);
-          it.hideMenu();
-          self.object3D.visible = true;
-          it.finished = false;
-          it.showMessage("move");
-        });
-      });
-    },
-  
-    showMessage: function (step) {
-      const text = [
-        "Bewege die Kamera entlang einer Fläche",
-        "Bewege das Objekt, indem du die Kamera bewegst. Wenn du zufrieden bist , klicke auf den Button.",
-        "Objekt fertig platziert?",
-      ];
-      const messageCont = document.querySelector(".message ");
-      messageCont.classList.remove("hide");
-      const textMessage = document.querySelector(".message .annotation-text");
-      this.buttons = document.querySelectorAll("#message .message-btn");
-      if (step == "start") {
-        this.buttons[0].classList.add("hide");
-        this.buttons[1].classList.add("hide");
-        textMessage.textContent = text[0];
-      } else if (step == "move") {
-        textMessage.textContent = text[1];
-        this.buttons[0].removeEventListener("click", this.placeEnd);
-        this.buttons[0].addEventListener("click", this.placeObject);
-        this.buttons[0].classList.remove("hide");
-        this.buttons[0].innerHTML = "Platzieren";
-  
-        this.buttons[1].classList.add("hide");
-        this.buttons[1].removeEventListener("click", this.placeAgain);
-      } else if (step == "placed") {
-        textMessage.textContent = text[2];
-        this.buttons[0].removeEventListener("click", this.placeObject);
-        this.buttons[0].classList.remove("hide");
-        this.buttons[0].innerHTML = "Ja";
-        this.buttons[0].addEventListener("click", this.placeEnd);
-        this.buttons[1].classList.remove("hide");
-        this.buttons[1].innerHTML = "Neu platzieren";
-        this.buttons[1].addEventListener("click", this.placeAgain);
-      }
-    },
-    hideMessage: function () {
-      this.buttons[0].removeEventListener("click", this.placeEnd);
-      this.buttons[1].removeEventListener("click", this.placeAgain);
-      for (let button of this.buttons) {
-        button.classList.add("hide");
-      }
-      const messageCont = document.querySelector(".message ");
-      messageCont.classList.add("hide");
-    },
-    showMenu: function () {
-      const menu = document.querySelector(".bottom-menu");
-      menu.classList.remove("hide");
-    },
-    hideMenu: function () {
-      const menu = document.querySelector(".bottom-menu");
-      menu.classList.add("hide");
-    },
-    placeObject: function (event) {
-      let position = this.el.getAttribute("position");
-  
-      this.objectEl.object3D.position.set(position.x, position.y, position.z);
-      this.objectEl.object3D.visible = true;
-      this.el.object3D.visible = false;
-  
-      let camera = this.el.sceneEl.camera;
-      let cameraPos = new THREE.Vector3();
-      camera.getWorldPosition(cameraPos);
-      this.objectEl.object3D.lookAt(cameraPos);
-      this.objectEl.object3D.rotation.x = 0;
-      this.objectEl.object3D.rotation.z = 0;
-  
-      //anchor for position
-      let anchoredComponent = this.objectEl.components.anchored;
-      if (anchoredComponent) {
-        anchoredComponent.createAnchor(
-          this.objectEl.object3D.position,
-          this.objectEl.object3D.quaternion
-        );
-      }
-      this.showMessage("placed");
-  
-      this.finished = true;
-    },
-    placeEnd: function (event) {
-      this.el.sceneEl.setAttribute("controller", {
-        rotate: true,
-        mission: false,
-        tool: false,
-        raycaster: false,
-      });
-      this.el.emit("placingAchieved", this.firstTime, true);
-      this.hideMessage();
-      this.showMenu();
-      this.firstTime = false;
-    },
-    placeAgain: function (event) {
-      this.el.emit("new-placement", null, true);
-    },
-    tick: function () {
-      if (this.el.sceneEl.is("ar-mode")) {
-        if (!this.viewerSpace || this.finished) return;
-  
-        let frame = this.el.sceneEl.frame;
-        let xrViewerPose = frame.getViewerPose(this.refSpace);
-  
-        if (this.xrHitTestSource && xrViewerPose) {
-          let hitTestResults = frame.getHitTestResults(this.xrHitTestSource);
-  
-          if (hitTestResults.length > 0) {
-            if (!this.firstPose) {
-              this.el.emit("first-pose", null, false);
-              this.firstPose = true;
-            }
-  
-            let pose = hitTestResults[0].getPose(this.refSpace);
-  
-            let inputMat = new THREE.Matrix4();
-            inputMat.fromArray(pose.transform.matrix);
-  
-            let position = new THREE.Vector3();
-            position.setFromMatrixPosition(inputMat);
-            this.el.object3D.position.set(position.x, position.y, position.z);
-          }
-        }
-      }
-    },
-  });
-  
   //CONTROLLER: loads JSON model and missions, controls different modes: placing, tools, missions, inventar, score
   AFRAME.registerComponent("controller", {
     schema: {
@@ -424,7 +229,7 @@ window.addEventListener("DOMContentLoaded", function () {
       //event listener placing
       //TODO: guidance steps for first contact --> local storage speichern
       self.addEventListener("placingAchieved", function (e) {
-        console.log("placing Achieved", e.detail);
+        devMode && console.log("placing Achieved", e.detail);
       });
     },
     update: function () {
@@ -508,7 +313,7 @@ window.addEventListener("DOMContentLoaded", function () {
           devMode && console.log('dev --- json: ', json);
         })
         .catch((error) => {
-          console.error("There was a problem with the fetch operation:", error);
+          devMode && console.error("There was a problem with the fetch operation:", error);
         });
       }else if(loadAV && setError === '001'){
         falsePrimKey();
@@ -1042,6 +847,202 @@ window.addEventListener("DOMContentLoaded", function () {
     },
   });
   
+  //HIDE-ON-START-AR: hide 3d objects in AR while placing them
+  AFRAME.registerComponent("hide-on-start-ar", {
+    init: function () {
+      let self = this.el;
+      self.sceneEl.addEventListener("start-placing", function () {
+        this.wasVisible = self.object3D.visible;
+        if (self.sceneEl.is("ar-mode")) {
+          self.object3D.visible = false;
+        }
+      });
+    },
+  });
+  
+  //AR-HIT-TEST-SPECIAL: place object with 3D-object
+  AFRAME.registerComponent("ar-hit-test-special", {
+    init: function () {
+      const self = this.el;
+      const it = this;
+      it.xrHitTestSource = null;
+      it.viewerSpace = null;
+      it.refSpace = null;
+      it.firstTime = true;
+      it.objectEl = document.getElementById("container");
+  
+      it.placeObject = it.placeObject.bind(it);
+      it.placeEnd = it.placeEnd.bind(it);
+      it.placeAgain = it.placeAgain.bind(it);
+      it.showMessage = it.showMessage.bind(it);
+  
+      self.sceneEl.renderer.xr.addEventListener("sessionend", (ev) => {
+        this.viewerSpace = null;
+        this.refSpace = null;
+        this.xrHitTestSource = null;
+      });
+      self.sceneEl.renderer.xr.addEventListener("sessionstart", (ev) => {
+        let session = this.el.sceneEl.renderer.xr.getSession();
+        it.finished = true;
+        it.hideMenu();
+        it.finished = false;
+        it.firstPose = false;
+        self.emit("start-placing", null, true);
+        it.showMessage("start");
+  
+        session.requestReferenceSpace("viewer").then((space) => {
+          this.viewerSpace = space;
+          session
+            .requestHitTestSource({ space: this.viewerSpace })
+            .then((hitTestSource) => {
+              this.xrHitTestSource = hitTestSource;
+            });
+        });
+  
+        session.requestReferenceSpace("local").then((space) => {
+          this.refSpace = space;
+        });
+        //})
+  
+        self.addEventListener("first-pose", function () {
+          it.showMessage("move");
+          self.object3D.visible = true;
+        });
+  
+        self.sceneEl.addEventListener("new-placement", function () {
+          self.emit("start-placing", null, true);
+          it.hideMenu();
+          self.object3D.visible = true;
+          it.finished = false;
+          it.showMessage("move");
+        });
+      });
+    },
+  
+    showMessage: function (step) {
+      const text = [
+        "Bewege die Kamera entlang einer Fläche",
+        "Bewege das Objekt, indem du die Kamera bewegst. Wenn du zufrieden bist , klicke auf den Button.",
+        "Objekt fertig platziert?",
+      ];
+      const messageCont = document.querySelector(".message ");
+      messageCont.classList.remove("hide");
+      const textMessage = document.querySelector(".message .annotation-text");
+      this.buttons = document.querySelectorAll("#message .message-btn");
+      if (step == "start") {
+        this.buttons[0].classList.add("hide");
+        this.buttons[1].classList.add("hide");
+        textMessage.textContent = text[0];
+      } else if (step == "move") {
+        textMessage.textContent = text[1];
+        this.buttons[0].removeEventListener("click", this.placeEnd);
+        this.buttons[0].addEventListener("click", this.placeObject);
+        this.buttons[0].classList.remove("hide");
+        this.buttons[0].innerHTML = "Platzieren";
+  
+        this.buttons[1].classList.add("hide");
+        this.buttons[1].removeEventListener("click", this.placeAgain);
+      } else if (step == "placed") {
+        textMessage.textContent = text[2];
+        this.buttons[0].removeEventListener("click", this.placeObject);
+        this.buttons[0].classList.remove("hide");
+        this.buttons[0].innerHTML = "Ja";
+        this.buttons[0].addEventListener("click", this.placeEnd);
+        this.buttons[1].classList.remove("hide");
+        this.buttons[1].innerHTML = "Neu platzieren";
+        this.buttons[1].addEventListener("click", this.placeAgain);
+      }
+    },
+    hideMessage: function () {
+      this.buttons[0].removeEventListener("click", this.placeEnd);
+      this.buttons[1].removeEventListener("click", this.placeAgain);
+      for (let button of this.buttons) {
+        button.classList.add("hide");
+      }
+      const messageCont = document.querySelector(".message ");
+      messageCont.classList.add("hide");
+    },
+    showMenu: function () {
+      const menu = document.querySelector(".bottom-menu");
+      menu.classList.remove("hide");
+    },
+    hideMenu: function () {
+      const menu = document.querySelector(".bottom-menu");
+      menu.classList.add("hide");
+    },
+    placeObject: function (event) {
+      let position = this.el.getAttribute("position");
+  
+      this.objectEl.object3D.position.set(position.x, position.y, position.z);
+      this.objectEl.object3D.visible = true;
+      this.el.object3D.visible = false;
+  
+      let camera = this.el.sceneEl.camera;
+      let cameraPos = new THREE.Vector3();
+      camera.getWorldPosition(cameraPos);
+      this.objectEl.object3D.lookAt(cameraPos);
+      this.objectEl.object3D.rotation.x = 0;
+      this.objectEl.object3D.rotation.z = 0;
+  
+      //anchor for position
+      let anchoredComponent = this.objectEl.components.anchored;
+      if (anchoredComponent) {
+        anchoredComponent.createAnchor(
+          this.objectEl.object3D.position,
+          this.objectEl.object3D.quaternion
+        );
+      }
+      this.showMessage("placed");
+  
+      this.finished = true;
+    },
+    placeEnd: function (event) {
+      this.el.sceneEl.setAttribute("controller", {
+        rotate: true,
+        mission: false,
+        tool: false,
+        raycaster: false,
+      });
+      this.el.emit("placingAchieved", this.firstTime, true);
+      this.hideMessage();
+      this.showMenu();
+      this.firstTime = false;
+    },
+    placeAgain: function (event) {
+      this.el.emit("new-placement", null, true);
+    },
+    tick: function () {
+      if (this.el.sceneEl.is("ar-mode")) {
+        if (!this.viewerSpace || this.finished) return;
+  
+        let frame = this.el.sceneEl.frame;
+        let xrViewerPose = frame.getViewerPose(this.refSpace);
+  
+        if (this.xrHitTestSource && xrViewerPose) {
+          let hitTestResults = frame.getHitTestResults(this.xrHitTestSource);
+  
+          if (hitTestResults.length > 0) {
+            if (!this.firstPose) {
+              this.el.emit("first-pose", null, false);
+              this.firstPose = true;
+            }
+  
+            let pose = hitTestResults[0].getPose(this.refSpace);
+  
+            let inputMat = new THREE.Matrix4();
+            inputMat.fromArray(pose.transform.matrix);
+  
+            let position = new THREE.Vector3();
+            position.setFromMatrixPosition(inputMat);
+            this.el.object3D.position.set(position.x, position.y, position.z);
+          }
+        }
+      }
+    },
+  });
+  
+  
+  
   //COLLIDER-CHECK: first raycast collision, tests if object is in between
   AFRAME.registerComponent("collider-check", {
     schema: {
@@ -1567,16 +1568,15 @@ window.addEventListener("DOMContentLoaded", function () {
       const imageCaption = document.querySelector(
         "#drag-drop-popup .annotation-image .annotation-image-caption"
       );
-      const imageCopyright = document.querySelector(
+      /*const imageCopyright = document.querySelector(
         "#drag-drop-popup .annotation-image .copyright"
-      );
+      );*/
       const headline = document.querySelector("#drag-drop-popup .headline");
       text.textContent = desc;
       image.src = imgSrc;
       image.alt = imgAlt;
-      imageCopyright.textContent = "Foto: "+imgCr;
-      imageCaption.textContent = imgCaption;
-  
+      imageCaption.innerHTML= imgCaption + '<span class="copyright"> Foto: '+ imgCr + '</span>';
+     // imageCopyright.textContent = "Foto: "+imgCr;
       headline.textContent = name;
       popup.classList.remove("hide");
       self.sceneEl.setAttribute("controller", {
@@ -1761,6 +1761,8 @@ window.addEventListener("DOMContentLoaded", function () {
         audio.classList.remove("hide");
         audioSrc.src = src_audio;
         audio.load();
+      }else{
+        audio.classList.add("hide");
       }
       if (src_image != "") {
         imageCont.classList.remove("hide");
@@ -1768,6 +1770,8 @@ window.addEventListener("DOMContentLoaded", function () {
         image.alt = alt_image;
         imageCaption.textContent = caption_image;
         imageCopyright.textContent = "Foto: " + cr_image;
+      }else{
+        imageCont.classList.add("hide");
       }
       headline.textContent = name;
       popup.classList.remove("hide");
