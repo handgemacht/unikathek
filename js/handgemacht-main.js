@@ -910,7 +910,81 @@ const app = {
 			sky.setAttribute('color', '#FAF0E6');
 		}
 	}, //collectionViewer
+	arViewer: {
 
+		init(){
+			this.createElements();
+		},
+		createElements() {
+			const arVieverElement = document.createElement('a-scene');
+			this.arVieverElement = arVieverElement;
+			document.body.appendChild(arVieverElement);
+			arVieverElement.setAttribute('id', 'scene');
+			arVieverElement.setAttribute('gltf-model', 'dracoDecoderPath: ./draco/');
+			//TODO enabled false
+			arVieverElement.setAttribute('xr-mode-ui', 'XRMode:ar');
+			arVieverElement.setAttribute('webxr', 'requiredFeatures:  hit-test, dom-overlay, anchors; overlayElement: #overlay; referenceSpaceType:local;');
+			arViewerElement.setAttribute('controller', '');
+
+			const assets = document.createElement('a-assets');
+			arVieverElement.appendChild(assets);
+
+			const imgSprite = document.createElement('img');
+			assets.appendChild(imgSprite);
+			imgSprite.id = 'sprite';
+			imgSprite.crossOrigin = 'anonymous';
+			//TODO our own sprite
+			imgSprite.src = 'https://cdn.glitch.global/421736eb-f719-4a40-8df3-054eca30d277/spark.png?v=1715082340035';
+
+			const imgPlacer = document.createElement('img');
+			assets.appendChild(imgPlacer);
+			imgPlacer.id = 'placer';
+			imgPlacer.crossOrigin = 'anonymous';
+			//TODO upload or new placer svg or png
+			imgPlacer.src = 'https://cdn.glitch.global/5e3e06f0-b4c6-44f7-b937-2c6dd722ebec/placer.png?v=1715762971794';
+
+			const imgBook = document.createElement('img');
+			assets.appendChild(imgBook);
+			imgBook.id = 'book';
+			imgBook.crossOrigin = 'anonymous';
+			imgBook.src = 'assets/hand.gemacht WebApp button context-story perlweiss.svg'
+
+			const camera = document.createElement('a-entity');
+			arVieverElement.appendChild(camera);
+			camera.setAttribute('id', 'camera');
+			camera.setAttribute('camera', '');
+			camera.setAttribute('position', '0 0.2 0.5');
+
+			const cameraCursor = document.createElement('a-entity');
+			camera.appendChild(cameraCursor);
+			cameraCursor.setAttribute('id', 'cursor');
+			cameraCursor.setAttribute('geometry', 'primitive: circle; radius: 0.001;');
+			cameraCursor.setAttribute('material', 'color:black; shader:flat');
+			cameraCursor.setAttribute('position', '0 0 -0.01');
+			cameraCursor.setAttribute('raycaster', 'objects: .collidable; enabled:false;');
+			cameraCursor.setAttribute('scale', '0.1 0.1 0.1');
+
+			const cameraText = document.createElement('a-text');
+			cameraCursor.appendChild(cameraText);
+			cameraText.setAttribute('visibility-handler', '');
+			cameraText.setAttribute('visible','false');
+			cameraText.setAttribute('value', 'Objekt aufheben');
+			cameraText.setAttribute('position', '0 0.4 0');
+			cameraText.setAttribute('align', 'center');
+			cameraText.setAttribute('color', 'black');
+			cameraText.setAttribute('scale', '0.02 0.02 0.02');
+
+			const ring = document.createElement('a-entity');
+			cameraCursor.appendChild(ring);
+			ring.setAttribute('geometry', 'primitive:ring; radiusInner:0.02; radiusOuter:0.03; thetaLength:0');
+			ring.setAttribute('material', 'shader:flat; transparent:true; opacity: 0.5');
+			ring.setAttribute('animation-handler', '');
+			ring.setAttribute('animation', 'property:geometry.thetaLength; from:0; to: 360; dur:2000; startEvents:startRing; pauseEvents: stopRing');
+			
+			
+		}
+
+	},
 	getViewerModeFromURL() {
 		const queryString = window.location.search;
 		this.urlParams = new URLSearchParams(queryString);
