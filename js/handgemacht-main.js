@@ -186,7 +186,6 @@ const app = {
 		this.devMode = this.getDevModeFromURL();
 		this.viewerMode = this.getViewerModeFromURL();
 		this.error = this.getErrorFromURL();
-		this.devMode && console.log('dev --- viewerMode: ', this.viewerMode);
 
 		if(this.error) {
 			this.errorHandler(this.error);
@@ -213,7 +212,6 @@ const app = {
 		if (this.viewerMode === 'ar') {
 			document.body.innerHTML += arViewerHTML;
 		}		
-		
 	}, //init
 
 	gui: {
@@ -790,7 +788,6 @@ const app = {
 				});
 
 			}, 
-
 		},
 
 		createElements() {
@@ -865,7 +862,6 @@ const app = {
 			this.gui.error.buttonText = 'OK'
 			this.gui.error.show();
 		}
-		
 	}
 }
 

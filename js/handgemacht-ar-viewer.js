@@ -505,6 +505,7 @@ window.addEventListener("DOMContentLoaded", function () {
           it.initMissions(json);
           //mission UI
           it.initMissionUI();
+          devMode && console.log('dev --- json: ', json);
         })
         .catch((error) => {
           console.error("There was a problem with the fetch operation:", error);
