@@ -1,8 +1,5 @@
 
-
-
 import { app } from './handgemacht-main.js';
-
 
 //START Global Variables
 let devMode = false;
@@ -15,9 +12,6 @@ var loader = new THREE.GLTFLoader();
 const dracoLoader = new THREE.DRACOLoader();
 dracoLoader.setDecoderPath( './draco/' );
 loader.setDRACOLoader( dracoLoader );
-
-
-
 //END Global Variables
 
 
@@ -26,17 +20,8 @@ loader.setDRACOLoader( dracoLoader );
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 urlParams.get('dev')==='true' ? devMode=true : devMode=false;
-urlParams.get('m')==='c' ? loadCV=true : loadCV=false;
+urlParams.get('m')==='cv' ? loadCV=true : loadCV=false;
 //END Search URL Parameters
-
-
-
-//START DOM Manipulation 
-window.addEventListener("DOMContentLoaded", () => {
-	devMode && document.querySelector('a-scene').setAttribute('stats', '');
-	devMode && console.log('dev --- scene', document.querySelector('a-scene').object3D);
-});
-//END DOM Manipulation
 
 
 
@@ -80,7 +65,6 @@ AFRAME.registerComponent('load-json-models', {
 				devMode && console.log('dev --- JSON-models-loaded', e);
 				comp.assignModelsToNodes();	
 				comp.assignModelToLinks();
-				this.el.sceneEl.classList.remove('hide');
 				app.gui.loadingScreen.hide();
 			}, {once: true});
 		},
@@ -243,18 +227,16 @@ AFRAME.registerComponent('load-json-models', {
 						nodeThreeObjectExtend: true,
 						nodeOpacity: 0,
 						onLinkHover: link => { 
-							fgTooltipHandler(link);
+							app.collectionViewer.tooltip.mouseoverHandler(link);
 						},
 						onLinkClick: link => { 
 							devMode && console.log('dev --- onLinkClick: ', link);
 						},
 						onNodeHover: node => { 
-							fgTooltipHandler(node);
+							app.collectionViewer.tooltip.mouseoverHandler(node);
 						},
 						onNodeClick: node => { 
-							document.querySelector('a-camera').setAttribute('camera-focus-target', {target: node, distance: 60}); 
-							let event = new Event('camera-focus-target');
-							document.querySelector('a-camera').dispatchEvent(event);
+							document.querySelector('a-camera').setAttribute('camera-focus-target', {target: node, duration: 1200});
 						}
 					});
 					THREE.DefaultLoadingManager.onLoad = function () {
@@ -337,8 +319,8 @@ AFRAME.registerComponent('load-json-models', {
 AFRAME.registerComponent('camera-focus-target', {
 
 	schema: {
-		target: { type: 'model', default: '' },
-		distance: { type: 'number', default: 60 }
+		target: { type: 'model', default: null },
+		duration: { type: 'number', default: 1500 }
 	},
 
 	init: function () {
@@ -350,30 +332,187 @@ AFRAME.registerComponent('camera-focus-target', {
 		this.focus = this.focusEl.object3D;
 		this.el.sceneEl.appendChild(this.focusEl);
 
+		this.setEventlistener();
+	},
+
+	update: function () {
+		if(this.data.target) {
+			this.cameraFocusTarget();
+			devMode && console.log('dev --- camera-focus-target: ', this.data.target);
+		}		
+	},
+
+	tick: function () {
+		if(this.data.target){
+			let canvas = document.querySelector('.a-canvas');
+			let targetPosition = new THREE.Vector3();
+
+			this.camera.children[0].updateMatrixWorld();
+
+			targetPosition.setFromMatrixPosition(this.data.target.__threeObj.matrixWorld);
+			targetPosition.project(this.camera.children[0])
+
+			let targetScreenPosition = {
+				x: Math.round((0.5 + targetPosition.x / 2) * (canvas.width / window.devicePixelRatio)),
+				y: Math.round((0.5 - targetPosition.y / 2) * (canvas.height / window.devicePixelRatio))
+			}
+
+			app.collectionViewer.tooltip.highlightEl.style.left = (targetScreenPosition.x - app.collectionViewer.tooltip.highlightContentEl.clientWidth / 2) + "px";
+			app.collectionViewer.tooltip.highlightEl.style.top = (targetScreenPosition.y + 50) + "px";
+		}
+		
+	},
+
+	remove: function () {},
+
+	pause: function () {},
+
+	play: function () {},
+
+	cameraFocusTarget: function() {
+		this.target = this.data.target.__threeObj;
+		
+		this.cameraEl.setAttribute('my-look-controls', {enabled: false});
+		this.cameraEl.setAttribute('wasd-controls', {enabled: false});
+
+		//set focus element
+		this.focusEl.setAttribute('position', this.camera.position.x + ' ' + this.camera.position.y + ' ' + this.camera.position.z);
+		//geometry for debugging
+		devMode && this.focusEl.setAttribute('geometry', 'primitive: cone; height: 10; radius-top: 0; radius-bottom: 1');
+		
+		//set new camera rotation
+		let newCameraRotation = new THREE.Vector3();
+		this.focus.lookAt(this.target.position);
+		this.focus.rotateY(Math.PI);
+		newCameraRotation.x = this.focus.rotation.x;
+		newCameraRotation.y = this.focus.rotation.y;
+		newCameraRotation.z = this.focus.rotation.z;
+
+		//fix cone geometry to correct direction
+		devMode ? this.focus.rotation.x -= Math.PI/2 : '';
+
+		//rotation values
+		let newCameraRotX = (newCameraRotation.x*180)/Math.PI;
+		let newCameraRotY = ((newCameraRotation.y*180)/Math.PI)%360;
+		//let newCameraRotZ = (this.focus.rotation.z*180)/Math.PI;
+		let newCameraRotZ = 0;
+		let cameraRotX = (this.camera.rotation.x*180)/Math.PI;
+		let cameraRotY = ((this.camera.rotation.y*180)/Math.PI)%360;
+		let cameraRotZ = (this.camera.rotation.z*180)/Math.PI;
+
+		// Y rotation fix for +-180deg overrotation
+		cameraRotY > 180 ? cameraRotY = cameraRotY-360 : cameraRotY = cameraRotY;
+		cameraRotY < -180 ? cameraRotY = cameraRotY+360 : cameraRotY = cameraRotY;
+
+		//animation camera point to focus X
+		this.cameraEl.setAttribute('animation__cft-x', {
+			'property': 'object3D.rotation.x',
+			'from': cameraRotX,
+			'to': newCameraRotX,
+			'dur': this.data.duration, 
+			'easing': 'easeInOutQuad',
+			'startEvent': 'anim-camera-focus-target'
+		});
+
+		//animation camera point to focus Y
+		this.cameraEl.setAttribute('animation__cft-y', {
+			'property': 'object3D.rotation.y',
+			'from': cameraRotY,
+			'to': newCameraRotY,
+			'dur': this.data.duration, 
+			'easing': 'easeInOutQuad',
+			'startEvent': 'anim-camera-focus-target'
+		});
+
+		//animation camera point to focus Z
+		this.cameraEl.setAttribute('animation__cft-z', {
+			'property': 'object3D.rotation.z',
+			'from': cameraRotZ,
+			'to': newCameraRotZ,
+			'dur': this.data.duration, 
+			'easing': 'easeInOutQuad',
+			'startEvent': 'anim-camera-focus-target'
+		});
+
+		this.cameraEl.emit('anim-camera-focus-target', null, false);
+
+		app.collectionViewer.tooltip.onclickHandler(this.data.target);
+	},
+
+	lookAtVector: function (origin, target) {
+		let targetPosition = new THREE.Vector3();
+		target.getWorldPosition(targetPosition);
+		
+		let originPosition = new THREE.Vector3();
+		origin.getWorldPosition(originPosition);
+		
+		let lookAtVector = new THREE.Vector3(targetPosition.x, targetPosition.y, targetPosition.z); 
+		lookAtVector.subVectors(originPosition, lookAtVector);//.add(originPosition);
+		return lookAtVector;
+	}, 
+
+	setEventlistener: function() {
+		//set camera-vars for event listener context
+		let cameraEl = this.cameraEl;
+		let comp = this;
+
+		this.cameraEl.addEventListener('animationcomplete__cft-z', (e) => {
+			comp.cameraFocusFinished();
+		});
+	}, 
+
+	cameraFocusFinished: function() {
 		//set camera-vars for event listener context
 		let cameraEl = this.cameraEl;
 		let camera = this.camera;
 
-		this.cameraEl.addEventListener('camera-focus-target', (e) => {
-			this.cameraFocusTarget();
-		})
+		cameraEl.removeAttribute('animation__cft-x');
+		cameraEl.removeAttribute('animation__cft-y');
+		cameraEl.removeAttribute('animation__cft-z');
 
-		this.cameraEl.addEventListener('animationcomplete__cptt-z', (e) => {
-			cameraEl.removeAttribute('animation__cmtt-x');
-			cameraEl.removeAttribute('animation__cmtt-y');
-			cameraEl.removeAttribute('animation__cmtt-z');
-			cameraEl.removeAttribute('animation__cptt-x');
-			cameraEl.removeAttribute('animation__cptt-y');
-			cameraEl.removeAttribute('animation__cptt-z');
-			devMode && console.log('dev --- animationcomplete', e);
-			let cameraWorldPosition = new THREE.Vector3();
-			camera.getWorldPosition(cameraWorldPosition);
-			cameraEl.setAttribute('look-controls', {enabled: true, orientation: {'position': cameraWorldPosition, 'rotation': camera.rotation}});
-			cameraEl.setAttribute('wasd-controls', {enabled: true});
-		});
+		let cameraWorldPosition = new THREE.Vector3();
+		camera.getWorldPosition(cameraWorldPosition);
+		let cameraWorldRotation = new THREE.Euler();
+		cameraWorldRotation = camera.rotation;
+
+		cameraEl.setAttribute('my-look-controls', {enabled: true, orientation: {'position': cameraWorldPosition, 'rotation': cameraWorldRotation}});
+		cameraEl.setAttribute('wasd-controls', {enabled: true});
+
+		cameraEl.setAttribute('camera-focus-target', {target: ''});
+	}
+
+});
+//END camera-focus-target
+
+
+
+//START camera-move-to-target
+AFRAME.registerComponent('camera-move-to-target', {
+
+	schema: {
+		target: { type: 'model', default: null },
+		distance: { type: 'number', default: 60 },
+		duration: { type: 'number', default: 1500 }
 	},
 
-	update: function () {},
+	init: function () {
+		this.cameraEl = this.el;
+		this.camera = this.el.object3D;
+
+		//create focus element in camera reference frame and look at target
+		this.focusEl = document.createElement('a-entity');
+		this.focus = this.focusEl.object3D;
+		this.el.sceneEl.appendChild(this.focusEl);
+
+		this.setEventlistener();
+	},
+
+	update: function () {
+		if(this.data.target) {
+			this.cameraMoveToTarget();
+			devMode && console.log('dev --- camera-move-to-target: ', this.data.target);
+		}		
+	},
 
 	tick: function () {},
 
@@ -383,11 +522,10 @@ AFRAME.registerComponent('camera-focus-target', {
 
 	play: function () {},
 
-	cameraFocusTarget: function() {
-		devMode && console.log('dev --- camera-focus-target --- this', this);
+	cameraMoveToTarget: function() {
 		this.target = this.data.target.__threeObj;
 		
-		this.cameraEl.setAttribute('look-controls', {enabled: false});
+		this.cameraEl.setAttribute('my-look-controls', {enabled: false});
 		this.cameraEl.setAttribute('wasd-controls', {enabled: false});
 
 		//set focus element
@@ -418,9 +556,9 @@ AFRAME.registerComponent('camera-focus-target', {
 			'property': 'object3D.position.x',
 			'from': this.camera.position.x,
 			'to': newCameraPosition.x,
-			'dur': 2500, 
+			'dur': this.data.duration, 
 			'easing': 'easeInOutQuad',
-			'startEvent': 'anim-camera-focus-target'
+			'startEvent': 'anim-camera-move-to-target'
 		});	
 
 		//animation camera move to target y
@@ -428,9 +566,9 @@ AFRAME.registerComponent('camera-focus-target', {
 			'property': 'object3D.position.y',
 			'from': this.camera.position.y,
 			'to': newCameraPosition.y,
-			'dur': 2500, 
+			'dur': this.data.duration, 
 			'easing': 'easeInOutQuad',
-			'startEvent': 'anim-camera-focus-target'
+			'startEvent': 'anim-camera-move-to-target'
 		});	
 
 		//animation camera move to target z
@@ -438,9 +576,9 @@ AFRAME.registerComponent('camera-focus-target', {
 			'property': 'object3D.position.z',
 			'from': this.camera.position.z,
 			'to': newCameraPosition.z,
-			'dur': 2500, 
+			'dur': this.data.duration, 
 			'easing': 'easeInOutQuad',
-			'startEvent': 'anim-camera-focus-target'
+			'startEvent': 'anim-camera-move-to-target'
 		});	
 		
 		//rotation values
@@ -461,9 +599,9 @@ AFRAME.registerComponent('camera-focus-target', {
 			'property': 'object3D.rotation.x',
 			'from': cameraRotX,
 			'to': newCameraRotX,
-			'dur': 2500, 
+			'dur': this.data.duration, 
 			'easing': 'easeInOutQuad',
-			'startEvent': 'anim-camera-focus-target'
+			'startEvent': 'anim-camera-move-to-target'
 		});
 
 		//animation camera point to focus Y
@@ -471,9 +609,9 @@ AFRAME.registerComponent('camera-focus-target', {
 			'property': 'object3D.rotation.y',
 			'from': cameraRotY,
 			'to': newCameraRotY,
-			'dur': 2500, 
+			'dur': this.data.duration, 
 			'easing': 'easeInOutQuad',
-			'startEvent': 'anim-camera-focus-target'
+			'startEvent': 'anim-camera-move-to-target'
 		});
 
 		//animation camera point to focus Z
@@ -481,12 +619,12 @@ AFRAME.registerComponent('camera-focus-target', {
 			'property': 'object3D.rotation.z',
 			'from': cameraRotZ,
 			'to': newCameraRotZ,
-			'dur': 2500, 
+			'dur': this.data.duration, 
 			'easing': 'easeInOutQuad',
-			'startEvent': 'anim-camera-focus-target'
+			'startEvent': 'anim-camera-move-to-target'
 		});
 
-		this.cameraEl.emit('anim-camera-focus-target', null, false);
+		this.cameraEl.emit('anim-camera-move-to-target', null, false);
 	},
 
 	lookAtVector: function (origin, target) {
@@ -499,72 +637,72 @@ AFRAME.registerComponent('camera-focus-target', {
 		let lookAtVector = new THREE.Vector3(targetPosition.x, targetPosition.y, targetPosition.z); 
 		lookAtVector.subVectors(originPosition, lookAtVector);//.add(originPosition);
 		return lookAtVector;
+	}, 
+
+	setEventlistener: function() {
+		//set camera-vars for event listener context
+		let cameraEl = this.cameraEl;
+		let comp = this;
+
+		this.cameraEl.addEventListener('animationcomplete__cptt-z', (e) => {
+			comp.cameraMoveFinished();
+		});
+	},
+
+	cameraMoveFinished: function() {
+		//set camera-vars for event listener context
+		let cameraEl = this.cameraEl;
+		let camera = this.camera;
+
+		cameraEl.removeAttribute('animation__cmtt-x');
+		cameraEl.removeAttribute('animation__cmtt-y');
+		cameraEl.removeAttribute('animation__cmtt-z');
+		cameraEl.removeAttribute('animation__cptt-x');
+		cameraEl.removeAttribute('animation__cptt-y');
+		cameraEl.removeAttribute('animation__cptt-z');
+
+		let cameraWorldPosition = new THREE.Vector3();
+		camera.getWorldPosition(cameraWorldPosition);
+		let cameraWorldRotation = new THREE.Euler();
+		cameraWorldRotation = camera.rotation;
+
+		cameraEl.setAttribute('my-look-controls', {enabled: true, orientation: {'position': cameraWorldPosition, 'rotation': cameraWorldRotation}});
+		cameraEl.setAttribute('wasd-controls', {enabled: true});
+
+		cameraEl.setAttribute('camera-move-to-target', {target: null, distance: null, duration: null});
+
+		this.setGuiMessage(this.data.target);
+	}, 
+
+	setGuiMessage: function(targetData) {
+
+		app.gui.message.messageEl.classList.add('skyblue');
+		app.gui.message.messageButtonEl.classList.add('skyblue');
+
+		app.gui.message.content = '<h3>' + targetData.name + '</h3>'
+								+ '<ul><li>' + targetData.type + '</li>'
+								+ '<li>' + targetData.category + '</li>'
+								+ '<li>' + targetData.id + '</li></ul>';
+
+		app.gui.message.buttonText = 'Ansehen';
+
+		app.gui.message.show();
+
+		app.gui.message.messageButtonEl.addEventListener('click', (e) => {
+			let url = '?m=mv&model=' + targetData.id + '';
+			window.location.href = url;
+		})
 	}
 
 });
-//END camera-focus-target
-
-
-
-//START fgTooltipHandler
-function fgTooltipHandler(fgData) {
-	let tooltip = document.querySelector('#forcegraph-tooltip');
-	
-	function isTouchDevice() {
-		try {
-			document.createEvent("TouchEvent");
-			return true;
-		} catch (e) {
-			return false;
-		}
-	}
-
-	const move = (e) => {
-		try {
-			var x = !isTouchDevice() ? e.pageX : e.touches[0].pageX;
-			var y = !isTouchDevice() ? e.pageY : e.touches[0].pageY;
-		} catch (e) {}
-
-		tooltip.style.left = x + 25 + "px";
-		tooltip.style.top = y + 25 + "px";
-	};
-
-	document.addEventListener("mousemove", (e) => {
-	  move(e);
-	});
-	document.addEventListener("touchmove", (e) => {
-	  move(e);
-	});
-
-	let type = '';
-	fgData ? type = fgData.type : type = 'none';
-
-	let tooltipType = '';
-	let tooltipContent = '';
-
-	type === 'link-category' || type === 'link-tag' ? tooltipType = 'Link' : '';
-	type === 'node-object' ? tooltipType = 'Objekt' : '';
-	type === 'node-category' ? tooltipType = 'Kategorie' : '';
-
-	fgData ? tooltipContent=fgData.name : tooltipContent='';
-
-	let tooltipInnerHTML = '<div class="type">' + tooltipType + '</div><div class="content">' + tooltipContent + '</div>'
-
-	if(type !== 'none'){
-		tooltip.classList.remove('hide');
-		tooltip.innerHTML = tooltipInnerHTML;
-	}else{
-		tooltip.classList.add('hide');
-	}
-}
-//END fgTooltipHandler
+//END camera-move-to-target
 
 
 
 //START custom look-controls
 /* global DeviceOrientationEvent	*/
-delete AFRAME.components['look-controls']
-var registerComponent = AFRAME.registerComponent;
+delete AFRAME.components['look-controls'];
+//var registerComponent = AFRAME.registerComponent;
 //var THREE = window.THREE;
 var utils = AFRAME.utils;
 
@@ -574,7 +712,7 @@ var PI_2 = Math.PI / 2;
 /**
  * look-controls. Update entity pose, factoring mouse, touch, and WebVR API data.
  */
-AFRAME.registerComponent('look-controls', {
+AFRAME.registerComponent('my-look-controls', {
 	dependencies: ['position', 'rotation'],
 
 	schema: {
@@ -614,6 +752,7 @@ AFRAME.registerComponent('look-controls', {
 
 		// Call enter VR handler if the scene has entered VR before the event listeners attached.
 		if (this.el.sceneEl.is('vr-mode') || this.el.sceneEl.is('ar-mode')) { this.onEnterVR(); }
+
 	},
 
 	setupMagicWindowControls: function () {

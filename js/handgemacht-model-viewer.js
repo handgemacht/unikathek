@@ -16,7 +16,7 @@ let setError = '';
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 urlParams.get('dev')==='true' ? devMode=true : devMode=false;
-urlParams.get('m')==='m' ? loadMV=true : loadMV=false;
+urlParams.get('m')==='mv' ? loadMV=true : loadMV=false;
 urlParams.get('model') ? primaryKey=urlParams.get('model') : setError = '001';
 //END Search URL Parameters
 
@@ -43,7 +43,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 //START falsePrimKey
 function falsePrimKey() {
-  let url='?m=c&error=001';
+  let url='?m=cv&error=001';
   window.location.href = url;
 }
 //END falsePrimKey
@@ -71,7 +71,7 @@ function loadModelViewer(modelJSON) {
 
   //model fade-in after loading
   modelViewer.addEventListener('load', function(event) {
-    let loadingAnimation = document.querySelector('.loading-animation');
+    let loadingAnimation = document.querySelector('.gui-loading-animation');
     hideElement(loadingAnimation, 0);
     if(event.detail.visible != true) {
       modelViewer.animate({
@@ -302,9 +302,9 @@ function toolbarBehavior(modelViewer, annotationContainer) {
     //ar-button
     if(toolFunction === 'ar' && toolActive === 'true'){
       document.querySelector('#main-viewer').activateAR();
-      document.querySelector('.loading-animation-container').classList.remove('hide');
+      document.querySelector('.gui-loading-screen').classList.remove('hide');
     }else if(toolFunction === 'ar' && (toolActive === 'false' || state === 'inactive')){
-      document.querySelector('.loading-animation-container').classList.add('hide');
+      document.querySelector('.gui-loading-screen').classList.add('hide');
     }  
   };
   toolbarBehavior.toggleToolState = toggleToolState;
@@ -417,8 +417,8 @@ function imageBehaviour(annotationContainer) {
   annotationContainer.querySelectorAll('.annotation-image').forEach( function(image){
     let img = image.querySelector('img');
     let box = image.querySelector('.annotation-image-box');
-    let fullScreenImageContainer = document.querySelector('.fullscreen-image-container');
-    let fullScreenImage = document.querySelector('.fullscreen-image');
+    let fullScreenImageContainer = document.querySelector('.gui-fullscreen-image-container');
+    let fullScreenImage = document.querySelector('.gui-fullscreen-image');
     
     //image Eventlisteners
     //copies the src and alt from clicked image to the full-screen img-element and switches visibility

@@ -19,7 +19,7 @@ loader.setDRACOLoader( dracoLoader );
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 urlParams.get('dev')==='true' ? devMode=true : devMode=false;
-urlParams.get('m')==='a' ? loadAV=true : loadAV=false;
+urlParams.get('m')==='ar' ? loadAV=true : loadAV=false;
 urlParams.get('model') ? primaryKey=urlParams.get('model') : setError = '001';
 //END Search URL Parameters
 
@@ -514,7 +514,7 @@ window.addEventListener("DOMContentLoaded", function () {
       }
       //START falsePrimKey
     function falsePrimKey() {
-        let url='?m=c&error=001';
+        let url='?m=cv&error=001';
         window.location.href = url;
     }
   //END falsePrimKey
