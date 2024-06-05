@@ -1,5 +1,5 @@
 
-import {app} from './handgemacht-main.js';
+import { app } from './handgemacht-main.js';
 
 //START Global Variables
 let devMode = false;
@@ -58,8 +58,6 @@ function loadModelViewer(modelJSON) {
   
   loadContent(modelJSON, modelViewer, annotationContainer);
 
-  devMode && console.log(modelViewer);
-
   //hide context story on small screens
   let isMobile = window.matchMedia('only screen and (max-width: 600px)').matches;
   if(isMobile){
@@ -69,49 +67,17 @@ function loadModelViewer(modelJSON) {
     document.querySelector('.context-story').dataset.focus='false';
   }
 
-  //model fade-in after loading
+  //fade-in after loading
   modelViewer.addEventListener('load', function(event) {
-    let loadingAnimation = document.querySelector('.gui-loading-animation');
-    hideElement(loadingAnimation, 0);
-    if(event.detail.visible != true) {
-      modelViewer.animate({
-          opacity: ['0', '1']
-        }, {
-          duration: 2000,
-          iterations: 1,
-          delay: 1000
-      });
-      Promise.all(modelViewer.getAnimations({ subtree: true }).map((animation) => animation.finished)).then(function() {
-        modelViewer.classList.remove('pre-loading');
-      }).catch(e => {console.error(e);});
-    }
-    // render dimensions
+    modelViewer.classList.remove('pre-loading');
+    document.querySelector('.context-story').classList.remove('pre-loading');
+    
+    app.gui.loadingScreen.hide();
+    
     if(modelViewer.dataset.dimension === 'true'){
       renderModelDimensions(modelViewer);
     };
-  });
 
-  //context story fade-in after loading
-  modelViewer.addEventListener('load', function(event) {
-    if (modelJSON.objectData.usageContext) {
-      let contextStory = document.querySelector('.context-story');
-      contextStory.animate({
-          opacity: ['0', '1']
-        }, {
-          duration: 2000,
-          iterations: 1,
-          delay: 1500
-      });
-      Promise.all(modelViewer.getAnimations({ subtree: true }).map((animation) => animation.finished)).then(function() {
-        //attention-animation on context-story for small screens
-        if(isMobile){
-          modelViewer.querySelector('#context-story-button').classList.add('attention-animation');
-        }
-        contextStory.classList.remove('pre-loading');
-      }).catch(e => {console.error(e);});
-    }else{
-      modelViewer.querySelector('#context-story-button').classList.add('hide');
-    }
   });
 
 

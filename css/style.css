@@ -464,10 +464,6 @@ model-viewer {
   opacity: 1;
 }
 
-model-viewer.pre-loading {
-  opacity: 0;
-}
-
 /* --- Toolbar and Tools --- */
 
 section.toolbar {
@@ -593,10 +589,6 @@ div.annotation.context-story {
   right: 5%;
   opacity: 1;
   box-shadow: 3px 3px #FF7850; 
-}
-
-div.annotation.context-story.pre-loading {
-  opacity: 0;
 }
 
 img.context-story-icon {

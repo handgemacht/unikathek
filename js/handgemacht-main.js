@@ -10,7 +10,7 @@ let setError = '';
 //START modelViewerHTML
 let modelViewerHTML = 
 '<!-- START MODEL VIEWER -->'
-+ '<model-viewer id="main-viewer" class="pre-loading" loading="eager" ar ar-scale="fixed" xr-environment src="" shadow-intensity="1" camera-controls touch-action="pan-y" disable-tap camera-orbit="" min-camera-orbit="-Infinity 15deg 0.1m" max-camera-orbit="-Infinity 165ddeg 3.5m" camera-target="" field-of-view="" interpolation-decay="150" data-dimension="false">'
++ '<model-viewer id="main-viewer" loading="eager" ar ar-scale="fixed" xr-environment src="" shadow-intensity="1" camera-controls touch-action="pan-y" disable-tap camera-orbit="" min-camera-orbit="-Infinity 15deg 0.1m" max-camera-orbit="-Infinity 165ddeg 3.5m" camera-target="" field-of-view="" interpolation-decay="150" data-dimension="false">'
 + '<!-- START INTERFACE -->'
 + '  <!-- left-side toolbar -->'
 + '  <section class="toolbar">'
@@ -207,6 +207,9 @@ const app = {
 
 		if (this.viewerMode === 'mv') {
 			document.body.innerHTML += modelViewerHTML;
+			this.gui.loadingScreen.content = 'loading model viewer';
+			this.gui.loadingScreen.show();
+			
 		}
 
 		if (this.viewerMode === 'ar') {
@@ -318,6 +321,7 @@ const app = {
 
 			hide() {
 				this.loadingScreenEl.classList.add('hide');
+				this.content = 'loading ...';
 			}
 		},
 
@@ -676,12 +680,12 @@ const app = {
 			setEventListener() {
 				if(this.closeEl) {
 					this.closeEl.addEventListener('click', (evt) => {
-						this.hide();
+						app.gui.menu.hide();
 					});
 				}
 				if(this.burgerEl) {
 					this.burgerEl.addEventListener('click', (evt) => {
-						this.show();
+						app.gui.menu.show();
 					});
 				}
 			},
@@ -855,7 +859,22 @@ const app = {
 				this.highlightArrowEl.addEventListener('click', (e) => {
 					this.hideHighlight();
 					document.querySelector('a-camera').setAttribute('camera-move-to-target', {target: fgData, distance: 60, duration: 1200});
-					
+
+					let message = {
+						content: '<h3>' + fgData.name + '</h3>'
+								+ '<ul><li>' + fgData.type + '</li>'
+								+ '<li>' + fgData.category + '</li>'
+								+ '<li>' + fgData.id + '</li></ul>',
+						color: 'skyblue',
+						button1: { content: 'Ansehen', color: 'terracotta' }
+					}
+			
+					app.gui.message.setMessage(message);
+			
+					app.gui.message.messageButton1El.addEventListener('click', (e) => {
+						let url = '?m=mv&model=' + fgData.id + '';
+						window.location.href = url;
+					})
 				});
 
 			}, 
