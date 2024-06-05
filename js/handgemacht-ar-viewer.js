@@ -1927,13 +1927,13 @@ window.addEventListener("DOMContentLoaded", function () {
   AFRAME.registerComponent("tools", {
     schema: {
       object: { type: "string", default: "object" },
-      planeHelper: { type: "boolean", default: false },
       enabled: { type: "boolean", default: false },
       wireframe: { type: "boolean", default: false },
       texture: { type: "boolean", default: true },
       clipping: { type: "boolean", default: true },
     },
     init: function () {
+      devMode && console.log("init toolls");
       const it = this;
       this.scene = this.el.object3D;
   
@@ -1945,15 +1945,14 @@ window.addEventListener("DOMContentLoaded", function () {
       this.cameraPos = new THREE.Vector3();
       this.cameraDir = new THREE.Vector3();
       //objectOverlay, plane Object
-      let objectPos = new THREE.Vector3();
       this.objectOverlay = new THREE.Group();
       this.poGroup = new THREE.Group();
       //plane
       this.planeOne = new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0);
-      //plane helper
+      /*//plane helper
       this.planeHelper = new THREE.PlaneHelper(this.planeOne, 2, 0xffffff);
       this.planeHelper.visible = this.data.planeHelper;
-      if (this.planeHelper.visible) this.scene.add(this.planeHelper);
+      if (this.planeHelper.visible) this.scene.add(this.planeHelper);*/
       // Renderer
       this.renderer = this.el.renderer;
       this.renderer.shadowMap.enabled = true;
@@ -2133,7 +2132,6 @@ window.addEventListener("DOMContentLoaded", function () {
         this.cameraDir,
         vectorInFrontOfCamera
       );
-  
       const plane = this.planeOne;
   
       const po = this.planeObject;
