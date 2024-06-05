@@ -322,8 +322,11 @@ const app = {
 		},
 
 		message: {
-			content: 'message ...',
-			buttonText: 'OK',
+			content: 'default message',
+			color: 'smokegrey',
+			button1: {content: '', color:'smokegrey'},
+			button2: {content: '', color:'smokegrey'},
+			showClose: true,
 
 			init() {
 				this.createElements();
@@ -346,10 +349,23 @@ const app = {
 				guiMessageContainer.appendChild(guiMessage);
 				guiMessage.className = 'gui-message';
 
+				const guiMessageCloseContainer = document.createElement('div');
+				this.messageCloseEl = guiMessageCloseContainer;
+				guiMessage.appendChild(guiMessageCloseContainer);
+				guiMessageCloseContainer.className = 'gui-message-close';
+	
+				const guiMessageCloseSymbol = document.createElement('img');
+				guiMessageCloseContainer.appendChild(guiMessageCloseSymbol);
+				guiMessageCloseSymbol.className = 'gui-message-close-symbol';
+				guiMessageCloseSymbol.src = 'assets/hand.gemacht WebApp close perlweiss.svg';
+				guiMessageCloseSymbol.alt = 'Schließen-Icon';
+				guiMessageCloseSymbol.width = 100;
+				guiMessageCloseSymbol.height = 100;
+
 				const guiMessageContentContainer = document.createElement('div');
 				this.messageContentContainerEl = guiMessageContentContainer;
 				guiMessage.appendChild(guiMessageContentContainer);
-				guiMessageContentContainer.className = 'gui-error-content-container';
+				guiMessageContentContainer.className = 'gui-message-content-container';
 
 				const guiMessageContent = document.createElement('div');
 				this.messageContentEl = guiMessageContent;
@@ -357,34 +373,83 @@ const app = {
 				guiMessageContent.className = 'gui-message-content';
 				guiMessageContent.appendChild(document.createTextNode(this.content));
 
+				const guiMessageButtonContainer = document.createElement('div');
+				this.messageButtonContainerEl = guiMessageButtonContainer;
+				guiMessageContainer.appendChild(guiMessageButtonContainer);
+				guiMessageButtonContainer.className = 'gui-message-button-container';
+
 				const guiMessageButton = document.createElement('button');
-				this.messageButtonEl = guiMessageButton;
-				guiMessageContainer.appendChild(guiMessageButton);
-				guiMessageButton.className = 'gui-message-button';
+				this.messageButton1El = guiMessageButton;
+				guiMessageButtonContainer.appendChild(guiMessageButton);
+				guiMessageButton.className = 'gui-message-button hide';
 				guiMessageButton.appendChild(document.createTextNode(this.buttonText));
+
+				const guiMessageButton2 = document.createElement('button');
+				this.messageButton2El = guiMessageButton2;
+				guiMessageButtonContainer.appendChild(guiMessageButton2);
+				guiMessageButton2.className = 'gui-message-button hide';
+				guiMessageButton2.appendChild(document.createTextNode(this.button2Text));
 			}, 
 
 			show() {
 				this.messageContainerEl.classList.remove('hide');
-				this.messageContentEl.innerHTML = this.content;
-				this.messageButtonEl.innerHTML = this.buttonText;
 			}, 
 
 			hide() {
-				this.content = 'message ...';
-				this.buttonText = 'OK';
-				this.messageContainerEl.classList.add('hide');
-				this.messageEl.innerHTML = this.content;
-				this.messageButtonEl.innerHTML = this.buttonText;
+				this.content = 'default content';
+				this.color = 'smokegrey';
+				this.button1.content = '';
+				this.button1.color = 'smokegrey';
+				this.button2.content = '';
+				this.button2.color = 'smokegrey';
+				this.showClose = true;
+
+				this.messageEl.className = 'gui-message';
+				this.messageContainerEl.className = 'gui-message-container hide';
+				this.messageCloseEl.className = 'gui-message-close';
+				this.messageButton1El.classNmae = 'gui-message-button hide';
+				this.messageButton2El.classNmae = 'gui-message-button hide';
+
+				this.messageContentEl.innerHTML = this.content;
+				this.messageButton1El.innerHTML = this.buttonText;
+				this.messageButton2El.innerHTML = this.button2Text;
 			},
 
 			setEventlistener() {
 				const self = this;
-				if(this.messageButtonEl) {
-					this.messageButtonEl.addEventListener('click', (evt) => {
+				if(this.messageCloseEl) {
+					this.messageCloseEl.addEventListener('click', (evt) => {
 						self.hide();
 					});
 				}
+			}, 
+
+			setMessage(message) {
+				Object.keys(message).includes("content") ? this.content = message.content : '';
+				Object.keys(message).includes("color") ? this.color = message.color : '';
+				if(Object.keys(message).includes("button1")){
+					Object.keys(message.button1).includes("content") ? this.button1.content = message.button1.content : '';
+					Object.keys(message.button1).includes("color") ? this.button1.color = message.button1.color : '';
+				}
+				if(Object.keys(message).includes("button2")){
+					Object.keys(message.button2).includes("content") ? this.button2.content = message.button2.content : '';
+					Object.keys(message.button2).includes("color") ? this.button2.color = message.button2.color : '';
+				}
+				Object.keys(message).includes("showClose") ? this.showClose = message.showClose : this.showClose = true;
+
+				this.button1.content && this.messageButton1El.classList.remove('hide');
+				this.button2.content && this.messageButton2El.classList.remove('hide');
+				!this.showClose && this.messageCloseEl.classList.add('hide');
+
+				this.color && this.messageEl.classList.add(this.color);
+				this.button1.color && this.messageButton1El.classList.add(this.button1.color);
+				this.button2.color && this.messageButton2El.classList.add(this.button2.color);
+
+				this.messageContentEl.innerHTML = this.content;
+				this.messageButton1El.innerHTML = this.button1.content;
+				this.messageButton2El.innerHTML = this.button2.content;
+
+				this.show();
 			}
 		},
 

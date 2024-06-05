@@ -625,6 +625,8 @@ AFRAME.registerComponent('camera-move-to-target', {
 		});
 
 		this.cameraEl.emit('anim-camera-move-to-target', null, false);
+
+		this.setGuiMessage(this.data.target);
 	},
 
 	lookAtVector: function (origin, target) {
@@ -670,25 +672,24 @@ AFRAME.registerComponent('camera-move-to-target', {
 		cameraEl.setAttribute('wasd-controls', {enabled: true});
 
 		cameraEl.setAttribute('camera-move-to-target', {target: null, distance: null, duration: null});
-
-		this.setGuiMessage(this.data.target);
 	}, 
 
 	setGuiMessage: function(targetData) {
+		let message = {
+			content: '<h3>' + targetData.name + '</h3>'
+					+ '<ul><li>' + targetData.type + '</li>'
+					+ '<li>' + targetData.category + '</li>'
+					+ '<li>' + targetData.id + '</li></ul>',
+			color: 'skyblue',
+			button1: {
+				content: 'Ansehen',
+				color: 'terracotta'
+			}
+		}
 
-		app.gui.message.messageEl.classList.add('skyblue');
-		app.gui.message.messageButtonEl.classList.add('skyblue');
+		app.gui.message.setMessage(message);
 
-		app.gui.message.content = '<h3>' + targetData.name + '</h3>'
-								+ '<ul><li>' + targetData.type + '</li>'
-								+ '<li>' + targetData.category + '</li>'
-								+ '<li>' + targetData.id + '</li></ul>';
-
-		app.gui.message.buttonText = 'Ansehen';
-
-		app.gui.message.show();
-
-		app.gui.message.messageButtonEl.addEventListener('click', (e) => {
+		app.gui.message.messageButton1El.addEventListener('click', (e) => {
 			let url = '?m=mv&model=' + targetData.id + '';
 			window.location.href = url;
 		})

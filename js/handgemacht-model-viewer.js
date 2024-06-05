@@ -1,5 +1,5 @@
 
-
+import {app} from './handgemacht-main.js';
 
 //START Global Variables
 let devMode = false;
