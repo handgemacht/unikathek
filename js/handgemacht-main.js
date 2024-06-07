@@ -181,6 +181,8 @@ const app = {
 	viewerMode: false,
 
 	init() {
+		document.body.innerHTML = '';
+
 		this.gui.init();
 
 		this.devMode = this.getDevModeFromURL();
@@ -237,6 +239,7 @@ const app = {
 
 			createElements() {
 				const guiTitle = document.createElement('div');
+				this.titleEl = guiTitle;
 				document.body.appendChild(guiTitle);
 				guiTitle.className = 'gui-title';
 				guiTitle.appendChild(document.createTextNode(app.title));
@@ -275,7 +278,7 @@ const app = {
 			createElements() {
 				const guiVersion = document.createElement('div');
 				document.body.appendChild(guiVersion);
-				guiVersion.className = 'gui-version';
+				guiVersion.className = 'gui-version text-smokegrey';
 				guiVersion.appendChild(document.createTextNode(app.version));
 			}
 		},
@@ -317,15 +320,22 @@ const app = {
 			showLoadingScreen() {
 				this.loadingScreenEl.classList.remove('hide');
 				this.loadingTextEl.innerHTML = this.content;
+				if(app.gui.title.titleEl){
+					app.gui.title.titleEl.classList.add('text-pearlwhite');
+				}
 			}, 
 
 			hideLoadingScreen() {
 				this.loadingScreenEl.classList.add('hide');
 				this.content = 'loading ...';
+				if(app.gui.title.titleEl){
+					app.gui.title.titleEl.classList.remove('text-pearlwhite');
+				}
 			}
 		},
 
 		message: {
+			type: 'default type',
 			content: 'default message',
 			color: 'smokegrey',
 			shadow: null,
@@ -353,6 +363,11 @@ const app = {
 				this.messageEl = guiMessage;
 				guiMessageContainer.appendChild(guiMessage);
 				guiMessage.className = 'gui-message';
+
+				const guiMessageType = document.createElement('div');
+				this.messageTypeEl = guiMessageType;
+				guiMessageContainer.appendChild(guiMessageType);
+				guiMessageType.className = 'gui-message-type';
 
 				const guiMessageCloseContainer = document.createElement('div');
 				this.messageCloseEl = guiMessageCloseContainer;
@@ -402,6 +417,7 @@ const app = {
 			}, 
 
 			hideMessage() {
+				this.type = 'default type';
 				this.content = 'default content';
 				this.color = 'smokegrey';
 				this.shadow = null;
@@ -413,11 +429,12 @@ const app = {
 				this.button2.shadow = 'coalgrey';
 				this.showClose = true;
 
+				this.messageTypeEl.className = 'gui-message-type';
 				this.messageEl.className = 'gui-message';
 				this.messageContainerEl.className = 'gui-message-container hide';
 				this.messageCloseEl.className = 'gui-message-close';
-				this.messageButton1El.classNmae = 'gui-message-button hide';
-				this.messageButton2El.classNmae = 'gui-message-button hide';
+				this.messageButton1El.className = 'gui-message-button hide';
+				this.messageButton2El.className = 'gui-message-button hide';
 
 				this.messageContentEl.innerHTML = this.content;
 				this.messageButton1El.innerHTML = this.buttonText;
@@ -433,45 +450,9 @@ const app = {
 				}
 			},
 
-			generateMessage(fgData) {
-				let type = '';
-				fgData ? type = fgData.type : type = 'none';
-
-				if(type === 'node-object'){
-					document.querySelector('a-camera').setAttribute('camera-move-to-target', {target: fgData, distance: 60, duration: 1200});
-					let message = {
-						content: '<h3>' + fgData.name + '</h3>'
-								+ '<ul><li>' + fgData.type + '</li>'
-								+ '<li>' + fgData.category + '</li>'
-								+ '<li>' + fgData.id + '</li></ul>',
-						color: 'skyblue',
-						button1: { content: 'Ansehen', color: 'pearlwhite', shadow: 'terracotta' }
-					}
-
-					app.gui.message.setMessage(message);
-
-					app.gui.message.messageButton1El.addEventListener('click', (e) => {
-						let url = '?m=mv&model=' + fgData.id + '';
-						window.location.href = url;
-					})
-				}
-
-				if(type === 'node-category'){
-					let message = {
-						content: '<h3>' + fgData.name + '</h3>'
-								+ '<ul><li>' + fgData.type + '</li>'
-								+ '<li>' + fgData.category + '</li>'
-								+ '<li>' + fgData.id + '</li></ul>',
-						color: 'pearlwhite',
-						shadow: 'duckyellow'
-					}
-
-					app.gui.message.setMessage(message);
-				}
-			},
-
 			setMessage(message) {
 				this.hideMessage();
+				Object.keys(message).includes("type") ? this.type = message.type : '';
 				Object.keys(message).includes("content") ? this.content = message.content : '';
 				Object.keys(message).includes("color") ? this.color = message.color : '';
 				Object.keys(message).includes("shadow") ? this.shadow = 'shadow-'+message.shadow : '';
@@ -494,8 +475,10 @@ const app = {
 				this.color && this.messageEl.classList.add(this.color);
 				if(this.color === 'pearlwhite'){
 					this.messageCloseSymbol.src = 'assets/hand.gemacht WebApp close kohlegrau.svg';
+					this.color && this.messageTypeEl.classList.add(message.shadow);
 				}else{
 					this.messageCloseSymbol.src = 'assets/hand.gemacht WebApp close perlweiss.svg';
+					this.color && this.messageTypeEl.classList.add(this.color);
 				}
 				this.shadow && this.messageEl.classList.add(this.shadow);
 				this.button1.color && this.messageButton1El.classList.add(this.button1.color);
@@ -503,6 +486,7 @@ const app = {
 				this.button2.color && this.messageButton2El.classList.add(this.button2.color);
 				this.button2.shadow && this.messageButton2El.classList.add(this.button2.shadow);
 
+				this.messageTypeEl.innerHTML = this.type;
 				this.messageContentEl.innerHTML = this.content;
 				this.messageButton1El.innerHTML = this.button1.content;
 				this.messageButton2El.innerHTML = this.button2.content;
@@ -727,8 +711,8 @@ const app = {
 				patronageImage.className = 'logo';
 				patronageImage.src = 'assets/stmfh foerderung.png';
 				patronageImage.alt = 'Bayerisches Staatsministerium der Finanzen und für Heimat als Förderer Logo';
-				patronageImage.width = 100;
-				patronageImage.height = 100;
+				patronageImage.width = 270;
+				patronageImage.height = 97;
 			},
 	
 			setEventListener() {
@@ -828,6 +812,7 @@ const app = {
 			}, 
 
 			mouseoverHandler(fgData) {
+				this.hideTooltip()
 				function isTouchDevice() {
 					try {
 						document.createEvent("TouchEvent");
@@ -861,7 +846,7 @@ const app = {
 				if(type !== 'none'){
 					this.showTooltip(fgData.type, fgData.name, false);
 				}else{
-					this.hideTooltip();
+					;
 				}
 			} 
 		},
@@ -952,10 +937,59 @@ const app = {
 
 				this.highlightArrowEl.addEventListener('click', (e) => {
 					this.hideHighlight();
-					app.gui.message.generateMessage(fgData);
+					app.collectionViewer.highlight.generateMessage(fgData);
 				});
 
-			}
+			}, 
+
+			generateMessage(fgData) {
+				let type = '';
+				fgData ? type = fgData.type : type = 'none';
+
+				if(type === 'node-object'){
+					document.querySelector('a-camera').setAttribute('camera-move-to-target', {target: fgData, distance: 60, duration: 1200});
+					let message = {
+						type: 'Objekt',
+						content: '<h3>' + fgData.name + '</h3>'
+								+ '<ul><li>' + fgData.type + '</li>'
+								+ '<li>' + fgData.category + '</li>'
+								+ '<li>' + fgData.id + '</li></ul>',
+						color: 'skyblue',
+						button1: { content: 'Ansehen', color: 'pearlwhite', shadow: 'coalgrey' }
+					}
+
+					app.gui.message.setMessage(message);
+
+					app.gui.message.messageButton1El.addEventListener('click', (e) => {
+						let url = '?m=mv&model=' + fgData.id + '';
+						window.location.href = url;
+					})
+				}
+
+				if(type === 'node-category'){
+					let message = {
+						type: 'Kategorie',
+						content: '<h3>' + fgData.name + '</h3>'
+								+ '<p>Hier steht später eine Kategoriebeschreibung</p>',
+						color: 'pearlwhite',
+						shadow: 'duckyellow'
+					}
+
+					app.gui.message.setMessage(message);
+				}
+
+				if(type === 'link-tag'){
+					let message = {
+						type: 'Tag',
+						content: '<h3>' + fgData.name + '</h3>'
+								+ '<p>Hier steht später eine Tagbeschreibung</p>',
+						color: 'pearlwhite',
+						shadow: 'smokegrey'
+					}
+
+					app.gui.message.setMessage(message);
+				}
+			},
 		},
 
 		createElements() {
@@ -966,6 +1000,7 @@ const app = {
 			collectionViewerElement.setAttribute('gltf-model', 'dracoDecoderPath: ./draco/');
 			collectionViewerElement.setAttribute('load-json-models', '');
 			collectionViewerElement.setAttribute('xr-mode-ui', 'enabled: false');
+			app.devMode && collectionViewerElement.setAttribute('stats', '');
 
 			const cursorEntity = document.createElement('a-entity');
 			collectionViewerElement.appendChild(cursorEntity);

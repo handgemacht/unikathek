@@ -1,4 +1,4 @@
-/* START Basics */
+/* START Basics and Design */
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@356;700&display=swap');
 
 :root {
@@ -20,6 +20,7 @@ body {
   padding: 0;
   background-color: #F7EBE3;
   font-family: 'Roboto Slab', serif;
+  font-weight: 356;
   font-size: 1.4em;
   line-height: 1.4;
   color: #41403F;
@@ -126,6 +127,30 @@ audio {
   box-shadow: 3px 3px #FFC800;
 }
 
+.text-coalgrey {
+  color: #41403F;
+}
+
+.text-smokegrey {
+  color: #9B9691;
+}
+
+.text-pearlwhite {
+  color: #FAF0E6;
+}
+
+.text-skyblue {
+  color: #46AAC8;
+}
+
+.text-terracotta {
+  color: #FF7850;
+}
+
+.text-duckyellow {
+  color: #FFC800;
+}
+
 
 button {
   min-width: 70px;
@@ -200,7 +225,19 @@ button.shadow-duckyellow:hover {
   box-shadow: 5px 5px #FFC800;
 }
 
-/* END Basics */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 356;
+}
+
+.landing-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+}
+
+/* END Basics and Design */
 
 
 
@@ -214,8 +251,7 @@ div.gui-title {
   margin: 0;
   padding: 0;
   font-size: 1.8em;
-  color: #41403F;
-  z-index: 1;
+  z-index: 6;
 }
 
 div.gui-version {
@@ -227,9 +263,8 @@ div.gui-version {
   height: auto;
   margin: 0;
   padding: 0;
-  font-size: .4em;
-  color: #9B9691;
-  z-index: 1;
+  font-size: 12px;
+  z-index: 4;
 }
 
 div.gui-logo {
@@ -241,12 +276,13 @@ div.gui-logo {
   height: auto;
   margin: 0;
   padding: 0;
-  z-index: 1;
+  z-index: 4;
 }
 
 img.logo {
   width: 100%;
   height: auto;
+  aspect-ratio: auto;
   z-index: 1;
 }
 
@@ -257,9 +293,9 @@ div.gui-loading-screen {
   justify-content: center;
   width: 100%;
   height: 100vh;
-  background-color: #41403F;
+  background-color: #9B9691;
   pointer-events: none;
-  z-index: 5;
+  z-index: 3;
 }
 
 div.gui-loading-container {
@@ -291,10 +327,10 @@ div.gui-message-box {
 
 div.gui-message-container {
   position: relative;
-  top: 100px;
   width: 270px;
   height: 585px;
   margin: 0;
+  z-index: 4;
 }
 
 div.gui-message {
@@ -304,12 +340,24 @@ div.gui-message {
   bottom: 20px;
   border-radius: 0px 20px 0px 20px;
   text-align: right;
-  z-index: 6;
+}
+
+div.gui-message-type {
+  position: absolute;
+  bottom: calc(20px + 40%);
+  left: 0;
+  padding: 2px 15px 1px 12px;
+  border-radius: 0px 7px 0px 0px;
+  border: none;
+  box-shadow: none;
+  font-size: .5em;
+  font-weight: 356;
+  letter-spacing: .6px;
 }
 
 div.gui-message-close {
   position: relative;
-  z-index: 6;
+  z-index: 1;
 }
 
 img.gui-message-close-symbol {
@@ -325,7 +373,7 @@ img.gui-message-close-symbol {
 div.gui-message-content-container {
   position: relative;
   margin-right: 5px;
-  padding: 15px;
+  padding: 3px 15px 40px 12px;
   height: 100%;
   overflow-y: scroll;
 }
@@ -335,7 +383,12 @@ div.gui-message-content {
 }
 
 div.gui-message-content > h3 {
+  font-size: 1em;
   margin-top: 0;
+}
+
+div.gui-message-content > ul, p {
+    font-size: .7em;
 }
 
 div.gui-message-button-container {
@@ -343,7 +396,6 @@ div.gui-message-button-container {
   bottom: 12px;
   right: 0;
   padding: 0 15px 0 15px;
-  z-index: 6;
 }
 
 button.gui-message-button {
@@ -357,6 +409,7 @@ div.gui-error-container {
   width: 270px;
   height: 585px;
   margin: 0;
+  z-index: 4;
 }
 
 div.gui-error {
@@ -368,7 +421,6 @@ div.gui-error {
   color: #FAF0E6;
   border-radius: 0px 20px 0px 20px;
   text-align: right;
-  z-index: 6;
 }
 
 div.gui-error-content-container {
@@ -390,7 +442,6 @@ button.gui-error-button {
   padding: 0 15px 0 15px;
   box-shadow: 3px 3px #FF7850;
   overflow-y: visible;
-  z-index: 6;
 }
 
 button.gui-error-button:hover {
@@ -405,7 +456,7 @@ div.gui-fullscreen-image-container {
   height: 100vh;
   margin: 0;
   background-color: #41403FAA;
-  z-index: 3; 
+  z-index: 2; 
 }
 
 img.gui-fullscreen-image {
@@ -416,7 +467,6 @@ img.gui-fullscreen-image {
   max-width: 80vw;
   height: auto;
   transform: translate(-50%, -50%);
-  z-index: 4;
 }
 
 /* gui.menu */
@@ -427,7 +477,7 @@ div.gui-menu-icon {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  z-index: 6;
+  z-index: 4;
 }
 
 img.gui-menu-icon-symbol {
@@ -503,7 +553,7 @@ div.gui-menu-links {
 div.gui-menu-version {
   color: #9B9691;
   text-align: center;
-  font-size: .4em;
+  font-size: 12px;
   margin-top: 10px;
 }
 
@@ -653,7 +703,7 @@ div.annotation {
   font-size: .7em;
   border-radius: 0px 20px 0px 20px;
   box-shadow: 3px 3px #9B9691; 
-  z-index: 2;
+  z-index: 1;
 }
 
 div.annotation.context-story {
@@ -822,7 +872,6 @@ div.cv-tooltip-type {
   padding: 2px 15px 1px 12px;
   border-radius: 0px 7px 0px 0px;
   font-size: .5em;
-  font-weight: 700;
   letter-spacing: .6px;
   z-index: 1;
 }
@@ -848,7 +897,6 @@ div.cv-highlight-type {
   padding: 2px 15px 1px 12px;
   border-radius: 0px 7px 0px 0px;
   font-size: .5em;
-  font-weight: 356;
   letter-spacing: .6px;
   z-index: 1;
 }
@@ -1156,7 +1204,7 @@ div.message {
 
 @media only screen and (max-width: 600px) {
 
-  .version-container {
+  .gui-version {
     position: fixed;
     bottom: 0px;
     right: initial;
@@ -1166,11 +1214,11 @@ div.message {
     margin: 0;
     padding: 0;
     transform: translate(-50%, -50%);
-    font-size: .4em;
+    font-size: 12px;
     color: #9B9691;
   }
 
-  .logo-container {
+  .gui-logo {
     position: fixed;
     bottom: 0px;
     left: 50%;

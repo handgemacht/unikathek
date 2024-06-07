@@ -56,12 +56,44 @@ AFRAME.registerComponent('load-json-models', {
 			this.linkTagModelEl.setAttribute('visible', false);
 			this.el.sceneEl.querySelector('a-assets').appendChild(this.linkTagModelEl);
 
+			//create link category highlight model 
+			this.linkCategoryHighlightModelEl = document.createElement('a-entity');
+			this.linkCategoryHighlightModelEl.setAttribute('id', 'link-category-highlight-model');
+			this.linkCategoryHighlightModelEl.setAttribute('geometry', 'primitive: sphere; radius: 2');			
+			this.linkCategoryHighlightModelEl.setAttribute('material', 'color: #FFC800; shader: flat; opacity: 1');
+			this.linkCategoryHighlightModelEl.setAttribute('visible', false);
+			this.el.sceneEl.querySelector('a-assets').appendChild(this.linkCategoryHighlightModelEl);
+
+			//create link tag highlight model 
+			this.linkTagHighlightModelEl = document.createElement('a-entity');
+			this.linkTagHighlightModelEl.setAttribute('id', 'link-tag-highlight-model');
+			this.linkTagHighlightModelEl.setAttribute('geometry', 'primitive: sphere; radius: 2');			
+			this.linkTagHighlightModelEl.setAttribute('material', 'color: #9B9691; shader: flat; opacity: 1');
+			this.linkTagHighlightModelEl.setAttribute('visible', false);
+			this.el.sceneEl.querySelector('a-assets').appendChild(this.linkTagHighlightModelEl);
+
+			//create link category faint model 
+			this.linkCategoryFaintModelEl = document.createElement('a-entity');
+			this.linkCategoryFaintModelEl.setAttribute('id', 'link-category-highlight-model');
+			this.linkCategoryFaintModelEl.setAttribute('geometry', 'primitive: sphere; radius: 2');			
+			this.linkCategoryFaintModelEl.setAttribute('material', 'color: #FFC800; shader: flat; opacity: 0.05');
+			this.linkCategoryFaintModelEl.setAttribute('visible', false);
+			this.el.sceneEl.querySelector('a-assets').appendChild(this.linkCategoryFaintModelEl);
+
+			//create link tag faint model 
+			this.linkTagFaintModelEl = document.createElement('a-entity');
+			this.linkTagFaintModelEl.setAttribute('id', 'link-tag-highlight-model');
+			this.linkTagFaintModelEl.setAttribute('geometry', 'primitive: sphere; radius: 2');			
+			this.linkTagFaintModelEl.setAttribute('material', 'color: #9B9691; shader: flat; opacity: 0.05');
+			this.linkTagFaintModelEl.setAttribute('visible', false);
+			this.el.sceneEl.querySelector('a-assets').appendChild(this.linkTagFaintModelEl);
+
 			comp.loadJSONObjects();
 
 			this.el.sceneEl.addEventListener("JSON-models-loaded", (e) => {
 				devMode && console.log('dev --- JSON-models-loaded', e);
 				comp.assignModelsToNodes();	
-				comp.assignModelToLinks();
+				comp.assignMaterialToLinks();
 				app.gui.loadingScreen.hideLoadingScreen();
 			}, {once: true});
 		},
@@ -228,12 +260,25 @@ AFRAME.registerComponent('load-json-models', {
 						},
 						onLinkClick: link => { 
 							devMode && console.log('dev --- onLinkClick: ', link);
+							if(link.type === 'link-tag'){
+								document.querySelector('a-camera').setAttribute('camera-focus-target', {target: link, duration: 1200});
+								app.collectionViewer.highlight.onclickHandler(link);
+								this.highlightLinks(link);
+							}
+							if(link.type === 'link-category'){
+								document.querySelector('a-camera').setAttribute('camera-focus-target', {target: link.source, duration: 1200});
+								app.collectionViewer.highlight.onclickHandler(link.source);
+							}
+							
 						},
 						onNodeHover: node => { 
 							app.collectionViewer.tooltip.mouseoverHandler(node);
 						},
 						onNodeClick: node => { 
+							devMode && console.log('dev --- onNodeClick: ', node);
 							document.querySelector('a-camera').setAttribute('camera-focus-target', {target: node, duration: 1200});
+							app.collectionViewer.highlight.onclickHandler(node);
+							this.highlightModel(node);
 						}
 					});
 					THREE.DefaultLoadingManager.onLoad = function () {
@@ -283,7 +328,7 @@ AFRAME.registerComponent('load-json-models', {
 
 		}, 
 
-		assignModelToLinks: function () {
+		assignMaterialToLinks: function () {
 			let sceneEl = document.querySelector('a-scene');
 			let scene = document.querySelector('a-scene').object3D;
 			let fgComp = document.querySelector('#forcegraph').getAttribute('forcegraph');
@@ -292,19 +337,69 @@ AFRAME.registerComponent('load-json-models', {
 				let thisLink = fgComp.links[link];
 					if(thisLink.id != '' && thisLink.type === 'link-category'){
 						thisLink.gltf = this.linkCategoryModelEl.object3D.children[0].clone();
-						//devMode && console.log('dev --- thisLink: ', thisLink);
 					}else if(thisLink.id != '' && thisLink.type === 'link-tag'){
 						thisLink.gltf = this.linkTagModelEl.object3D.children[0].clone();
-						//devMode && console.log('dev --- thisLink: ', thisLink);
 					}
 			}
 
 			document.querySelector('#forcegraph').setAttribute('forcegraph', {
-				//bug? link objects are placed at 0 0 0 for some reason
-				//linkThreeObject: link => { return link.gltf; },
 				linkMaterial: link => { return link.gltf.material; }
 			});
 
+		}, 
+
+		highlightLinks: function (sourceLink) {
+			this.assignMaterialToLinks();
+			let sceneEl = document.querySelector('a-scene');
+			let scene = document.querySelector('a-scene').object3D;
+			let fgComp = document.querySelector('#forcegraph').getAttribute('forcegraph');
+
+			for(let link in fgComp.links){
+				let thisLink = fgComp.links[link];
+				if (thisLink.id != '') {
+					if(thisLink.name === sourceLink.name){
+						thisLink.gltf = this.linkTagHighlightModelEl.object3D.children[0].clone();
+						if(thisLink.type === 'link-category'){
+							thisLink.gltf = this.linkCategoryHighlightModelEl.object3D.children[0].clone();
+						}
+					}else if(thisLink.type === 'link-category'){
+						thisLink.gltf = this.linkCategoryFaintModelEl.object3D.children[0].clone();
+					}else{
+						thisLink.gltf = this.linkTagFaintModelEl.object3D.children[0].clone();
+					}
+				}
+			}
+
+			document.querySelector('#forcegraph').setAttribute('forcegraph', {
+				linkMaterial: link => { return link.gltf.material; }
+			});
+		}, 
+
+		highlightModel: function (sourceNode) {
+			this.assignMaterialToLinks();
+			let sceneEl = document.querySelector('a-scene');
+			let scene = document.querySelector('a-scene').object3D;
+			let fgComp = document.querySelector('#forcegraph').getAttribute('forcegraph');
+
+			for(let link in fgComp.links){
+				let thisLink = fgComp.links[link];
+				if (thisLink.id != '') {
+					if(thisLink.source.id === sourceNode.id || thisLink.target.id === sourceNode.id){
+						thisLink.gltf = this.linkTagHighlightModelEl.object3D.children[0].clone();
+						if(thisLink.type === 'link-category'){
+							thisLink.gltf = this.linkCategoryHighlightModelEl.object3D.children[0].clone();
+						}
+					}else if(thisLink.type === 'link-category'){
+						thisLink.gltf = this.linkCategoryFaintModelEl.object3D.children[0].clone();
+					}else{
+						thisLink.gltf = this.linkTagFaintModelEl.object3D.children[0].clone();
+					}
+				}
+			}
+
+			document.querySelector('#forcegraph').setAttribute('forcegraph', {
+				linkMaterial: link => { return link.gltf.material; }
+			});
 		}
 
 });
@@ -341,13 +436,24 @@ AFRAME.registerComponent('camera-focus-target', {
 
 	tick: function () {
 		if(this.data.target){
+
 			let canvas = document.querySelector('.a-canvas');
 			let targetPosition = new THREE.Vector3();
 
 			this.camera.children[0].updateMatrixWorld();
 
-			targetPosition.setFromMatrixPosition(this.data.target.__threeObj.matrixWorld);
-			targetPosition.project(this.camera.children[0])
+			if(this.data.target.type === 'node-object' || this.data.target.type === 'node-category') {
+				targetPosition.setFromMatrixPosition(this.data.target.__threeObj.matrixWorld);
+				targetPosition.project(this.camera.children[0])
+			}
+			if( this.data.target.type === 'link-tag') {
+				targetPosition.set(this.data.target.__curve.v1.x, this.data.target.__curve.v1.y, this.data.target.__curve.v1.z);
+				targetPosition.project(this.camera.children[0])
+			}
+			if( this.data.target.type === 'link-category') {
+				targetPosition.setFromMatrixPosition(this.data.target.source.__threeObj.matrixWorld);
+				targetPosition.project(this.camera.children[0])
+			}
 
 			let targetScreenPosition = {
 				x: Math.round((0.5 + targetPosition.x / 2) * (canvas.width / window.devicePixelRatio)),
@@ -367,7 +473,13 @@ AFRAME.registerComponent('camera-focus-target', {
 	play: function () {},
 
 	cameraFocusTarget: function() {
-		this.target = this.data.target.__threeObj;
+		if(this.data.target.type === 'link-tag'){
+			this.target = {};
+			this.target.position = this.data.target.__curve.v1;
+		}else{
+			this.target = this.data.target.__threeObj;
+		}
+		
 		
 		this.cameraEl.setAttribute('my-look-controls', {enabled: false});
 		this.cameraEl.setAttribute('wasd-controls', {enabled: false});
@@ -432,8 +544,6 @@ AFRAME.registerComponent('camera-focus-target', {
 		});
 
 		this.cameraEl.emit('anim-camera-focus-target', null, false);
-
-		app.collectionViewer.highlight.onclickHandler(this.data.target);
 	},
 
 	lookAtVector: function (origin, target) {

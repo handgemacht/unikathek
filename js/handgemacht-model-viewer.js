@@ -69,7 +69,7 @@ function loadModelViewer(modelJSON) {
 
   //fade-in after loading
   modelViewer.addEventListener('load', function(event) {
-    app.gui.loadingScreen.hide();
+    app.gui.loadingScreen.hideLoadingScreen();
     
     if(modelViewer.dataset.dimension === 'true'){
       renderModelDimensions(modelViewer);
