@@ -69,9 +69,6 @@ function loadModelViewer(modelJSON) {
 
   //fade-in after loading
   modelViewer.addEventListener('load', function(event) {
-    modelViewer.classList.remove('pre-loading');
-    document.querySelector('.context-story').classList.remove('pre-loading');
-    
     app.gui.loadingScreen.hide();
     
     if(modelViewer.dataset.dimension === 'true'){
@@ -79,7 +76,6 @@ function loadModelViewer(modelJSON) {
     };
 
   });
-
 
   //check if AR is available and hide ar-button if not so
   if(!modelViewer.canActivateAR){

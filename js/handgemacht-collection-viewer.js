@@ -62,7 +62,7 @@ AFRAME.registerComponent('load-json-models', {
 				devMode && console.log('dev --- JSON-models-loaded', e);
 				comp.assignModelsToNodes();	
 				comp.assignModelToLinks();
-				app.gui.loadingScreen.hide();
+				app.gui.loadingScreen.hideLoadingScreen();
 			}, {once: true});
 		},
 
@@ -354,8 +354,8 @@ AFRAME.registerComponent('camera-focus-target', {
 				y: Math.round((0.5 - targetPosition.y / 2) * (canvas.height / window.devicePixelRatio))
 			}
 
-			app.collectionViewer.tooltip.highlightEl.style.left = (targetScreenPosition.x - app.collectionViewer.tooltip.highlightContentEl.clientWidth / 2) + "px";
-			app.collectionViewer.tooltip.highlightEl.style.top = (targetScreenPosition.y + 50) + "px";
+			app.collectionViewer.highlight.highlightEl.style.left = (targetScreenPosition.x - app.collectionViewer.highlight.highlightContentEl.clientWidth / 2) + "px";
+			app.collectionViewer.highlight.highlightEl.style.top = (targetScreenPosition.y + 50) + "px";
 		}
 		
 	},
@@ -433,7 +433,7 @@ AFRAME.registerComponent('camera-focus-target', {
 
 		this.cameraEl.emit('anim-camera-focus-target', null, false);
 
-		app.collectionViewer.tooltip.onclickHandler(this.data.target);
+		app.collectionViewer.highlight.onclickHandler(this.data.target);
 	},
 
 	lookAtVector: function (origin, target) {
@@ -622,8 +622,6 @@ AFRAME.registerComponent('camera-move-to-target', {
 		});
 
 		this.cameraEl.emit('anim-camera-move-to-target', null, false);
-
-		this.setGuiMessage(this.data.target);
 	},
 
 	lookAtVector: function (origin, target) {

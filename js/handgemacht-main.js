@@ -202,13 +202,13 @@ const app = {
 			this.collectionViewer.init();
 			this.gui.title.init();
 			this.gui.loadingScreen.content = 'loading collection';
-			this.gui.loadingScreen.show();
+			this.gui.loadingScreen.showLoadingScreen();
 		}
 
 		if (this.viewerMode === 'mv') {
 			document.body.innerHTML += modelViewerHTML;
 			this.gui.loadingScreen.content = 'loading model viewer';
-			this.gui.loadingScreen.show();
+			this.gui.loadingScreen.showLoadingScreen();
 			
 		}
 
@@ -314,12 +314,12 @@ const app = {
 				guiLoadingText.appendChild(document.createTextNode(this.content));
 			}, 
 
-			show() {
+			showLoadingScreen() {
 				this.loadingScreenEl.classList.remove('hide');
 				this.loadingTextEl.innerHTML = this.content;
 			}, 
 
-			hide() {
+			hideLoadingScreen() {
 				this.loadingScreenEl.classList.add('hide');
 				this.content = 'loading ...';
 			}
@@ -328,8 +328,9 @@ const app = {
 		message: {
 			content: 'default message',
 			color: 'smokegrey',
-			button1: {content: '', color:'smokegrey'},
-			button2: {content: '', color:'smokegrey'},
+			shadow: null,
+			button1: {content: '', color:'smokegrey', shadow: 'coalgrey'},
+			button2: {content: '', color:'smokegrey', shadow: 'coalgrey'},
 			showClose: true,
 
 			init() {
@@ -359,6 +360,7 @@ const app = {
 				guiMessageCloseContainer.className = 'gui-message-close';
 	
 				const guiMessageCloseSymbol = document.createElement('img');
+				this.messageCloseSymbol = guiMessageCloseSymbol;
 				guiMessageCloseContainer.appendChild(guiMessageCloseSymbol);
 				guiMessageCloseSymbol.className = 'gui-message-close-symbol';
 				guiMessageCloseSymbol.src = 'assets/hand.gemacht WebApp close perlweiss.svg';
@@ -395,17 +397,20 @@ const app = {
 				guiMessageButton2.appendChild(document.createTextNode(this.button2Text));
 			}, 
 
-			show() {
+			showMessage() {
 				this.messageContainerEl.classList.remove('hide');
 			}, 
 
-			hide() {
+			hideMessage() {
 				this.content = 'default content';
 				this.color = 'smokegrey';
+				this.shadow = null;
 				this.button1.content = '';
 				this.button1.color = 'smokegrey';
+				this.button1.shadow = 'coalgrey';
 				this.button2.content = '';
 				this.button2.color = 'smokegrey';
+				this.button2.shadow = 'coalgrey';
 				this.showClose = true;
 
 				this.messageEl.className = 'gui-message';
@@ -423,21 +428,62 @@ const app = {
 				const self = this;
 				if(this.messageCloseEl) {
 					this.messageCloseEl.addEventListener('click', (evt) => {
-						self.hide();
+						self.hideMessage();
 					});
 				}
-			}, 
+			},
+
+			generateMessage(fgData) {
+				let type = '';
+				fgData ? type = fgData.type : type = 'none';
+
+				if(type === 'node-object'){
+					document.querySelector('a-camera').setAttribute('camera-move-to-target', {target: fgData, distance: 60, duration: 1200});
+					let message = {
+						content: '<h3>' + fgData.name + '</h3>'
+								+ '<ul><li>' + fgData.type + '</li>'
+								+ '<li>' + fgData.category + '</li>'
+								+ '<li>' + fgData.id + '</li></ul>',
+						color: 'skyblue',
+						button1: { content: 'Ansehen', color: 'pearlwhite', shadow: 'terracotta' }
+					}
+
+					app.gui.message.setMessage(message);
+
+					app.gui.message.messageButton1El.addEventListener('click', (e) => {
+						let url = '?m=mv&model=' + fgData.id + '';
+						window.location.href = url;
+					})
+				}
+
+				if(type === 'node-category'){
+					let message = {
+						content: '<h3>' + fgData.name + '</h3>'
+								+ '<ul><li>' + fgData.type + '</li>'
+								+ '<li>' + fgData.category + '</li>'
+								+ '<li>' + fgData.id + '</li></ul>',
+						color: 'pearlwhite',
+						shadow: 'duckyellow'
+					}
+
+					app.gui.message.setMessage(message);
+				}
+			},
 
 			setMessage(message) {
+				this.hideMessage();
 				Object.keys(message).includes("content") ? this.content = message.content : '';
 				Object.keys(message).includes("color") ? this.color = message.color : '';
+				Object.keys(message).includes("shadow") ? this.shadow = 'shadow-'+message.shadow : '';
 				if(Object.keys(message).includes("button1")){
 					Object.keys(message.button1).includes("content") ? this.button1.content = message.button1.content : '';
 					Object.keys(message.button1).includes("color") ? this.button1.color = message.button1.color : '';
+					Object.keys(message.button1).includes("shadow") ? this.button1.shadow = 'shadow-'+message.button1.shadow : '';
 				}
 				if(Object.keys(message).includes("button2")){
 					Object.keys(message.button2).includes("content") ? this.button2.content = message.button2.content : '';
 					Object.keys(message.button2).includes("color") ? this.button2.color = message.button2.color : '';
+					Object.keys(message.button2).includes("shadow") ? this.button2.shadow = 'shadow-'+message.button2.shadow : '';
 				}
 				Object.keys(message).includes("showClose") ? this.showClose = message.showClose : this.showClose = true;
 
@@ -446,14 +492,22 @@ const app = {
 				!this.showClose && this.messageCloseEl.classList.add('hide');
 
 				this.color && this.messageEl.classList.add(this.color);
+				if(this.color === 'pearlwhite'){
+					this.messageCloseSymbol.src = 'assets/hand.gemacht WebApp close kohlegrau.svg';
+				}else{
+					this.messageCloseSymbol.src = 'assets/hand.gemacht WebApp close perlweiss.svg';
+				}
+				this.shadow && this.messageEl.classList.add(this.shadow);
 				this.button1.color && this.messageButton1El.classList.add(this.button1.color);
+				this.button1.shadow && this.messageButton1El.classList.add(this.button1.shadow);
 				this.button2.color && this.messageButton2El.classList.add(this.button2.color);
+				this.button2.shadow && this.messageButton2El.classList.add(this.button2.shadow);
 
 				this.messageContentEl.innerHTML = this.content;
 				this.messageButton1El.innerHTML = this.button1.content;
 				this.messageButton2El.innerHTML = this.button2.content;
 
-				this.show();
+				this.showMessage();
 			}
 		},
 
@@ -495,13 +549,13 @@ const app = {
 				guiErrorButton.appendChild(document.createTextNode(this.buttonText));
 			}, 
 
-			show() {
+			showError() {
 				this.errorContainerEl.classList.remove('hide');
 				this.errorContentEl.innerHTML = this.content;
 				this.errorButtonEl.innerHTML = this.buttonText;
 			}, 
 
-			hide() {
+			hideError() {
 				this.content = 'error ...';
 				this.buttonText = 'OK';
 				this.errorContainerEl.classList.add('hide');
@@ -513,7 +567,7 @@ const app = {
 				const self = this;
 				if(this.errorButtonEl) {
 					this.errorButtonEl.addEventListener('click', (evt) => {
-						self.hide();
+						self.hideError();
 					});
 				}
 			}
@@ -543,13 +597,13 @@ const app = {
 				guiFullScreenImage.height = 100;
 			}, 
 
-			show() {
+			showFullScreen() {
 				this.fullScreenContainerEl.classList.remove('hide');
 				this.guiFullScreenImageEl.src = this.src;
 				this.guiFullScreenImageEl.alt = this.alt;
 			}, 
 
-			hide() {
+			hideFullScreen() {
 				this.src = '';
 				this.alt = '';
 				this.fullScreenContainerEl.classList.add('hide');
@@ -680,24 +734,24 @@ const app = {
 			setEventListener() {
 				if(this.closeEl) {
 					this.closeEl.addEventListener('click', (evt) => {
-						app.gui.menu.hide();
+						app.gui.menu.hideMenu();
 					});
 				}
 				if(this.burgerEl) {
 					this.burgerEl.addEventListener('click', (evt) => {
-						app.gui.menu.show();
+						app.gui.menu.showMenu();
 					});
 				}
 			},
 	
-			show() {
+			showMenu() {
 				if(this.containerEl && this.burgerEl) {
 					this.containerEl.classList.remove('hide');
 					this.burgerEl.classList.add('hide');
 				}	
 			},
 	
-			hide() {
+			hideMenu() {
 				if(this.containerEl && this.burgerEl) {
 					this.containerEl.classList.add('hide');
 					this.burgerEl.classList.remove('hide');
@@ -710,6 +764,7 @@ const app = {
 
 		init() {
 			this.tooltip.init();
+			this.highlight.init();
 			this.createElements();
 		},
 
@@ -734,63 +789,42 @@ const app = {
 				this.tooltipContentEl = tooltipContent;
 				tooltip.appendChild(tooltipContent);
 				tooltipContent.className = 'cv-tooltip-content';
-
-				const highlight = document.createElement('div');
-				this.highlightEl = highlight;
-				document.body.appendChild(highlight);
-				highlight.className = 'cv-highlight hide';
-	
-				const highlightType = document.createElement('div');
-				this.highlightTypeEl = highlightType;
-				highlight.appendChild(highlightType);
-				highlightType.className = 'cv-highlight-type';
-	
-				const highlightContent = document.createElement('div');
-				this.highlightContentEl = highlightContent;
-				highlight.appendChild(highlightContent);
-				highlightContent.className = 'cv-highlight-content';
-	
-				const highlightArrow = document.createElement('img');
-				this.highlightArrowEl = highlightArrow;
-				highlightArrow.className = 'cv-highlight-arrow';
-				highlightArrow.src = 'assets/hand.gemacht WebApp play perlweiss.svg';
-				highlightArrow.alt = 'Pfeil-Icon';
-				highlightArrow.width = 100;
-				highlightArrow.height = 100;
 			}, 
 
 			showTooltip(type, content, showArrow = false) {
-				this.tooltipTypeEl.innerHTML = '';
-				this.tooltipTypeEl.appendChild(document.createTextNode(type));
-				this.tooltipContentEl.innerHTML = '';
+				let typeText = '';
+
+				if(type === 'node-object'){
+					typeText = 'Objekt'
+					this.tooltipTypeEl.classList.add('skyblue');
+					this.tooltipContentEl.classList.add('skyblue');
+				}
+				if(type === 'node-category'){
+					typeText = 'Kategorie'
+					this.tooltipTypeEl.classList.add('duckyellow');
+					this.tooltipContentEl.classList.add('duckyellow');
+				}
+				if(type === 'link-tag'){
+					typeText = 'Link'
+					this.tooltipTypeEl.classList.add('smokegrey');
+					this.tooltipContentEl.classList.add('smokegrey');
+				}
+				if(type === 'link-category'){
+					typeText = 'Link'
+					this.tooltipTypeEl.classList.add('duckyellow');
+					this.tooltipContentEl.classList.add('duckyellow');
+				}
+				this.tooltipTypeEl.appendChild(document.createTextNode(typeText));
 				this.tooltipContentEl.appendChild(document.createTextNode(content));
-				if(showArrow){
-					this.tooltipContentEl.appendChild(tooltipArrowEl);
-				};
 				this.tooltipEl.classList.remove('hide');
 			}, 
-
-			showHighlight(type, content, showArrow = false) {
-				this.highlightTypeEl.innerHTML = '';
-				this.highlightTypeEl.appendChild(document.createTextNode(type));
-				this.highlightContentEl.innerHTML = '';
-				this.highlightContentEl.appendChild(document.createTextNode(content));
-				if(showArrow){
-					this.highlightContentEl.appendChild(this.highlightArrowEl);
-				};
-				this.highlightEl.classList.remove('hide');
-			},
 
 			hideTooltip() {
 				this.tooltipEl.classList.add('hide');
 				this.tooltipTypeEl.innerHTML = '';
+				this.tooltipTypeEl.className = 'cv-tooltip-type';
 				this.tooltipContentEl.innerHTML = '';
-			}, 
-
-			hideHighlight() {
-				this.highlightEl.classList.add('hide');
-				this.highlightTypeEl.innerHTML = '';
-				this.highlightContentEl.innerHTML = '';
+				this.tooltipContentEl.className = 'cv-tooltip-content';
 			}, 
 
 			mouseoverHandler(fgData) {
@@ -819,65 +853,109 @@ const app = {
 				document.addEventListener("touchmove", (e) => {
 				  move(e);
 				});
-			
+
 				let type = '';
+
 				fgData ? type = fgData.type : type = 'none';
-			
-				let tooltipType = '';
-				let tooltipContent = '';
-			
-				type === 'link-category' || type === 'link-tag' ? tooltipType = 'Link' : '';
-				type === 'node-object' ? tooltipType = 'Objekt' : '';
-				type === 'node-category' ? tooltipType = 'Kategorie' : '';
-			
-				fgData ? tooltipContent=fgData.name : tooltipContent='';
-			
-			
+
 				if(type !== 'none'){
-					this.showTooltip(tooltipType, tooltipContent, false);
+					this.showTooltip(fgData.type, fgData.name, false);
 				}else{
 					this.hideTooltip();
 				}
+			} 
+		},
+
+		highlight: {
+
+			init() {
+				this.createElements();
+			},
+
+			createElements() {
+				const highlight = document.createElement('div');
+				this.highlightEl = highlight;
+				document.body.appendChild(highlight);
+				highlight.className = 'cv-highlight hide';
+	
+				const highlightType = document.createElement('div');
+				this.highlightTypeEl = highlightType;
+				highlight.appendChild(highlightType);
+				highlightType.className = 'cv-highlight-type';
+	
+				const highlightContent = document.createElement('div');
+				this.highlightContentEl = highlightContent;
+				highlight.appendChild(highlightContent);
+				highlightContent.className = 'cv-highlight-content';
+	
+				const highlightArrow = document.createElement('img');
+				this.highlightArrowEl = highlightArrow;
+				highlightArrow.className = 'cv-highlight-arrow';
+				highlightArrow.src = 'assets/hand.gemacht WebApp play perlweiss.svg';
+				highlightArrow.alt = 'Pfeil-Icon';
+				highlightArrow.width = 100;
+				highlightArrow.height = 100;
+			}, 
+
+			showHighlight(type, content, showArrow = false) {
+				this.hideHighlight()
+				let typeText = '';
+
+				if(type === 'node-object'){
+					typeText = 'Objekt'
+					this.highlightTypeEl.classList.add('skyblue');
+					this.highlightContentEl.classList.add('skyblue');
+				}
+				if(type === 'node-category'){
+					typeText = 'Kategorie'
+					this.highlightTypeEl.classList.add('duckyellow');
+					this.highlightContentEl.classList.add('duckyellow');
+				}
+				if(type === 'link-tag'){
+					typeText = 'Link'
+					this.highlightTypeEl.classList.add('smokegrey');
+					this.highlightContentEl.classList.add('smokegrey');
+				}
+				if(type === 'link-category'){
+					typeText = 'Link'
+					this.highlightTypeEl.classList.add('duckyellow');
+					this.highlightContentEl.classList.add('duckyellow');
+				}
+				this.highlightTypeEl.innerHTML = '';
+				this.highlightTypeEl.appendChild(document.createTextNode(typeText));
+				this.highlightContentEl.innerHTML = '';
+				this.highlightContentEl.appendChild(document.createTextNode(content));
+				if(showArrow){
+					this.highlightContentEl.appendChild(this.highlightArrowEl);
+				};
+				this.highlightEl.classList.remove('hide');
+			},
+
+			hideHighlight() {
+				this.highlightEl.classList.add('hide');
+				this.highlightTypeEl.innerHTML = '';
+				this.highlightTypeEl.className = 'cv-highlight-type';
+				this.highlightContentEl.innerHTML = '';
+				this.highlightContentEl.className = 'cv-highlight-content';
 			}, 
 
 			onclickHandler(fgData) {
-
 				let type = '';
 				fgData ? type = fgData.type : type = 'none';
 			
-				let tooltipType = '';
-				let tooltipContent = '';
-			
-				type === 'link-category' || type === 'link-tag' ? tooltipType = 'Link' : '';
-				type === 'node-object' ? tooltipType = 'Objekt' : '';
-				type === 'node-category' ? tooltipType = 'Kategorie' : '';
-			
-				fgData ? tooltipContent=fgData.name : tooltipContent='';
-
-				this.showHighlight(tooltipType, tooltipContent, true);
+				if(type !== 'none'){
+					this.showHighlight(type, fgData.name, true);
+					app.gui.message.hideMessage();
+				}else{
+					this.hideHighlight();;
+				}
 
 				this.highlightArrowEl.addEventListener('click', (e) => {
 					this.hideHighlight();
-					document.querySelector('a-camera').setAttribute('camera-move-to-target', {target: fgData, distance: 60, duration: 1200});
-
-					let message = {
-						content: '<h3>' + fgData.name + '</h3>'
-								+ '<ul><li>' + fgData.type + '</li>'
-								+ '<li>' + fgData.category + '</li>'
-								+ '<li>' + fgData.id + '</li></ul>',
-						color: 'skyblue',
-						button1: { content: 'Ansehen', color: 'terracotta' }
-					}
-			
-					app.gui.message.setMessage(message);
-			
-					app.gui.message.messageButton1El.addEventListener('click', (e) => {
-						let url = '?m=mv&model=' + fgData.id + '';
-						window.location.href = url;
-					})
+					app.gui.message.generateMessage(fgData);
 				});
 
-			}, 
+			}
 		},
 
 		createElements() {
@@ -1024,7 +1102,7 @@ const app = {
 		if(error === '001'){
 			this.gui.error.content = 'Error 001: A wrong or no model id was found in the URL.';
 			this.gui.error.buttonText = 'OK'
-			this.gui.error.show();
+			this.gui.error.showError();
 		}
 	}
 }
