@@ -262,7 +262,7 @@ const app = {
 				const guiMessageType = document.createElement('div');
 				this.messageTypeEl = guiMessageType;
 				guiMessageContainer.appendChild(guiMessageType);
-				guiMessageType.className = 'gui-message-type';
+				guiMessageType.className = 'gui-message-type hide';
 
 				const guiMessageCloseContainer = document.createElement('div');
 				this.messageCloseEl = guiMessageCloseContainer;
@@ -363,6 +363,7 @@ const app = {
 				}
 				Object.keys(message).includes("showClose") ? this.showClose = message.showClose : this.showClose = true;
 
+				this.type && this.messageTypeEl.classList.remove('hide')
 				this.button1.content && this.messageButton1El.classList.remove('hide');
 				this.button2.content && this.messageButton2El.classList.remove('hide');
 				!this.showClose && this.messageCloseEl.classList.add('hide');
@@ -898,6 +899,7 @@ const app = {
 			collectionViewerElement.setAttribute('gltf-model', 'dracoDecoderPath: ./draco/');
 			collectionViewerElement.setAttribute('load-json-models', '');
 			collectionViewerElement.setAttribute('xr-mode-ui', 'enabled: false');
+			collectionViewerElement.setAttribute('light', 'defaultLightsEnabled: false');
 			app.devMode && collectionViewerElement.setAttribute('stats', '');
 
 			const cursorEntity = document.createElement('a-entity');
@@ -913,8 +915,14 @@ const app = {
 			camera.setAttribute('camera-focus-target', '');
 			camera.setAttribute('camera-move-to-target', '')
 
-			const cursor = document.createElement('a-cursor');
-			collectionViewerElement.appendChild(cursor);
+			const ambientLightEntity = document.createElement('a-entity');
+			collectionViewerElement.appendChild(ambientLightEntity);
+			ambientLightEntity.setAttribute('light', 'type: ambient; color: #FAF0E6; intensity: 2');
+
+			const directionalLightEntity = document.createElement('a-entity');
+			collectionViewerElement.appendChild(directionalLightEntity);
+			directionalLightEntity.setAttribute('light', 'type: directional; color: #FAF0E6; intensity: 4');
+			directionalLightEntity.setAttribute('position', '-2 0 2');
 
 			const assets = document.createElement('a-assets');
 			collectionViewerElement.appendChild(assets);
@@ -926,6 +934,7 @@ const app = {
 		init(){
 			this.createElements();
 		},
+
 		createElements() {
 			const arViewerElement = document.createElement('a-scene');
 			this.arViewerElement = arViewerElement;
@@ -934,6 +943,7 @@ const app = {
 			arViewerElement.setAttribute('gltf-model', 'dracoDecoderPath: ./draco/');
 			//TODO enabled false
 			arViewerElement.setAttribute('xr-mode-ui', 'XRMode:ar');
+			arViewerElement.setAttribute('light', 'defaultLightsEnabled: false');
 			arViewerElement.setAttribute('webxr', 'requiredFeatures:  hit-test, dom-overlay, anchors; overlayElement: #overlay; referenceSpaceType:local;');
 			arViewerElement.setAttribute('controller', '');
 			arViewerElement.setAttribute('renderer', 'stencil:true;')
@@ -975,6 +985,15 @@ const app = {
 			cameraCursor.setAttribute('position', '0 0 -0.01');
 			cameraCursor.setAttribute('raycaster', 'objects: .collidable; enabled:false;');
 			cameraCursor.setAttribute('scale', '0.1 0.1 0.1');
+
+			const ambientLightEntity = document.createElement('a-entity');
+			collectionViewerElement.appendChild(ambientLightEntity);
+			ambientLightEntity.setAttribute('light', 'type: ambient; color: #FAF0E6; intensity: 2');
+
+			const directionalLightEntity = document.createElement('a-entity');
+			collectionViewerElement.appendChild(directionalLightEntity);
+			directionalLightEntity.setAttribute('light', 'type: directional; color: #FAF0E6; intensity: 4');
+			directionalLightEntity.setAttribute('position', '-2 0 2');
 
 			const cameraText = document.createElement('a-text');
 			cameraCursor.appendChild(cameraText);
