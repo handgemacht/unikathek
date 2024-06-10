@@ -942,11 +942,11 @@ const app = {
 			arViewerElement.setAttribute('id', 'scene');
 			arViewerElement.setAttribute('gltf-model', 'dracoDecoderPath: ./draco/');
 			//TODO enabled false
-			arViewerElement.setAttribute('xr-mode-ui', 'XRMode:ar');
+			arViewerElement.setAttribute('xr-mode-ui', 'enabled:false');
 			arViewerElement.setAttribute('light', 'defaultLightsEnabled: false');
-			arViewerElement.setAttribute('webxr', 'requiredFeatures:  hit-test, dom-overlay, anchors; overlayElement: #overlay; referenceSpaceType:local;');
+			arViewerElement.setAttribute('webxr', 'requiredFeatures:  hit-test, dom-overlay, anchors; overlayElement: .gui-message-box; referenceSpaceType:local;');
 			arViewerElement.setAttribute('controller', '');
-			arViewerElement.setAttribute('renderer', 'stencil:true;')
+			arViewerElement.setAttribute('renderer', 'stencil:true;');
 
 			const assets = document.createElement('a-assets');
 			arViewerElement.appendChild(assets);
@@ -964,6 +964,13 @@ const app = {
 			imgPlacer.crossOrigin = 'anonymous';
 			//TODO upload or new placer svg or png
 			imgPlacer.src = 'https://cdn.glitch.global/5e3e06f0-b4c6-44f7-b937-2c6dd722ebec/placer.png?v=1715762971794';
+
+			const imgArrow = document.createElement('img');
+			assets.appendChild(imgArrow);
+			imgArrow.id = 'arrow';
+			imgArrow.crossOrigin = 'anonymous';
+			//TODO new svg or png
+			imgArrow.src = 'https://cdn.glitch.global/5e3e06f0-b4c6-44f7-b937-2c6dd722ebec/Sideways_Arrow_Icon.png?v=1716899874858';
 
 			const imgBook = document.createElement('img');
 			assets.appendChild(imgBook);
@@ -987,11 +994,11 @@ const app = {
 			cameraCursor.setAttribute('scale', '0.1 0.1 0.1');
 
 			const ambientLightEntity = document.createElement('a-entity');
-			collectionViewerElement.appendChild(ambientLightEntity);
+			arViewerElement.appendChild(ambientLightEntity);
 			ambientLightEntity.setAttribute('light', 'type: ambient; color: #FAF0E6; intensity: 2');
 
 			const directionalLightEntity = document.createElement('a-entity');
-			collectionViewerElement.appendChild(directionalLightEntity);
+			arViewerElement.appendChild(directionalLightEntity);
 			directionalLightEntity.setAttribute('light', 'type: directional; color: #FAF0E6; intensity: 4');
 			directionalLightEntity.setAttribute('position', '-2 0 2');
 
