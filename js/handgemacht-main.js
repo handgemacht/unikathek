@@ -747,9 +747,9 @@ const app = {
 	collectionViewer: {
 
 		init() {
+			this.createElements();
 			this.tooltip.init();
 			this.highlight.init();
-			this.createElements();
 		},
 
 		tooltip: {
@@ -917,11 +917,15 @@ const app = {
 			},
 
 			hideHighlight() {
-				this.highlightEl.classList.add('hide');
-				this.highlightTypeEl.innerHTML = '';
-				this.highlightTypeEl.className = 'cv-highlight-type';
-				this.highlightContentEl.innerHTML = '';
-				this.highlightContentEl.className = 'cv-highlight-content';
+				if(this.highlightEl.classList.contains('hide')) {
+					return;
+				}else {
+					this.highlightEl.classList.add('hide');
+					this.highlightTypeEl.innerHTML = '';
+					this.highlightTypeEl.className = 'cv-highlight-type';
+					this.highlightContentEl.innerHTML = '';
+					this.highlightContentEl.className = 'cv-highlight-content';
+				}				
 			}, 
 
 			onclickHandler(fgData) {
@@ -939,7 +943,6 @@ const app = {
 					this.hideHighlight();
 					app.collectionViewer.highlight.generateMessage(fgData);
 				});
-
 			}, 
 
 			generateMessage(fgData) {
@@ -1009,20 +1012,20 @@ const app = {
 
 			const camera = document.createElement('a-camera');
 			collectionViewerElement.appendChild(camera);
-			camera.setAttribute('my-look-controls', 'pointerLockEnabled: false;');
+			camera.setAttribute('my-look-controls', 'pointerLockEnabled: false; reverseMouseDrag: true');
 			camera.setAttribute('wasd-controls', 'fly: true; acceleration: 300;');
 			camera.setAttribute('position', '0 0 125');
 			camera.setAttribute('camera-focus-target', '');
 			camera.setAttribute('camera-move-to-target', '')
 
+			const cursor = document.createElement('a-cursor');
+			collectionViewerElement.appendChild(cursor);
+
 			const assets = document.createElement('a-assets');
 			collectionViewerElement.appendChild(assets);
-
-			const sky = document.createElement('a-sky');
-			collectionViewerElement.appendChild(sky);
-			sky.setAttribute('color', '#FAF0E6');
 		}
 	}, //collectionViewer
+
 	arViewer: {
 
 		init(){
@@ -1097,7 +1100,8 @@ const app = {
 			
 		}
 
-	},
+	}, //arViewer
+
 	getViewerModeFromURL() {
 		const queryString = window.location.search;
 		this.urlParams = new URLSearchParams(queryString);
