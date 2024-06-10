@@ -74,7 +74,7 @@ AFRAME.registerComponent('load-json-models', {
 
 			//create link category faint model 
 			this.linkCategoryFaintModelEl = document.createElement('a-entity');
-			this.linkCategoryFaintModelEl.setAttribute('id', 'link-category-highlight-model');
+			this.linkCategoryFaintModelEl.setAttribute('id', 'link-category-faint-model');
 			this.linkCategoryFaintModelEl.setAttribute('geometry', 'primitive: sphere; radius: 2');			
 			this.linkCategoryFaintModelEl.setAttribute('material', 'color: #FFC800; shader: flat; opacity: 0.05');
 			this.linkCategoryFaintModelEl.setAttribute('visible', false);
@@ -82,7 +82,7 @@ AFRAME.registerComponent('load-json-models', {
 
 			//create link tag faint model 
 			this.linkTagFaintModelEl = document.createElement('a-entity');
-			this.linkTagFaintModelEl.setAttribute('id', 'link-tag-highlight-model');
+			this.linkTagFaintModelEl.setAttribute('id', 'link-tag-faint-model');
 			this.linkTagFaintModelEl.setAttribute('geometry', 'primitive: sphere; radius: 2');			
 			this.linkTagFaintModelEl.setAttribute('material', 'color: #9B9691; shader: flat; opacity: 0.05');
 			this.linkTagFaintModelEl.setAttribute('visible', false);
@@ -90,11 +90,12 @@ AFRAME.registerComponent('load-json-models', {
 
 			comp.loadJSONObjects();
 
-			this.el.sceneEl.addEventListener("JSON-models-loaded", (e) => {
+			this.el.sceneEl.addEventListener('JSON-models-loaded', (e) => {
 				devMode && console.log('dev --- JSON-models-loaded', e);
 				comp.assignModelsToNodes();	
 				comp.assignMaterialToLinks();
 				app.gui.loadingScreen.hideLoadingScreen();
+				devMode && console.log('dev --- scene', comp.el.sceneEl.object3D);
 			}, {once: true});
 		},
 
@@ -263,7 +264,7 @@ AFRAME.registerComponent('load-json-models', {
 							if(link.type === 'link-tag'){
 								document.querySelector('a-camera').setAttribute('camera-focus-target', {target: link, duration: 1200});
 								app.collectionViewer.highlight.onclickHandler(link);
-								this.highlightLinks(link);
+								document.querySelector('#forcegraph').setAttribute('highlight', {source: link});
 							}
 							if(link.type === 'link-category'){
 								document.querySelector('a-camera').setAttribute('camera-focus-target', {target: link.source, duration: 1200});
@@ -278,12 +279,13 @@ AFRAME.registerComponent('load-json-models', {
 							devMode && console.log('dev --- onNodeClick: ', node);
 							document.querySelector('a-camera').setAttribute('camera-focus-target', {target: node, duration: 1200});
 							app.collectionViewer.highlight.onclickHandler(node);
-							this.highlightModel(node);
+							document.querySelector('#forcegraph').setAttribute('highlight', {source: node});
 						}
 					});
 					THREE.DefaultLoadingManager.onLoad = function () {
 						let event = new Event('JSON-models-loaded');
 						document.querySelector('a-scene').dispatchEvent(event);
+						devMode && console.log('dev --- forcegraph component: ', document.querySelector('#forcegraph').object3D);
 					};
 				});
 		}, 
@@ -323,9 +325,8 @@ AFRAME.registerComponent('load-json-models', {
 			}
 
 			document.querySelector('#forcegraph').setAttribute('forcegraph', {
-				nodeThreeObject: node => { return node.gltf; }
+				nodeThreeObject: node => { return node.gltf }
 			});
-
 		}, 
 
 		assignMaterialToLinks: function () {
@@ -343,62 +344,7 @@ AFRAME.registerComponent('load-json-models', {
 			}
 
 			document.querySelector('#forcegraph').setAttribute('forcegraph', {
-				linkMaterial: link => { return link.gltf.material; }
-			});
-
-		}, 
-
-		highlightLinks: function (sourceLink) {
-			this.assignMaterialToLinks();
-			let sceneEl = document.querySelector('a-scene');
-			let scene = document.querySelector('a-scene').object3D;
-			let fgComp = document.querySelector('#forcegraph').getAttribute('forcegraph');
-
-			for(let link in fgComp.links){
-				let thisLink = fgComp.links[link];
-				if (thisLink.id != '') {
-					if(thisLink.name === sourceLink.name){
-						thisLink.gltf = this.linkTagHighlightModelEl.object3D.children[0].clone();
-						if(thisLink.type === 'link-category'){
-							thisLink.gltf = this.linkCategoryHighlightModelEl.object3D.children[0].clone();
-						}
-					}else if(thisLink.type === 'link-category'){
-						thisLink.gltf = this.linkCategoryFaintModelEl.object3D.children[0].clone();
-					}else{
-						thisLink.gltf = this.linkTagFaintModelEl.object3D.children[0].clone();
-					}
-				}
-			}
-
-			document.querySelector('#forcegraph').setAttribute('forcegraph', {
-				linkMaterial: link => { return link.gltf.material; }
-			});
-		}, 
-
-		highlightModel: function (sourceNode) {
-			this.assignMaterialToLinks();
-			let sceneEl = document.querySelector('a-scene');
-			let scene = document.querySelector('a-scene').object3D;
-			let fgComp = document.querySelector('#forcegraph').getAttribute('forcegraph');
-
-			for(let link in fgComp.links){
-				let thisLink = fgComp.links[link];
-				if (thisLink.id != '') {
-					if(thisLink.source.id === sourceNode.id || thisLink.target.id === sourceNode.id){
-						thisLink.gltf = this.linkTagHighlightModelEl.object3D.children[0].clone();
-						if(thisLink.type === 'link-category'){
-							thisLink.gltf = this.linkCategoryHighlightModelEl.object3D.children[0].clone();
-						}
-					}else if(thisLink.type === 'link-category'){
-						thisLink.gltf = this.linkCategoryFaintModelEl.object3D.children[0].clone();
-					}else{
-						thisLink.gltf = this.linkTagFaintModelEl.object3D.children[0].clone();
-					}
-				}
-			}
-
-			document.querySelector('#forcegraph').setAttribute('forcegraph', {
-				linkMaterial: link => { return link.gltf.material; }
+				linkMaterial: link => { return link.gltf.material }
 			});
 		}
 
@@ -590,6 +536,129 @@ AFRAME.registerComponent('camera-focus-target', {
 
 });
 //END camera-focus-target
+
+
+
+//START highlight
+AFRAME.registerComponent('highlight', {
+
+	schema: {
+		source: {default: null}
+	}, 
+
+	init: function () {
+		this.categoryModelEl = document.querySelector('#category-model');
+		this.linkCategoryModelEl = document.querySelector('#link-category-model');
+		this.linkTagModelEl = document.querySelector('#link-tag-model');
+		this.linkCategoryHighlightModelEl = document.querySelector('#link-category-highlight-model');
+		this.linkTagHighlightModelEl = document.querySelector('#link-tag-highlight-model');
+		this.linkCategoryFaintModelEl = document.querySelector('#link-category-faint-model');
+		this.linkTagFaintModelEl = document.querySelector('#link-tag-faint-model');
+	},
+
+	update: function () {
+		let source = this.data.source;
+		this.fgComp = this.el.components.forcegraph.data;
+
+		if(!source) {
+			this.resetHighlight();
+			return;
+		}
+
+		if(source.type === 'node-object' || source.type === 'node-category') {
+			this.highlightModel(source);
+		}
+
+		if(source.type === 'link-tag' || source.type === 'link-category') {
+			this.highlightLinks(source);
+		}
+	},
+
+	tick: function () {},
+
+	remove: function () {},
+
+	pause: function () {},
+
+	play: function () {},
+
+	highlightLinks: function (sourceLink) {
+		let fgComp = this.fgComp;
+
+		for(let link in fgComp.links){
+			let thisLink = fgComp.links[link];
+			if (thisLink.id != '') {
+				if(thisLink.name === sourceLink.name){
+					if(thisLink.type === 'link-category'){
+						thisLink.gltf = this.linkCategoryHighlightModelEl.object3D.children[0].clone();
+					}else{
+						thisLink.gltf = this.linkTagHighlightModelEl.object3D.children[0].clone();
+					}
+				}else if(thisLink.type === 'link-category'){
+					thisLink.gltf = this.linkCategoryFaintModelEl.object3D.children[0].clone();
+				}else{
+					thisLink.gltf = this.linkTagFaintModelEl.object3D.children[0].clone();
+				}
+			}
+		}
+
+		this.el.setAttribute('forcegraph', {
+			linkMaterial: link => { return link.gltf.material }
+		});
+	}, 
+
+	highlightModel: function (sourceNode) {
+		let fgComp = this.fgComp;
+
+		for(let link in fgComp.links){
+			let thisLink = fgComp.links[link];
+			if (thisLink.id != '') {
+				if(thisLink.source.id === sourceNode.id || thisLink.target.id === sourceNode.id){
+					if(thisLink.type === 'link-category'){
+						thisLink.gltf = this.linkCategoryHighlightModelEl.object3D.children[0].clone();
+					}else {
+						thisLink.gltf = this.linkTagHighlightModelEl.object3D.children[0].clone();
+						
+					}
+				}else if(thisLink.type === 'link-category'){
+					thisLink.gltf = this.linkCategoryFaintModelEl.object3D.children[0].clone();
+				}else{
+					thisLink.gltf = this.linkTagFaintModelEl.object3D.children[0].clone();
+				}
+			}
+		}
+
+		this.el.setAttribute('forcegraph', {
+			linkMaterial: link => { return link.gltf.material }
+		});
+	},
+
+	resetHighlight: function () {
+		let fgComp = this.fgComp;
+
+		devMode && console.log('dev --- resetHighlight');
+
+		for(let link in fgComp.links){
+			let thisLink = fgComp.links[link];
+			if(thisLink.id != '' && thisLink.type === 'link-category'){
+				thisLink.gltf = this.linkCategoryModelEl.object3D.children[0].clone();
+			}else if(thisLink.id != '' && thisLink.type === 'link-tag'){
+				thisLink.gltf = this.linkTagModelEl.object3D.children[0].clone();
+			}
+		}
+
+		for(let node in fgComp.nodes){
+			let thisNode = fgComp.nodes[node];
+			
+		}
+
+		this.el.setAttribute('forcegraph', {
+			linkMaterial: link => { return link.gltf.material }
+			//, nodeThreeObject: node => { return node.gltf; }
+		});
+	}
+});
+//ENND highlight
 
 
 
@@ -1108,6 +1177,8 @@ AFRAME.registerComponent('my-look-controls', {
 	 */
 	showGrabbingCursor: function () {
 		this.el.sceneEl.canvas.style.cursor = 'grabbing';
+		document.querySelector('#forcegraph').setAttribute('highlight', {source: ''});
+		app.collectionViewer.highlight.hideHighlight();
 	},
 
 	/**
