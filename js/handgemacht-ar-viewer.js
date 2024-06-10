@@ -1,3 +1,5 @@
+import { app } from './handgemacht-main.js';
+
 //START Global Variables
 let devMode = false;
 const dirPath_Files = './files/';
@@ -200,6 +202,7 @@ window.addEventListener("DOMContentLoaded", function () {
       this.modelLoaded = false;
       self.addEventListener("model-loaded", function () {
         it.modelLoaded = true;
+        app.gui.loadingScreen.hideLoadingScreen();
       });
   
       //interaction pause/play listener for rotation
@@ -1468,6 +1471,7 @@ window.addEventListener("DOMContentLoaded", function () {
         default:
           "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
       },
+      //ToDO 
       src_image: {
         type: "string",
         default:
@@ -1524,6 +1528,7 @@ window.addEventListener("DOMContentLoaded", function () {
               //change class to book
               evt.detail.point.classList.remove("drop");
               evt.detail.point.classList.add("book", "collidable");
+              devMode && console.log('--dev drop object', self.sceneEl.object3D)
               it.removeInventar();
   
               it.showPopUp(
@@ -1542,6 +1547,7 @@ window.addEventListener("DOMContentLoaded", function () {
               it.showFalseMessage();
             }
           } else if (evt.detail.point.classList.contains("book")) {
+            devMode && console.log('--dev drop object', self.sceneEl.object3D)
             it.showPopUp(
               it.data.name,
               it.data.description_drop,
@@ -1933,7 +1939,6 @@ window.addEventListener("DOMContentLoaded", function () {
       clipping: { type: "boolean", default: true },
     },
     init: function () {
-      devMode && console.log("init toolls");
       const it = this;
       this.scene = this.el.object3D;
   
