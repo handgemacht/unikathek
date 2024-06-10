@@ -194,14 +194,16 @@ AFRAME.registerComponent('load-json-models', {
 			}
 		
 			for(let aLink of fgData.links){
-				let aSource = aLink.source;
-				let aTarget = aLink.target;
+				let aSource = aLink.source.name;
+				let aTarget = aLink.target.name;
 				for(let bLink of fgData.links){
-					let bSource = bLink.source;
-					let bTarget = bLink.target;
+					let bSource = bLink.source.name;
+					let bTarget = bLink.target.name;
 					if(aSource === bTarget && aTarget === bSource){
-						let index = fgData.links.indexOf(bLink);
-						fgData.links.splice(index-1, 1);
+						let index = fgData.links.indexOf(aLink);
+						if (index > -1){
+							fgData.links.splice(index, 1);
+						}
 					}
 				}
 			}
@@ -1155,6 +1157,11 @@ AFRAME.registerComponent('my-look-controls', {
 		if (!this.data.enabled || !this.data.mouseEnabled || ((sceneEl.is('vr-mode') || sceneEl.is('ar-mode')) && sceneEl.checkHeadsetConnected())) { return; }
 		// Handle only primary button.
 		if (evt.button !== 0) { return; }
+
+		if(evt.stopPropagation) evt.stopPropagation();
+	    if(evt.preventDefault) evt.preventDefault();
+	    evt.cancelBubble=true;
+	    evt.returnValue=false;
 
 		var canvasEl = sceneEl && sceneEl.canvas;
 

@@ -909,7 +909,7 @@ const app = {
 
 			const camera = document.createElement('a-camera');
 			collectionViewerElement.appendChild(camera);
-			camera.setAttribute('my-look-controls', 'pointerLockEnabled: false; reverseMouseDrag: true');
+			camera.setAttribute('my-look-controls', 'pointerLockEnabled: false;'); // reverseMouseDrag: true
 			camera.setAttribute('wasd-controls', 'fly: true; acceleration: 300;');
 			camera.setAttribute('position', '0 0 125');
 			camera.setAttribute('camera-focus-target', '');
