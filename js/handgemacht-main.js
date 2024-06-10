@@ -65,113 +65,6 @@ let modelViewerHTML =
 
 
 
-//START arViewerHTML
-let arViewerHTML=
-'<!-- START AR VIEWER -->'
-+'<!-- A Scene -->'
-+'    <a-scene id="scene" gltf-model="dracoDecoderPath: ./draco/;" xr-mode-ui="XRMode:ar;" webxr="requiredFeatures:  hit-test, dom-overlay, anchors; overlayElement: #overlay; referenceSpaceType:local;" controller>'
-+'      <a-assets>'
-+'      <img  id="sprite" crossorigin="anonymous" src="https://cdn.glitch.global/421736eb-f719-4a40-8df3-054eca30d277/spark.png?v=1715082340035" />'
-+'  <img  id="placer" crossorigin="anonymous" src="https://cdn.glitch.global/5e3e06f0-b4c6-44f7-b937-2c6dd722ebec/placer.png?v=1715762971794" />'
-+'  <img  id="book" crossorigin="anonymous"  src="../assets/hand.gemacht WebApp button context-story perlweiss.svg"/>'
-+'  <img  id="arrow" crossorigin="anonymous" src="https://cdn.glitch.global/5e3e06f0-b4c6-44f7-b937-2c6dd722ebec/Sideways_Arrow_Icon.png?v=1716899874858" />'
-+'</a-assets>'
-+'<!--camera with one raycaster for click control and one for camera raycast with ring animation-->'
-+'  <a-entity id="camera" camera position="0 0.2 0.5">'
-+'   <a-entity id="cursor" geometry="primitive: circle; radius: 0.001; " material="color:black; shader:flat" position="0 0 -0.01" raycaster="objects: .collidable; enabled:false;" scale="0.1 0.1 0.1">'
-+'            <a-text visibility-handler visible="false" value="Objekt aufheben" position="0 0.04 0" align="center" color="black" scale="0.02 0.02 0.02"></a-text>'
-+'          <a-entity geometry="primitive:ring; radiusInner:0.02; radiusOuter:0.03; thetaLength:0" material="shader:flat; transparent:true; opacity: 0.5" animation-handler animation="property:geometry.thetaLength; from:0; to: 360; dur:2000; startEvents:startRing; pauseEvents: stopRing"></a-entity>'
-+'        </a-entity></a-entity>'
-+'   <!--placing object in AR -->'
-+'  <a-entity id="place-object" ar-hit-test-special visible="false"></a-entity>'
-+'      <!--container for all elements which get placed in AR -->'
-+'      <a-entity id="container" hide-on-start-ar>'
-+'<a-entity class="collidable" id="object" get-bounding-box distance-listener anchored="persistent: true"></a-entity>'
-+'        <!-- missions need to be add -->'
-+'        <a-entity id="missions"> </a-entity></a-entity>'
-+'      <!-- circle for rotation control  -->'
-+'      <a-entity turn-to-camera="onlyYAxis:true" id="rotation-ring" geometry="primitive:ring;" rotation="-90 0 0" material=" color:#9B9691;">'
-+'        <a-entity id="touch-sphere" rotation-handler geometry="primitive:sphere; radius: 0.3" material="shader:flat;transparent:true; opacity:0"></a-entity>'
-+'        <a-entity geometry="primitive:plane; width:0.015; height: 0.015; " position="0 0 0.001" material="src:#arrow;"></a-entity></a-entity>'
-+'    </a-scene>'
-+'    <!-- OVERLAY -->'
-+'    <div id="overlay" class="hide">'
-+'      <!-- Menu Mission/Tools -->'
-+'      <div class="bottom-menu hide"><button id="missionBtn" class="menu-btn">Mission</button><button id="toolsBtn" class="menu-btn">Tools</button></div>'
-+'      <!-- Tool toggles -->'
-+'      <div class="toggle-container hide"><button class="message-btn" id="replace-button">Neu platzieren</button><div class="toggle-wrapper"><span class="toggle-label">Wireframe</span><label class="switch"><input type="checkbox" id="wireframe" /><span class="slider"></span></label></div>'
-+'        <div class="toggle-wrapper"><span class="toggle-label">Textur</span><label class="switch"><input type="checkbox" id="texture" checked /><span class="slider"></span></label></div>'
-+'        <div class="toggle-wrapper"><span class="toggle-label">Clipping</span><label class="switch"><input type="checkbox" id="clipping" checked /><span class="slider"></span></label></div></div>'
-+'      <div id="missionOverlay">'
-+'        <!-- score container-->'
-+'        <div id="score-container" class="book-container">'
-+'          <img src="..\assets\hand.gemacht WebApp button context-story perlweiss.svg" alt="Buch Score"/>'
-+'          <span id="score"> 0/0</span>'
-+'          <img src="https://cdn.glitch.global/5e3e06f0-b4c6-44f7-b937-2c6dd722ebec/14-10-13-121_256.gif?v=1716964501140" alt="exclamation mark" height="40px" width="40px" class="exclamation-mark hide"/>'
-+'        </div>'
-+'        <!--Popup for drag&Drop Task -->'
-+'        <div id="drag-drop-popup" class="annotation hide">'
-+'          <div class="annotation-close-container">'
-+'            <img src="..\assets\hand.gemacht WebApp close kohlegrau.svg" alt="Schließen-Icon" class="annotation-close-symbol" width="100px" height="100px"/>'
-+'          </div>'
-+'          <img src="..\assets\hand.gemacht WebApp button context-story perlweiss.svg" alt="Buch-Icon" class="annotation-book-symbol hide"/>'
-+'          <h3 class="headline">Headline</h3><div class="annotation-image"><div class="annotation-image-box"><img width="100px" height="100px" /></div><p class="annotation-image-caption"><span class="copyright"></span></p></div>'
-+'          <p class="annotation-text">Text</p></div>'
-+'        <!--Popup for point task -->'
-+'       <div id="point-popup" class="annotation hide">'
-+'          <div class="annotation-close-container">'
-+'            <img src="..\assets\hand.gemacht WebApp close kohlegrau.svg" alt="Schließen-Icon" class="annotation-close-symbol" width="100px" height="100px"/>'
-+'          </div>'
-+'          <img src="..\assets\hand.gemacht WebApp button context-story perlweiss.svg" alt="Buch-Icon" class="annotation-book-symbol"/>'
-+'          <h3 class="headline">Headline</h3><div class="annotation-image hide"><div class="annotation-image-box"><img width="100px" height="100px" /></div><p class="annotation-image-caption"><span class="copyright"></span></p></div>'
-+'          <audio class="hide" controls><source id="audioSrc" src="" type="audio/mpeg" /></audio>'
-+'          <p class="annotation-text">Text</p></div>'
-+'        <!--Popup for quiz -->'
-+'        <div id="quiz-popup" class="annotation hide">'
-+'          <div class="annotation-close-container">'
-+'            <img src="..\assets\hand.gemacht WebApp close kohlegrau.svg" alt="Schließen-Icon" class="annotation-close-symbol" width="100px" height="100px"/>'
-+'          </div>'
-+'          <h3 class="headline">Question</h3>'
-+'          <form id="quiz-form">'
-+'            <div class="answer-container"><input type="radio" id="answer1" name="answer" value="paris" /><label for="answer1" class="answer-option">Paris</label></div>'
-+'            <div class="answer-container"><input type="radio" id="answer2" name="answer" value="london" /><label for="answer2" class="answer-option">London</label></div>'
-+'            <div class="answer-container"><input type="radio" id="answer3" name="answer" value="berlin" /><label for="answer3" class="answer-option">Berlin</label></div>'
-+'            <button id="checkButton" class="message-btn" type="button">Antwort überprüfen</button></form>'
-+'          <p class="annotation-text"></p></div>'
-+'        <!-- inventar -->'
-+'        <div id="inventar"></div>'
-+'        <!-- mission overview-->'
-+'        <div id="mission-overview-popup" class="annotation mission hide">'
-+'          <div class="annotation-close-container"><img src="..\assets\hand.gemacht WebApp close kohlegrau.svg" alt="Schließen-Icon" class="annotation-close-symbol" width="100px" height="100px"/></div>'
-+'          <img src="..\assets\hand.gemacht WebApp button context-story perlweiss.svg" alt="Buch-Icon" class="book-symbol"/>'
-+'          <h3 class="headline">Missionen</h3> <div class="book-container">'
-+'            <img src="..\assets\hand.gemacht WebApp button context-story perlweiss.svg" alt="Buch Score" height="50px"/>'
-+'            <p id="mission1" class="annotation-text"><span class="score">0</span>/2 Objekte erfolgreich zugeordnet </p></div>'
-+'          <div class="book-container">'
-+'           <img src="..\assets\hand.gemacht WebApp button context-story perlweiss.svg" alt="Buch Score"height="50px"/>'
-+'            <p id="mission2" class="annotation-text"><span class="score">0</span>/1 Punkte gefunden</p></div>'
-+'          <div class="book-container">'
-+'            <img src="..\assets\hand.gemacht WebApp button context-story perlweiss.svg" alt="Buch Score"height="50px"/>'
-+'            <p id="mission3" class="annotation-text"><span class="score">0</span>/1 Fragen beantwortet</p></div>'
-+'          <div class="book-container">'
-+'            <img src="..\assets\hand.gemacht WebApp button context-story perlweiss.svg" alt="Buch Score"height="50px"/>'
-+'            <p id="mission4" class="annotation-text"><span class="score">0</span>/1 Animationen gestartet</p></div>'
-+'          <p class="annotation-text hide" id="restart-text">Möchtest du noch einmal starten?</p>'
-+'          <div id="missionButtons" class="button-container"><button class="message-btn hide">Ja</button></div></div></div>'
-+'      <!-- small message -->'
-+'      <div class="message hide"><p class="annotation-text">Text</p><div id="message" class="button-container"><button class="message-btn hide"></button><button class="message-btn hide"></button></div></div>'
-+'      <!-- big message -->'
-+'      <div id="big-message" class="annotation hide">'
-+'        <img src="..\assets\hand.gemacht WebApp button context-story perlweiss.svg" alt="Buch-Icon" class="book-symbol"/>'
-+'        <p class="annotation-text">Text</p><button class="nav">Los gehts!</button></div>'
-+'      <!-- close button -->'
-+'      <div id="close-cont" class="annotation-close-container">'
-+'        <img src="..\assets\hand.gemacht WebApp close kohlegrau.svg" alt="Schließen-Icon" class="annotation-close-symbol" width="24px" height="24px"/></div>'
-+'    </div>'
-+ '<!-- END AR VIEWER -->'
-//END arViewerHTML
-
-
 
 //START app 
 const app = {
@@ -216,6 +109,8 @@ const app = {
 
 		if (this.viewerMode === 'ar') {
 			this.arViewer.init();
+			this.gui.loadingScreen.content = 'loading ar viewer';
+			this.gui.loadingScreen.showLoadingScreen();
 		}		
 	}, //init
 
@@ -1041,6 +936,7 @@ const app = {
 			arViewerElement.setAttribute('xr-mode-ui', 'XRMode:ar');
 			arViewerElement.setAttribute('webxr', 'requiredFeatures:  hit-test, dom-overlay, anchors; overlayElement: #overlay; referenceSpaceType:local;');
 			arViewerElement.setAttribute('controller', '');
+			arViewerElement.setAttribute('renderer', 'stencil:true;')
 
 			const assets = document.createElement('a-assets');
 			arViewerElement.appendChild(assets);
