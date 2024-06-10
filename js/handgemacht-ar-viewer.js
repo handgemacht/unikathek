@@ -45,15 +45,31 @@ window.addEventListener("DOMContentLoaded", function () {
     const mesImage = bigMessage.querySelector(".book-symbol");
     const mesText = bigMessage.querySelector(".annotation-text");
     const mesButton = bigMessage.querySelector(".nav");
+
+    
   
-    //start ar mode
+    //after start ar mode
     scene.addEventListener("enter-vr", function () {
       domOverlay.classList.remove("hide");
       activateButton(null);
       toolsCont.classList.add("hide");
   
       //show welcome message
-      bigMessage.classList.remove("hide");
+      //message to start ar
+      let message = {
+        showClose: false,
+        //TODO src
+        content: '<img src="" alt="Entdecker-Icon" /> <p>Wilkommen im Entdeckermodus! Hier kannst du das Objekt im Raum platzieren. Danach kannst du spannende Aufgaben lösen oder dir das 3D-Objekt genauer ansehen.</p>' ,
+        color: 'skyblue',
+        button1: { content: 'Los gehts!', color: 'pearlwhite', shadow: 'coalgrey' },
+      }
+
+      app.gui.message.setMessage(message);
+
+      app.gui.message.messageButton1El.addEventListener('click', introductionFinished, {once:true});
+      
+    });
+      /*bigMessage.classList.remove("hide");
   
       //TODO right icon
       mesImage.src =
@@ -62,9 +78,9 @@ window.addEventListener("DOMContentLoaded", function () {
         "Wilkommen im Entdeckermodus! Hier kannst du das Objekt im Raum platzieren. Danach kannst du spannende Aufgaben lösen oder dir das 3D-Objekt genauer ansehen.";
       mesButton.textContent = "Los geht's!";
       mesButton.addEventListener("click", introductionFinished);
-    });
+    });*/
     function introductionFinished(event) {
-      event.target.removeEventListener("click", introductionFinished);
+      //event.target.removeEventListener("click", introductionFinished);
       mesImage.src =
         "https://cdn.glitch.com/a9975ea6-8949-4bab-addb-8a95021dc2da%2Fillustration.svg?v=1618177344016";
       mesText.textContent =
@@ -203,7 +219,32 @@ window.addEventListener("DOMContentLoaded", function () {
       self.addEventListener("model-loaded", function () {
         it.modelLoaded = true;
         app.gui.loadingScreen.hideLoadingScreen();
+        //message to start ar
+        let message = {
+          type: 'Entdeckermodus',
+          showClose: false,
+          content: '<p>Möchtest du den Entdecker-Modus starten?</p>',
+          color: 'skyblue',
+          button1: { content: 'Ja', color: 'pearlwhite', shadow: 'coalgrey' },
+          button2: { content: 'Nein', color: 'pearlwhite', shadow: 'coalgrey'},
+          
+        }
+
+        app.gui.message.setMessage(message);
+
+        app.gui.message.messageButton1El.addEventListener('click', startAR, {once:true});
+        app.gui.message.messageButton2El.addEventListener('click', cancelAR, {once:true});
       });
+
+      function startAR(e){
+        self.enterAR();
+        app.gui.message.messageButton2El.removeEventListener('click', cancelAR);
+      }
+
+      function cancelAR(e){
+        //TO DO navigate back to modelviewer
+        app.gui.message.messageButton1El.removeEventListener('click', startAR);
+      }
   
       //interaction pause/play listener for rotation
       let currentMission, currentTool;
