@@ -305,6 +305,113 @@ const app = {
 				guiMessageButtonContainer.appendChild(guiMessageButton2);
 				guiMessageButton2.className = 'gui-message-button hide';
 				guiMessageButton2.appendChild(document.createTextNode(this.button2Text));
+
+				//ar mode specific
+				const guiArOverlay = document.createElement('div');
+				guiMessageBox.appendChild(guiArOverlay);
+				guiArOverlay.id = 'ar-overlay';
+				guiArOverlay.className = 'hide';
+
+				const bottomMenu = document.createElement('div');
+				guiArOverlay.appendChild(bottomMenu);
+				bottomMenu.className = 'bottom-menu hide';
+
+				const missionBtn = document.createElement('button');
+				bottomMenu.appendChild(missionBtn);
+				missionBtn.id = 'missionBtn';
+				missionBtn.className = 'menu-btn';
+				missionBtn.textContent = 'Mission';
+
+				const toolsBtn = document.createElement('button');
+				bottomMenu.appendChild(toolsBtn);
+				toolsBtn.id = 'toolsBtn';
+				toolsBtn.className = 'menu-btn';
+				toolsBtn.textContent = 'Tools';
+				
+				const toggleContainer = document.createElement('div');
+				guiArOverlay.appendChild(toggleContainer);
+				toggleContainer.className = 'toggle-container hide';
+
+				const replaceButton = document.createElement('button');
+				toggleContainer.appendChild(replaceButton);
+				replaceButton.className = 'message-btn';
+				replaceButton.id = 'replace-button';
+				replaceButton.textContent = 'Neu platzieren';
+				
+				function createToggle(id, label, checked) {
+					const wrapper = document.createElement('div');
+					wrapper.className = 'toggle-wrapper';
+
+					const span = document.createElement('span');
+					wrapper.appendChild(span);
+					span.className = 'toggle-label';
+					span.textContent = label;
+
+					const labelSwitch = document.createElement('label');
+					wrapper.appendChild(labelSwitch);
+					labelSwitch.className = 'switch';
+
+					const input = document.createElement('input');
+					labelSwitch.appendChild(input);
+					input.type = 'checkbox';
+					input.id = id;
+
+					if (checked) input.checked = true;
+					const slider = document.createElement('span');
+					labelSwitch.appendChild(slider);
+					slider.className = 'slider';
+			
+					return wrapper;
+				}
+
+				toggleContainer.appendChild(createToggle('wireframe', 'Wireframe', false));
+				toggleContainer.appendChild(createToggle('texture', 'Textur', true));
+				toggleContainer.appendChild(createToggle('clipping', 'Clipping', true));
+				
+				const missionOverlay = document.createElement('div');
+				guiArOverlay.appendChild(missionOverlay);
+				missionOverlay.id = 'missionOverlay';
+				missionOverlay.className = 'hide';
+
+				const scoreContainer = document.createElement('div');
+				missionOverlay.appendChild(scoreContainer);
+				scoreContainer.id = 'score-container';
+				scoreContainer.className = 'book-container';
+
+				const scoreImg = document.createElement('img');
+				scoreContainer.appendChild(scoreImg);
+				scoreImg.src = 'assets/hand.gemacht WebApp button context-story perlweiss.svg';
+				scoreImg.alt = 'Buch Score';
+
+				const scoreSpan = document.createElement('span');
+				scoreContainer.appendChild(scoreSpan);
+				scoreSpan.id = 'score';
+				scoreSpan.textContent = '0/0';
+
+				const exclamationImg = document.createElement('img');
+				scoreContainer.appendChild(exclamationImg);
+				//TODO own exclamation mark
+				exclamationImg.src = 'https://cdn.glitch.global/5e3e06f0-b4c6-44f7-b937-2c6dd722ebec/14-10-13-121_256.gif?v=1716964501140';
+				exclamationImg.alt = 'exclamation mark';
+				exclamationImg.height = '40';
+				exclamationImg.width = '40';
+				exclamationImg.className = 'exclamation-mark hide';
+
+				var inventar = document.createElement('div');
+				missionOverlay.appendChild(inventar);
+				inventar.id = 'inventar';
+
+				const closeContainer = document.createElement('div');
+				guiArOverlay.appendChild(closeContainer);
+				closeContainer.id = 'close-cont';
+				closeContainer.className = 'annotation-close-container';
+				var closeSymbol = document.createElement('img');
+				closeContainer.appendChild(closeSymbol);
+				closeSymbol.src = 'assets/hand.gemacht WebApp close kohlegrau.svg';
+				closeSymbol.alt = 'Schließen-Icon';
+				closeSymbol.className = 'annotation-close-symbol';
+				closeSymbol.width = '24';
+				closeSymbol.height = '24';
 			}, 
 
 			showMessage() {
@@ -1064,81 +1171,13 @@ const app = {
 			arrow.setAttribute('material', 'src:#arrow');
 			
 			//from ChatGPT
-			var overlay = document.createElement('div');
-			overlay.id = 'overlay';
-			overlay.className = 'hide';
+			
+			/*
+			
 
-			var bottomMenu = document.createElement('div');
-			bottomMenu.className = 'bottom-menu hide';
-			var missionBtn = document.createElement('button');
-			missionBtn.id = 'missionBtn';
-			missionBtn.className = 'menu-btn';
-			missionBtn.textContent = 'Mission';
-			var toolsBtn = document.createElement('button');
-			toolsBtn.id = 'toolsBtn';
-			toolsBtn.className = 'menu-btn';
-			toolsBtn.textContent = 'Tools';
-			bottomMenu.appendChild(missionBtn);
-			bottomMenu.appendChild(toolsBtn);
-			overlay.appendChild(bottomMenu);
+		
 
-			var toggleContainer = document.createElement('div');
-			toggleContainer.className = 'toggle-container hide';
-			var replaceButton = document.createElement('button');
-			replaceButton.className = 'message-btn';
-			replaceButton.id = 'replace-button';
-			replaceButton.textContent = 'Neu platzieren';
-			toggleContainer.appendChild(replaceButton);
-
-			function createToggle(id, label, checked) {
-				var wrapper = document.createElement('div');
-				wrapper.className = 'toggle-wrapper';
-				var span = document.createElement('span');
-				span.className = 'toggle-label';
-				span.textContent = label;
-				var labelSwitch = document.createElement('label');
-				labelSwitch.className = 'switch';
-				var input = document.createElement('input');
-				input.type = 'checkbox';
-				input.id = id;
-				if (checked) input.checked = true;
-				var slider = document.createElement('span');
-				slider.className = 'slider';
-				labelSwitch.appendChild(input);
-				labelSwitch.appendChild(slider);
-				wrapper.appendChild(span);
-				wrapper.appendChild(labelSwitch);
-				return wrapper;
-			}
-
-			toggleContainer.appendChild(createToggle('wireframe', 'Wireframe', false));
-			toggleContainer.appendChild(createToggle('texture', 'Textur', true));
-			toggleContainer.appendChild(createToggle('clipping', 'Clipping', true));
-			overlay.appendChild(toggleContainer);
-
-			var missionOverlay = document.createElement('div');
-			missionOverlay.id = 'missionOverlay';
-
-			var scoreContainer = document.createElement('div');
-			scoreContainer.id = 'score-container';
-			scoreContainer.className = 'book-container';
-			var scoreImg = document.createElement('img');
-			scoreImg.src = 'assets/hand.gemacht WebApp button context-story perlweiss.svg';
-			scoreImg.alt = 'Buch Score';
-			var scoreSpan = document.createElement('span');
-			scoreSpan.id = 'score';
-			scoreSpan.textContent = '0/0';
-			var exclamationImg = document.createElement('img');
-			//TODO own exclamation mark
-			exclamationImg.src = 'https://cdn.glitch.global/5e3e06f0-b4c6-44f7-b937-2c6dd722ebec/14-10-13-121_256.gif?v=1716964501140';
-			exclamationImg.alt = 'exclamation mark';
-			exclamationImg.height = '40';
-			exclamationImg.width = '40';
-			exclamationImg.className = 'exclamation-mark hide';
-			scoreContainer.appendChild(scoreImg);
-			scoreContainer.appendChild(scoreSpan);
-			scoreContainer.appendChild(exclamationImg);
-			missionOverlay.appendChild(scoreContainer);
+			
 
 			function createPopup(id, title, content) {
 				var popup = document.createElement('div');
@@ -1232,9 +1271,7 @@ const app = {
 			quizPopup.appendChild(document.createElement('p')).className = 'annotation-text';
 			missionOverlay.appendChild(quizPopup);
 
-			var inventar = document.createElement('div');
-			inventar.id = 'inventar';
-			missionOverlay.appendChild(inventar);
+			
 
 			var missionOverview = createPopup('mission-overview-popup', 'Missionen', '');
 			missionOverview.className = 'annotation mission hide';
@@ -1313,19 +1350,9 @@ const app = {
 			bigMessage.appendChild(navButton);
 			overlay.appendChild(bigMessage);
 
-			var closeContainer = document.createElement('div');
-			closeContainer.id = 'close-cont';
-			closeContainer.className = 'annotation-close-container';
-			var closeSymbol = document.createElement('img');
-			closeSymbol.src = 'assets/hand.gemacht WebApp close kohlegrau.svg';
-			closeSymbol.alt = 'Schließen-Icon';
-			closeSymbol.className = 'annotation-close-symbol';
-			closeSymbol.width = '24';
-			closeSymbol.height = '24';
-			closeContainer.appendChild(closeSymbol);
-			overlay.appendChild(closeContainer);
+			
 
-			document.body.appendChild(overlay);
+			document.body.appendChild(overlay);*/
 
 		}
 

@@ -929,7 +929,7 @@ img.cv-highlight-arrow {
 pointer-events: auto !important;
 }
 
-#overlay {
+#ar-overlay {
     position: fixed;
     width: 100vw;
     height: 100vh;
@@ -1138,48 +1138,6 @@ input[type="radio"]:checked + .answer-option {
 /*close AR container*/
 #close-cont {
   padding: 10px;
-}
-
-/*small and big MESSAGE*/
-#big-message {
-  top: 20%;
-  min-height: 450px;
-}
-
-div.message {
-  position: fixed;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 5px 5px 5px 15px;
-  margin: 0;
-  min-width: 150px;
-  max-width: 80%;
-  min-height: 30px;
-  max-height: 35%;
-  top: 55%;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: rgba(250, 240, 230, 0.5);
-  font-size: 0.7em;
-  border-radius: 0px 15px 0px 15px;
-  box-shadow: 5px 5px #9b9691;
-}
-
-.message-btn {
-  display: inline-block;
-  margin: 5px 5px 0 0;
-  padding: 5px 10px;
-  font-size: 0.7em;
-  color: #333333;
-  background-color: rgba(250, 240, 230, 0.5);
-  border: 1px solid #9b9691;
-  border-radius: 5px;
-}
-/* Center the buttons horizontally */
-.button-container {
-  display: flex;
-  justify-content: center;
-  width: 100%;
 }
 
 /* END a-frame */
