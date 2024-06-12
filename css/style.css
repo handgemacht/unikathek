@@ -1097,7 +1097,7 @@ input[type="radio"] {
 }
 /* Change color of the checked label */
 input[type="radio"]:checked + .answer-option {
-  background-color: #ff7850;
+  background-color: #A04B19;
 }
 
 /* INVENTAR */

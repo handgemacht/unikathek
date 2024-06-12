@@ -193,6 +193,7 @@ AFRAME.registerComponent("controller", {
     this.showMissionPopup = this.showMissionPopup.bind(this);
     this.solveMission = this.solveMission.bind(this);
     this.restartMissions = this.restartMissions.bind(this);
+    this.resetScore = this.resetScore.bind(this);
 
     it.loadJSON();
     //inventar
@@ -536,6 +537,7 @@ AFRAME.registerComponent("controller", {
   initMissionUI: function () {
     let self = this.el;
     let it = this;
+    it.completed = false;
 
     //init points UI overview
     this.scoreField = document.getElementById("score");
@@ -545,7 +547,7 @@ AFRAME.registerComponent("controller", {
     const scoreCont = document.getElementById("score-container");
     scoreCont.addEventListener("click", function (e) {
       scoreCont.classList.add("hide");
-      it.showMissionPopup(this.completed);
+      it.showMissionPopup(it.completed);
       self.setAttribute("controller", {
         raycaster: false,
         inventar: false,
@@ -598,6 +600,9 @@ AFRAME.registerComponent("controller", {
     });
   },
   showMissionPopup: function (completed) {
+    devMode && console.log(completed);
+    let it = this;
+    let self = this.el;
     let message = {
       type: 'Übersicht',
       showClose: true,
@@ -609,11 +614,11 @@ AFRAME.registerComponent("controller", {
     }
 
     app.gui.message.setMessage(message);
-    app.gui.message.messageButton1El.addEventListener('click', this.restartMissions, { once: true });
+    if(completed) app.gui.message.messageButton1El.addEventListener('click', this.restartMissions, { once: true });
     const scoreCont = document.getElementById("score-container");
     app.gui.message.messageCloseEl.addEventListener('click', function (e) {
       scoreCont.classList.remove("hide");
-      this.el.setAttribute("controller", {
+      self.setAttribute("controller", {
         raycaster: true,
         inventar: true,
         rotate: true,
@@ -626,16 +631,16 @@ AFRAME.registerComponent("controller", {
         "Fragen beantwortet",
         "Animationen gestartet",
       ];
-      let content = '<img src="assets/hand.gemacht WebApp button context-story kohlegrau.svg" alt="Buch Icon" class="book-symbol">'
+      let content = ''
       content += completed ? '<h3>Herzlichen Glückwunsch du hast alle Missionen erfüllt!</h3>' : '<h3>Schließe alle Missionen ab!</h3>';
-      let sumPointsValues = Object.values(this.sumPointsPerCategory);
-      let currentPointsValues = Object.values(this.currentPointsPerCategory);
+      let sumPointsValues = Object.values(it.sumPointsPerCategory);
+      let currentPointsValues = Object.values(it.currentPointsPerCategory);
       for (let i = 0; i < sumPointsValues.length; i++) {
-        if (sumPointsValues < 1) continue;
+        if (sumPointsValues[i] < 1) continue;
         let pointLine =
           '<div class="book-container">'
           + '<img src="assets/hand.gemacht WebApp button context-story kohlegrau.svg" alt="Buch Icon" height="50px">'
-          + `<p>${currentPointsValues[i]}/${sumPointsValues[i]} ${missionTexts[i]}`
+          + `<p>${currentPointsValues[i]}/${sumPointsValues[i]} ${missionTexts[i]}</p></div>`
         content += pointLine;
       }
       return content;
@@ -644,7 +649,7 @@ AFRAME.registerComponent("controller", {
   initInventar: function () {
     let self = this.el;
     let it = this;
-    it.completed = false;
+    
     it.dropZones = document.querySelectorAll(".drop");
     const inventarCont = document.getElementById("inventar");
     for (let zone of it.dropZones) {
@@ -682,6 +687,7 @@ AFRAME.registerComponent("controller", {
       it.inventar = it.inventar.filter((item) => item.place !== place);
 
       //hide drop zones and make them not collidable
+      it.dropZones = document.querySelectorAll(".drop");
       it.dropZones.forEach((element) => {
         element.classList.remove("collidable");
       });
@@ -754,10 +760,10 @@ AFRAME.registerComponent("controller", {
       }
     }
 
-    //actualize points per category      
-    let sum = 0;
+    //actualize points per category    
+  
     for (let i = 0; i < this.missions.length; i++) {
-      if (this.missions[i].done) {
+      if (this.missions[i].id === currentID) {
         switch (this.missions[i].category) {
           case "dragDrop":
             this.currentPointsPerCategory.dragDrop++;
@@ -774,6 +780,8 @@ AFRAME.registerComponent("controller", {
         }
       }
     }
+    devMode && console.log("points",this.currentPointsPerCategory);
+    devMode && console.log("missions",this.currentPoints);
 
     //all missions solved
     if (this.currentPoints === this.sumPoints) {
@@ -796,7 +804,8 @@ AFRAME.registerComponent("controller", {
 
   },
   restartMissions: function (event) {
-    event.target.removeEventListener("click", this.restartMissions);
+    app.gui.message.messageButton1El.removeEventListener("click", this.restartMissions);
+    app.gui.message.hideMessage();
     this.completed = false;
     for (let mission of this.missions) {
       mission.done = false;
@@ -822,11 +831,12 @@ AFRAME.registerComponent("controller", {
     const scoreCont = document.getElementById("score-container");
     const exclamationMark = scoreCont.querySelector(".exclamation-mark");
     exclamationMark.classList.add("hide");
-
+    scoreCont.classList.remove("hide");
     this.currentPoints = 0;
-    Object.values(currentPointsPerCategory).forEach(value => {
-      value = 0;
+    Object.keys(this.currentPointsPerCategory).forEach(key => {
+      this.currentPointsPerCategory[key] = 0;
     });
+    
     this.scoreField.textContent = `${this.currentPoints}/${this.sumPoints}`;
   },
 
@@ -878,7 +888,7 @@ AFRAME.registerComponent("ar-hit-test-special", {
       session.requestReferenceSpace("viewer").then((space) => {
         this.viewerSpace = space;
         session
-          .requestHitTestSource({ space: this.viewerSpace })
+          .requestHitTestSource({ space: this.viewerSpace, offsetRay: new XRRay({y:-0.3}) })
           .then((hitTestSource) => {
             this.xrHitTestSource = hitTestSource;
           });
@@ -887,7 +897,7 @@ AFRAME.registerComponent("ar-hit-test-special", {
       session.requestReferenceSpace("local").then((space) => {
         this.refSpace = space;
       });
-      //})
+     
 
       self.addEventListener("first-pose", function () {
         it.showMessage("move");
@@ -1204,7 +1214,7 @@ AFRAME.registerComponent("distance-listener", {
       const dx = cameraPos.x - this.selfPos.x;
       const dz = cameraPos.z - this.selfPos.z;
       const distance = Math.sqrt(dx * dx + dz * dz);
-      if (distance > 2 && !(this.lastGroup == "far")) {
+      if (distance > 1 && !(this.lastGroup == "far")) {
         this.lastGroup = "far";
         this.el.emit("distance-far", null, true);
       } else if (
@@ -1511,7 +1521,6 @@ AFRAME.registerComponent("drag-drop-task", {
             //change class to book
             evt.detail.point.classList.remove("drop");
             evt.detail.point.classList.add("book", "collidable");
-            devMode && console.log('--dev drop object', self.sceneEl.object3D)
             it.removeInventar();
 
             it.showPopUp(
@@ -1558,10 +1567,10 @@ AFRAME.registerComponent("drag-drop-task", {
     function getContent() {
       let content = '';
       let headline = '<h3>' + name + '</h3>'
-      let image = `<div class="annotation-image><div class = "annotation-image-box>
-        <img width="100px" height="100px" src="${imgSrc}" alt="${imgAlt}></div>
-        <p class="annotation-image-caption">${imgCaption}<span class="copyright">Foto: ${imgCr}</span></p></div>`
-      let description = `<p>${desc}</p></div>`
+      let image = `<div class="annotation-image"><div class = "annotation-image-box">
+        <img width="100px" height="100px" src="${imgSrc}" alt="${imgAlt}"></div>
+        <p class="annotation-image-caption">${imgCaption}<span class="copyright"> Foto: ${imgCr}</span></p></div>`
+      let description = `<p>${desc}</p>`
       return content + headline + image + description;
 
     }
@@ -1725,7 +1734,7 @@ AFRAME.registerComponent("point-task", {
 
 
       let description = `<p>${desc}</p></div>`
-      return content + headline + image + audio + description;
+      return content + headline + image + audioEl + description;
 
     }
 
@@ -1811,15 +1820,19 @@ AFRAME.registerComponent("quiz-task", {
       let content = '';
       let description = '';
       let headline = '<h3>' + name + '</h3>'
-      let form = '<form id="quiz-form>' +
-        `<div class="answer-container"<input type="radio" id="answer1" name="answer" value="${answers[0].toLowerCase}>
+      let form = '<form id="quiz-form">' +
+        `<div class="answer-container"><input type="radio" id="answer1" name="answer" value="${answers[0].toLowerCase()}">
         <label for="answer1" class="answer-option">${answers[0]}</label></div>` +
-        `<div class="answer-container"<input type="radio" id="answer2" name="answer" value="${answers[1].toLowerCase}>
+        `<div class="answer-container"><input type="radio" id="answer2" name="answer" value="${answers[1].toLowerCase()}">
         <label for="answer2" class="answer-option">${answers[1]}</label></div>` +
-        `<div class="answer-container"<input type="radio" id="answer3" name="answer" value="${answers[2].toLowerCase}>
-        <label for="answer3" class="answer-option">${answers[2]}</label></div>`
+        `<div class="answer-container"><input type="radio" id="answer3" name="answer" value="${answers[2].toLowerCase()}">
+        <label for="answer3" class="answer-option">${answers[2]}</label></div> </form>`
 
-      if (it.solved) description = `<p id="quiz-text">${desc}</p></div>`;
+      if (it.solved){
+        description = `<p id="quiz-text">${desc}</p>`;
+      } else {
+        description = '<p id="quiz-text"></p>';
+      }
       return content + headline + form + description;
 
     }
@@ -1852,12 +1865,12 @@ AFRAME.registerComponent("quiz-task", {
   checkAnswer: function (event) {
     const form = document.getElementById("quiz-form");
     const selectedOption = form.querySelector('input[name="answer"]:checked');
-    this.text = document.querySelector("#quiz-text");
+    const text = document.querySelector("#quiz-text");
     if (selectedOption) {
       if (selectedOption.value === this.data.rightAnswer.toLowerCase()) {
-        this.text.innerHTML = "Richtig!<br>" + this.data.description;
+        text.innerHTML = "Richtig!<br>" + this.data.description;
         event.target.removeEventListener("click", this.checkAnswer);
-        app.gui.message.messageCloseEl.classList.add("hide");
+        app.gui.message.messageButton1El.classList.add("hide");
         // Prevent default click behavior on radio buttons
         this.disableRadios();
         this.el.children[0].setAttribute("material", { src: "#book" });
@@ -1868,27 +1881,23 @@ AFRAME.registerComponent("quiz-task", {
         //count points
         this.el.emit("point-achieved", { pointID: this.el.classList[0] }, true);
       } else {
-        this.text.textContent = "Leider falsch. Probiere es noch einmal!";
+        text.textContent = "Leider falsch. Probiere es noch einmal!";
       }
     } else {
-      this.text.textContent = "Bitte wähle etwas aus!";
+      text.textContent = "Bitte wähle etwas aus!";
     }
   },
   disableRadios: function () {
     for (let i = 0; i < this.data.answers.length; i++) {
       let radio = document.getElementById("answer" + (i + 1));
+      if(radio.value === this.data.rightAnswer.toLowerCase()){
+        radio.checked = true;
+      }
       // Prevent default click behavior on radio buttons
       radio.addEventListener("click", this.preventClick);
     }
   },
-  enableRadios: function () {
-    for (let i = 0; i < this.data.answers.length; i++) {
-      let radio = document.getElementById("answer" + (i + 1));
-      radio.checked = false;
-      // Prevent default click behavior on radio buttons
-      radio.removeEventListener("click", this.preventClick);
-    }
-  },
+  
   preventClick: function (event) {
     event.preventDefault();
   },
@@ -1898,9 +1907,6 @@ AFRAME.registerComponent("quiz-task", {
     self.children[0].setAttribute("collider-check", {
       description: "Punkt aktivieren",
     });
-    it.text.textContent = "";
-    it.enableRadios();
-    it.checkButton.classList.remove("hide");
   },
 });
 
@@ -1929,10 +1935,10 @@ AFRAME.registerComponent("tools", {
     this.poGroup = new THREE.Group();
     //plane
     this.planeOne = new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0);
-    /*//plane helper
+    //plane helper
     this.planeHelper = new THREE.PlaneHelper(this.planeOne, 2, 0xffffff);
     this.planeHelper.visible = this.data.planeHelper;
-    if (this.planeHelper.visible) this.scene.add(this.planeHelper);*/
+    if (this.planeHelper.visible) this.scene.add(this.planeHelper);
     // Renderer
     this.renderer = this.el.renderer;
     this.renderer.shadowMap.enabled = true;
@@ -2061,7 +2067,7 @@ AFRAME.registerComponent("tools", {
       //make current object invisible
       this.oldObject.visible = false;
 
-      //set position of the cotainer
+      //set position of the container
       this.objectOverlay.position.set(arPos.x, arPos.y, arPos.z);
       this.objectOverlay.rotation.y = rotY;
 

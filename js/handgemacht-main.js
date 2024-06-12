@@ -230,7 +230,7 @@ const app = {
 		},
 
 		message: {
-			type: 'default type',
+			type: '',
 			content: 'default message',
 			color: 'smokegrey',
 			shadow: null,
@@ -419,7 +419,7 @@ const app = {
 			}, 
 
 			hideMessage() {
-				this.type = 'default type';
+				this.type = '';
 				this.content = 'default content';
 				this.color = 'smokegrey';
 				this.shadow = null;
@@ -431,7 +431,7 @@ const app = {
 				this.button2.shadow = 'coalgrey';
 				this.showClose = true;
 
-				this.messageTypeEl.className = 'gui-message-type';
+				this.messageTypeEl.className = 'gui-message-type hide';
 				this.messageEl.className = 'gui-message';
 				this.messageContainerEl.className = 'gui-message-container hide';
 				this.messageCloseEl.className = 'gui-message-close';
@@ -469,8 +469,7 @@ const app = {
 					Object.keys(message.button2).includes("shadow") ? this.button2.shadow = 'shadow-'+message.button2.shadow : '';
 				}
 				Object.keys(message).includes("showClose") ? this.showClose = message.showClose : this.showClose = true;
-
-				this.type && this.messageTypeEl.classList.remove('hide')
+				this.type && this.messageTypeEl.classList.remove('hide');
 				this.button1.content && this.messageButton1El.classList.remove('hide');
 				this.button2.content && this.messageButton2El.classList.remove('hide');
 				!this.showClose && this.messageCloseEl.classList.add('hide');
@@ -1136,6 +1135,7 @@ const app = {
 			arViewerElement.appendChild(containerObject);
 			containerObject.setAttribute('id', 'container');
 			containerObject.setAttribute('hide-on-start-ar', '');
+			containerObject.setAttribute('visible', 'false');
 			
 			const object = document.createElement('a-entity');
 			containerObject.appendChild(object);
@@ -1170,190 +1170,7 @@ const app = {
 			arrow.setAttribute('position', ' 0 0 0.001');
 			arrow.setAttribute('material', 'src:#arrow');
 			
-			//from ChatGPT
 			
-			/*
-			
-
-		
-
-			
-
-			function createPopup(id, title, content) {
-				var popup = document.createElement('div');
-				popup.id = id;
-				popup.className = 'annotation hide';
-				var closeContainer = document.createElement('div');
-				closeContainer.className = 'annotation-close-container';
-				var closeImg = document.createElement('img');
-				closeImg.src = 'assets/hand.gemacht WebApp close kohlegrau.svg';
-				closeImg.alt = 'Schließen-Icon';
-				closeImg.className = 'annotation-close-symbol';
-				closeImg.width = '100';
-				closeImg.height = '100';
-				closeContainer.appendChild(closeImg);
-				popup.appendChild(closeContainer);
-				var bookImg = document.createElement('img');
-				bookImg.src = 'assets/hand.gemacht WebApp button context-story perlweiss.svg ';
-				bookImg.alt = 'Buch-Icon';
-				bookImg.className = 'annotation-book-symbol hide';
-				var headline = document.createElement('h3');
-				headline.className = 'headline';
-				headline.textContent = title;
-				var annotationImage = document.createElement('div');
-				annotationImage.className = 'annotation-image';
-				var imageBox = document.createElement('div');
-				imageBox.className = 'annotation-image-box';
-				var img = document.createElement('img');
-				img.width = '100';
-				img.height = '100';
-				imageBox.appendChild(img);
-				annotationImage.appendChild(imageBox);
-				var caption = document.createElement('p');
-				caption.className = 'annotation-image-caption';
-				var copyright = document.createElement('span');
-				copyright.className = 'copyright';
-				caption.appendChild(copyright);
-				annotationImage.appendChild(caption);
-				var annotationText = document.createElement('p');
-				annotationText.className = 'annotation-text';
-				annotationText.textContent = content;
-				popup.appendChild(bookImg);
-				popup.appendChild(headline);
-				popup.appendChild(annotationImage);
-				popup.appendChild(annotationText);
-				return popup;
-			}
-
-			missionOverlay.appendChild(createPopup('drag-drop-popup', 'Headline', 'Text'));
-
-			var pointPopup = createPopup('point-popup', 'Headline', 'Text');
-			var audio = document.createElement('audio');
-			audio.className = 'hide';
-			audio.controls = true;
-			var source = document.createElement('source');
-			source.id = 'audioSrc';
-			source.src = '';
-			source.type = 'audio/mpeg';
-			audio.appendChild(source);
-			pointPopup.appendChild(audio);
-			missionOverlay.appendChild(pointPopup);
-
-			var quizPopup = createPopup('quiz-popup', 'Question', '');
-			var quizForm = document.createElement('form');
-			quizForm.id = 'quiz-form';
-			function createAnswer(id, value, label) {
-				var container = document.createElement('div');
-				container.className = 'answer-container';
-				var input = document.createElement('input');
-				input.type = 'radio';
-				input.id = id;
-				input.name = 'answer';
-				input.value = value;
-				var answerLabel = document.createElement('label');
-				answerLabel.htmlFor = id;
-				answerLabel.className = 'answer-option';
-				answerLabel.textContent = label;
-				container.appendChild(input);
-				container.appendChild(answerLabel);
-				return container;
-			}
-			quizForm.appendChild(createAnswer('answer1', 'paris', 'Paris'));
-			quizForm.appendChild(createAnswer('answer2', 'london', 'London'));
-			quizForm.appendChild(createAnswer('answer3', 'berlin', 'Berlin'));
-			var checkButton = document.createElement('button');
-			checkButton.id = 'checkButton';
-			checkButton.className = 'message-btn';
-			checkButton.type = 'button';
-			checkButton.textContent = 'Antwort überprüfen';
-			quizForm.appendChild(checkButton);
-			quizPopup.appendChild(quizForm);
-			quizPopup.appendChild(document.createElement('p')).className = 'annotation-text';
-			missionOverlay.appendChild(quizPopup);
-
-			
-
-			var missionOverview = createPopup('mission-overview-popup', 'Missionen', '');
-			missionOverview.className = 'annotation mission hide';
-			function createMission(id, score, text) {
-				var container = document.createElement('div');
-				container.className = 'book-container';
-				var img = document.createElement('img');
-				img.src = 'assets/hand.gemacht WebApp close kohlegrau.svg';
-				img.alt = 'Buch Score';
-				img.height = '50';
-				var p = document.createElement('p');
-				p.id = id;
-				p.className = 'annotation-text';
-				var span = document.createElement('span');
-				span.className = 'score';
-				span.textContent = score;
-				p.appendChild(span);
-				p.appendChild(document.createTextNode(text));
-				container.appendChild(img);
-				container.appendChild(p);
-				return container;
-			}
-			missionOverview.appendChild(createMission('mission1', '0', '/2 Objekte erfolgreich zugeordnet'));
-			missionOverview.appendChild(createMission('mission2', '0', '/1 Punkte gefunden'));
-			missionOverview.appendChild(createMission('mission3', '0', '/1 Fragen beantwortet'));
-			missionOverview.appendChild(createMission('mission4', '0', '/1 Animationen gestartet'));
-			var restartText = document.createElement('p');
-			restartText.className = 'annotation-text hide';
-			restartText.id = 'restart-text';
-			restartText.textContent = 'Möchtest du noch einmal starten?';
-			missionOverview.appendChild(restartText);
-			var missionButtons = document.createElement('div');
-			missionButtons.id = 'missionButtons';
-			missionButtons.className = 'button-container';
-			var yesButton = document.createElement('button');
-			yesButton.className = 'message-btn hide';
-			yesButton.textContent = 'Ja';
-			missionButtons.appendChild(yesButton);
-			missionOverview.appendChild(missionButtons);
-			missionOverlay.appendChild(missionOverview);
-			overlay.appendChild(missionOverlay);
-
-			var smallMessage = document.createElement('div');
-			smallMessage.className = 'message hide';
-			var smallMessageText = document.createElement('p');
-			smallMessageText.className = 'annotation-text';
-			smallMessageText.textContent = 'Text';
-			var messageContainer = document.createElement('div');
-			messageContainer.id = 'message';
-			messageContainer.className = 'button-container';
-			var msgBtn1 = document.createElement('button');
-			msgBtn1.className = 'message-btn hide';
-			var msgBtn2 = document.createElement('button');
-			msgBtn2.className = 'message-btn hide';
-			messageContainer.appendChild(msgBtn1);
-			messageContainer.appendChild(msgBtn2);
-			smallMessage.appendChild(smallMessageText);
-			smallMessage.appendChild(messageContainer);
-			overlay.appendChild(smallMessage);
-
-			var bigMessage = document.createElement('div');
-			bigMessage.id = 'big-message';
-			bigMessage.className = 'annotation hide';
-			var bigMessageImg = document.createElement('img');
-			bigMessageImg.src = 'assets/hand.gemacht WebApp close kohlegrau.svg';
-			bigMessageImg.alt = 'Buch-Icon';
-			bigMessageImg.className = 'book-symbol';
-			var bigMessageText = document.createElement('p');
-			bigMessageText.className = 'annotation-text';
-			bigMessageText.textContent = 'Text';
-			var navButton = document.createElement('button');
-			navButton.className = 'nav';
-			navButton.textContent = 'Los gehts!';
-			bigMessage.appendChild(bigMessageImg);
-			bigMessage.appendChild(bigMessageText);
-			bigMessage.appendChild(navButton);
-			overlay.appendChild(bigMessage);
-
-			
-
-			document.body.appendChild(overlay);*/
-
 		}
 
 	}, //arViewer
