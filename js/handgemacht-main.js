@@ -337,6 +337,8 @@ const app = {
 				replaceButton.className = 'message-btn';
 				replaceButton.id = 'replace-button';
 				replaceButton.textContent = 'Neu platzieren';
+
+				
 				
 				function createToggle(id, label, checked) {
 					const wrapper = document.createElement('div');
@@ -367,7 +369,30 @@ const app = {
 				toggleContainer.appendChild(createToggle('wireframe', 'Wireframe', false));
 				toggleContainer.appendChild(createToggle('texture', 'Textur', true));
 				toggleContainer.appendChild(createToggle('clipping', 'Clipping', true));
+				toggleContainer.appendChild(createToggle('shot', 'Freeze', false));
 				
+				function createSlider(id, label, min, max, step, value) {
+					const wrapper = document.createElement('div');
+					wrapper.className = 'slider-container';
+		
+					const span = document.createElement('span');
+					wrapper.appendChild(span);
+					span.className = 'slider-label';
+					span.textContent = label;
+		
+					const input = document.createElement('input');
+					wrapper.appendChild(input);
+					input.type = 'range';
+					input.id = id;
+					input.min = min;
+					input.max = max;
+					input.step = step;
+					input.value = value;
+		
+					return wrapper;
+				}
+				toggleContainer.appendChild(createSlider('distance-slider', 'Entfernung', 0.1, 1, 0.01, 0.5));
+
 				const missionOverlay = document.createElement('div');
 				guiArOverlay.appendChild(missionOverlay);
 				missionOverlay.id = 'missionOverlay';
@@ -430,6 +455,8 @@ const app = {
 				this.button2.color = 'smokegrey';
 				this.button2.shadow = 'coalgrey';
 				this.showClose = true;
+				//reset scrolling
+				this.messageContentContainerEl.scrollTop = 0;
 
 				this.messageTypeEl.className = 'gui-message-type hide';
 				this.messageEl.className = 'gui-message';
@@ -1053,6 +1080,7 @@ const app = {
 			arViewerElement.setAttribute('webxr', 'requiredFeatures:  hit-test, dom-overlay, anchors; overlayElement: .gui-message-box; referenceSpaceType:local;');
 			arViewerElement.setAttribute('controller', '');
 			arViewerElement.setAttribute('renderer', 'stencil:true;');
+			arViewerElement.setAttribute('tools', 'enabled:false;')
 
 			const assets = document.createElement('a-assets');
 			arViewerElement.appendChild(assets);

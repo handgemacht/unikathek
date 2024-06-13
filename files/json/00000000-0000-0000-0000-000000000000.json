@@ -45,7 +45,6 @@
 				"taskType": "quiz",
 				"dependable": false,
 				"activates": 5,
-				"position": "-0.268m 0.774m 0.055m",
 				"name": "Wie viele Knöpfe sind am Dirndl angebracht?",
 				"answers": [
 					"5",
@@ -53,7 +52,8 @@
 					"6"
 				],
 				"rightAnswer": "5 1/2",
-				"description": "Das Tragen des Dirndls hinterließ Spuren: Der Aufsatz eines Knopfes ist bereits abgegangen. Finde am Knopf heraus, wieso."
+				"description": "Das Tragen des Dirndls hinterließ Spuren: Der Aufsatz eines Knopfes ist bereits abgegangen. Finde am Knopf heraus, wieso.",
+				"position": "-0.268m 0.774m 0.055m"
 			},
 			{
 				"id": 5,

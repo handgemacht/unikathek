@@ -3,7 +3,6 @@ import { app } from './handgemacht-main.js';
 //START Global Variables
 let devMode = false;
 const dirPath_Files = './files/';
-const dirPath_CollectionJSON = 'json/handgemacht-collection.json';
 const dirPath_Media = './files/annotation-media/';
 let loadAV = false;
 let primaryKey;
@@ -38,12 +37,11 @@ if (loadAV) {
     const wireframe = document.getElementById("wireframe");
     const clipping = document.getElementById("clipping");
     const texture = document.getElementById("texture");
+    const freezeShot = this.document.getElementById("shot");
+    const distanceSlider = document.getElementById("distance-slider");
     const closeButton = document.querySelector(
       "#close-cont .annotation-close-symbol"
     );
-
-
-
 
     //after start ar mode
     scene.addEventListener("enter-vr", function () {
@@ -141,10 +139,34 @@ if (loadAV) {
     });
 
     clipping.addEventListener("change", () => {
-      clipping.checked
-        ? scene.setAttribute("tools", "clipping", "true")
-        : scene.setAttribute("tools", "clipping", "false");
+      if(clipping.checked){
+        scene.setAttribute("tools", "clipping", "true");
+        freezeShot.parentElement.parentElement.classList.remove('hide');
+        distanceSlider.parentElement.classList.remove('hide');
+      }else{
+        scene.setAttribute("tools", "clipping", "false");
+        freezeShot.parentElement.parentElement.classList.add('hide');
+        distanceSlider.parentElement.classList.add('hide');
+      }      
     });
+
+    freezeShot.addEventListener("change", () => {
+      freezeShot.checked
+        ? scene.setAttribute("tools", "shot", "true")
+        : scene.setAttribute("tools", "shot", "false");
+    });
+
+    distanceSlider.addEventListener('input', (event) => {
+      scene.emit("distance-changed", {dist: event.target.value}, false);
+    })
+
+    toolsCont.addEventListener('touchstart', (event) => {
+      scene.emit("pause-interaction", { rotate: false, tools:true }, false);
+    })
+
+    toolsCont.addEventListener('touchend', (event) =>{
+      scene.emit("play-interaction", { rotate: true }, false);
+    } )
 
     //close button listener
     closeButton.addEventListener("click", closeAR);
@@ -220,7 +242,7 @@ AFRAME.registerComponent("controller", {
     function startAR(e) {
       self.enterAR();
       app.gui.message.messageButton2El.removeEventListener('click', cancelAR);
-      
+
     }
 
     function cancelAR(e) {
@@ -233,11 +255,13 @@ AFRAME.registerComponent("controller", {
     let currentMission, currentTool;
     self.addEventListener("pause-interaction", function (event) {
       let rotateBool = event.detail.rotate;
+
+      let toolsBool = event.detail.tools ? event.detail.tools: false;
       currentMission = it.data.mission;
       currentTool = it.data.tool;
       self.setAttribute("controller", {
         raycaster: false,
-        tool: false,
+        tool: toolsBool,
         mission: false,
         inventar: false,
         rotate: rotateBool,
@@ -327,12 +351,13 @@ AFRAME.registerComponent("controller", {
   },
   loadJSON: function () {
     let it = this;
+    
     if (loadAV && !setError) {
-      fetch(dirPath_Files + 'json/' + primaryKey + '.json')
+    fetch(dirPath_Files + 'json/' + primaryKey + '.json')
         .then((response) => response.json())
         .then((json) => {
           it.loadModel(json);
-          it.loadMissions(json);
+          json.appData.tasks.length > 0 ? it.loadMissions(json): it.hideMissionBtn();
           //missions
           it.initMissions(json);
           //mission UI
@@ -351,6 +376,10 @@ AFRAME.registerComponent("controller", {
       window.location.href = url;
     }
     //END falsePrimKey
+  },
+  hideMissionBtn: function(){
+    let missionButton = document.getElementById('missionBtn');
+    missionButton.classList.add("hide");
   },
   loadModel: function (json) {
     const object = document.getElementById("object");
@@ -600,7 +629,6 @@ AFRAME.registerComponent("controller", {
     });
   },
   showMissionPopup: function (completed) {
-    devMode && console.log(completed);
     let it = this;
     let self = this.el;
     let message = {
@@ -614,7 +642,7 @@ AFRAME.registerComponent("controller", {
     }
 
     app.gui.message.setMessage(message);
-    if(completed) app.gui.message.messageButton1El.addEventListener('click', this.restartMissions, { once: true });
+    if (completed) app.gui.message.messageButton1El.addEventListener('click', this.restartMissions, { once: true });
     const scoreCont = document.getElementById("score-container");
     app.gui.message.messageCloseEl.addEventListener('click', function (e) {
       scoreCont.classList.remove("hide");
@@ -649,7 +677,7 @@ AFRAME.registerComponent("controller", {
   initInventar: function () {
     let self = this.el;
     let it = this;
-    
+
     it.dropZones = document.querySelectorAll(".drop");
     const inventarCont = document.getElementById("inventar");
     for (let zone of it.dropZones) {
@@ -761,7 +789,7 @@ AFRAME.registerComponent("controller", {
     }
 
     //actualize points per category    
-  
+
     for (let i = 0; i < this.missions.length; i++) {
       if (this.missions[i].id === currentID) {
         switch (this.missions[i].category) {
@@ -780,8 +808,6 @@ AFRAME.registerComponent("controller", {
         }
       }
     }
-    devMode && console.log("points",this.currentPointsPerCategory);
-    devMode && console.log("missions",this.currentPoints);
 
     //all missions solved
     if (this.currentPoints === this.sumPoints) {
@@ -836,7 +862,7 @@ AFRAME.registerComponent("controller", {
     Object.keys(this.currentPointsPerCategory).forEach(key => {
       this.currentPointsPerCategory[key] = 0;
     });
-    
+
     this.scoreField.textContent = `${this.currentPoints}/${this.sumPoints}`;
   },
 
@@ -888,7 +914,7 @@ AFRAME.registerComponent("ar-hit-test-special", {
       session.requestReferenceSpace("viewer").then((space) => {
         this.viewerSpace = space;
         session
-          .requestHitTestSource({ space: this.viewerSpace, offsetRay: new XRRay({y:-0.3}) })
+          .requestHitTestSource({ space: this.viewerSpace, offsetRay: new XRRay({ y: -0.3 }) })
           .then((hitTestSource) => {
             this.xrHitTestSource = hitTestSource;
           });
@@ -897,7 +923,7 @@ AFRAME.registerComponent("ar-hit-test-special", {
       session.requestReferenceSpace("local").then((space) => {
         this.refSpace = space;
       });
-     
+
 
       self.addEventListener("first-pose", function () {
         it.showMessage("move");
@@ -1539,7 +1565,6 @@ AFRAME.registerComponent("drag-drop-task", {
             it.showFalseMessage();
           }
         } else if (evt.detail.point.classList.contains("book")) {
-          devMode && console.log('--dev drop object', self.sceneEl.object3D)
           it.showPopUp(
             it.data.name,
             it.data.description_drop,
@@ -1828,7 +1853,7 @@ AFRAME.registerComponent("quiz-task", {
         `<div class="answer-container"><input type="radio" id="answer3" name="answer" value="${answers[2].toLowerCase()}">
         <label for="answer3" class="answer-option">${answers[2]}</label></div> </form>`
 
-      if (it.solved){
+      if (it.solved) {
         description = `<p id="quiz-text">${desc}</p>`;
       } else {
         description = '<p id="quiz-text"></p>';
@@ -1890,14 +1915,14 @@ AFRAME.registerComponent("quiz-task", {
   disableRadios: function () {
     for (let i = 0; i < this.data.answers.length; i++) {
       let radio = document.getElementById("answer" + (i + 1));
-      if(radio.value === this.data.rightAnswer.toLowerCase()){
+      if (radio.value === this.data.rightAnswer.toLowerCase()) {
         radio.checked = true;
       }
       // Prevent default click behavior on radio buttons
       radio.addEventListener("click", this.preventClick);
     }
   },
-  
+
   preventClick: function (event) {
     event.preventDefault();
   },
@@ -1918,142 +1943,157 @@ AFRAME.registerComponent("tools", {
     wireframe: { type: "boolean", default: false },
     texture: { type: "boolean", default: true },
     clipping: { type: "boolean", default: true },
+    shot: { type: "boolean", default: false},
   },
   init: function () {
     const it = this;
+    const self = this.el;
     this.scene = this.el.object3D;
+    this.el.addEventListener("radius-set", function (e) {
+      //set start distance of the plane
+      it.distance = e.detail.maxSize / 2;
+      const distanceUI = document.getElementById('distance-slider');
+      distanceUI.max = e.detail.maxSize;
+      distanceUI.value = it.distance;
 
-    //gltf model scene
-    const objectEl = document.getElementById(this.data.object);
-    this.oldObject = objectEl.object3D;
-    //camera
-    this.camera = this.el.camera;
-    this.cameraPos = new THREE.Vector3();
-    this.cameraDir = new THREE.Vector3();
-    //objectOverlay, plane Object
-    this.objectOverlay = new THREE.Group();
-    this.poGroup = new THREE.Group();
-    //plane
-    this.planeOne = new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0);
-    //plane helper
-    this.planeHelper = new THREE.PlaneHelper(this.planeOne, 2, 0xffffff);
-    this.planeHelper.visible = this.data.planeHelper;
-    if (this.planeHelper.visible) this.scene.add(this.planeHelper);
-    // Renderer
-    this.renderer = this.el.renderer;
-    this.renderer.shadowMap.enabled = true;
-    this.renderer.setPixelRatio(window.devicePixelRatio);
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-    //object to be clipped
-    this.object = new THREE.Group();
-    this.objectOverlay.add(this.object);
-    this.objectOverlay.name = "object_overlay";
-    this.scene.add(this.objectOverlay);
-    //gltf model to set object geometry and material
-    let gltf = this.oldObject.children;
-    let objectScene = gltf[0];
-    let geometry, texture;
-    const plane = this.planeOne;
-    objectScene.traverse(function (child) {
-      if (child.isMesh) {
-        geometry = child.geometry;
-        // Access the texture of the material
-        it.texture = child.material.map;
-        it.position = child.position;
-        it.rotation = child.rotation;
+      self.addEventListener("distance-changed", function(e){
+        it.distance =  e.detail.dist;
+      })
+
+      //gltf model scene
+      const objectEl = document.getElementById(it.data.object);
+      it.oldObject = objectEl.object3D;
+      //camera
+      it.camera = it.el.camera;
+      it.cameraPos = new THREE.Vector3();
+      it.cameraDir = new THREE.Vector3();
+      //objectOverlay, plane Object
+      it.objectOverlay = new THREE.Group();
+      it.poGroup = new THREE.Group();
+      //plane
+      it.planeOne = new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0);
+      //plane helper
+      it.planeHelper = new THREE.PlaneHelper(it.planeOne, 2, 0xffffff);
+      it.planeHelper.visible = it.data.planeHelper;
+      if (it.planeHelper.visible) it.scene.add(it.planeHelper);
+      // Renderer
+      it.renderer = it.el.renderer;
+      it.renderer.shadowMap.enabled = true;
+      it.renderer.setPixelRatio(window.devicePixelRatio);
+      it.renderer.setSize(window.innerWidth, window.innerHeight);
+      //object to be clipped
+      it.object = new THREE.Group();
+      it.objectOverlay.add(it.object);
+      it.objectOverlay.name = "object_overlay";
+      it.scene.add(it.objectOverlay);
+      //gltf model to set object geometry and material
+      let gltf = it.oldObject.children;
+      let objectScene = gltf[0];
+      let geometry;
+      const plane = it.planeOne;
+      objectScene.traverse(function (child) {
+        if (child.isMesh) {
+          geometry = child.geometry;
+          // Access the texture of the material
+          it.texture = child.material.map;
+          it.position = child.position;
+          it.rotation = child.rotation;
+        }
+      });
+      const stencilGroup = createPlaneStencilGroup(geometry, plane, 1);
+      const planeGeom = new THREE.PlaneGeometry(4, 4, 2, 2);
+
+      // plane is clipped by the other clipping planes
+      const planeMat = new THREE.MeshStandardMaterial({
+        side: THREE.DoubleSide,
+        color: 0xffc800,
+        metalness: 0.1,
+        roughness: 0.75,
+
+        stencilWrite: true,
+        stencilRef: 0,
+        stencilFunc: THREE.NotEqualStencilFunc,
+        stencilFail: THREE.ReplaceStencilOp,
+        stencilZFail: THREE.ReplaceStencilOp,
+        stencilZPass: THREE.ReplaceStencilOp,
+      });
+      const po = new THREE.Mesh(planeGeom, planeMat);
+      po.onAfterRender = function () {
+        it.renderer.clearStencil();
+      };
+
+      po.renderOrder = 1.1;
+
+      it.object.add(stencilGroup);
+      it.poGroup.add(po);
+
+      it.planeObject = po;
+      it.poGroup.name = "po_group";
+      it.scene.add(it.poGroup);
+
+      let material = new THREE.MeshStandardMaterial({
+        metalness: 0.1,
+        roughness: 0.75,
+        clippingPlanes: [plane],
+        clipShadows: true,
+        shadowSide: THREE.DoubleSide,
+      });
+
+      // add the color
+      it.clippedColorFront = new THREE.Mesh(geometry, material);
+      it.clippedColorFront.castShadow = true;
+      it.clippedColorFront.renderOrder = 6;
+      it.object.add(it.clippedColorFront);
+
+      function createPlaneStencilGroup(geometry, plane, renderOrder) {
+        const group = new THREE.Group();
+
+        const baseMat = new THREE.MeshBasicMaterial();
+
+        baseMat.depthWrite = false;
+        baseMat.depthTest = false;
+        baseMat.colorWrite = false;
+        baseMat.stencilWrite = true;
+        baseMat.stencilFunc = THREE.AlwaysStencilFunc;
+
+        // back faces
+        const mat0 = baseMat.clone();
+        mat0.side = THREE.BackSide;
+        mat0.clippingPlanes = [plane];
+        mat0.stencilFail = THREE.IncrementWrapStencilOp;
+        mat0.stencilZFail = THREE.IncrementWrapStencilOp;
+        mat0.stencilZPass = THREE.IncrementWrapStencilOp;
+
+        const mesh0 = new THREE.Mesh(geometry, mat0);
+        mesh0.renderOrder = renderOrder;
+        group.add(mesh0);
+
+        // front faces
+        const mat1 = baseMat.clone();
+        mat1.side = THREE.FrontSide;
+        mat1.clippingPlanes = [plane];
+        mat1.stencilFail = THREE.DecrementWrapStencilOp;
+        mat1.stencilZFail = THREE.DecrementWrapStencilOp;
+        mat1.stencilZPass = THREE.DecrementWrapStencilOp;
+
+        const mesh1 = new THREE.Mesh(geometry, mat1);
+        mesh1.renderOrder = renderOrder;
+
+        group.add(mesh1);
+
+        return group;
       }
+      it.objectOverlay.visible = false;
+      it.poGroup.visible = false;
+      it.oldObject.visible = true;
     });
-    const stencilGroup = createPlaneStencilGroup(geometry, plane, 1);
-    const planeGeom = new THREE.PlaneGeometry(4, 4, 2, 2);
-
-    // plane is clipped by the other clipping planes
-    const planeMat = new THREE.MeshStandardMaterial({
-      color: 0xffc800,
-      metalness: 0.1,
-      roughness: 0.75,
-
-      stencilWrite: true,
-      stencilRef: 0,
-      stencilFunc: THREE.NotEqualStencilFunc,
-      stencilFail: THREE.ReplaceStencilOp,
-      stencilZFail: THREE.ReplaceStencilOp,
-      stencilZPass: THREE.ReplaceStencilOp,
-    });
-    const po = new THREE.Mesh(planeGeom, planeMat);
-    po.onAfterRender = function (renderer) {
-      it.renderer.clearStencil();
-    };
-
-    po.renderOrder = 1.1;
-
-    this.object.add(stencilGroup);
-    this.poGroup.add(po);
-
-    this.planeObject = po;
-    this.poGroup.name = "po_group";
-    this.scene.add(this.poGroup);
-
-    let material = new THREE.MeshStandardMaterial({
-      metalness: 0.1,
-      roughness: 0.75,
-      clippingPlanes: [plane],
-      clipShadows: true,
-      shadowSide: THREE.DoubleSide,
-    });
-
-    // add the color
-    this.clippedColorFront = new THREE.Mesh(geometry, material);
-    this.clippedColorFront.castShadow = true;
-    this.clippedColorFront.renderOrder = 6;
-    this.object.add(this.clippedColorFront);
-
-    function createPlaneStencilGroup(geometry, plane, renderOrder) {
-      const group = new THREE.Group();
-
-      const baseMat = new THREE.MeshBasicMaterial();
-
-      baseMat.depthWrite = false;
-      baseMat.depthTest = false;
-      baseMat.colorWrite = false;
-      baseMat.stencilWrite = true;
-      baseMat.stencilFunc = THREE.AlwaysStencilFunc;
-
-      // back faces
-      const mat0 = baseMat.clone();
-      mat0.side = THREE.BackSide;
-      mat0.clippingPlanes = [plane];
-      mat0.stencilFail = THREE.IncrementWrapStencilOp;
-      mat0.stencilZFail = THREE.IncrementWrapStencilOp;
-      mat0.stencilZPass = THREE.IncrementWrapStencilOp;
-
-      const mesh0 = new THREE.Mesh(geometry, mat0);
-      mesh0.renderOrder = renderOrder;
-      group.add(mesh0);
-
-      // front faces
-      const mat1 = baseMat.clone();
-      mat1.side = THREE.FrontSide;
-      mat1.clippingPlanes = [plane];
-      mat1.stencilFail = THREE.DecrementWrapStencilOp;
-      mat1.stencilZFail = THREE.DecrementWrapStencilOp;
-      mat1.stencilZPass = THREE.DecrementWrapStencilOp;
-
-      const mesh1 = new THREE.Mesh(geometry, mat1);
-      mesh1.renderOrder = renderOrder;
-
-      group.add(mesh1);
-
-      return group;
-    }
   },
   update: function () {
     this.enabled = this.data.enabled;
     this.wireframe = this.data.wireframe;
     this.textureBool = this.data.texture;
     this.clipping = this.data.clipping;
-    //get the position and rotation of the object in AR
-    let arPos = this.oldObject.parent.position;
-    let rotY = this.oldObject.parent.rotation.y;
+    this.shot = this.data.shot;
 
     if (this.enabled) {
       if (this.clipping) {
@@ -2061,7 +2101,9 @@ AFRAME.registerComponent("tools", {
       } else {
         this.renderer.localClippingEnabled = false;
       }
-
+      //get the position and rotation of the object in AR
+      let arPos = this.oldObject.parent.position;
+      let rotY = this.oldObject.parent.rotation.y;
       this.poGroup.visible = true;
       this.objectOverlay.visible = true;
       //make current object invisible
@@ -2096,28 +2138,34 @@ AFRAME.registerComponent("tools", {
     }
     //if stencil clipping is not enabled
     else {
-      this.objectOverlay.visible = false;
+      try{
+        this.objectOverlay.visible = false;
       this.poGroup.visible = false;
       this.oldObject.visible = true;
+      }catch{
+        devMode && console.info("waiting for init clipping objects")
+      }
+      
     }
   },
   tick: function () {
     if (!this.enabled || !this.clipping) {
       return;
     }
+    if(!this.shot){
     //vectors for camera position and direction
     this.camera.getWorldPosition(this.cameraPos);
     this.camera.getWorldDirection(this.cameraDir);
-
-    let vectorInFrontOfCamera = this.cameraPos
+    }
+   this.vectorInFrontOfCamera = this.cameraPos
       .clone()
-      .add(this.cameraDir.clone().multiplyScalar(0.2));
+      .add(this.cameraDir.clone().multiplyScalar(this.distance));
 
     //set the plane with cameraDirection and a point in front of the camera
-    this.planeOne.setFromNormalAndCoplanarPoint(
+    
+       this.planeOne.setFromNormalAndCoplanarPoint(
       this.cameraDir,
-      vectorInFrontOfCamera
-    );
+      this.vectorInFrontOfCamera);
     const plane = this.planeOne;
 
     const po = this.planeObject;
