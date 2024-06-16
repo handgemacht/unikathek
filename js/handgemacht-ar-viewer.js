@@ -43,27 +43,19 @@ if (loadAV) {
       "#close-cont .annotation-close-symbol"
     );
 
+    //first contact variables
+    let firstContactMission = false;
+    let firstContactTool = false;
     //after start ar mode
     scene.addEventListener("enter-vr", function () {
       domOverlay.classList.remove("hide");
       activateButton(null);
       toolsCont.classList.add("hide");
       //show welcome message
-      //message to start ar
+
       let message = {
         showClose: false,
-        //TODO src
-        content: '<img src="" alt="Entdecker-Icon" /> <p>Wilkommen im Entdeckermodus! Hier kannst du das Objekt im Raum platzieren. Danach kannst du spannende Aufgaben lösen oder dir das 3D-Objekt genauer ansehen.</p>',
-        color: 'duckyellow',
-        button1: { content: 'Los gehts!', color: 'pearlwhite', shadow: 'coalgrey' },
-      }
-      app.gui.message.setMessage(message);
-      app.gui.message.messageButton1El.addEventListener('click', introductionFinished, { once: true });
-    });
-    function introductionFinished(event) {
-      let message = {
-        showClose: false,
-        //TODO src
+        //TODO src Icon Platzieren
         content: '<img src="" alt="Platzierungs-Icon" /> <p>Um das Objekt zu platzieren, suche eine freie Boden- oder Tischfläche. Das Objekt soll dort in realer Größe platziert werden.</p>',
         color: 'terracotta',
         button1: { content: 'Platzierung starten!', color: 'pearlwhite', shadow: 'coalgrey' },
@@ -72,15 +64,42 @@ if (loadAV) {
       app.gui.message.setMessage(message);
       app.gui.message.messageButton1El.addEventListener('click', startPlacing, { once: true });
 
-    }
+    });
     function startPlacing(event) {
       scene.emit("ready-for-placing", null, true);
     }
     // exit ar mode
     scene.addEventListener("exit-vr", function () {
       domOverlay.classList.add("hide");
+
       scene.emit("pause-interaction", { rotate: false }, false);
+      if(!firstContactMission && !firstContactTool){
+        localStorage.setItem('firstContact', JSON.stringify(false));
+      }
+      let message = {
+        type: 'Entdeckermodus',
+        showClose: false,
+        content: app.arViewer.goodbyeMessage,
+        color: 'skyblue',
+        button1: { content: 'Ja', color: 'pearlwhite', shadow: 'coalgrey' },
+        button2: { content: 'Entdeckermodus erneut starten', color: 'pearlwhite', shadow: 'coalgrey' },
+      }
+      app.gui.message.setMessage(message);
+      app.gui.message.messageButton1El.addEventListener('click', cancelAR, { once: true });
+      app.gui.message.messageButton2El.addEventListener('click', startAR, { once: true });
+
     });
+    function startAR(e) {
+      scene.enterAR();
+      app.gui.message.messageButton2El.removeEventListener('click', cancelAR);
+
+    }
+
+    function cancelAR(e) {
+      //TO DO navigate back to modelviewer
+      app.gui.message.messageButton1El.removeEventListener('click', startAR);
+      app.gui.message.hideMessage();
+    }
 
     // menu for mission and tools
     function activateButton(button) {
@@ -89,21 +108,87 @@ if (loadAV) {
       if (button != null) button.classList.add("active");
     }
 
+    scene.addEventListener("showFirstContactMessage", function(){
+      firstContactMission = true;
+      firstContactTool = true;
+    })
     missionBtn.addEventListener("click", () => {
       activateButton(missionBtn);
       toolsCont.classList.add("hide");
-      scene.setAttribute("controller", {
+      if(firstContactMission){
+        let message = {
+          showClose: false,
+          content: app.arViewer.firstContactMission,
+          color: 'terracotta',
+          button1: { content: 'Alles klar!', color: 'pearlwhite', shadow: 'coalgrey' },
+    
+        }
+  
+        app.gui.message.setMessage(message);
+        scene.setAttribute("controller", {
+          mission: true,
+          tool: false,
+          raycaster: false,
+          rotate: false,
+          inventar: false,
+        });
+        app.gui.message.messageButton1El.addEventListener('click', () =>{
+          app.gui.message.hideMessage();
+          scene.setAttribute("controller", {
+            mission: true,
+            tool: false,
+            rotate: false,
+            raycaster: true,
+            inventar: true,
+          });
+        }, { once: true });
+        firstContactMission = false;
+      }else{
+        scene.setAttribute("controller", {
         mission: true,
         tool: false,
         raycaster: true,
         rotate: true,
         inventar: true,
       });
+      }
+      
     });
+
 
     toolsBtn.addEventListener("click", () => {
       activateButton(toolsBtn);
-      toolsCont.classList.remove("hide");
+      if(firstContactTool){
+        let message = {
+          showClose: false,
+          content: app.arViewer.firstContactTool,
+          color: 'terracotta',
+          button1: { content: 'Alles klar!', color: 'pearlwhite', shadow: 'coalgrey' },
+    
+        }
+  
+        app.gui.message.setMessage(message);
+        scene.setAttribute("controller", {
+          mission: false,
+          tool: false,
+          rotate: false,
+          raycaster: false,
+          inventar: false,
+        });
+        app.gui.message.messageButton1El.addEventListener('click', () =>{
+          app.gui.message.hideMessage();
+          toolsCont.classList.remove("hide");
+          scene.setAttribute("controller", {
+            mission: false,
+            tool: true,
+            rotate: true,
+            raycaster: false,
+            inventar: false,
+          });
+        }, { once: true });
+        firstContactTool = false;
+      }else{
+        toolsCont.classList.remove("hide");
       scene.setAttribute("controller", {
         mission: false,
         tool: true,
@@ -111,6 +196,7 @@ if (loadAV) {
         raycaster: false,
         inventar: false,
       });
+    }
     });
 
     //replace object button
@@ -139,15 +225,15 @@ if (loadAV) {
     });
 
     clipping.addEventListener("change", () => {
-      if(clipping.checked){
+      if (clipping.checked) {
         scene.setAttribute("tools", "clipping", "true");
         freezeShot.parentElement.parentElement.classList.remove('hide');
         distanceSlider.parentElement.classList.remove('hide');
-      }else{
+      } else {
         scene.setAttribute("tools", "clipping", "false");
         freezeShot.parentElement.parentElement.classList.add('hide');
         distanceSlider.parentElement.classList.add('hide');
-      }      
+      }
     });
 
     freezeShot.addEventListener("change", () => {
@@ -157,16 +243,16 @@ if (loadAV) {
     });
 
     distanceSlider.addEventListener('input', (event) => {
-      scene.emit("distance-changed", {dist: event.target.value}, false);
+      scene.emit("distance-changed", { dist: event.target.value }, false);
     })
 
     toolsCont.addEventListener('touchstart', (event) => {
-      scene.emit("pause-interaction", { rotate: false, tools:true }, false);
+      scene.emit("pause-interaction", { rotate: false, tools: true }, false);
     })
 
-    toolsCont.addEventListener('touchend', (event) =>{
+    toolsCont.addEventListener('touchend', (event) => {
       scene.emit("play-interaction", { rotate: true }, false);
-    } )
+    })
 
     //close button listener
     closeButton.addEventListener("click", closeAR);
@@ -226,10 +312,11 @@ AFRAME.registerComponent("controller", {
       it.modelLoaded = true;
       app.gui.loadingScreen.hideLoadingScreen();
       //message to start ar
+      //TODO src Icon Entdeckermodus
       let message = {
         type: 'Entdeckermodus',
         showClose: false,
-        content: '<p>Möchtest du den Entdecker-Modus starten?</p>',
+        content: app.arViewer.welcomeMessage,
         color: 'skyblue',
         button1: { content: 'Ja', color: 'pearlwhite', shadow: 'coalgrey' },
         button2: { content: 'Nein', color: 'pearlwhite', shadow: 'coalgrey' },
@@ -256,7 +343,7 @@ AFRAME.registerComponent("controller", {
     self.addEventListener("pause-interaction", function (event) {
       let rotateBool = event.detail.rotate;
 
-      let toolsBool = event.detail.tools ? event.detail.tools: false;
+      let toolsBool = event.detail.tools ? event.detail.tools : false;
       currentMission = it.data.mission;
       currentTool = it.data.tool;
       self.setAttribute("controller", {
@@ -280,7 +367,26 @@ AFRAME.registerComponent("controller", {
     //event listener placing
     //TODO: guidance steps for first contact --> local storage speichern
     self.addEventListener("placingAchieved", function (e) {
+      let storedValue = JSON.parse(localStorage.getItem('firstContact'));
+      devMode && console.log("storedVal", storedValue);
       devMode && console.log("placing Achieved", e.detail);
+      if (storedValue === false) it.firstContact = storedValue;
+      else it.firstContact = e.detail;
+
+      devMode && console.log("firstContact", this.firstContact);
+      if (it.firstContact) {
+        let message = {
+          showClose: true,
+          content: it.missionExisting ? app.arViewer.firstContactWithMission : app.arViewer.firstContactWithoutMission,
+          color: 'skyblue'
+        }
+        self.emit("showFirstContactMessage", null, false);
+        app.gui.message.setMessage(message);
+        
+      }
+
+      
+
     });
   },
   update: function () {
@@ -351,13 +457,20 @@ AFRAME.registerComponent("controller", {
   },
   loadJSON: function () {
     let it = this;
-    
+
     if (loadAV && !setError) {
-    fetch(dirPath_Files + 'json/' + primaryKey + '.json')
+      fetch(dirPath_Files + 'json/' + primaryKey + '.json')
         .then((response) => response.json())
         .then((json) => {
           it.loadModel(json);
-          json.appData.tasks.length > 0 ? it.loadMissions(json): it.hideMissionBtn();
+
+          if (json.appData.tasks.length > 0) {
+            it.loadMissions(json);
+            it.missionExisting = true;
+          } else {
+            it.hideMissionBtn();
+            it.missionExisting = false;
+          }
           //missions
           it.initMissions(json);
           //mission UI
@@ -377,7 +490,7 @@ AFRAME.registerComponent("controller", {
     }
     //END falsePrimKey
   },
-  hideMissionBtn: function(){
+  hideMissionBtn: function () {
     let missionButton = document.getElementById('missionBtn');
     missionButton.classList.add("hide");
   },
@@ -944,7 +1057,7 @@ AFRAME.registerComponent("ar-hit-test-special", {
     const text = [
       "Bewege die Kamera entlang einer Fläche",
       "Bewege das Objekt, indem du die Kamera bewegst. Wenn du zufrieden bist , klicke auf den Button.",
-      "Objekt fertig platziert?",
+      "Du solltest jetzt das gesamte Objekt direkt vor dir sehen. Ist es korrekt platziert?",
     ];
     let message;
     if (step == "start") {
@@ -1025,14 +1138,14 @@ AFRAME.registerComponent("ar-hit-test-special", {
       tool: false,
       raycaster: false,
     });
-    this.el.emit("placingAchieved", this.firstTime, true);
     this.hideMessage();
+    this.el.emit("placingAchieved", this.firstTime, true);
     this.showMenu();
     this.firstTime = false;
   },
   placeAgain: function (event) {
     app.gui.message.messageButton1El.removeEventListener("click", this.placeEnd);
-    this.el.emit("new-placement", null, true);
+    this.el.emit("new- ", null, true);
   },
   tick: function () {
     if (this.el.sceneEl.is("ar-mode")) {
@@ -1943,7 +2056,7 @@ AFRAME.registerComponent("tools", {
     wireframe: { type: "boolean", default: false },
     texture: { type: "boolean", default: true },
     clipping: { type: "boolean", default: true },
-    shot: { type: "boolean", default: false},
+    shot: { type: "boolean", default: false },
   },
   init: function () {
     const it = this;
@@ -1956,8 +2069,8 @@ AFRAME.registerComponent("tools", {
       distanceUI.max = e.detail.maxSize;
       distanceUI.value = it.distance;
 
-      self.addEventListener("distance-changed", function(e){
-        it.distance =  e.detail.dist;
+      self.addEventListener("distance-changed", function (e) {
+        it.distance = e.detail.dist;
       })
 
       //gltf model scene
@@ -2138,32 +2251,32 @@ AFRAME.registerComponent("tools", {
     }
     //if stencil clipping is not enabled
     else {
-      try{
+      try {
         this.objectOverlay.visible = false;
-      this.poGroup.visible = false;
-      this.oldObject.visible = true;
-      }catch{
+        this.poGroup.visible = false;
+        this.oldObject.visible = true;
+      } catch {
         devMode && console.info("waiting for init clipping objects")
       }
-      
+
     }
   },
   tick: function () {
     if (!this.enabled || !this.clipping) {
       return;
     }
-    if(!this.shot){
-    //vectors for camera position and direction
-    this.camera.getWorldPosition(this.cameraPos);
-    this.camera.getWorldDirection(this.cameraDir);
+    if (!this.shot) {
+      //vectors for camera position and direction
+      this.camera.getWorldPosition(this.cameraPos);
+      this.camera.getWorldDirection(this.cameraDir);
     }
-   this.vectorInFrontOfCamera = this.cameraPos
+    this.vectorInFrontOfCamera = this.cameraPos
       .clone()
       .add(this.cameraDir.clone().multiplyScalar(this.distance));
 
     //set the plane with cameraDirection and a point in front of the camera
-    
-       this.planeOne.setFromNormalAndCoplanarPoint(
+
+    this.planeOne.setFromNormalAndCoplanarPoint(
       this.cameraDir,
       this.vectorInFrontOfCamera);
     const plane = this.planeOne;
