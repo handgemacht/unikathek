@@ -24,265 +24,7 @@ urlParams.get('m') === 'ar' ? loadAV = true : loadAV = false;
 urlParams.get('model') ? primaryKey = urlParams.get('model') : setError = '001';
 //END Search URL Parameters
 
-//UI click listener
-if (loadAV) {
-  window.addEventListener("DOMContentLoaded", function () {
-    const scene = document.querySelector("a-scene");
 
-    const domOverlay = document.getElementById("ar-overlay");
-    const missionBtn = document.getElementById("missionBtn");
-    const toolsBtn = document.getElementById("toolsBtn");
-    const toolsCont = document.querySelector(".toggle-container");
-    const replaceButton = document.getElementById("replace-button");
-    const wireframe = document.getElementById("wireframe");
-    const clipping = document.getElementById("clipping");
-    const texture = document.getElementById("texture");
-    const freezeShot = this.document.getElementById("shot");
-    const distanceSlider = document.getElementById("distance-slider");
-    const closeButton = document.querySelector(
-      "#close-cont .annotation-close-symbol"
-    );
-
-    //first contact variables
-    let firstContactMission = false;
-    let firstContactTool = false;
-    //after start ar mode
-    scene.addEventListener("enter-vr", function () {
-      domOverlay.classList.remove("hide");
-      activateButton(null);
-      toolsCont.classList.add("hide");
-      //show welcome message
-
-      let message = {
-        showClose: false,
-        //TODO src Icon Platzieren
-        content: '<img src="" alt="Platzierungs-Icon" /> <p>Um das Objekt zu platzieren, suche eine freie Boden- oder Tischfläche. Das Objekt soll dort in realer Größe platziert werden.</p>',
-        color: 'terracotta',
-        button1: { content: 'Platzierung starten!', color: 'pearlwhite', shadow: 'coalgrey' },
-      }
-
-      app.gui.message.setMessage(message);
-      app.gui.message.messageButton1El.addEventListener('click', startPlacing, { once: true });
-
-    });
-    function startPlacing(event) {
-      scene.emit("ready-for-placing", null, true);
-    }
-    // exit ar mode
-    scene.addEventListener("exit-vr", function () {
-      domOverlay.classList.add("hide");
-
-      scene.emit("pause-interaction", { rotate: false }, false);
-      if(!firstContactMission && !firstContactTool){
-        localStorage.setItem('firstContact', JSON.stringify(false));
-      }
-      let message = {
-        type: 'Entdeckermodus',
-        showClose: false,
-        content: app.arViewer.goodbyeMessage,
-        color: 'skyblue',
-        button1: { content: 'Ja', color: 'pearlwhite', shadow: 'coalgrey' },
-        button2: { content: 'Entdeckermodus erneut starten', color: 'pearlwhite', shadow: 'coalgrey' },
-      }
-      app.gui.message.setMessage(message);
-      app.gui.message.messageButton1El.addEventListener('click', cancelAR, { once: true });
-      app.gui.message.messageButton2El.addEventListener('click', startAR, { once: true });
-
-    });
-    function startAR(e) {
-      scene.enterAR();
-      app.gui.message.messageButton2El.removeEventListener('click', cancelAR);
-
-    }
-
-    function cancelAR(e) {
-      //TO DO navigate back to modelviewer
-      app.gui.message.messageButton1El.removeEventListener('click', startAR);
-      app.gui.message.hideMessage();
-    }
-
-    // menu for mission and tools
-    function activateButton(button) {
-      missionBtn.classList.remove("active");
-      toolsBtn.classList.remove("active");
-      if (button != null) button.classList.add("active");
-    }
-
-    scene.addEventListener("showFirstContactMessage", function(){
-      firstContactMission = true;
-      firstContactTool = true;
-    })
-    missionBtn.addEventListener("click", () => {
-      activateButton(missionBtn);
-      toolsCont.classList.add("hide");
-      if(firstContactMission){
-        let message = {
-          showClose: false,
-          content: app.arViewer.firstContactMission,
-          color: 'terracotta',
-          button1: { content: 'Alles klar!', color: 'pearlwhite', shadow: 'coalgrey' },
-    
-        }
-  
-        app.gui.message.setMessage(message);
-        scene.setAttribute("controller", {
-          mission: true,
-          tool: false,
-          raycaster: false,
-          rotate: false,
-          inventar: false,
-        });
-        app.gui.message.messageButton1El.addEventListener('click', () =>{
-          app.gui.message.hideMessage();
-          scene.setAttribute("controller", {
-            mission: true,
-            tool: false,
-            rotate: false,
-            raycaster: true,
-            inventar: true,
-          });
-        }, { once: true });
-        firstContactMission = false;
-      }else{
-        scene.setAttribute("controller", {
-        mission: true,
-        tool: false,
-        raycaster: true,
-        rotate: true,
-        inventar: true,
-      });
-      }
-      
-    });
-
-
-    toolsBtn.addEventListener("click", () => {
-      activateButton(toolsBtn);
-      if(firstContactTool){
-        let message = {
-          showClose: false,
-          content: app.arViewer.firstContactTool,
-          color: 'terracotta',
-          button1: { content: 'Alles klar!', color: 'pearlwhite', shadow: 'coalgrey' },
-    
-        }
-  
-        app.gui.message.setMessage(message);
-        scene.setAttribute("controller", {
-          mission: false,
-          tool: false,
-          rotate: false,
-          raycaster: false,
-          inventar: false,
-        });
-        app.gui.message.messageButton1El.addEventListener('click', () =>{
-          app.gui.message.hideMessage();
-          toolsCont.classList.remove("hide");
-          scene.setAttribute("controller", {
-            mission: false,
-            tool: true,
-            rotate: true,
-            raycaster: false,
-            inventar: false,
-          });
-        }, { once: true });
-        firstContactTool = false;
-      }else{
-        toolsCont.classList.remove("hide");
-      scene.setAttribute("controller", {
-        mission: false,
-        tool: true,
-        rotate: true,
-        raycaster: false,
-        inventar: false,
-      });
-    }
-    });
-
-    //replace object button
-    replaceButton.addEventListener("click", function () {
-      scene.emit("new-placement", null, true);
-      scene.setAttribute("controller", {
-        rotate: false,
-        raycaster: false,
-        mission: false,
-        tool: false,
-      });
-      activateButton(null);
-      toolsCont.classList.add("hide");
-    });
-    //tools toggle wireframe and texture
-    wireframe.addEventListener("change", () => {
-      wireframe.checked
-        ? scene.setAttribute("tools", "wireframe", "true")
-        : scene.setAttribute("tools", "wireframe", "false");
-    });
-
-    texture.addEventListener("change", () => {
-      texture.checked
-        ? scene.setAttribute("tools", "texture", "true")
-        : scene.setAttribute("tools", "texture", "false");
-    });
-
-    clipping.addEventListener("change", () => {
-      if (clipping.checked) {
-        scene.setAttribute("tools", "clipping", "true");
-        freezeShot.parentElement.parentElement.classList.remove('hide');
-        distanceSlider.parentElement.classList.remove('hide');
-      } else {
-        scene.setAttribute("tools", "clipping", "false");
-        freezeShot.parentElement.parentElement.classList.add('hide');
-        distanceSlider.parentElement.classList.add('hide');
-      }
-    });
-
-    freezeShot.addEventListener("change", () => {
-      freezeShot.checked
-        ? scene.setAttribute("tools", "shot", "true")
-        : scene.setAttribute("tools", "shot", "false");
-    });
-
-    distanceSlider.addEventListener('input', (event) => {
-      scene.emit("distance-changed", { dist: event.target.value }, false);
-    })
-
-    toolsCont.addEventListener('touchstart', (event) => {
-      scene.emit("pause-interaction", { rotate: false, tools: true }, false);
-    })
-
-    toolsCont.addEventListener('touchend', (event) => {
-      scene.emit("play-interaction", { rotate: true }, false);
-    })
-
-    //close button listener
-    closeButton.addEventListener("click", closeAR);
-
-    function closeAR(event) {
-      scene.emit("pause-interaction", { rotate: false }, false);
-      let message = {
-        showClose: false,
-        content: '<p>Entdecker-Modus wirklich verlassen?</p>',
-        color: 'terracotta',
-        button1: { content: 'Ja', color: 'pearlwhite', shadow: 'coalgrey' },
-        button2: { content: 'Nein', color: 'pearlwhite', shadow: 'coalgrey' }
-      }
-
-      app.gui.message.setMessage(message);
-      app.gui.message.messageButton1El.addEventListener('click', exitAR, { once: true });
-      app.gui.message.messageButton2El.addEventListener('click', stayInAR, { once: true });
-    }
-    function exitAR(event) {
-      app.gui.message.messageButton2El.removeEventListener('click', stayInAR);
-      app.gui.message.hideMessage();
-      scene.exitVR();
-    }
-    function stayInAR(event) {
-      app.gui.message.messageButton1El.removeEventListener('click', exitAR);
-      app.gui.message.hideMessage();
-      scene.emit("play-interaction", { rotate: true }, false);
-    }
-  });
-}
 //CONTROLLER: loads JSON model and missions, controls different modes: placing, tools, missions, inventar, score
 AFRAME.registerComponent("controller", {
   schema: {
@@ -302,41 +44,34 @@ AFRAME.registerComponent("controller", {
     this.solveMission = this.solveMission.bind(this);
     this.restartMissions = this.restartMissions.bind(this);
     this.resetScore = this.resetScore.bind(this);
-
+    this.startAR = this.startAR.bind(this);
+    this.cancelAR = this.cancelAR.bind(this);
+    //load JSON 
     it.loadJSON();
     //inventar
     this.inventar = [];
     this.oneSelected = false;
     this.modelLoaded = false;
+   
+    //model loaded listener
     self.addEventListener("model-loaded", function () {
       it.modelLoaded = true;
       app.gui.loadingScreen.hideLoadingScreen();
       //message to start ar
       //TODO src Icon Entdeckermodus
       let message = {
-        type: 'Entdeckermodus',
+        type: app.arViewer.name,
         showClose: false,
         content: app.arViewer.welcomeMessage,
         color: 'skyblue',
-        button1: { content: 'Ja', color: 'pearlwhite', shadow: 'coalgrey' },
-        button2: { content: 'Nein', color: 'pearlwhite', shadow: 'coalgrey' },
+        button1: { content: app.arViewer.yes, color: 'pearlwhite', shadow: 'coalgrey' },
+        button2: { content: app.arViewer.no, color: 'pearlwhite', shadow: 'coalgrey' },
       }
       app.gui.message.setMessage(message);
-      app.gui.message.messageButton1El.addEventListener('click', startAR, { once: true });
-      app.gui.message.messageButton2El.addEventListener('click', cancelAR, { once: true });
+      app.gui.message.messageButton1El.addEventListener('click', it.startAR, { once: true });
+      app.gui.message.messageButton2El.addEventListener('click', it.cancelAR, { once: true });
     });
 
-    function startAR(e) {
-      self.enterAR();
-      app.gui.message.messageButton2El.removeEventListener('click', cancelAR);
-
-    }
-
-    function cancelAR(e) {
-      //TO DO navigate back to modelviewer
-      app.gui.message.messageButton1El.removeEventListener('click', startAR);
-      app.gui.message.hideMessage();
-    }
 
     //interaction pause/play listener for rotation
     let currentMission, currentTool;
@@ -365,15 +100,10 @@ AFRAME.registerComponent("controller", {
       });
     });
     //event listener placing
-    //TODO: guidance steps for first contact --> local storage speichern
     self.addEventListener("placingAchieved", function (e) {
       let storedValue = JSON.parse(localStorage.getItem('firstContact'));
-      devMode && console.log("storedVal", storedValue);
-      devMode && console.log("placing Achieved", e.detail);
       if (storedValue === false) it.firstContact = storedValue;
       else it.firstContact = e.detail;
-
-      devMode && console.log("firstContact", this.firstContact);
       if (it.firstContact) {
         let message = {
           showClose: true,
@@ -385,9 +115,11 @@ AFRAME.registerComponent("controller", {
         
       }
 
-      
+       
 
     });
+    //init gui
+      it.initGui();
   },
   update: function () {
     let self = this.el;
@@ -426,7 +158,7 @@ AFRAME.registerComponent("controller", {
       inventar.classList.add("hide");
     }
     //on or off rotate
-    const rotHandle = document.getElementById("touch-sphere");
+    const rotHandle = document.getElementById("touch-circle");
     if (this.data.rotate) {
       rotHandle.setAttribute("rotation-handler", "enabled", "true");
     } else {
@@ -452,6 +184,259 @@ AFRAME.registerComponent("controller", {
     } else {
       if (this.modelLoaded) {
         self.setAttribute("tools", "enabled", false);
+      }
+    }
+  },
+  startAR: function(){
+    this.el.enterAR();
+    app.gui.message.messageButton2El.removeEventListener('click', this.cancelAR);
+  },
+  cancelAR: function() {
+    //TO DO navigate back to modelviewer
+    app.gui.message.messageButton1El.removeEventListener('click', this.startAR);
+    app.gui.message.hideMessage();
+  },
+  initGui: function(){
+    let self = this.el;
+    const domOverlay = document.getElementById("ar-overlay");
+    const missionBtn = document.getElementById("missionBtn");
+    const toolsBtn = document.getElementById("toolsBtn");
+    const toolsCont = document.querySelector(".toggle-container");
+    const replaceButton = document.getElementById("replace-button");
+    const wireframe = document.getElementById("wireframe");
+    const clipping = document.getElementById("clipping");
+    const texture = document.getElementById("texture");
+    const freezeShot = document.getElementById("shot");
+    const distanceSlider = document.getElementById("distance-slider");
+    const closeButton = document.querySelector(
+      "#close-cont .annotation-close-symbol"
+    );
+
+    //first contact variables
+    let firstContactMission = false;
+    let firstContactTool = false;
+    //after start ar mode
+    self.addEventListener("enter-vr", function () {
+      domOverlay.classList.remove("hide");
+      activateButton(null);
+      toolsCont.classList.add("hide");
+      //show welcome message
+
+      let message = {
+        showClose: false,
+        //TODO src Icon Platzieren
+        content: app.arViewer.startPlacing,
+        color: 'terracotta',
+        button1: { content: app.arViewer.startPlacingButton, color: 'pearlwhite', shadow: 'coalgrey' },
+      }
+
+      app.gui.message.setMessage(message);
+      app.gui.message.messageButton1El.addEventListener('click', startPlacing, { once: true });
+
+    });
+    function startPlacing(event) {
+      self.emit("ready-for-placing", null, true);
+    }
+    // exit ar mode
+    self.addEventListener("exit-vr", function () {
+      domOverlay.classList.add("hide");
+
+      self.emit("pause-interaction", { rotate: false }, false);
+      if(!firstContactMission && !firstContactTool){
+        localStorage.setItem('firstContact', JSON.stringify(false));
+      }
+      let message = {
+        type: 'Entdeckermodus',
+        showClose: false,
+        content: app.arViewer.goodbyeMessage,
+        color: 'skyblue',
+        button1: { content: app.arViewer.yes, color: 'pearlwhite', shadow: 'coalgrey' },
+        button2: { content: app.arViewer.goodbyeMessageButton, color: 'pearlwhite', shadow: 'coalgrey' },
+      }
+      app.gui.message.setMessage(message);
+      app.gui.message.messageButton1El.addEventListener('click', this.cancelAR, { once: true });
+      app.gui.message.messageButton2El.addEventListener('click', this.startAR, { once: true });
+
+    });
+
+    // menu for mission and tools
+    function activateButton(button) {
+      missionBtn.classList.remove("active");
+      toolsBtn.classList.remove("active");
+      if (button != null) button.classList.add("active");
+    }
+
+    self.addEventListener("showFirstContactMessage", function(){
+      firstContactMission = true;
+      firstContactTool = true;
+    })
+    missionBtn.addEventListener("click", () => {
+      activateButton(missionBtn);
+      toolsCont.classList.add("hide");
+      if(firstContactMission){
+        let message = {
+          showClose: false,
+          content: app.arViewer.firstContactMission,
+          color: 'terracotta',
+          button1: { content: app.arViewer.allRight, color: 'pearlwhite', shadow: 'coalgrey' },
+    
+        }
+  
+        app.gui.message.setMessage(message);
+        self.setAttribute("controller", {
+          mission: true,
+          tool: false,
+          raycaster: false,
+          rotate: false,
+          inventar: false,
+        });
+        app.gui.message.messageButton1El.addEventListener('click', () =>{
+          app.gui.message.hideMessage();
+          self.setAttribute("controller", {
+            mission: true,
+            tool: false,
+            rotate: false,
+            raycaster: true,
+            inventar: true,
+          });
+        }, { once: true });
+        firstContactMission = false;
+      }else{
+        self.setAttribute("controller", {
+        mission: true,
+        tool: false,
+        raycaster: true,
+        rotate: true,
+        inventar: true,
+      });
+      }
+      
+    });
+
+
+    toolsBtn.addEventListener("click", () => {
+      activateButton(toolsBtn);
+      if(firstContactTool){
+        let message = {
+          showClose: false,
+          content: app.arViewer.firstContactTool,
+          color: 'terracotta',
+          button1: { content: app.arViewer.allRight, color: 'pearlwhite', shadow: 'coalgrey' },
+    
+        }
+  
+        app.gui.message.setMessage(message);
+        self.setAttribute("controller", {
+          mission: false,
+          tool: false,
+          rotate: false,
+          raycaster: false,
+          inventar: false,
+        });
+        app.gui.message.messageButton1El.addEventListener('click', () =>{
+          app.gui.message.hideMessage();
+          toolsCont.classList.remove("hide");
+          self.setAttribute("controller", {
+            mission: false,
+            tool: true,
+            rotate: true,
+            raycaster: false,
+            inventar: false,
+          });
+        }, { once: true });
+        firstContactTool = false;
+      }else{
+        toolsCont.classList.remove("hide");
+      self.setAttribute("controller", {
+        mission: false,
+        tool: true,
+        rotate: true,
+        raycaster: false,
+        inventar: false,
+      });
+    }
+    });
+
+    //replace object button
+    replaceButton.addEventListener("click", function () {
+      self.emit("new-placement", null, true);
+      self.setAttribute("controller", {
+        rotate: false,
+        raycaster: false,
+        mission: false,
+        tool: false,
+      });
+      activateButton(null);
+      toolsCont.classList.add("hide");
+    });
+    //tools toggle wireframe and texture
+    wireframe.addEventListener("change", () => {
+      wireframe.checked
+        ? self.setAttribute("tools", "wireframe", "true")
+        : self.setAttribute("tools", "wireframe", "false");
+    });
+
+    texture.addEventListener("change", () => {
+      texture.checked
+        ? self.setAttribute("tools", "texture", "true")
+        : self.setAttribute("tools", "texture", "false");
+    });
+
+    clipping.addEventListener("change", () => {
+      if (clipping.checked) {
+        self.setAttribute("tools", "clipping", "true");
+        freezeShot.parentElement.parentElement.classList.remove('hide');
+        distanceSlider.parentElement.classList.remove('hide');
+      } else {
+        self.setAttribute("tools", "clipping", "false");
+        freezeShot.parentElement.parentElement.classList.add('hide');
+        distanceSlider.parentElement.classList.add('hide');
+      }
+    });
+
+    freezeShot.addEventListener("change", () => {
+      freezeShot.checked
+        ? self.setAttribute("tools", "shot", "true")
+        : self.setAttribute("tools", "shot", "false");
+    });
+
+    distanceSlider.addEventListener('input', (event) => {
+      self.emit("distance-changed", { dist: event.target.value }, false);
+    })
+
+    toolsCont.addEventListener('touchstart', (event) => {
+      self.emit("pause-interaction", { rotate: false, tools: true }, false);
+    })
+
+    toolsCont.addEventListener('touchend', (event) => {
+      self.emit("play-interaction", { rotate: true }, false);
+    })
+
+    //close button listener
+    closeButton.addEventListener("click", closeAR);
+
+    function closeAR(event) {
+      self.emit("pause-interaction", { rotate: false }, false);
+      let message = {
+        showClose: false,
+        content: app.arViewer.leaveAR,
+        color: 'terracotta',
+        button1: { content: app.arViewer.yes, color: 'pearlwhite', shadow: 'coalgrey' },
+        button2: { content: app.arViewer.no, color: 'pearlwhite', shadow: 'coalgrey' }
+      }
+
+      app.gui.message.setMessage(message);
+      app.gui.message.messageButton1El.addEventListener('click', exitAR, { once: true });
+      app.gui.message.messageButton2El.addEventListener('click', stayInAR, { once: true });
+      function exitAR(event) {
+        app.gui.message.messageButton2El.removeEventListener('click', stayInAR);
+        app.gui.message.hideMessage();
+        self.exitVR();
+      }
+      function stayInAR(event) {
+        app.gui.message.messageButton1El.removeEventListener('click', exitAR);
+        app.gui.message.hideMessage();
+        self.emit("play-interaction", { rotate: true }, false);
       }
     }
   },
@@ -545,7 +530,7 @@ AFRAME.registerComponent("controller", {
               loop: true,
             });
             dragElement.setAttribute("collider-check", {
-              description: "Objekt aufheben",
+              description: app.arViewer.dragObject,
             });
             dragElement.setAttribute("distance-tracker", "");
             dragElement.setAttribute(
@@ -572,7 +557,7 @@ AFRAME.registerComponent("controller", {
               transparent: true,
             });
             dropElement.setAttribute("collider-check", {
-              description: "Objekt ablegen",
+              description: app.arViewer.dropObject,
             });
             dropElement.setAttribute("turn-to-camera", "");
             dropElement.object3D.visible = false;
@@ -620,7 +605,7 @@ AFRAME.registerComponent("controller", {
               loop: true,
             });
             element.setAttribute("collider-check", {
-              description: "Punkt aktivieren",
+              description: app.arViewer.activatePoint,
             });
             element.setAttribute("distance-tracker", "");
             element.setAttribute("turn-to-camera", "");
@@ -652,7 +637,7 @@ AFRAME.registerComponent("controller", {
               transparent: true,
             });
             quizEl.setAttribute("collider-check", {
-              description: "Quiz anzeigen",
+              description: app.arViewer.activateQuiz,
             });
             quizEl.setAttribute("distance-tracker", "");
             quizEl.setAttribute("turn-to-camera", "");
@@ -745,12 +730,12 @@ AFRAME.registerComponent("controller", {
     let it = this;
     let self = this.el;
     let message = {
-      type: 'Übersicht',
+      type: app.arViewer.overview,
       showClose: true,
       content: getContent(completed),
       color: 'pearlwhite',
       shadow: 'shadow-terracotta',
-      button1: completed ? { content: 'Missionen neu starten', color: 'duckyellow', shadow: 'shadowduckyellow' } : {},
+      button1: completed ? { content: app.arViewer.restartMissionButton, color: 'duckyellow', shadow: 'shadowduckyellow' } : {},
 
     }
 
@@ -766,14 +751,9 @@ AFRAME.registerComponent("controller", {
       });
     }, { once: true });
     function getContent(completed) {
-      const missionTexts = [
-        "Objekte erfolgreich zugeordnet",
-        "Punkte gefunden",
-        "Fragen beantwortet",
-        "Animationen gestartet",
-      ];
-      let content = ''
-      content += completed ? '<h3>Herzlichen Glückwunsch du hast alle Missionen erfüllt!</h3>' : '<h3>Schließe alle Missionen ab!</h3>';
+      const missionTexts = app.arViewer.missionOverviewText;
+      let content = '';
+      content += completed ?  app.arViewer.solveAllMissions: app.arViewer.solveMissions;
       let sumPointsValues = Object.values(it.sumPointsPerCategory);
       let currentPointsValues = Object.values(it.currentPointsPerCategory);
       for (let i = 0; i < sumPointsValues.length; i++) {
@@ -1054,11 +1034,7 @@ AFRAME.registerComponent("ar-hit-test-special", {
   },
 
   showMessage: function (step) {
-    const text = [
-      "Bewege die Kamera entlang einer Fläche",
-      "Bewege das Objekt, indem du die Kamera bewegst. Wenn du zufrieden bist , klicke auf den Button.",
-      "Du solltest jetzt das gesamte Objekt direkt vor dir sehen. Ist es korrekt platziert?",
-    ];
+    const text = app.arViewer.placeMessages;
     let message;
     if (step == "start") {
       message = {
@@ -1074,7 +1050,7 @@ AFRAME.registerComponent("ar-hit-test-special", {
         content: '<p>' + text[1] + '</p>',
         color: 'pearlwhite',
         shadow: 'shadow-skyblue',
-        button1: { content: 'Platzieren', color: 'coalgrey', shadow: 'shadow-coalgrey' }
+        button1: { content: app.arViewer.place, color: 'coalgrey', shadow: 'shadow-coalgrey' }
       }
       app.gui.message.setMessage(message);
       app.gui.message.messageButton1El.addEventListener("click", this.placeObject, { once: true });
@@ -1084,8 +1060,8 @@ AFRAME.registerComponent("ar-hit-test-special", {
         content: '<p>' + text[2] + '</p>',
         color: 'pearlwhite',
         shadow: 'shadow-skyblue',
-        button1: { content: 'Ja', color: 'coalgrey', shadow: 'shadow-coalgrey' },
-        button2: { content: 'Neu platzieren', color: 'coalgrey', shadow: 'shadow-coalgrey' }
+        button1: { content: app.arViewer.yes, color: 'coalgrey', shadow: 'shadow-coalgrey' },
+        button2: { content: app.arViewer.placeNew, color: 'coalgrey', shadow: 'shadow-coalgrey' }
 
       }
       app.gui.message.setMessage(message);
@@ -1145,7 +1121,7 @@ AFRAME.registerComponent("ar-hit-test-special", {
   },
   placeAgain: function (event) {
     app.gui.message.messageButton1El.removeEventListener("click", this.placeEnd);
-    this.el.emit("new- ", null, true);
+    this.el.emit("new-placement", null, true);
   },
   tick: function () {
     if (this.el.sceneEl.is("ar-mode")) {
@@ -1450,6 +1426,9 @@ AFRAME.registerComponent("rotation-handler", {
     const intersects = raycaster.intersectObject(self.object3D);
     //if not clicked return
     if (intersects.length < 1) return;
+    const rotHandle = document.getElementById('rot-handle');
+    rotHandle.removeAttribute('material', 'src');
+    rotHandle.setAttribute('material','color', '#FF7850');
     it.canvas.addEventListener("touchmove", it.trackTouch);
     self.emit("pause-interaction", { rotate: true }, true);
     it.canvas.addEventListener("touchend", it.endTouch);
@@ -1479,6 +1458,9 @@ AFRAME.registerComponent("rotation-handler", {
     this.el.emit("play-interaction", { rotate: true }, true);
     this.touches.length = 0;
     this.arrayPos = this.pos;
+    const rotHandle = document.getElementById('rot-handle');
+    rotHandle.setAttribute('material','src', '#arrow');
+    rotHandle.removeAttribute('material', 'color');
 
     this.canvas.removeEventListener("touchend", this.endTouch);
   },
@@ -1500,20 +1482,20 @@ AFRAME.registerComponent("get-bounding-box", {
           boundingBox.getSize(size);
           //get radius
           let radius = size.x > size.z ? size.x / 2 : size.z / 2;
-          let radiusInner = radius + 0.01;
-          let radiusOuter = radius + 0.02;
+          let radiusInner = radius + (radius / 6);
+          let radiusOuter = radius + (radius/6 + 0.01);
           let largest = Math.max(size.x, size.y, size.z);
           //set radius
-          ringEl.setAttribute("geometry", {
+         ringEl.setAttribute("geometry", {
             radiusInner: radiusInner,
             radiusOuter: radiusOuter,
           });
 
           let radiusMiddle = (radiusInner + radiusOuter) / 2;
           ringEl.children[0].object3D.position.x = radiusMiddle;
-          ringEl.children[0].setAttribute("geometry", "radius", size.y / 3);
+          ringEl.children[0].setAttribute("geometry", "radius", radiusMiddle);
           ringEl.children[1].object3D.position.x = radiusMiddle;
-
+          ringEl.children[1].setAttribute("geometry", "radius", radiusMiddle / 4);
           //emit radius to rotation handler
           self.emit(
             "radius-set",
@@ -1598,17 +1580,17 @@ AFRAME.registerComponent("spritesheet-animation", {
 //DRAG-DROP-TASK: Task with to points, one on the floor to drag and show an image and to drop the image at a point on the object
 AFRAME.registerComponent("drag-drop-task", {
   schema: {
-    name: { type: "string", default: "XY" },
+    name: { type: "string", default: "" },
     description_drag: {
       type: "string",
       default:
-        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
+        "",
     },
     //ToDO 
     src_image: {
       type: "string",
       default:
-        "https://cdn.glitch.com/a9975ea6-8949-4bab-addb-8a95021dc2da%2Fillustration.svg?v=1618177344016",
+        "",
     },
     copyright_image: {
       type: "string",
@@ -1625,7 +1607,7 @@ AFRAME.registerComponent("drag-drop-task", {
     description_drop: {
       type: "string",
       default:
-        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
+        "",
     },
   },
   init: function () {
@@ -1654,7 +1636,7 @@ AFRAME.registerComponent("drag-drop-task", {
           if (self.classList.contains("selected")) {
             evt.detail.point.setAttribute("material", { src: "#book" });
             evt.detail.point.setAttribute("collider-check", {
-              description: "Buch anzeigen",
+              description: app.arViewer.showBook,
             });
             evt.detail.point.setAttribute("distance-tracker", "");
             //change class to book
@@ -1697,7 +1679,7 @@ AFRAME.registerComponent("drag-drop-task", {
   showPopUp: function (name, desc, imgSrc, imgCr, imgAlt, imgCaption) {
     let self = this.el;
     let message = {
-      type: 'Drag & Drop',
+      type: app.arViewer.dragDropHead,
       showClose: true,
       content: getContent(),
       color: 'skyblue'
@@ -1736,14 +1718,10 @@ AFRAME.registerComponent("drag-drop-task", {
     this.el.emit("element-dropped-inventar", { origin: this.el }, true);
   },
   showFalseMessage: function () {
-    const falseMessages = [
-      "Ups! Das gehört hier nicht hin. Versuch's mal woanders!",
-      "Hoppla! Das passt hier leider nicht. Ab zur richtigen Stelle",
-      "Oh nein! Das fühlt sich hier nicht wohl. Versuch’s mal an einem anderen Ort!",
-    ];
+    const falseMessages = app.arViewer.falseMessages;
     const randomIndex = Math.floor(Math.random() * falseMessages.length);
     let message = {
-      type: 'Drag & Drop',
+      type: app.arViewer.dragDropHead,
       showClose: true,
       content: `<p>${falseMessages[randomIndex]}</p>`,
       color: 'smokegrey'
@@ -1763,7 +1741,7 @@ AFRAME.registerComponent("drag-drop-task", {
     self.children[1].classList.remove("collidable");
     self.children[1].setAttribute("material", { src: "#placer" });
     self.children[1].setAttribute("collider-check", {
-      description: "Objekt ablegen",
+      description: app.arViewer.dropObject,
     });
   },
 });
@@ -1771,11 +1749,11 @@ AFRAME.registerComponent("drag-drop-task", {
 //POINT-TASK: task to activate point with popup (text + (image) + (audio))
 AFRAME.registerComponent("point-task", {
   schema: {
-    name: { type: "string", default: "Headline" },
+    name: { type: "string", default: "" },
     description: {
       type: "string",
       default:
-        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
+        "",
     },
     src_audio: {
       type: "string",
@@ -1814,7 +1792,7 @@ AFRAME.registerComponent("point-task", {
         evt.detail.point.removeAttribute("spritesheet-animation");
         evt.detail.point.setAttribute("material", { src: "#book" });
         evt.detail.point.setAttribute("collider-check", {
-          description: "Buch anzeigen",
+          description: app.arViewer.showBook,
         });
         //count points
         if (it.firstTime) {
@@ -1851,7 +1829,7 @@ AFRAME.registerComponent("point-task", {
   ) {
     let self = this.el;
     let message = {
-      type: 'Punkt aktivieren',
+      type: app.arViewer.pointHead,
       showClose: true,
       content: getContent(),
       color: 'duckyellow'
@@ -1901,7 +1879,7 @@ AFRAME.registerComponent("point-task", {
     }),
       self.children[0].setAttribute("material", { src: "#sprite" });
     self.children[0].setAttribute("collider-check", {
-      description: "Punkt aktivieren",
+      description: app.arViewer.activatePoint,
     });
     it.firstTime = true;
   },
@@ -1911,12 +1889,12 @@ AFRAME.registerComponent("point-task", {
 AFRAME.registerComponent("quiz-task", {
   schema: {
     name: { type: "string", default: "Question" },
-    answers: { type: "array", default: ["Paris", "London", "Berlin"] },
-    rightAnswer: { type: "string", default: "Paris" },
+    answers: { type: "array", default: ["", "", ""] },
+    rightAnswer: { type: "string", default: "" },
     description: {
       type: "string",
       default:
-        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
+        "",
     },
   },
   init: function () {
@@ -1948,11 +1926,11 @@ AFRAME.registerComponent("quiz-task", {
     let self = this.el;
     let it = this;
     let message = {
-      type: 'Quiz',
+      type: app.arViewer.quizHead,
       showClose: true,
       content: getContent(),
       color: 'terracotta',
-      button1: this.solved ? {} : { content: "Antwort überprüfen", color: "pearlwhite", shadow: "coalgrey" }
+      button1: this.solved ? {} : { content: app.arViewer.quizButton , color: "pearlwhite", shadow: "coalgrey" }
     }
     function getContent() {
       let content = '';
@@ -2013,16 +1991,16 @@ AFRAME.registerComponent("quiz-task", {
         this.disableRadios();
         this.el.children[0].setAttribute("material", { src: "#book" });
         this.el.children[0].setAttribute("collider-check", {
-          description: "Buch anzeigen",
+          description: app.arViewer.showBook,
         });
         this.solved = true;
         //count points
         this.el.emit("point-achieved", { pointID: this.el.classList[0] }, true);
       } else {
-        text.textContent = "Leider falsch. Probiere es noch einmal!";
+        text.textContent = app.arViewer.quizFalse;
       }
     } else {
-      text.textContent = "Bitte wähle etwas aus!";
+      text.textContent = app.arViewer.quizNull;
     }
   },
   disableRadios: function () {
@@ -2043,7 +2021,7 @@ AFRAME.registerComponent("quiz-task", {
     it.solved = false;
     self.children[0].setAttribute("material", { src: "" });
     self.children[0].setAttribute("collider-check", {
-      description: "Punkt aktivieren",
+      description: app.arViewer.activatePoint,
     });
   },
 });

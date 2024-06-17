@@ -1067,13 +1067,62 @@ const app = {
 		
 
 		init(){
-			this.createElements();
+		this.createElements();
+		this.name = "Entdeckermodus";
 		this.firstContactWithMission= "<h3>Super! Nun bist du bereit das Objekt zu entdecken.</h3> <p>Schaue Dir das Objekt erst einmal von allen Seiten an. Wenn es möglich ist, gehe um das Objekt herum. Wenn nicht, kannst du das Objekt auch an dem Knopf unterhalb vom Objekt drehen. Klicke dazu auf den Knopf und wische nach rechts oder links.</br> Es gibt zwei verschiedene Modi: die Mission und die Tools. Bei der Mission bekommst du verschiedene Aufhaben gestellt und kannst so Bücher sammeln. Bei den Tools kannst du das 3D-Objekt genauer erforschen und sehen wie so ein 3D-Objekt aufgebaut ist. </p>"
 		this.firstContactWithoutMission= "<h3>Super! Nun bist du bereit das Objekt zu entdecken.</h3><p>Schaue Dir das Objekt erst einmal von allen Seiten an. Wenn es möglich ist, gehe um das Objekt herum. Wenn nicht, kannst du das Objekt auch an dem Knopf unterhalb vom Objekt drehen. Klicke dazu auf den Knopf und wische nach rechts oder links.</br> Es gibt außerdem den Tools-Modus. Hier kannst du das 3D-Objekt genauer erforschen und sehen wie so ein 3D-Objekt aufgebaut ist. </p>"
 		this.welcomeMessage= '<h3>Willkommen im Entdeckermodus!</h3> <img src="" alt="Entdecker-Icon" /><p>Hier kannst Du das Objekt im Raum platzieren. Danach kannst du Dir das 3D-Objekt genauer ansehen.</p><p>Möchtest Du den Entdecker-Modus starten?</p>'
 		this.firstContactMission = "<h3>Mission</h3> <p>Wilkommen bei deiner Mission. </br>Es gibt verschiedene Aufgaben, die du zu erledigen hast. Für jede erfolgreiche Aufgabe erhälst du ein Buch. </br> Info: Klicke oben links auf das Buch, um eine Übersicht anzeigen zu lassen. </br> Tipp: Gehe nah an das Objekt heran und ziele mit dem schwarzen Punkt auf auffällige Punkte.</p>"
 		this.firstContactTool = "<h3>Tools</h3> <p>Willkommen bei den Tools. Hier kannst du das Objekt mit Clipping genauer untersuchen. Bewege die Kamera dazu nahe an das Objekt, um das Objekt abzuschneiden. Außerdem kannst du einen Schnitt festhalten mit Freeze oder die Entfernung des Schnitts einstellen. </br> Du kannst die Textur, also die Beschaffenheit der Oberfläche, sowie das Wireframe, also das visuelle Modell des 3D-Object an- bzw. ausschalten."
 		this.goodbyeMessage = "<h3>Entdecker-Modus verlassen</h3> <p>Möchtest du zum Modelviewer zurückkehren?</p>"
+		this.goodbyeMessageButton = "Entdeckermodus erneut starten"
+		this.startPlacing = '<img src="" alt="Platzierungs-Icon" /> <p>Um das Objekt zu platzieren, suche eine freie Boden- oder Tischfläche. Das Objekt soll dort in realer Größe platziert werden.</p>'
+		this.leaveAR = '<p>Entdecker-Modus wirklich verlassen?</p>'
+		this.startPlacingButton = 'Platzierung starten!'
+
+		this.overview = "Übersicht";
+		this.restartMissionButton = "Missionen neu starten";
+		this.missionOverviewText = [
+			"Objekte erfolgreich zugeordnet",
+			"Punkte gefunden",
+			"Fragen beantwortet",
+			"Animationen gestartet",
+		  ];
+		this.solveMissions = '<h3>Schließe alle Missionen ab!</h3>'
+		this.solveAllMissions = '<h3>Herzlichen Glückwunsch du hast alle Missionen erfüllt!</h3>'
+
+		this.yes = "Ja";
+		this.no = "Nein";
+		this.allRight = "Alles klar";
+		this.place = "Platzieren";
+		this.placeNew = "Neu platzieren";
+
+		this.placeMessages = [
+			"Bewege die Kamera entlang einer Fläche",
+			"Bewege das Objekt, indem du die Kamera bewegst. Wenn du zufrieden bist , klicke auf den Button.",
+			"Du solltest jetzt das gesamte Objekt direkt vor dir sehen. Ist es korrekt platziert?",
+		  ];
+
+		this.dragDropHead = 'Drag & Drop';
+		this.falseMessages = [
+			"Ups! Das gehört hier nicht hin. Versuch's mal woanders!",
+			"Hoppla! Das passt hier leider nicht. Ab zur richtigen Stelle",
+			"Oh nein! Das fühlt sich hier nicht wohl. Versuch’s mal an einem anderen Ort!",
+		  ];
+
+		this.pointHead = "Punkt gefunden";
+		this.quizHead = "Quiz";
+		this.quizButton = "Antwort überprüfen";
+		this.quizFalse = "Leider falsch. Probiere es noch einmal!";
+		this.quizNull = "Bitte wähle etwas aus!";
+
+		//texts for cursor animation
+		this.dragObject = "Objekt aufheben";
+		this.dropObject = "Objekt ablegen";
+		this.activatePoint = "Punkt aktivieren";
+		this.activateQuiz = "Quiz anzeigen";
+		this.showBook = "Buch anzeigen";
+
 		},
 
 		createElements() {
@@ -1097,7 +1146,7 @@ const app = {
 			assets.appendChild(imgSprite);
 			imgSprite.id = 'sprite';
 			imgSprite.crossOrigin = 'anonymous';
-			//TODO our own sprite
+			// TODO our own sprite
 			imgSprite.src = 'https://cdn.glitch.global/421736eb-f719-4a40-8df3-054eca30d277/spark.png?v=1715082340035';
 
 			const imgPlacer = document.createElement('img');
@@ -1149,7 +1198,7 @@ const app = {
 			cameraText.setAttribute('visibility-handler', '');
 			cameraText.setAttribute('visible','false');
 			cameraText.setAttribute('value', 'Objekt aufheben');
-			cameraText.setAttribute('position', '0 0.4 0');
+			cameraText.setAttribute('position', '0 0.04 0');
 			cameraText.setAttribute('align', 'center');
 			cameraText.setAttribute('color', 'black');
 			cameraText.setAttribute('scale', '0.02 0.02 0.02');
@@ -1189,22 +1238,24 @@ const app = {
 			arViewerElement.appendChild(rotationControl);
 			rotationControl.setAttribute('id', 'rotation-ring');
 			rotationControl.setAttribute('geometry', 'primitive:ring; radiusInner:0; radiusOuter:0;');
-			rotationControl.setAttribute('material', 'color:#9B9691');
+			rotationControl.setAttribute('material','transparent:true; opacity:0;');
 			rotationControl.setAttribute('rotation', '-90 0 0');
+
 			rotationControl.setAttribute('turn-to-camera', 'onlyYAxis:true');
 
-			const touchSphere = document.createElement('a-entity');
-			rotationControl.appendChild(touchSphere);
-			touchSphere.setAttribute('id', 'touch-sphere');
-			touchSphere.setAttribute('geometry', 'primitive:sphere; radius: 0.3;');
-			touchSphere.setAttribute('material', 'shader:flat;transparent:true; opacity:0;');
-			touchSphere.setAttribute('rotation-handler', '');
-
+			const touchCircle = document.createElement('a-entity');
+			rotationControl.appendChild(touchCircle);
+			touchCircle.setAttribute('id', 'touch-circle');
+			touchCircle.setAttribute('geometry', 'primitive:circle; radius: 0.3;');
+			touchCircle.setAttribute('material', 'transparent:true; opacity:0;');
+			touchCircle.setAttribute("turn-to-camera", '');
+			touchCircle.setAttribute('rotation-handler', '');			
 			const arrow = document.createElement('a-entity');
 			rotationControl.appendChild(arrow);
-			arrow.setAttribute('geometry', 'primitive:plane; width:0.015; height: 0.015;');
-			arrow.setAttribute('position', ' 0 0 0.001');
-			arrow.setAttribute('material', 'src:#arrow');
+			arrow.setAttribute('id', 'rot-handle');
+			arrow.setAttribute('geometry', 'primitive:circle; radius: 0.3;');
+			arrow.setAttribute('rotation', ' 0 0 0');
+			arrow.setAttribute('material', 'src:#arrow')
 			
 			
 		}
