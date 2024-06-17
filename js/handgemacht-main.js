@@ -1229,6 +1229,7 @@ const app = {
 			object.setAttribute('get-bounding-box', '');
 			object.setAttribute('distance-listener', '');
 			object.setAttribute('anchored', 'persistent:true');
+			object.setAttribute('animation-mixer', '');
 
 			const missionsContainer = document.createElement('a-entity');
 			containerObject.appendChild(missionsContainer);
@@ -1255,7 +1256,7 @@ const app = {
 			arrow.setAttribute('id', 'rot-handle');
 			arrow.setAttribute('geometry', 'primitive:circle; radius: 0.3;');
 			arrow.setAttribute('rotation', ' 0 0 0');
-			arrow.setAttribute('material', 'src:#arrow')
+			arrow.setAttribute('material', 'src:#arrow');
 			
 			
 		}

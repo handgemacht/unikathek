@@ -68,7 +68,7 @@
 		"model": {
 			"quality16k": "modelfiles/6D0549BE-3890-8245-9D95-9B5E526327DB_16k.glb",
 			"quality1k": "modelfiles/6D0549BE-3890-8245-9D95-9B5E526327DB_512.glb",
-			"quality2k": "modelfiles/00000000-0000-0000-0000-000000000000_2k.glb",
+			"quality2k": "modelfiles/Ofen_animation.glb",
 			"quality4k": "modelfiles/6D0549BE-3890-8245-9D95-9B5E526327DB_4k.glb",
 			"quality8k": "modelfiles/6D0549BE-3890-8245-9D95-9B5E526327DB_8k.glb"
 		},
