@@ -652,6 +652,39 @@ AFRAME.registerComponent("controller", {
             taskEl.appendChild(quizEl);
             break;
           case "animation":
+            taskEl.setAttribute("animation-task", {
+              name: currentTask.name,
+              repetition: currentTask.repetition,
+              animName: currentTask.animName,
+
+            })
+            let animationEl = document.createElement("a-entity");
+            animationEl.classList.add(currentClass);
+            animationEl.setAttribute("geometry", {
+              primitive: "circle",
+              radius: radius,
+            });
+            animationEl.setAttribute("material", {
+              shader: "flat",
+              src: "#playAnim",
+              transparent: true,
+            });
+            animationEl.setAttribute("collider-check", {
+              description: currentTask.name,
+            });
+            animationEl.setAttribute("distance-tracker", "");
+            animationEl.setAttribute("turn-to-camera", "");
+            animationEl.setAttribute("position", formatPos(currentTask.startPoint));
+
+            if (!currentTask.dependable) {
+              animationEl.classList.add("collidable");
+            } else {
+              animationEl.object3D.visible = false;
+            }
+            taskEl.appendChild(animationEl);
+            break;
+
+
         }
 
         missionsContainer.appendChild(taskEl);
@@ -1478,6 +1511,7 @@ AFRAME.registerComponent("get-bounding-box", {
     //wait until gtlf model is loaded
     self.addEventListener("model-loaded", function () {
       self.object3D.children[0].traverse(function (child) {
+        devMode && console.log("child", child);
         if (child.isMesh) {
           boundingBox.setFromObject(child);
           boundingBox.getSize(size);
@@ -2182,7 +2216,52 @@ AFRAME.registerComponent("quiz-task", {
     });
   },
 });
+//ANIMATION-TASK
+AFRAME.registerComponent("animation-task", {
+  schema: {
+    name: { type: "string", default: "Animation starten" },
+    animName: { type: "string", default: ""},
+    repetition: { type: "boolean", default: true }
+  },
+  init: function () {
+    let self = this.el;
+    let it = this;
+    this.solved = false;
+    this.firstTime = true;
+    this.object = document.getElementById('object');
 
+    this.el.sceneEl.addEventListener("point-to-play-trigger", function (evt) {
+      if (evt.detail.point.classList[0] == self.classList[0]) {
+        it.object.setAttribute('animation-mixer',`clip:${it.data.animName}; loop:once; clampWhenFinished:true`);
+        if (it.firstTime) {
+          evt.detail.point.setAttribute("material", { src: "#book" });
+        evt.detail.point.setAttribute("collider-check", {
+          description: app.arViewer.restartAnim,
+        });
+        //count points
+          self.emit("point-achieved", { pointID: self.classList[0] }, true);
+          it.firstTime = false;
+        }
+        if(!it.data.repetition ){
+          evt.detail.point.classList.remove("collidable");
+          evt.detail.point.object3D.visible = false;
+        }
+      }
+    });
+    this.el.sceneEl.addEventListener("missions-reversed", function (e) {
+      it.reverse(self, it);
+    });
+  },
+  reverse: function(self, it){
+    self.children[0].classList.add('collidable');
+    self.children[0].object3D.visible = true;
+    self.children[0].setAttribute("material", {src: '#playAnim'});
+    self.children[0].setAttribute("collider-check", {
+          description: it.data.name,
+        });
+        it.firstTime = true;
+  }
+})
 //TOOLS: creates a copy of the object and enables stencil clipping, showing or not showing the wireframe and texture
 AFRAME.registerComponent("tools", {
   schema: {

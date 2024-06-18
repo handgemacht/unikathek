@@ -1,0 +1,140 @@
+{
+	"appData": {
+		"tasks": [
+			{
+				"id": 1,
+				"taskType": "animation",
+				"dependable": false,
+				"activates": 2,
+				"name": "Ofen Deckel oeffnen",
+				"startPoint": "-0.25m 0.7m -0.05m",
+				"animName": "Ofen_Deckel.anim_open",
+				"repetition": true
+			},
+			{
+				"id": 2,
+				"taskType": "animation",
+				"dependable": true,
+				"activates": 3,
+				"name": "Ofen Deckel schließen",
+				"startPoint":"-0.05m 0.7m 0.25m",
+				"animName": "Ofen_Deckel.anim_close",
+				"repetition":false
+				
+			},
+			{
+				"id": 3,
+				"taskType": "animation",
+				"dependable": true,
+				"activates": 4,
+				"name": "Ofen Schublade öffnen",
+				"startPoint":"0.05m 0.18m 0.17m",
+				"animName": "Ofen_Schublade.anim_open",
+				"repetition":false
+				
+			},
+			{
+				"id": 4,
+				"taskType": "animation",
+				"dependable": true,
+				"activates": 5,
+				"name": "Ofen Schublade schließen",
+				"startPoint":"0m 0.2m 0.35m",
+				"animName": "Ofen_Schublade.anim_close",
+				"repetition":false
+			},
+			{
+				"id": 5,
+				"taskType": "animation",
+				"dependable": true,
+				"activates": 6,
+				"name": "Ofen Tür oben öffnen",
+				"startPoint":"0m 0.6m 0.17m",
+				"animName": "Ofen_Tür_oben.anim_open",
+				"repetition":false
+				
+			},
+			{
+				"id": 6,
+				"taskType": "animation",
+				"dependable": true,
+				"activates": 7,
+				"name": "Ofen Tür oben schließen",
+				"startPoint":"0m 0.6m 0.25m",
+				"animName": "Ofen_Tür_oben.anim_close",
+				"repetition":false
+			},
+			{
+				"id": 7,
+				"taskType": "animation",
+				"dependable": true,
+				"activates": 8,
+				"name": "Ofen Tür unten öffnen",
+				"startPoint":"0m 0.35m 0.15m",
+				"animName": "Ofen_Tür_unten.anim_open",
+				"repetition":false
+				
+			},
+			{
+				"id": 8,
+				"taskType": "animation",
+				"dependable": true,
+				"activates": 0,
+				"name": "Ofen Tür unten schließen",
+				"startPoint":"0m 0.35m 0.25m",
+				"animName": "Ofen_Tür_unten.anim_close",
+				"repetition":false
+			}
+			
+		],
+		"model": {
+			"quality16k": "modelfiles/6D0549BE-3890-8245-9D95-9B5E526327DB_16k.glb",
+			"quality1k": "modelfiles/6D0549BE-3890-8245-9D95-9B5E526327DB_512.glb",
+			"quality2k": "modelfiles/Ofen_animation.glb",
+			"quality4k": "modelfiles/6D0549BE-3890-8245-9D95-9B5E526327DB_4k.glb",
+			"quality8k": "modelfiles/6D0549BE-3890-8245-9D95-9B5E526327DB_8k.glb"
+		},
+		"modelViewer": {
+			"cameraField": "34.95049966413964deg",
+			"cameraOrbit": "-4.5941500605846395rad 1.413717477610913rad 3.116388607236325m",
+			"cameraTarget": "0.14714357731135963m -0.045339590918948444m 0.03468594188902567m"
+		}
+	},
+	"basicData": {
+		"categorys": [
+			"Bräuche, Feste und Traditionen",
+			"Kleidung und Accessoires"
+		],
+		"description": "",
+		"key": "29",
+		"name": "Dirndl",
+		"release": "1",
+		"tags": [
+			"Zeitvertreib",
+			"Erfolgserlebnis",
+			"Coronapandemie",
+			"Textilien",
+			"Nähen"
+		]
+	},
+	"collectionData": {
+		"collectionContext": "Beispieltext für einen Text über einige Buchstaben, die zusammengesetzt Worte ergeben, welche wiederum in einer bestimmten Ordnung und mit bestimmten zusätzlichen Zeichen einen Satz bilden. ",
+		"collectionDate": "12.07.2023",
+		"collectionLocation": "Ensdorf",
+		"collectionLocationCode": "92266",
+		"collectionScanner": "Artec Leo",
+		"interviewFileName": "?",
+		"transcriptFileName": "230712_EXT_Gröninger_Interview, Teil 2_Transkript Datenbank.docx"
+	},
+	"objectData": {
+		"alternativeName": "",
+		"datingFrom": "2020",
+		"datingTo": "2020",
+		"location": "Ensdorf",
+		"locationCode": "92266",
+		"origin": "Ensdorf",
+		"originCode": "92266",
+		"usageContext": "Im Frühjahr 2020 entstand dieses Dirndl, das Florian G. für seine Ehefrau Eva G. nähte. Die Coronapandemie hatte den Alltag auf den Kopf gestellt. Als Musiker konnte Florian keine Auftritte wahrnehmen und suchte sich einen anderen Zeitvertreib. \r\rFür die Anfertigung des Dirndls hat Florian viel im Internet recherchiert. Auch die Stoffe hat er dort gekauft, was mitunter durch die Coronapandemie bedingt war. Großer Wert wurde auf die Verwendung von Naturmaterialien gelegt. Um dem Mieder Festigkeit zu verleihen, wurde nicht etwa Vlieseline verwendet, sondern ein Gewebe aus Rosshaar und Leinen. \r\rZum ersten Mal trug Eva das Dirndl bei der Fronleichnamsprozession in Ensdorf. Das Tragen hinterließ Spuren: Der Aufsatz eines Knopfes ist bereits abgegangen. \r\rDas Dirndl wurde auch in den sozialen Medien gezeigt und hat insgesamt zahlreiche positive Reaktionen und viel Lob hervorgerufen.\r\r"
+	},
+	"primaryKey": "6D0549BE-3890-8245-9D95-9B5E526327DB"
+}
