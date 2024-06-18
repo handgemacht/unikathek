@@ -475,6 +475,8 @@ const app = {
 				if(this.messageCloseEl) {
 					this.messageCloseEl.addEventListener('click', (evt) => {
 						self.hideMessage();
+						document.querySelector('#forcegraph').setAttribute('highlight', {source: ''});
+						app.collectionViewer.highlight.hideHighlight();
 					});
 				}
 			},
@@ -841,7 +843,8 @@ const app = {
 			}, 
 
 			mouseoverHandler(fgData) {
-				this.hideTooltip()
+				this.hideTooltip();
+
 				function isTouchDevice() {
 					try {
 						document.createEvent("TouchEvent");
@@ -872,11 +875,20 @@ const app = {
 
 				fgData ? type = fgData.type : type = 'none';
 
-				if(type !== 'none'){
-					this.showTooltip(fgData.type, fgData.name, false);
-				}else{
-					;
+				if(type === 'none'){
+					return;
 				}
+
+				if (fgData.type === 'link-tag' || fgData.type === 'link-category') {
+					if (fgData.material.visible === false) {
+						return;
+					}
+				}else if(fgData.type === 'node-object' || fgData.type === 'node-category'){
+					if (fgData.gltf.material.visible === false) {
+						return;
+					}
+				}
+				this.showTooltip(fgData.type, fgData.name, false);
 			} 
 		},
 
@@ -962,8 +974,9 @@ const app = {
 				fgData ? type = fgData.type : type = 'none';
 			
 				if(type !== 'none'){
-					this.showHighlight(type, fgData.name, true);
+					//this.showHighlight(type, fgData.name, true);
 					app.gui.message.hideMessage();
+					app.collectionViewer.highlight.generateMessage(fgData);
 				}else{
 					this.hideHighlight();;
 				}
@@ -978,14 +991,21 @@ const app = {
 				let type = '';
 				fgData ? type = fgData.type : type = 'none';
 
+				
+
 				if(type === 'node-object'){
-					document.querySelector('a-camera').setAttribute('camera-move-to-target', {target: fgData, distance: 60, duration: 1200});
+					let categoryList = fgData.categories.toString();
+					categoryList = categoryList.replace(/,/g, ", ");
+	
+					let tagList = fgData.tags.toString();
+					tagList = tagList.replace(/,/g, ", ");
+
 					let message = {
 						type: 'Objekt',
 						content: '<h3>' + fgData.name + '</h3>'
-								+ '<ul><li>' + fgData.type + '</li>'
-								+ '<li>' + fgData.category + '</li>'
-								+ '<li>' + fgData.id + '</li></ul>',
+								+ '<ul><li>Kategorien: ' + categoryList + '</li>'
+								+ '<li>Tags: ' + tagList + '</li>'
+								+ '<li>ID: ' + fgData.id + '</li></ul>',
 						color: 'skyblue',
 						button1: { content: 'Ansehen', color: 'pearlwhite', shadow: 'coalgrey' }
 					}
@@ -999,6 +1019,12 @@ const app = {
 				}
 
 				if(type === 'node-category'){
+					let categoryList = fgData.categories.toString();
+					categoryList = categoryList.replace(/,/g, ", ");
+	
+					let tagList = fgData.tags.toString();
+					tagList = tagList.replace(/,/g, ", ");
+					
 					let message = {
 						type: 'Kategorie',
 						content: '<h3>' + fgData.name + '</h3>'
