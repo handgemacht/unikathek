@@ -6,7 +6,7 @@
 				"taskType": "animation",
 				"dependable": false,
 				"activates": 2,
-				"name": "Ofen Deckel oeffnen",
+				"name": "Ofen Deckel öffnen",
 				"startPoint": "-0.25m 0.7m -0.05m",
 				"animName": "Ofen_Deckel.anim_open",
 				"repetition": true

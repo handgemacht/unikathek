@@ -7,6 +7,7 @@ const dirPath_Media = './files/annotation-media/';
 let loadAV = false;
 let primaryKey;
 let setError = '';
+let originalObject;
 
 var loader = new THREE.GLTFLoader();
 const dracoLoader = new THREE.DRACOLoader();
@@ -52,7 +53,7 @@ AFRAME.registerComponent("controller", {
     this.inventar = [];
     this.oneSelected = false;
     this.modelLoaded = false;
-   
+
     //model loaded listener
     self.addEventListener("model-loaded", function () {
       it.modelLoaded = true;
@@ -112,14 +113,14 @@ AFRAME.registerComponent("controller", {
         }
         self.emit("showFirstContactMessage", null, false);
         app.gui.message.setMessage(message);
-        
+
       }
 
-       
+
 
     });
     //init gui
-      it.initGui();
+    it.initGui();
   },
   update: function () {
     let self = this.el;
@@ -187,16 +188,16 @@ AFRAME.registerComponent("controller", {
       }
     }
   },
-  startAR: function(){
+  startAR: function () {
     this.el.enterAR();
     app.gui.message.messageButton2El.removeEventListener('click', this.cancelAR);
   },
-  cancelAR: function() {
+  cancelAR: function () {
     //TO DO navigate back to modelviewer
     app.gui.message.messageButton1El.removeEventListener('click', this.startAR);
     app.gui.message.hideMessage();
   },
-  initGui: function(){
+  initGui: function () {
     let self = this.el;
     let it = this;
     const domOverlay = document.getElementById("ar-overlay");
@@ -243,7 +244,7 @@ AFRAME.registerComponent("controller", {
       domOverlay.classList.add("hide");
 
       self.emit("pause-interaction", { rotate: false }, false);
-      if(!firstContactMission && !firstContactTool){
+      if (!firstContactMission && !firstContactTool) {
         localStorage.setItem('firstContact', JSON.stringify(false));
       }
       let message = {
@@ -267,22 +268,22 @@ AFRAME.registerComponent("controller", {
       if (button != null) button.classList.add("active");
     }
 
-    self.addEventListener("showFirstContactMessage", function(){
+    self.addEventListener("showFirstContactMessage", function () {
       firstContactMission = true;
       firstContactTool = true;
     })
     missionBtn.addEventListener("click", () => {
       activateButton(missionBtn);
       toolsCont.classList.add("hide");
-      if(firstContactMission){
+      if (firstContactMission) {
         let message = {
           showClose: false,
           content: app.arViewer.firstContactMission,
           color: 'terracotta',
           button1: { content: app.arViewer.allRight, color: 'pearlwhite', shadow: 'coalgrey' },
-    
+
         }
-  
+
         app.gui.message.setMessage(message);
         self.setAttribute("controller", {
           mission: true,
@@ -291,7 +292,7 @@ AFRAME.registerComponent("controller", {
           rotate: false,
           inventar: false,
         });
-        app.gui.message.messageButton1El.addEventListener('click', () =>{
+        app.gui.message.messageButton1El.addEventListener('click', () => {
           app.gui.message.hideMessage();
           self.setAttribute("controller", {
             mission: true,
@@ -302,30 +303,30 @@ AFRAME.registerComponent("controller", {
           });
         }, { once: true });
         firstContactMission = false;
-      }else{
+      } else {
         self.setAttribute("controller", {
-        mission: true,
-        tool: false,
-        raycaster: true,
-        rotate: true,
-        inventar: true,
-      });
+          mission: true,
+          tool: false,
+          raycaster: true,
+          rotate: true,
+          inventar: true,
+        });
       }
-      
+
     });
 
 
     toolsBtn.addEventListener("click", () => {
       activateButton(toolsBtn);
-      if(firstContactTool){
+      if (firstContactTool) {
         let message = {
           showClose: false,
           content: app.arViewer.firstContactTool,
           color: 'terracotta',
           button1: { content: app.arViewer.allRight, color: 'pearlwhite', shadow: 'coalgrey' },
-    
+
         }
-  
+
         app.gui.message.setMessage(message);
         self.setAttribute("controller", {
           mission: false,
@@ -334,7 +335,7 @@ AFRAME.registerComponent("controller", {
           raycaster: false,
           inventar: false,
         });
-        app.gui.message.messageButton1El.addEventListener('click', () =>{
+        app.gui.message.messageButton1El.addEventListener('click', () => {
           app.gui.message.hideMessage();
           toolsCont.classList.remove("hide");
           self.setAttribute("controller", {
@@ -346,16 +347,16 @@ AFRAME.registerComponent("controller", {
           });
         }, { once: true });
         firstContactTool = false;
-      }else{
+      } else {
         toolsCont.classList.remove("hide");
-      self.setAttribute("controller", {
-        mission: false,
-        tool: true,
-        rotate: true,
-        raycaster: false,
-        inventar: false,
-      });
-    }
+        self.setAttribute("controller", {
+          mission: false,
+          tool: true,
+          rotate: true,
+          raycaster: false,
+          inventar: false,
+        });
+      }
     });
 
     //replace object button
@@ -484,8 +485,38 @@ AFRAME.registerComponent("controller", {
     const object = document.getElementById("object");
     const placeObject = document.getElementById("place-object");
     const gltf_src = `url(${"./files/" + json.appData.model.quality2k})`;
-    object.setAttribute("gltf-model", gltf_src);
+    loader.load(
+      "./files/" + json.appData.model.quality2k,
+      function (gltf) {
+        if (gltf.scenes.length > 1) {
+          for (let scene of gltf.scenes) {
+            if (scene.name == 'original') {
+              originalObject = scene;
+              devMode && console.log(originalObject)
+            }
+          }
+        } else {
+          originalObject = gltf.scene;
+        }
+        devMode && console.log("load gltf", gltf.scenes);
+        object.setAttribute("gltf-model", gltf_src);
     placeObject.setAttribute("gltf-model", gltf_src);
+      },
+      function (xhr) {
+
+        devMode && console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+
+      },
+      // called when loading has errors
+      function (error) {
+
+        devMode && console.log('An error happened');
+
+      }
+
+    )
+
+    
   },
   loadMissions: function (json) {
     let it = this;
@@ -693,7 +724,7 @@ AFRAME.registerComponent("controller", {
         return position.replace(/m/g, "");
       }
       it.initInventar();
-    }, {once:true});
+    }, { once: true });
   },
   initMissionUI: function () {
     let self = this.el;
@@ -787,7 +818,7 @@ AFRAME.registerComponent("controller", {
     function getContent(completed) {
       const missionTexts = app.arViewer.missionOverviewText;
       let content = '';
-      content += completed ?  app.arViewer.solveAllMissions: app.arViewer.solveMissions;
+      content += completed ? app.arViewer.solveAllMissions : app.arViewer.solveMissions;
       let sumPointsValues = Object.values(it.sumPointsPerCategory);
       let currentPointsValues = Object.values(it.currentPointsPerCategory);
       for (let i = 0; i < sumPointsValues.length; i++) {
@@ -1462,7 +1493,7 @@ AFRAME.registerComponent("rotation-handler", {
     if (intersects.length < 1) return;
     const rotHandle = document.getElementById('rot-handle');
     rotHandle.removeAttribute('material', 'src');
-    rotHandle.setAttribute('material','color', '#FF7850');
+    rotHandle.setAttribute('material', 'color', '#FF7850');
     it.canvas.addEventListener("touchmove", it.trackTouch);
     self.emit("pause-interaction", { rotate: true }, true);
     it.canvas.addEventListener("touchend", it.endTouch);
@@ -1493,7 +1524,7 @@ AFRAME.registerComponent("rotation-handler", {
     this.touches.length = 0;
     this.arrayPos = this.pos;
     const rotHandle = document.getElementById('rot-handle');
-    rotHandle.setAttribute('material','src', '#arrow');
+    rotHandle.setAttribute('material', 'src', '#arrow');
     rotHandle.removeAttribute('material', 'color');
 
     this.canvas.removeEventListener("touchend", this.endTouch);
@@ -1510,7 +1541,7 @@ AFRAME.registerComponent("get-bounding-box", {
 
     //wait until gtlf model is loaded
     self.addEventListener("model-loaded", function () {
-      self.object3D.children[0].traverse(function (child) {
+      originalObject.traverse(function (child) {
         devMode && console.log("child", child);
         if (child.isMesh) {
           boundingBox.setFromObject(child);
@@ -1629,7 +1660,7 @@ const LoopMode = {
 AFRAME.registerComponent('animation-mixer', {
   schema: {
     clip: { default: '*' },
-    useRegExp: {default: false},
+    useRegExp: { default: false },
     duration: { default: 0 },
     clampWhenFinished: { default: false, type: 'boolean' },
     crossFadeDuration: { default: 0 },
@@ -1776,8 +1807,7 @@ AFRAME.registerComponent("drag-drop-task", {
       type: "string",
       default:
         "",
-    },
-    //ToDO 
+    }, 
     src_image: {
       type: "string",
       default:
@@ -2121,7 +2151,7 @@ AFRAME.registerComponent("quiz-task", {
       showClose: true,
       content: getContent(),
       color: 'terracotta',
-      button1: this.solved ? {} : { content: app.arViewer.quizButton , color: "pearlwhite", shadow: "coalgrey" }
+      button1: this.solved ? {} : { content: app.arViewer.quizButton, color: "pearlwhite", shadow: "coalgrey" }
     }
     function getContent() {
       let content = '';
@@ -2220,7 +2250,7 @@ AFRAME.registerComponent("quiz-task", {
 AFRAME.registerComponent("animation-task", {
   schema: {
     name: { type: "string", default: "Animation starten" },
-    animName: { type: "string", default: ""},
+    animName: { type: "string", default: "" },
     repetition: { type: "boolean", default: true }
   },
   init: function () {
@@ -2232,17 +2262,17 @@ AFRAME.registerComponent("animation-task", {
 
     this.el.sceneEl.addEventListener("point-to-play-trigger", function (evt) {
       if (evt.detail.point.classList[0] == self.classList[0]) {
-        it.object.setAttribute('animation-mixer',`clip:${it.data.animName}; loop:once; clampWhenFinished:true`);
+        it.object.setAttribute('animation-mixer', `clip:${it.data.animName}; loop:once; clampWhenFinished:true`);
         if (it.firstTime) {
           evt.detail.point.setAttribute("material", { src: "#book" });
-        evt.detail.point.setAttribute("collider-check", {
-          description: app.arViewer.restartAnim,
-        });
-        //count points
+          evt.detail.point.setAttribute("collider-check", {
+            description: app.arViewer.restartAnim,
+          });
+          //count points
           self.emit("point-achieved", { pointID: self.classList[0] }, true);
           it.firstTime = false;
         }
-        if(!it.data.repetition ){
+        if (!it.data.repetition) {
           evt.detail.point.classList.remove("collidable");
           evt.detail.point.object3D.visible = false;
         }
@@ -2252,14 +2282,14 @@ AFRAME.registerComponent("animation-task", {
       it.reverse(self, it);
     });
   },
-  reverse: function(self, it){
+  reverse: function (self, it) {
     self.children[0].classList.add('collidable');
     self.children[0].object3D.visible = true;
-    self.children[0].setAttribute("material", {src: '#playAnim'});
+    self.children[0].setAttribute("material", { src: '#playAnim' });
     self.children[0].setAttribute("collider-check", {
-          description: it.data.name,
-        });
-        it.firstTime = true;
+      description: it.data.name,
+    });
+    it.firstTime = true;
   }
 })
 //TOOLS: creates a copy of the object and enables stencil clipping, showing or not showing the wireframe and texture
@@ -2314,10 +2344,9 @@ AFRAME.registerComponent("tools", {
       it.objectOverlay.name = "object_overlay";
       it.scene.add(it.objectOverlay);
       //gltf model to set object geometry and material
-      let gltf = it.oldObject.children;
-      let objectScene = gltf[0];
+      let objectScene = originalObject;
       let geometry;
-      const plane = it.planeOne;
+      const plane = it.planeOne; 
       objectScene.traverse(function (child) {
         if (child.isMesh) {
           geometry = child.geometry;

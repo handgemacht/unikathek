@@ -1095,12 +1095,12 @@ const app = {
 		this.name = "Entdeckermodus";
 		this.firstContactWithMission= "<h3>Super! Nun bist du bereit das Objekt zu entdecken.</h3> <p>Schaue Dir das Objekt erst einmal von allen Seiten an. Wenn es möglich ist, gehe um das Objekt herum. Wenn nicht, kannst du das Objekt auch an dem Knopf unterhalb vom Objekt drehen. Klicke dazu auf den Knopf und wische nach rechts oder links.</br> Es gibt zwei verschiedene Modi: die Mission und die Tools. Bei der Mission bekommst du verschiedene Aufhaben gestellt und kannst so Bücher sammeln. Bei den Tools kannst du das 3D-Objekt genauer erforschen und sehen wie so ein 3D-Objekt aufgebaut ist. </p>";
 		this.firstContactWithoutMission= "<h3>Super! Nun bist du bereit das Objekt zu entdecken.</h3><p>Schaue Dir das Objekt erst einmal von allen Seiten an. Wenn es möglich ist, gehe um das Objekt herum. Wenn nicht, kannst du das Objekt auch an dem Knopf unterhalb vom Objekt drehen. Klicke dazu auf den Knopf und wische nach rechts oder links.</br> Es gibt außerdem den Tools-Modus. Hier kannst du das 3D-Objekt genauer erforschen und sehen wie so ein 3D-Objekt aufgebaut ist. </p>";
-		this.welcomeMessage= '<h3>Willkommen im Entdeckermodus!</h3> <img src="" alt="Entdecker-Icon" /><p>Hier kannst Du das Objekt im Raum platzieren. Danach kannst du Dir das 3D-Objekt genauer ansehen.</p><p>Möchtest Du den Entdecker-Modus starten?</p>';
+		this.welcomeMessage= '<h3>Willkommen im Entdeckermodus!</h3> <img src="assets/hand.gemacht WebApp icon watch perlweiss.svg" alt="Entdecker-Icon" /><p>Hier kannst Du das Objekt im Raum platzieren. Danach kannst du Dir das 3D-Objekt genauer ansehen.</p><p>Möchtest Du den Entdecker-Modus starten?</p>';
 		this.firstContactMission = "<h3>Mission</h3> <p>Wilkommen bei deiner Mission. </br>Es gibt verschiedene Aufgaben, die du zu erledigen hast. Für jede erfolgreiche Aufgabe erhälst du ein Buch. </br> Info: Klicke oben links auf das Buch, um eine Übersicht anzeigen zu lassen. </br> Tipp: Gehe nah an das Objekt heran und ziele mit dem schwarzen Punkt auf auffällige Punkte.</p>";
 		this.firstContactTool = "<h3>Tools</h3> <p>Willkommen bei den Tools. Hier kannst du das Objekt mit Clipping genauer untersuchen. Bewege die Kamera dazu nahe an das Objekt, um das Objekt abzuschneiden. Außerdem kannst du einen Schnitt festhalten mit Freeze oder die Entfernung des Schnitts einstellen. </br> Du kannst die Textur, also die Beschaffenheit der Oberfläche, sowie das Wireframe, also das visuelle Modell des 3D-Object an- bzw. ausschalten.";
 		this.goodbyeMessage = "<h3>Entdecker-Modus verlassen</h3> <p>Möchtest du zum Modelviewer zurückkehren?</p>";
 		this.goodbyeMessageButton = "Entdeckermodus erneut starten";
-		this.startPlacing = '<img src="" alt="Platzierungs-Icon" /> <p>Um das Objekt zu platzieren, suche eine freie Boden- oder Tischfläche. Das Objekt soll dort in realer Größe platziert werden.</p>';
+		this.startPlacing = '<img src="assets/hand.gemacht WebApp icon move perlweiss.svg" alt="Platzierungs-Icon" height="50px" /> <p>Um das Objekt zu platzieren, suche eine freie Boden- oder Tischfläche. Das Objekt soll dort in realer Größe platziert werden.</p>';
 		this.leaveAR = '<p>Entdecker-Modus wirklich verlassen?</p>';
 		this.startPlacingButton = 'Platzierung starten!';
 
@@ -1156,7 +1156,6 @@ const app = {
 			document.body.appendChild(arViewerElement);
 			arViewerElement.setAttribute('id', 'scene');
 			arViewerElement.setAttribute('gltf-model', 'dracoDecoderPath: ./draco/');
-			//TODO enabled false
 			arViewerElement.setAttribute('xr-mode-ui', 'enabled:false');
 			arViewerElement.setAttribute('light', 'defaultLightsEnabled: false');
 			arViewerElement.setAttribute('webxr', 'requiredFeatures:  hit-test, dom-overlay, anchors; overlayElement: .gui-message-box; referenceSpaceType:local;');
@@ -1199,6 +1198,8 @@ const app = {
 			imgPlay.id = 'playAnim';
 			imgPlay.crossOrigin = 'anonymous';
 			imgPlay.src = "assets/hand.gemacht WebApp play perlweiss.svg"
+
+			//TODO img question
 
 			const camera = document.createElement('a-entity');
 			arViewerElement.appendChild(camera);
