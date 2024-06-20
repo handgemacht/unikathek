@@ -25,7 +25,10 @@ urlParams.get('dev')==='true' ? devMode=true : devMode=false;
 //START A-Frame load-json-objects
 AFRAME.registerComponent('load-json-models', {
 		
-		schema: {},
+		schema: { 
+			scaleFactor: { default: 0.03 }, 
+			scaleNormalizationFactor: { default: 0.6 }, 
+		},
 
 		init: function () {
 			const comp = this;
@@ -60,7 +63,7 @@ AFRAME.registerComponent('load-json-models', {
 				devMode && console.log('dev --- JSON-models-loaded', e);
 				devMode && console.log('dev --- scene', comp.el.sceneEl.object3D);
 				devMode && console.log('dev --- forcegraph object3D: ', document.querySelector('#forcegraph').object3D);
-				comp.assignModelsToNodes();	
+				comp.assignModelsToNodes(this.data.scaleFactor, this.data.scaleNormalizationFactor);	
 				comp.assignMaterialToLinks();
 				app.gui.loadingScreen.hideLoadingScreen();
 			}, {once: true});
@@ -103,7 +106,9 @@ AFRAME.registerComponent('load-json-models', {
 					'name': category, 
 					'type': 'node-category',
 					'tags': [], // category.tags.filter(filterEmptyTag)
-					'gltf': '' 
+					'gltf': '',
+					'gltfVisible': '',
+					'gltfInvisible': ''  
 				};
 				if(category !== ''){
 					fgData.nodes.push(newCategory);
@@ -251,9 +256,9 @@ AFRAME.registerComponent('load-json-models', {
 
 					//filter out categories for initial display
 					//let filteredFgData = this.filterFgData(this.fgData, json.taglist[22]);					 	//tag "Kirwa" and no categories 
-					let filteredFgData = this.filterFgData(this.fgData, json.taglist);							//all tags, no categories
+					//let filteredFgData = this.filterFgData(this.fgData, json.taglist);							//all tags, no categories
 					//let filteredFgData = this.filterFgData(this.fgData, json.taglist, [json.categorylist[1]]); 	//all tags and category "Bräuche"
-					//let filteredFgData = this.filterFgData(this.fgData, '', json.categorylist); 					//no tags and all categories 
+					let filteredFgData = this.filterFgData(this.fgData, '', json.categorylist); 					//no tags and all categories 
 					//let filteredFgData = this.filterFgData(this.fgData, json.taglist[22], json.categorylist); 	//tag "Kirwa" and all categories 
 
 					//stringify fgData to JSON 
@@ -310,10 +315,12 @@ AFRAME.registerComponent('load-json-models', {
 				});
 		}, 
 
-		assignModelsToNodes: function () {
+		assignModelsToNodes: function (scaleFactor = 1, normFactor = 0) {
 			let sceneEl = document.querySelector('a-scene');
 			let scene = document.querySelector('a-scene').object3D;
 			let fgComp = document.querySelector('#forcegraph').getAttribute('forcegraph');
+
+			let categoryModel = this.categoryModelEl.object3D;
 
 			devMode && console.log('dev --- forcegraph component: ', fgComp);
 
@@ -331,17 +338,18 @@ AFRAME.registerComponent('load-json-models', {
 						bBoxSize.y > maxSize ? maxSize = bBoxSize.y : '';
 						bBoxSize.z > maxSize ? maxSize = bBoxSize.z : '';
 						//normalize scale
-						let normFactor = 0.3;
-						let scaleFactor = 0.03;
-						let normScale = (1 / (maxSize+normFactor)) * scaleFactor;
-						thisChild.children[0].scale.set(normScale,normScale,normScale);
-						//devMode && console.log('dev --- normScale: ', normScale);
+						let normScale =  1 / (maxSize * normFactor + (1-normFactor));
+						let newScale = normScale * scaleFactor;
+						thisChild.children[0].scale.set(newScale, newScale, newScale);
 						
 						thisNode.gltf = thisChild.children[0];
-						//devMode && console.log('dev --- thisNode: ', thisNode);
 					}else if(thisNode.id != '' && thisChild.name != '' && thisNode.type === 'node-category' ){
-						thisNode.gltf = this.categoryModelEl.object3D.children[0].clone();
-						//devMode && console.log('dev --- thisNode: ', thisNode);
+						thisNode.gltf = categoryModel.children[0].clone();
+						thisNode.gltfVisible = categoryModel.children[0].clone();
+						thisNode.gltfVisible.visible = true;
+						thisNode.gltfInvisible = categoryModel.children[0].clone();
+						thisNode.gltfInvisible.visible = false;
+						devMode && console.log('dev --- thisNode.gltfInvisible.material.visible: ', thisNode.gltfInvisible.material.visible);
 					}
 				}
 			}
@@ -396,8 +404,8 @@ AFRAME.registerComponent('load-json-models', {
 AFRAME.registerComponent('camera-focus-target', {
 
 	schema: {
-		target: { type: 'model', default: null },
-		duration: { type: 'number', default: 1500 }
+		target: { default: null },
+		duration: { default: 1500 }
 	},
 
 	init: function () {
@@ -419,37 +427,7 @@ AFRAME.registerComponent('camera-focus-target', {
 		}		
 	},
 
-	tick: function () {
-		if(this.data.target){
-
-			let canvas = document.querySelector('.a-canvas');
-			let targetPosition = new THREE.Vector3();
-
-			this.camera.children[0].updateMatrixWorld();
-
-			if(this.data.target.type === 'node-object' || this.data.target.type === 'node-category') {
-				targetPosition.setFromMatrixPosition(this.data.target.__threeObj.matrixWorld);
-				targetPosition.project(this.camera.children[0])
-			}
-			if( this.data.target.type === 'link-tag') {
-				targetPosition.set(this.data.target.__curve.v1.x, this.data.target.__curve.v1.y, this.data.target.__curve.v1.z);
-				targetPosition.project(this.camera.children[0])
-			}
-			if( this.data.target.type === 'link-category') {
-				targetPosition.setFromMatrixPosition(this.data.target.source.__threeObj.matrixWorld);
-				targetPosition.project(this.camera.children[0])
-			}
-
-			let targetScreenPosition = {
-				x: Math.round((0.5 + targetPosition.x / 2) * (canvas.width / window.devicePixelRatio)),
-				y: Math.round((0.5 - targetPosition.y / 2) * (canvas.height / window.devicePixelRatio))
-			}
-
-			app.collectionViewer.highlight.highlightEl.style.left = (targetScreenPosition.x - app.collectionViewer.highlight.highlightContentEl.clientWidth / 2) + "px";
-			app.collectionViewer.highlight.highlightEl.style.top = (targetScreenPosition.y + 50) + "px";
-		}
-		
-	},
+	tick: function () {},
 
 	remove: function () {},
 
@@ -585,7 +563,9 @@ AFRAME.registerComponent('highlight', {
 		source: {default: null}
 	}, 
 
-	init: function () {},
+	init: function () {
+		this.camera = document.querySelector('a-camera').object3D;
+	},
 
 	update: function () {
 		let source = this.data.source;
@@ -606,13 +586,38 @@ AFRAME.registerComponent('highlight', {
 			return;
 		}
 
-		document.querySelector('#forcegraph').setAttribute('forcegraph', {
-			linkMaterial: link => { return link.material }, 
-			nodeThreeObject: node => {return node.gltf}
-		});
 	},
 
-	tick: function () {},
+	tick: function () {
+		if(this.data.source){
+
+			let canvas = document.querySelector('.a-canvas');
+			let targetPosition = new THREE.Vector3();
+
+			this.camera.children[0].updateMatrixWorld();
+
+			if(this.data.source.type === 'node-object' || this.data.source.type === 'node-category') {
+				targetPosition.setFromMatrixPosition(this.data.source.__threeObj.matrixWorld);
+				targetPosition.project(this.camera.children[0])
+			}
+			if( this.data.source.type === 'link-tag') {
+				targetPosition.set(this.data.source.__curve.v1.x, this.data.source.__curve.v1.y, this.data.source.__curve.v1.z);
+				targetPosition.project(this.camera.children[0])
+			}
+			if( this.data.source.type === 'link-category') {
+				targetPosition.setFromMatrixPosition(this.data.source.source.__threeObj.matrixWorld);
+				targetPosition.project(this.camera.children[0])
+			}
+
+			let targetScreenPosition = {
+				x: Math.round((0.5 + targetPosition.x / 2) * (canvas.width / window.devicePixelRatio)),
+				y: Math.round((0.5 - targetPosition.y / 2) * (canvas.height / window.devicePixelRatio))
+			}
+
+			app.collectionViewer.highlight.highlightEl.style.left = (targetScreenPosition.x - app.collectionViewer.highlight.highlightContentEl.clientWidth / 2) + "px";
+			app.collectionViewer.highlight.highlightEl.style.top = (targetScreenPosition.y + 50) + "px";
+		}
+	},
 
 	remove: function () {},
 
@@ -669,12 +674,20 @@ AFRAME.registerComponent('highlight', {
 			}
 		}
 
+		devMode && console.log('dev --- modelArray: ', modelArray)
+
 		for(let node in fgComp.nodes){
 			let thisNode = fgComp.nodes[node];
 			if (thisNode.id != '' && thisNode.gltf.material) {
-				if(modelArray.includes(thisNode.id)){
+				if(modelArray.includes(thisNode.id) && thisNode.type !== 'node-category'){
 					thisNode.gltf.material.opacity = 1;
 					thisNode.gltf.material.visible = true;
+					devMode && console.log('dev --- material change: ', thisNode)
+				}else if(modelArray.includes(thisNode.id) && thisNode.type === 'node-category') {
+					thisNode.gltf.copy(thisNode.gltfVisible);
+					devMode && console.log('dev --- material change: ', thisNode)
+				}else if(thisNode.type === 'node-category') {
+					thisNode.gltf.copy(thisNode.gltfInvisible);
 				}else{
 					thisNode.gltf.material.transparent = true;
 					thisNode.gltf.material.opacity = 0.05;

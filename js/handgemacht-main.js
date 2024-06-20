@@ -1,11 +1,6 @@
 
 
 
-//START Global Variables
-let setError = '';
-//END Global Variables
-
-
 
 //START modelViewerHTML
 let modelViewerHTML = 
@@ -945,7 +940,7 @@ const app = {
 
 				fgData ? type = fgData.type : type = 'none';
 
-				if(type === 'none'){
+				if(type === 'none' || !fgData.gltf){
 					return;
 				}
 
@@ -1118,6 +1113,20 @@ const app = {
 					app.gui.message.setMessage(message);
 				}
 			},
+		},
+
+		filter: {
+
+			init() {
+				this.createElements();
+			},
+
+			createElements() {
+				const filter = document.createElement('div');
+				this.filterEl = filter;
+				document.body.appendChild(filter);
+				filter.className = 'cv-filter hide';
+			}, 
 		},
 
 		createElements() {
