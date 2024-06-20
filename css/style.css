@@ -942,6 +942,9 @@ pointer-events: auto !important;
     top: 0;
     left: 0;
 }
+#gui-close-popup{
+  z-index: 5;
+}
 /* BOTTOM MENU*/
 .bottom-menu {
   display: flex;

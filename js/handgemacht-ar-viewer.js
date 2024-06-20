@@ -419,25 +419,26 @@ AFRAME.registerComponent("controller", {
 
     function closeAR(event) {
       self.emit("pause-interaction", { rotate: false }, false);
-      let message = {
-        showClose: false,
-        content: app.arViewer.leaveAR,
-        color: 'terracotta',
-        button1: { content: app.arViewer.yes, color: 'pearlwhite', shadow: 'coalgrey' },
-        button2: { content: app.arViewer.no, color: 'pearlwhite', shadow: 'coalgrey' }
+      let noMessage = app.gui.message.messageContainerEl.classList.contains("hide");
+      if (!noMessage) {
+        app.gui.message.messageContainerEl.classList.add('hide');
       }
+      const closePopup = document.getElementById('gui-close-popup');
+      closePopup.classList.remove('hide');
 
-      app.gui.message.setMessage(message);
-      app.gui.message.messageButton1El.addEventListener('click', exitAR, { once: true });
-      app.gui.message.messageButton2El.addEventListener('click', stayInAR, { once: true });
+      app.gui.message.closeButton1El.addEventListener('click', exitAR, { once: true });
+      app.gui.message.closeButton2El.addEventListener('click', stayInAR, { once: true });
       function exitAR(event) {
-        app.gui.message.messageButton2El.removeEventListener('click', stayInAR);
-        app.gui.message.hideMessage();
+        app.gui.message.closeButton2El.removeEventListener('click', stayInAR);
+        closePopup.classList.add('hide');
         self.exitVR();
       }
       function stayInAR(event) {
-        app.gui.message.messageButton1El.removeEventListener('click', exitAR);
-        app.gui.message.hideMessage();
+        if (!noMessage) {
+          app.gui.message.messageContainerEl.classList.remove('hide');
+        }
+        app.gui.message.closeButton1El.removeEventListener('click', exitAR);
+        closePopup.classList.add('hide');
         self.emit("play-interaction", { rotate: true }, false);
       }
     }
@@ -484,40 +485,27 @@ AFRAME.registerComponent("controller", {
   loadModel: function (json) {
     const object = document.getElementById("object");
     const placeObject = document.getElementById("place-object");
-    const gltf_src = `url(${"./files/" + json.appData.model.quality2k})`;
+    const gltf_src_anim = `url(${"./files/" + json.appData.model.quality2k})`;
+    //TODO src to original
+    const gltf_src_orig = json.appData.model.original ? "./files/" + json.appData.model.original : "./files/" + json.appData.model.quality2k;
+  
     loader.load(
-      "./files/" + json.appData.model.quality2k,
-      function (gltf) {
-        if (gltf.scenes.length > 1) {
-          for (let scene of gltf.scenes) {
-            if (scene.name == 'original') {
-              originalObject = scene;
-              devMode && console.log(originalObject)
-            }
-          }
-        } else {
-          originalObject = gltf.scene;
-        }
-        devMode && console.log("load gltf", gltf.scenes);
-        object.setAttribute("gltf-model", gltf_src);
-    placeObject.setAttribute("gltf-model", gltf_src);
-      },
-      function (xhr) {
 
-        devMode && console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-
-      },
-      // called when loading has errors
-      function (error) {
-
-        devMode && console.log('An error happened');
-
-      }
-
-    )
-
-    
-  },
+    gltf_src_orig,
+    function (gltf) {
+      originalObject = gltf.scene;
+      object.setAttribute("gltf-model", gltf_src_anim);
+      placeObject.setAttribute("gltf-model", gltf_src_anim);
+    },
+    function (xhr) {
+      devMode && console.log('dev --- '+(xhr.loaded / xhr.total * 100) + '% loaded');
+    },
+    // called when loading has errors
+    function (error) {
+      devMode && console.log('An error happened');
+    }
+  )
+},
   loadMissions: function (json) {
     let it = this;
     const missionsContainer = document.getElementById("missions");
@@ -1247,7 +1235,7 @@ AFRAME.registerComponent("collider-check", {
     let desc = this.getAttribute("collider-check").description;
     let firstCollidedObject = cursor.components.raycaster.intersectedEls[0];
     if (firstCollidedObject.getAttribute("id") == "object") return;
-    this.emit("collided", { description: desc }, true);
+    this.emit("collided", { description: desc, point:event.target }, true);
   },
 });
 
@@ -1279,7 +1267,7 @@ AFRAME.registerComponent("animation-handler", {
       //add text
       self.emit(
         "animation-started",
-        { description: event.detail.description },
+        { description: event.detail.description, point: event.detail.point },
         true
       );
       currentClass = event.srcElement.classList;
@@ -1318,14 +1306,42 @@ AFRAME.registerComponent("animation-handler", {
 AFRAME.registerComponent("visibility-handler", {
   init: function () {
     let self = this.el;
+    let it = this;
+    this.show = false;
+    this.point = null;
+    this.camera = this.el.object3D;
+    devMode && console.log("camera", this.camera.children)
     self.sceneEl.addEventListener("animation-started", function (event) {
-      self.object3D.visible = true;
-      self.setAttribute("value", event.detail.description);
+      devMode && console.log('startAnim', event.detail.point);
+      app.gui.message.showTooltipAR(event.detail.description);
+      it.show = true;
+      it.point = event.detail.point.object3D;
+      devMode && console.log("point", it.point);
     });
     self.sceneEl.addEventListener("animation-reverse", function (event) {
-      self.object3D.visible = false;
+      app.gui.message.hideTooltipAR();
+      it.show = false;
     });
   },
+  tick: function (){
+    if(this.show){
+      let targetPosition = new THREE.Vector3();
+      let canvas = document.querySelector('.a-canvas');
+      this.camera.children[0].updateMatrixWorld();
+      targetPosition.setFromMatrixPosition(this.point.matrixWorld);
+      devMode && console.log(this.camera)
+				targetPosition.project(this.camera);
+
+        let targetScreenPosition = {
+          x: Math.round((0.5 + targetPosition.x / 2) * (canvas.width / window.devicePixelRatio)),
+          y: Math.round((0.5 - targetPosition.y / 2) * (canvas.height / window.devicePixelRatio))
+        }
+
+        app.gui.message.hideTooltipAR.style.left = (targetScreenPosition.x - app.message.hideTooltipAR.clientWidth / 2) + "px";
+        app.gui.message.hideTooltipAR.sytle.top = (targetScreenPosition.y + 50) + "px";
+
+    }
+  }
 });
 
 //TURN-TO-CAMERA: points turn to camera for better raycast interaction
@@ -1542,17 +1558,16 @@ AFRAME.registerComponent("get-bounding-box", {
     //wait until gtlf model is loaded
     self.addEventListener("model-loaded", function () {
       originalObject.traverse(function (child) {
-        devMode && console.log("child", child);
         if (child.isMesh) {
           boundingBox.setFromObject(child);
           boundingBox.getSize(size);
           //get radius
           let radius = size.x > size.z ? size.x / 2 : size.z / 2;
           let radiusInner = radius + (radius / 6);
-          let radiusOuter = radius + (radius/6 + 0.01);
+          let radiusOuter = radius + (radius / 6 + 0.01);
           let largest = Math.max(size.x, size.y, size.z);
           //set radius
-         ringEl.setAttribute("geometry", {
+          ringEl.setAttribute("geometry", {
             radiusInner: radiusInner,
             radiusOuter: radiusOuter,
           });
@@ -1807,7 +1822,7 @@ AFRAME.registerComponent("drag-drop-task", {
       type: "string",
       default:
         "",
-    }, 
+    },
     src_image: {
       type: "string",
       default:
@@ -2346,7 +2361,7 @@ AFRAME.registerComponent("tools", {
       //gltf model to set object geometry and material
       let objectScene = originalObject;
       let geometry;
-      const plane = it.planeOne; 
+      const plane = it.planeOne;
       objectScene.traverse(function (child) {
         if (child.isMesh) {
           geometry = child.geometry;
@@ -2499,7 +2514,7 @@ AFRAME.registerComponent("tools", {
         this.poGroup.visible = false;
         this.oldObject.visible = true;
       } catch {
-        devMode && console.info("waiting for init clipping objects")
+        devMode && console.info("dev --- waiting for init clipping objects")
       }
 
     }

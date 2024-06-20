@@ -106,12 +106,23 @@ const app = {
 			this.gui.loadingScreen.showLoadingScreen();
 			
 		}
-
-		if (this.viewerMode === 'ar') {
+		//test if WebXR AR is supported
+		if(navigator.xr){
+			navigator.xr.isSessionSupported("immersive-ar").then((isSupported) => {
+			this.devMode && console.log("dev --- ar supported:", isSupported);
+			if (this.viewerMode === 'ar' && isSupported) {
 			this.arViewer.init();
 			this.gui.loadingScreen.content = 'loading ar viewer';
 			this.gui.loadingScreen.showLoadingScreen();
-		}		
+			}else{
+				this.devMode && console.log("dev --- WebXR AR is not supported on this browser");
+			}
+			});
+		}else{
+			this.devMode && console.log("dev --- WebXR is not supported on this browser");
+		}
+
+				
 	}, //init
 
 	gui: {
@@ -240,6 +251,7 @@ const app = {
 
 			init() {
 				this.createElements();
+				this.createElementsAR();
 				this.setEventlistener();
 			}, 
 
@@ -306,9 +318,12 @@ const app = {
 				guiMessageButton2.className = 'gui-message-button hide';
 				guiMessageButton2.appendChild(document.createTextNode(this.button2Text));
 
-				//ar mode specific
+				
+
+			}, 
+			createElementsAR() {
 				const guiArOverlay = document.createElement('div');
-				guiMessageBox.appendChild(guiArOverlay);
+				this.messageBoxEl.appendChild(guiArOverlay);
 				guiArOverlay.id = 'ar-overlay';
 				guiArOverlay.className = 'hide';
 
@@ -437,8 +452,55 @@ const app = {
 				closeSymbol.className = 'annotation-close-symbol';
 				closeSymbol.width = '24';
 				closeSymbol.height = '24';
-			}, 
 
+				//close popup
+				const guiCloseContainer = document.createElement('div');
+				this.messageBoxEl.appendChild(guiCloseContainer);
+				guiCloseContainer.className = 'gui-message-container hide';
+				guiCloseContainer.id = 'gui-close-popup';
+
+				const guiCloseMessage = document.createElement('div');
+				guiCloseContainer.appendChild(guiCloseMessage);
+				guiCloseMessage.classList.add('gui-message', 'terracotta');
+
+				const guiCloseContentContainer = document.createElement('div');
+				guiCloseMessage.appendChild(guiCloseContentContainer);
+				guiCloseContentContainer.className = 'gui-message-content-container';
+
+				const guiCloseContent = document.createElement('div');
+				guiCloseContentContainer.appendChild(guiCloseContent);
+				guiCloseContent.className= 'gui-message-content';
+				guiCloseContent.innerHTML = '<p> Entdecker-Modus wirklich verlassen? </p>';
+
+				const guiCloseButtonContainer = document.createElement('div');
+				guiCloseContainer.appendChild(guiCloseButtonContainer);
+				guiCloseButtonContainer.className = 'gui-message-button-container';
+
+				const guiCloseButton = document.createElement('button');
+				this.closeButton1El = guiCloseButton;
+				guiCloseButtonContainer.appendChild(guiCloseButton);
+				guiCloseButton.classList.add('gui-message-button', 'pearlwhite', 'shadow-coalgrey');
+				guiCloseButton.textContent = 'Ja';
+
+				const guiCloseButton2 = document.createElement('button');
+				this.closeButton2El = guiCloseButton2;
+				guiCloseButtonContainer.appendChild(guiCloseButton2);
+				guiCloseButton2.classList.add('gui-message-button', 'pearlwhite', 'shadow-coalgrey');
+				guiCloseButton2.textContent = 'Nein';
+
+				const tooltip = document.createElement('div');
+				this.tooltipElAr = tooltip;
+				this.messageBoxEl.appendChild(tooltip);
+				tooltip.className = 'cv-tooltip hide';
+	
+				const tooltipContent = document.createElement('div');
+				this.tooltipContentElAr = tooltipContent;
+				tooltip.appendChild(tooltipContent);
+				tooltipContent.classList.add('cv-tooltip-content', 'duckyellow');
+
+
+
+			},
 			showMessage() {
 				this.messageContainerEl.classList.remove('hide');
 			}, 
@@ -523,6 +585,14 @@ const app = {
 				this.messageButton2El.innerHTML = this.button2.content;
 
 				this.showMessage();
+			},
+			showTooltipAR(content){
+				this.tooltipContentElAr.appendChild(document.createTextNode(content));
+				this.tooltipElAr.classList.remove('hide');
+			},
+			hideTooltipAR(){
+				this.tooltipElAr.classList.add('hide');
+				this.tooltipContentElAr.innerHTML = '';
 			}
 		},
 
@@ -1200,22 +1270,6 @@ const app = {
 			imgPlay.src = "assets/hand.gemacht WebApp play perlweiss.svg"
 
 			//TODO img question
-
-			const camera = document.createElement('a-entity');
-			arViewerElement.appendChild(camera);
-			camera.setAttribute('id', 'camera');
-			camera.setAttribute('camera', '');
-			camera.setAttribute('position', '0 0.2 0.5');
-
-			const cameraCursor = document.createElement('a-entity');
-			camera.appendChild(cameraCursor);
-			cameraCursor.setAttribute('id', 'cursor');
-			cameraCursor.setAttribute('geometry', 'primitive: circle; radius: 0.001;');
-			cameraCursor.setAttribute('material', 'color:black; shader:flat');
-			cameraCursor.setAttribute('position', '0 0 -0.01');
-			cameraCursor.setAttribute('raycaster', 'objects: .collidable; enabled:false;');
-			cameraCursor.setAttribute('scale', '0.1 0.1 0.1');
-
 			const ambientLightEntity = document.createElement('a-entity');
 			arViewerElement.appendChild(ambientLightEntity);
 			ambientLightEntity.setAttribute('light', 'type: ambient; color: #FAF0E6; intensity: 2');
@@ -1225,17 +1279,23 @@ const app = {
 			directionalLightEntity.setAttribute('light', 'type: directional; color: #FAF0E6; intensity: 4');
 			directionalLightEntity.setAttribute('position', '-2 0 2');
 
-			const cameraText = document.createElement('a-text');
-			cameraCursor.appendChild(cameraText);
-			cameraText.setAttribute('visibility-handler', '');
-			cameraText.setAttribute('visible','false');
-			cameraText.setAttribute('value', 'Objekt aufheben');
-			cameraText.setAttribute('font', 'assets/font3d/RobotoSlab-Regular-msdf.json');
-			cameraText.setAttribute('font-image', 'assets/font3d/RobotoSlab-Regular.png');
-			cameraText.setAttribute('position', '0 0.04 0');
-			cameraText.setAttribute('align', 'center');
-			cameraText.setAttribute('color', 'black');
-			cameraText.setAttribute('scale', '0.02 0.02 0.02');
+			const camera = document.createElement('a-entity');
+			arViewerElement.appendChild(camera);
+			camera.setAttribute('id', 'camera');
+			camera.setAttribute('camera', '');
+			camera.setAttribute('position', '0 0.2 0.5');
+			camera.setAttribute('visibility-handler', '');
+			const cameraCursor = document.createElement('a-entity');
+			camera.appendChild(cameraCursor);
+			cameraCursor.setAttribute('id', 'cursor');
+			cameraCursor.setAttribute('geometry', 'primitive: circle; radius: 0.001;');
+			cameraCursor.setAttribute('material', 'color:black; shader:flat');
+			cameraCursor.setAttribute('position', '0 0 -0.01');
+			cameraCursor.setAttribute('raycaster', 'objects: .collidable; enabled:false;');
+			
+			cameraCursor.setAttribute('scale', '0.1 0.1 0.1');
+
+		
 
 			const ring = document.createElement('a-entity');
 			cameraCursor.appendChild(ring);
