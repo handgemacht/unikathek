@@ -113,7 +113,27 @@ AFRAME.registerComponent("controller", {
         }
         self.emit("showFirstContactMessage", null, false);
         app.gui.message.setMessage(message);
+        app.gui.message.messageCloseEl.addEventListener('click', (evt) =>{
+          let rotation = document.getElementById('rot-handle');
+          self.setAttribute('controller', {
+            raycaster: false,
+          tool: false,
+          mission:false,
+          inventar: false,
+          rotate: true,
+          });
+        self.emit('start-tooltip', { description: app.arViewer.rotationTip, point: rotation }, true);
+        }, {once:true});
+        
 
+      }else{
+        self.setAttribute('controller', {
+          raycaster: false,
+        tool: false,
+        mission:false,
+        inventar: false,
+        rotate: true,
+        });
       }
 
 
@@ -215,8 +235,9 @@ AFRAME.registerComponent("controller", {
     );
 
     //first contact variables
-    let firstContactMission = false;
-    let firstContactTool = false;
+    it.firstContactMission = false;
+    it.firstContactTool = false;
+    it.firstContactInventar = false;
     //after start ar mode
     self.addEventListener("enter-vr", function () {
       domOverlay.classList.remove("hide");
@@ -244,7 +265,7 @@ AFRAME.registerComponent("controller", {
       domOverlay.classList.add("hide");
 
       self.emit("pause-interaction", { rotate: false }, false);
-      if (!firstContactMission && !firstContactTool) {
+      if (!it.firstContactMission && !it.firstContactTool) {
         localStorage.setItem('firstContact', JSON.stringify(false));
       }
       let message = {
@@ -269,13 +290,14 @@ AFRAME.registerComponent("controller", {
     }
 
     self.addEventListener("showFirstContactMessage", function () {
-      firstContactMission = true;
-      firstContactTool = true;
+      it.firstContactMission = true;
+      it.firstContactTool = true;
+      it.firstContactInventar = true;
     })
     missionBtn.addEventListener("click", () => {
       activateButton(missionBtn);
       toolsCont.classList.add("hide");
-      if (firstContactMission) {
+      if (it.firstContactMission) {
         let message = {
           showClose: false,
           content: app.arViewer.firstContactMission,
@@ -297,12 +319,12 @@ AFRAME.registerComponent("controller", {
           self.setAttribute("controller", {
             mission: true,
             tool: false,
-            rotate: false,
+            rotate: true,
             raycaster: true,
             inventar: true,
           });
         }, { once: true });
-        firstContactMission = false;
+        it.firstContactMission = false;
       } else {
         self.setAttribute("controller", {
           mission: true,
@@ -318,7 +340,7 @@ AFRAME.registerComponent("controller", {
 
     toolsBtn.addEventListener("click", () => {
       activateButton(toolsBtn);
-      if (firstContactTool) {
+      if (it.firstContactTool) {
         let message = {
           showClose: false,
           content: app.arViewer.firstContactTool,
@@ -346,7 +368,7 @@ AFRAME.registerComponent("controller", {
             inventar: false,
           });
         }, { once: true });
-        firstContactTool = false;
+        it.firstContactTool = false;
       } else {
         toolsCont.classList.remove("hide");
         self.setAttribute("controller", {
@@ -826,9 +848,9 @@ AFRAME.registerComponent("controller", {
 
     it.dropZones = document.querySelectorAll(".drop");
     const inventarCont = document.getElementById("inventar");
-    for (let zone of it.dropZones) {
+    for (let i=1 ; i < it.dropZones.length + 1; i++) {
       let roundCont = document.createElement("div");
-      roundCont.setAttribute("id", "1");
+      roundCont.setAttribute("id", i);
       roundCont.setAttribute("class", "round-container hide");
       let imgElement = document.createElement("img");
       imgElement.setAttribute("alt", "Object Image");
@@ -837,16 +859,20 @@ AFRAME.registerComponent("controller", {
     }
     this.initInventarClick();
     self.addEventListener("element-added-inventar", function (event) {
+      
       const place = document.querySelector(
         `#inventar div[id="${it.getId(event.detail.origin.classList[0])}"]`
       );
+      
       place.classList.remove("hide");
       it.inventar.push({ place: place, el: event.detail.origin });
       const img = place.querySelector("img");
       img.src = event.detail.src;
-
-      //show drop zones and make them collidable
+      
+      it.dropZones = document.querySelectorAll(".drop");
+      //show drop zones 
       it.dropZones.forEach((element) => {
+        devMode && console.log("drop zone", element);
         element.object3D.visible = true;
       });
     });
@@ -859,7 +885,7 @@ AFRAME.registerComponent("controller", {
       place.classList.add("hide");
       place.classList.remove("clicked");
       it.inventar = it.inventar.filter((item) => item.place !== place);
-
+      it.oneSelected = false; 
       //hide drop zones and make them not collidable
       it.dropZones = document.querySelectorAll(".drop");
       it.dropZones.forEach((element) => {
@@ -875,6 +901,7 @@ AFRAME.registerComponent("controller", {
   initInventarClick: function () {
     let places = document.querySelectorAll(".round-container");
     let it = this;
+    let self = this.el;
     let i = 0;
     //each round-container(place) listens to a click event
     places.forEach((place) => {
@@ -906,7 +933,7 @@ AFRAME.registerComponent("controller", {
             }
           }
         }
-        //if one place is selected the drop zones are colidable, if not not
+        //if one place is selected the drop zones are collidable, if not not
         const dropZones = document.querySelectorAll(".drop");
         dropZones.forEach((element) => {
           if (it.oneSelected) {
@@ -1161,12 +1188,6 @@ AFRAME.registerComponent("ar-hit-test-special", {
   },
   placeEnd: function (event) {
     app.gui.message.messageButton2El.removeEventListener("click", this.placeAgain);
-    this.el.sceneEl.setAttribute("controller", {
-      rotate: true,
-      mission: false,
-      tool: false,
-      raycaster: false,
-    });
     this.hideMessage();
     this.el.emit("placingAchieved", this.firstTime, true);
     this.showMenu();
@@ -1266,7 +1287,7 @@ AFRAME.registerComponent("animation-handler", {
       navigator.vibrate(5);
       //add text
       self.emit(
-        "animation-started",
+        "start-tooltip",
         { description: event.detail.description, point: event.detail.point },
         true
       );
@@ -1274,7 +1295,7 @@ AFRAME.registerComponent("animation-handler", {
     });
     //animation to reverse activation
     self.sceneEl.addEventListener("collided-ended", function (event) {
-      self.emit("animation-reverse", null, true);
+      self.emit("stop-tooltip", null, true);
       if (animationComplete) {
         animationComplete = false;
         self.setAttribute("geometry", "thetaLength", 0);
@@ -1310,15 +1331,12 @@ AFRAME.registerComponent("visibility-handler", {
     this.show = false;
     this.point = null;
     this.camera = this.el.object3D;
-    devMode && console.log("camera", this.camera.children)
-    self.sceneEl.addEventListener("animation-started", function (event) {
-      devMode && console.log('startAnim', event.detail.point);
-      app.gui.message.showTooltipAR(event.detail.description);
-      it.show = true;
+    self.sceneEl.addEventListener("start-tooltip", function (event) {
+        it.show = true;
       it.point = event.detail.point.object3D;
-      devMode && console.log("point", it.point);
+      app.gui.message.showTooltipAR(event.detail.description);
     });
-    self.sceneEl.addEventListener("animation-reverse", function (event) {
+    self.sceneEl.addEventListener("stop-tooltip", function (event) {
       app.gui.message.hideTooltipAR();
       it.show = false;
     });
@@ -1327,18 +1345,16 @@ AFRAME.registerComponent("visibility-handler", {
     if(this.show){
       let targetPosition = new THREE.Vector3();
       let canvas = document.querySelector('.a-canvas');
-      this.camera.children[0].updateMatrixWorld();
       targetPosition.setFromMatrixPosition(this.point.matrixWorld);
-      devMode && console.log(this.camera)
-				targetPosition.project(this.camera);
+				targetPosition.project(this.camera.children[1]);
 
         let targetScreenPosition = {
           x: Math.round((0.5 + targetPosition.x / 2) * (canvas.width / window.devicePixelRatio)),
           y: Math.round((0.5 - targetPosition.y / 2) * (canvas.height / window.devicePixelRatio))
         }
 
-        app.gui.message.hideTooltipAR.style.left = (targetScreenPosition.x - app.message.hideTooltipAR.clientWidth / 2) + "px";
-        app.gui.message.hideTooltipAR.sytle.top = (targetScreenPosition.y + 50) + "px";
+        app.gui.message.tooltipElAr.style.left = (targetScreenPosition.x - app.gui.message.tooltipElAr.clientWidth / 2) + "px";
+        app.gui.message.tooltipElAr.style.top = (targetScreenPosition.y + 50) + "px";
 
     }
   }
@@ -1405,7 +1421,6 @@ AFRAME.registerComponent("distance-listener", {
     if (this.data.enabled) {
       // tracks the distance betwenn camera and parallel to y axis at the position of the object each frame and emits an event if the threshold is changed
       let cameraPos = this.camera.object3D.position;
-
       this.el.object3D.getWorldPosition(this.selfPos);
       const dx = cameraPos.x - this.selfPos.x;
       const dz = cameraPos.z - this.selfPos.z;
@@ -1434,6 +1449,7 @@ AFRAME.registerComponent("rotation-handler", {
   init: function () {
     const self = this.el;
     const it = this;
+    it.firstTime = true;
     it.canvas = document.querySelector('.a-dom-overlay');
     it.steps = 12;
     it.arrayPos = it.steps / 2;
@@ -1512,6 +1528,10 @@ AFRAME.registerComponent("rotation-handler", {
     rotHandle.setAttribute('material', 'color', '#FF7850');
     it.canvas.addEventListener("touchmove", it.trackTouch);
     self.emit("pause-interaction", { rotate: true }, true);
+    if(it.firstTime) {
+      self.emit('stop-tooltip',null,true);
+      it.firstTime = false;
+    }
     it.canvas.addEventListener("touchend", it.endTouch);
   },
   trackTouch: function (event) {
@@ -1853,6 +1873,7 @@ AFRAME.registerComponent("drag-drop-task", {
 
     this.el.sceneEl.addEventListener("point-to-play-trigger", function (evt) {
       if (evt.detail.point.classList[0] == self.classList[0]) {
+        devMode && console.log("drop",evt.detail.point.getAttribute("material"))
         if (evt.detail.point.classList.contains("drag")) {
           evt.detail.point.object3D.visible = false;
           evt.detail.point.classList.remove("collidable");
@@ -1870,6 +1891,7 @@ AFRAME.registerComponent("drag-drop-task", {
           it.addInventar(it.data.src_image);
         } else if (evt.detail.point.classList.contains("drop")) {
           if (self.classList.contains("selected")) {
+            
             evt.detail.point.setAttribute("material", { src: "#book" });
             evt.detail.point.setAttribute("collider-check", {
               description: app.arViewer.showBook,
@@ -1962,7 +1984,7 @@ AFRAME.registerComponent("drag-drop-task", {
       content: `<p>${falseMessages[randomIndex]}</p>`,
       color: 'smokegrey'
     }
-    app.gui.message.setMessage();
+    app.gui.message.setMessage(message);
 
   },
 
@@ -2257,7 +2279,7 @@ AFRAME.registerComponent("quiz-task", {
     it.solved = false;
     self.children[0].setAttribute("material", { src: "" });
     self.children[0].setAttribute("collider-check", {
-      description: app.arViewer.activatePoint,
+      description: app.arViewer.activateQuiz,
     });
   },
 });

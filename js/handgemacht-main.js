@@ -483,15 +483,15 @@ const app = {
 				guiCloseButton2.classList.add('gui-message-button', 'pearlwhite', 'shadow-coalgrey');
 				guiCloseButton2.textContent = 'Nein';
 
-				const tooltip = document.createElement('div');
-				this.tooltipElAr = tooltip;
-				this.messageBoxEl.appendChild(tooltip);
-				tooltip.className = 'cv-tooltip hide';
+				const tooltipAR = document.createElement('div');
+				this.tooltipElAr = tooltipAR;
+				this.messageBoxEl.appendChild(tooltipAR);
+				tooltipAR.className = 'cv-tooltip hide';
 	
-				const tooltipContent = document.createElement('div');
-				this.tooltipContentElAr = tooltipContent;
-				tooltip.appendChild(tooltipContent);
-				tooltipContent.classList.add('cv-tooltip-content', 'duckyellow');
+				const tooltipContentAR = document.createElement('div');
+				this.tooltipContentElAr = tooltipContentAR;
+				tooltipAR.appendChild(tooltipContentAR);
+				tooltipContentAR.classList.add('cv-tooltip-content', 'duckyellow');
 
 
 
@@ -532,8 +532,8 @@ const app = {
 				if(this.messageCloseEl) {
 					this.messageCloseEl.addEventListener('click', (evt) => {
 						self.hideMessage();
-						document.querySelector('#forcegraph').setAttribute('highlight', {source: ''});
-						app.collectionViewer.highlight.hideHighlight();
+						//document.querySelector('#forcegraph').setAttribute('highlight', {source: ''});
+						//app.collectionViewer.highlight.hideHighlight();
 					});
 				}
 			},
@@ -1172,8 +1172,8 @@ const app = {
 		init(){
 		this.createElements();
 		this.name = "Entdeckermodus";
-		this.firstContactWithMission= "<h3>Super! Nun bist du bereit das Objekt zu entdecken.</h3> <p>Schaue Dir das Objekt erst einmal von allen Seiten an. Wenn es möglich ist, gehe um das Objekt herum. Wenn nicht, kannst du das Objekt auch an dem Knopf unterhalb vom Objekt drehen. Klicke dazu auf den Knopf und wische nach rechts oder links.</br> Es gibt zwei verschiedene Modi: die Mission und die Tools. Bei der Mission bekommst du verschiedene Aufhaben gestellt und kannst so Bücher sammeln. Bei den Tools kannst du das 3D-Objekt genauer erforschen und sehen wie so ein 3D-Objekt aufgebaut ist. </p>";
-		this.firstContactWithoutMission= "<h3>Super! Nun bist du bereit das Objekt zu entdecken.</h3><p>Schaue Dir das Objekt erst einmal von allen Seiten an. Wenn es möglich ist, gehe um das Objekt herum. Wenn nicht, kannst du das Objekt auch an dem Knopf unterhalb vom Objekt drehen. Klicke dazu auf den Knopf und wische nach rechts oder links.</br> Es gibt außerdem den Tools-Modus. Hier kannst du das 3D-Objekt genauer erforschen und sehen wie so ein 3D-Objekt aufgebaut ist. </p>";
+		this.firstContactWithMission= "<h3>Super! Nun bist du bereit das Objekt zu entdecken.</h3> <p>Schaue Dir das Objekt erst einmal von allen Seiten an. Wenn es möglich ist, gehe um das Objekt herum. Wenn nicht, kannst du das Objekt auch an dem Knopf unterhalb vom Objekt drehen.</br> Es gibt zwei verschiedene Modi: die Mission und die Tools. Bei der Mission bekommst du verschiedene Aufgaben gestellt und kannst so Bücher sammeln. Bei den Tools kannst du das 3D-Objekt genauer erforschen und sehen wie so ein 3D-Objekt aufgebaut ist. </p>";
+		this.firstContactWithoutMission= "<h3>Super! Nun bist du bereit das Objekt zu entdecken.</h3><p>Schaue Dir das Objekt erst einmal von allen Seiten an. Wenn es möglich ist, gehe um das Objekt herum. Wenn nicht, kannst du das Objekt auch an dem Knopf unterhalb vom Objekt drehen.</br> Es gibt außerdem den Tools-Modus. Hier kannst du das 3D-Objekt genauer erforschen und sehen wie so ein 3D-Objekt aufgebaut ist. </p>";
 		this.welcomeMessage= '<h3>Willkommen im Entdeckermodus!</h3> <img src="assets/hand.gemacht WebApp icon watch perlweiss.svg" alt="Entdecker-Icon" /><p>Hier kannst Du das Objekt im Raum platzieren. Danach kannst du Dir das 3D-Objekt genauer ansehen.</p><p>Möchtest Du den Entdecker-Modus starten?</p>';
 		this.firstContactMission = "<h3>Mission</h3> <p>Wilkommen bei deiner Mission. </br>Es gibt verschiedene Aufgaben, die du zu erledigen hast. Für jede erfolgreiche Aufgabe erhälst du ein Buch. </br> Info: Klicke oben links auf das Buch, um eine Übersicht anzeigen zu lassen. </br> Tipp: Gehe nah an das Objekt heran und ziele mit dem schwarzen Punkt auf auffällige Punkte.</p>";
 		this.firstContactTool = "<h3>Tools</h3> <p>Willkommen bei den Tools. Hier kannst du das Objekt mit Clipping genauer untersuchen. Bewege die Kamera dazu nahe an das Objekt, um das Objekt abzuschneiden. Außerdem kannst du einen Schnitt festhalten mit Freeze oder die Entfernung des Schnitts einstellen. </br> Du kannst die Textur, also die Beschaffenheit der Oberfläche, sowie das Wireframe, also das visuelle Modell des 3D-Object an- bzw. ausschalten.";
@@ -1226,6 +1226,9 @@ const app = {
 		this.activateQuiz = "Quiz anzeigen";
 		this.showBook = "Buch anzeigen";
 		this.restartAnim = "Animation neu starten";
+
+		this.rotationTip = "Klicke und ziehe hier um zu rotieren";
+		this.inventarTip = "Klick mich, um mich abzulegen"
 
 		},
 
@@ -1285,7 +1288,7 @@ const app = {
 
 			const directionalLightEntity = document.createElement('a-entity');
 			arViewerElement.appendChild(directionalLightEntity);
-			directionalLightEntity.setAttribute('light', 'type: directional; color: #FAF0E6; intensity: 4');
+			directionalLightEntity.setAttribute('light', 'type: directional; color: #FAF0E6; intensity: 2');
 			directionalLightEntity.setAttribute('position', '-2 0 2');
 
 			const camera = document.createElement('a-entity');
