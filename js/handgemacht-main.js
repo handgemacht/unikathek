@@ -1363,7 +1363,7 @@ const app = {
 			touchCircle.setAttribute('geometry', 'primitive:circle; radius: 0.3;');
 			touchCircle.setAttribute('material', 'transparent:true; opacity:0;');
 			touchCircle.setAttribute("turn-to-camera", '');
-			touchCircle.setAttribute('rotation-handler', '');			
+			touchCircle.setAttribute('rotation-handler', 'enabled:false');			
 			const arrow = document.createElement('a-entity');
 			rotationControl.appendChild(arrow);
 			arrow.setAttribute('id', 'rot-handle');

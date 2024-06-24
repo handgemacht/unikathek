@@ -213,7 +213,11 @@ AFRAME.registerComponent("controller", {
     app.gui.message.messageButton2El.removeEventListener('click', this.cancelAR);
   },
   cancelAR: function () {
-    //TO DO navigate back to modelviewer
+    let url = '?m=mv&model='+ primaryKey;
+    this.devMode ? url+='&dev=true' : '';
+    window.location.href = url;
+
+
     app.gui.message.messageButton1El.removeEventListener('click', this.startAR);
     app.gui.message.hideMessage();
   },
@@ -341,6 +345,13 @@ AFRAME.registerComponent("controller", {
     toolsBtn.addEventListener("click", () => {
       activateButton(toolsBtn);
       if (it.firstContactTool) {
+        self.setAttribute("controller", {
+          mission: false,
+          tool: false,
+          rotate: false,
+          raycaster: false,
+          inventar: false,
+        });
         let message = {
           showClose: false,
           content: app.arViewer.firstContactTool,
@@ -350,13 +361,7 @@ AFRAME.registerComponent("controller", {
         }
 
         app.gui.message.setMessage(message);
-        self.setAttribute("controller", {
-          mission: false,
-          tool: false,
-          rotate: false,
-          raycaster: false,
-          inventar: false,
-        });
+        
         app.gui.message.messageButton1El.addEventListener('click', () => {
           app.gui.message.hideMessage();
           toolsCont.classList.remove("hide");
@@ -872,7 +877,6 @@ AFRAME.registerComponent("controller", {
       it.dropZones = document.querySelectorAll(".drop");
       //show drop zones 
       it.dropZones.forEach((element) => {
-        devMode && console.log("drop zone", element);
         element.object3D.visible = true;
       });
     });
@@ -1411,31 +1415,39 @@ AFRAME.registerComponent("distance-tracker", {
 AFRAME.registerComponent("distance-listener", {
   schema: { enabled: { type: "boolean", default: false } },
   init: function () {
+    let it = this;
     this.camera = document.getElementById("camera");
     this.selfPos = new THREE.Vector3();
+    
+    this.el.sceneEl.addEventListener("radius-set", function(evt){
+      let radius = evt.detail.radius[1];
+      it.distanceMiddle = radius * 2.5;
+      it.distanceLong = radius * 5;
+    } )
   },
   update: function () {
     this.lastGroup = "";
   },
   tick: function () {
+    
     if (this.data.enabled) {
-      // tracks the distance betwenn camera and parallel to y axis at the position of the object each frame and emits an event if the threshold is changed
+      // tracks the distance between camera and parallel to y axis at the position of the object each frame and emits an event if the threshold is changed
       let cameraPos = this.camera.object3D.position;
       this.el.object3D.getWorldPosition(this.selfPos);
       const dx = cameraPos.x - this.selfPos.x;
       const dz = cameraPos.z - this.selfPos.z;
       const distance = Math.sqrt(dx * dx + dz * dz);
-      if (distance > 1 && !(this.lastGroup == "far")) {
+      if (distance > this.distanceLong && !(this.lastGroup == "far")) {
         this.lastGroup = "far";
         this.el.emit("distance-far", null, true);
       } else if (
-        distance < 1 &&
-        distance > 0.4 &&
+        distance < this.distanceLong &&
+        distance > this.distanceMiddle &&
         !(this.lastGroup == "middle")
       ) {
         this.lastGroup = "middle";
         this.el.emit("distance-middle", null, true);
-      } else if (distance < 0.4 && !(this.lastGroup == "near")) {
+      } else if (distance < this.distanceMiddle && !(this.lastGroup == "near")) {
         this.lastGroup = "near";
         this.el.emit("distance-near", null, true);
       }
@@ -1600,7 +1612,7 @@ AFRAME.registerComponent("get-bounding-box", {
           //emit radius to rotation handler
           self.emit(
             "radius-set",
-            { radius: [radiusInner, radiusOuter], maxSize: largest },
+            { radius: [radiusInner, radiusOuter], maxSize: largest},
             true
           );
         }
@@ -1873,7 +1885,6 @@ AFRAME.registerComponent("drag-drop-task", {
 
     this.el.sceneEl.addEventListener("point-to-play-trigger", function (evt) {
       if (evt.detail.point.classList[0] == self.classList[0]) {
-        devMode && console.log("drop",evt.detail.point.getAttribute("material"))
         if (evt.detail.point.classList.contains("drag")) {
           evt.detail.point.object3D.visible = false;
           evt.detail.point.classList.remove("collidable");
