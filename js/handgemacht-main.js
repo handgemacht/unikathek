@@ -529,19 +529,10 @@ const app = {
 
 			setEventlistener() {
 				const self = this;
-				let forcegraph = document.querySelector('#forcegraph');
 
-				if(this.messageCloseEl && !forcegraph) {
+				if(this.messageCloseEl) {
 					this.messageCloseEl.addEventListener('click', (evt) => {
 						self.hideMessage();
-					});
-				}
-
-				if(this.messageCloseEl && forcegraph) {
-					this.messageCloseEl.addEventListener('click', (evt) => {
-						self.hideMessage();
-						forcegraph.setAttribute('highlight', {source: ''});
-						app.collectionViewer.highlight.hideHighlight();
 					});
 				}
 			},
@@ -969,6 +960,7 @@ const app = {
 
 			init() {
 				this.createElements();
+				this.setEventlistener();
 			},
 
 			createElements() {
@@ -995,6 +987,15 @@ const app = {
 				highlightArrow.width = 100;
 				highlightArrow.height = 100;
 			}, 
+
+			setEventlistener(){
+				if(app.gui.message.messageCloseEl) {
+					app.gui.message.messageCloseEl.addEventListener('click', (evt) => {
+						document.querySelector('#forcegraph').setAttribute('highlight', {source: ''});
+						app.collectionViewer.highlight.hideHighlight();
+					});
+				}
+			},
 
 			showHighlight(type, content, showArrow = false) {
 				this.hideHighlight()

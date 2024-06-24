@@ -328,6 +328,7 @@ div.gui-message-box {
 
 div.gui-message-container {
   position: relative;
+  top: 10%;
   width: 270px;
   height: 585px;
   margin: 0;

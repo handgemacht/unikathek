@@ -713,8 +713,12 @@ AFRAME.registerComponent('highlight', {
 		for(let node in fgComp.nodes){
 			let thisNode = fgComp.nodes[node];
 			if (thisNode.id != '' && thisNode.gltf.material) {
-				thisNode.gltf.material.opacity = 1;
-				thisNode.gltf.material.visible = true;
+				if(thisNode.type === 'node-category') {
+					thisNode.gltf.copy(thisNode.gltfVisible);
+				}else{
+					thisNode.gltf.material.opacity = 1;
+					thisNode.gltf.material.visible = true;
+				}
 			}
 		}
 
