@@ -54,26 +54,6 @@ AFRAME.registerComponent("controller", {
     this.oneSelected = false;
     this.modelLoaded = false;
 
-    //model loaded listener
-    self.addEventListener("model-loaded", function () {
-      it.modelLoaded = true;
-      app.gui.loadingScreen.hideLoadingScreen();
-      //message to start ar
-      //TODO src Icon Entdeckermodus
-      let message = {
-        type: app.arViewer.name,
-        showClose: false,
-        content: app.arViewer.welcomeMessage,
-        color: 'skyblue',
-        button1: { content: app.arViewer.yes, color: 'pearlwhite', shadow: 'coalgrey' },
-        button2: { content: app.arViewer.no, color: 'pearlwhite', shadow: 'coalgrey' },
-      }
-      app.gui.message.setMessage(message);
-      app.gui.message.messageButton1El.addEventListener('click', it.startAR, { once: true });
-      app.gui.message.messageButton2El.addEventListener('click', it.cancelAR, { once: true });
-    });
-
-
     //interaction pause/play listener for rotation
     let currentMission, currentTool;
     self.addEventListener("pause-interaction", function (event) {
@@ -100,7 +80,7 @@ AFRAME.registerComponent("controller", {
         rotate: rotateBool,
       });
     });
-    //event listener placing
+    //event listener placing, gets information if first contact from local storage
     self.addEventListener("placingAchieved", function (e) {
       let storedValue = JSON.parse(localStorage.getItem('firstContact'));
       if (storedValue === false) it.firstContact = storedValue;
@@ -124,8 +104,6 @@ AFRAME.registerComponent("controller", {
           });
         self.emit('start-tooltip', { description: app.arViewer.rotationTip, point: rotation }, true);
         }, {once:true});
-        
-
       }else{
         self.setAttribute('controller', {
           raycaster: false,
@@ -135,9 +113,6 @@ AFRAME.registerComponent("controller", {
         rotate: true,
         });
       }
-
-
-
     });
     //init gui
     it.initGui();
@@ -242,6 +217,26 @@ AFRAME.registerComponent("controller", {
     it.firstContactMission = false;
     it.firstContactTool = false;
     it.firstContactInventar = false;
+
+    //model loaded listener start AR message
+    self.addEventListener("model-loaded", function () {
+      it.modelLoaded = true;
+      app.gui.loadingScreen.hideLoadingScreen();
+      //message to start ar
+      //TODO src Icon Entdeckermodus
+      let message = {
+        type: app.arViewer.name,
+        showClose: false,
+        content: app.arViewer.welcomeMessage,
+        color: 'skyblue',
+        button1: { content: app.arViewer.yes, color: 'pearlwhite', shadow: 'coalgrey' },
+        button2: { content: app.arViewer.no, color: 'pearlwhite', shadow: 'coalgrey' },
+      }
+      app.gui.message.setMessage(message);
+      app.gui.message.messageButton1El.addEventListener('click', it.startAR, { once: true });
+      app.gui.message.messageButton2El.addEventListener('click', it.cancelAR, { once: true });
+    });
+
     //after start ar mode
     self.addEventListener("enter-vr", function () {
       domOverlay.classList.remove("hide");
@@ -292,12 +287,13 @@ AFRAME.registerComponent("controller", {
       toolsBtn.classList.remove("active");
       if (button != null) button.classList.add("active");
     }
-
+    //if ar mode is used for the first time
     self.addEventListener("showFirstContactMessage", function () {
       it.firstContactMission = true;
       it.firstContactTool = true;
       it.firstContactInventar = true;
     })
+    // mission menu button clicked
     missionBtn.addEventListener("click", () => {
       activateButton(missionBtn);
       toolsCont.classList.add("hide");
@@ -307,9 +303,7 @@ AFRAME.registerComponent("controller", {
           content: app.arViewer.firstContactMission,
           color: 'terracotta',
           button1: { content: app.arViewer.allRight, color: 'pearlwhite', shadow: 'coalgrey' },
-
         }
-
         app.gui.message.setMessage(message);
         self.setAttribute("controller", {
           mission: true,
@@ -341,7 +335,7 @@ AFRAME.registerComponent("controller", {
 
     });
 
-
+    //tools menu button clicked
     toolsBtn.addEventListener("click", () => {
       activateButton(toolsBtn);
       if (it.firstContactTool) {
@@ -398,19 +392,19 @@ AFRAME.registerComponent("controller", {
       activateButton(null);
       toolsCont.classList.add("hide");
     });
-    //tools toggle wireframe and texture
+    //tools toggle wireframe
     wireframe.addEventListener("change", () => {
       wireframe.checked
         ? self.setAttribute("tools", "wireframe", "true")
         : self.setAttribute("tools", "wireframe", "false");
     });
-
+    //tools toggle texture
     texture.addEventListener("change", () => {
       texture.checked
         ? self.setAttribute("tools", "texture", "true")
         : self.setAttribute("tools", "texture", "false");
     });
-
+    //tools toggle clipping
     clipping.addEventListener("change", () => {
       if (clipping.checked) {
         self.setAttribute("tools", "clipping", "true");
@@ -422,22 +416,22 @@ AFRAME.registerComponent("controller", {
         distanceSlider.parentElement.classList.add('hide');
       }
     });
-
+    //tools toggle freeze
     freezeShot.addEventListener("change", () => {
       freezeShot.checked
         ? self.setAttribute("tools", "shot", "true")
         : self.setAttribute("tools", "shot", "false");
     });
-
+    //tools slider distance plane
     distanceSlider.addEventListener('input', (event) => {
       self.emit("distance-changed", { dist: event.target.value }, false);
     })
-
-    toolsCont.addEventListener('touchstart', (event) => {
+    //blocks rotation for slider input
+    distanceSlider.addEventListener('touchstart', (event) => {
       self.emit("pause-interaction", { rotate: false, tools: true }, false);
     })
 
-    toolsCont.addEventListener('touchend', (event) => {
+    distanceSlider.addEventListener('touchend', (event) => {
       self.emit("play-interaction", { rotate: true }, false);
     })
 
@@ -478,18 +472,18 @@ AFRAME.registerComponent("controller", {
         .then((response) => response.json())
         .then((json) => {
           it.loadModel(json);
-
+          // init mission if tasks is declared
           if (json.appData.tasks.length > 0) {
             it.loadMissions(json);
             it.missionExisting = true;
-          } else {
-            it.hideMissionBtn();
-            it.missionExisting = false;
-          }
           //missions
           it.initMissions(json);
           //mission UI
           it.initMissionUI();
+        } else {
+            it.hideMissionBtn();
+            it.missionExisting = false;
+          }
           devMode && console.log('dev --- json: ', json);
         })
         .catch((error) => {
@@ -1693,7 +1687,7 @@ AFRAME.registerComponent("spritesheet-animation", {
 
 
 /**
- * animation-mixer
+ * ANIMATION-MIXER
  *  from: https://github.com/c-frame/aframe-extras/blob/master/src/loaders/animation-mixer.js
  * Player for animation clips. Intended to be compatible with any model format that supports
  * skeletal or morph animations through THREE.AnimationMixer.
