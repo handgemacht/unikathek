@@ -84,7 +84,7 @@ const app = {
 		if (!this.viewerMode) {
 			//redirect to collection viewer if no viewerMode is set in URL
 			let url='?m=cv';
-			this.devMode ? url='?m=cv&dev=true' : '';
+			this.devMode ? url+='&dev=true' : '';
   			window.location.href = url;
 		}
 
@@ -529,11 +529,19 @@ const app = {
 
 			setEventlistener() {
 				const self = this;
-				if(this.messageCloseEl) {
+				let forcegraph = document.querySelector('#forcegraph');
+
+				if(this.messageCloseEl && !forcegraph) {
 					this.messageCloseEl.addEventListener('click', (evt) => {
 						self.hideMessage();
-						//document.querySelector('#forcegraph').setAttribute('highlight', {source: ''});
-						//app.collectionViewer.highlight.hideHighlight();
+					});
+				}
+
+				if(this.messageCloseEl && forcegraph) {
+					this.messageCloseEl.addEventListener('click', (evt) => {
+						self.hideMessage();
+						forcegraph.setAttribute('highlight', {source: ''});
+						app.collectionViewer.highlight.hideHighlight();
 					});
 				}
 			},

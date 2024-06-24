@@ -258,8 +258,8 @@ AFRAME.registerComponent('load-json-models', {
 					//let filteredFgData = this.filterFgData(this.fgData, json.taglist[22]);					 	//tag "Kirwa" and no categories 
 					//let filteredFgData = this.filterFgData(this.fgData, json.taglist);							//all tags, no categories
 					//let filteredFgData = this.filterFgData(this.fgData, json.taglist, [json.categorylist[1]]); 	//all tags and category "Bräuche"
-					let filteredFgData = this.filterFgData(this.fgData, '', json.categorylist); 					//no tags and all categories 
-					//let filteredFgData = this.filterFgData(this.fgData, json.taglist[22], json.categorylist); 	//tag "Kirwa" and all categories 
+					//let filteredFgData = this.filterFgData(this.fgData, '', json.categorylist); 					//no tags and all categories 
+					let filteredFgData = this.filterFgData(this.fgData, json.taglist[22], json.categorylist); 	//tag "Kirwa" and all categories 
 
 					//stringify fgData to JSON 
 					let newNodes = JSON.stringify(filteredFgData.nodes);
