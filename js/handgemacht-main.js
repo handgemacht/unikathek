@@ -1290,7 +1290,13 @@ const app = {
 			imgPlay.crossOrigin = 'anonymous';
 			imgPlay.src = "assets/hand.gemacht WebApp play perlweiss.svg"
 
-			//TODO img question
+			//TODO exclamation mark
+			const imgExcl = document.createElement('img');
+			assets.appendChild(imgExcl);
+			imgExcl.id = 'exclamation';
+			imgExcl.crossOrigin = 'anonymous';
+			imgExcl.src = "assets/hand.gemacht WebApp menu kohlegrau.svg"
+
 			const ambientLightEntity = document.createElement('a-entity');
 			arViewerElement.appendChild(ambientLightEntity);
 			ambientLightEntity.setAttribute('light', 'type: ambient; color: #FAF0E6; intensity: 2');
@@ -1343,11 +1349,16 @@ const app = {
 			object.setAttribute('class', 'collidable');
 			object.setAttribute('get-bounding-box', '');
 			object.setAttribute('distance-listener', '');
+			object.setAttribute('animation-mixer', '');
 			object.setAttribute('anchored', 'persistent:true');
 
 			const missionsContainer = document.createElement('a-entity');
 			containerObject.appendChild(missionsContainer);
 			missionsContainer.setAttribute('id', 'missions');
+
+			const noMissionsContainer = document.createElement('a-entity');
+			containerObject.appendChild(noMissionsContainer);
+			noMissionsContainer.setAttribute('id', 'noMissions');
 
 			const rotationControl = document.createElement('a-entity');
 			arViewerElement.appendChild(rotationControl);

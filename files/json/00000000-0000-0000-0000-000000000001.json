@@ -29,7 +29,7 @@
 				"id": 2,
 				"mission": true,
 				"taskType": "animation",
-				"dependable": true,
+				"dependable": false,
 				"activates": 3,
 				"name": "Ofen Tür unten öffnen",
 				"position":"0m 0.35m 0.15m",
@@ -41,7 +41,7 @@
 				"id": 3,
 				"mission": true,
 				"taskType": "dragDrop",
-				"dependable": false,
+				"dependable": true,
 				"activates": 4,
 				"name": "Streichhölzer",
 				"descriptionDrag": "...",
@@ -52,7 +52,7 @@
 					"filename": "xyz.svg",
 					"imageAlt": "..."
 				},
-				"positionDrop": "-0.01m 0.538m 0.182m",
+				"positionDrop": "-0.01m 0.538m -0.182m",
 				"positionDrag": "-0.03m 0m 0.18m"
 			},
 			{
@@ -72,7 +72,7 @@
 				"id": 5,
 				"mission": true,
 				"taskType": "dragDrop",
-				"dependable": false,
+				"dependable": true,
 				"activates": 6,
 				"name": "Streichhölzer",
 				"descriptionDrag": "...",
