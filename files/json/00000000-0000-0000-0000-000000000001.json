@@ -138,7 +138,7 @@
 			"quality2k": "modelfiles/6420F1C4-1A3D-604E-8D42-9D9C5CDA2A9E_2k.glb",
 			"quality4k": "modelfiles/6420F1C4-1A3D-604E-8D42-9D9C5CDA2A9E_4k.glb",
 			"quality8k": "modelfiles/6420F1C4-1A3D-604E-8D42-9D9C5CDA2A9E_8k.glb",
-			"animation": "modelfiles/6420F1C4-1A3D-604E-8D42-9D9C5CDA2A9E_animation.glb"
+			"animation": "modelfiles/6420F1C4-1A3D-604E-8D42-9D9C5CDA2A9E_animation_new.glb"
 		},
 		"modelViewer": {
 			"cameraField": "34.95049966413964deg",
