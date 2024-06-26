@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="content" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 47.72">
+  <defs>
+    <style>
+      .cls-1, .cls-2 {
+        stroke: #9b9691;
+      }
+
+      .cls-1, .cls-2, .cls-3, .cls-4 {
+        fill: none;
+        stroke-linecap: round;
+        stroke-miterlimit: 10;
+        stroke-width: 4px;
+      }
+
+      .cls-1, .cls-3 {
+        stroke-dasharray: 0 0 5.65 8.48;
+      }
+
+      .cls-3, .cls-4 {
+        stroke: linen;
+      }
+    </style>
+  </defs>
+  <g>
+    <polyline class="cls-2" points="43.44 39.54 43.44 42.54 40.44 42.54"/>
+    <path class="cls-1" d="M31.97,42.54h-15.4c-6.63,0-12-5.37-12-12V12.51"/>
+    <polyline class="cls-2" points="4.56 8.28 4.56 5.28 7.56 5.28"/>
+    <path class="cls-1" d="M16.04,5.28h15.4c6.63,0,12,5.37,12,12v18.02"/>
+  </g>
+  <g>
+    <polyline class="cls-4" points="43.44 38.73 43.44 41.73 40.44 41.73"/>
+    <path class="cls-3" d="M31.97,41.73h-15.4c-6.63,0-12-5.37-12-12V11.7"/>
+    <polyline class="cls-4" points="4.56 7.47 4.56 4.47 7.56 4.47"/>
+    <path class="cls-3" d="M16.04,4.47h15.4c6.63,0,12,5.37,12,12v18.02"/>
+  </g>
+</svg>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="content" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 47.72">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: linen;
+      }
+
+      .cls-1, .cls-2 {
+        stroke-width: 0px;
+      }
+
+      .cls-2 {
+        fill: #9b9691;
+      }
+    </style>
+  </defs>
+  <g>
+    <path class="cls-2" d="M26.63,38.19h-6.55v5.5c0,1.1.9,2,2,2h6.55v-5.5c0-1.1-.9-2-2-2Z"/>
+    <path class="cls-2" d="M26.63,3.03h-6.55v25.95c0,1.1.9,2,2,2h6.55V5.03c0-1.1-.9-2-2-2Z"/>
+  </g>
+  <g>
+    <path class="cls-1" d="M26.63,37.19h-6.55v5.5c0,1.1.9,2,2,2h6.55v-5.5c0-1.1-.9-2-2-2Z"/>
+    <path class="cls-1" d="M26.63,2.03h-6.55v25.95c0,1.1.9,2,2,2h6.55V4.03c0-1.1-.9-2-2-2Z"/>
+  </g>
+</svg>
