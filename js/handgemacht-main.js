@@ -1186,8 +1186,9 @@ const app = {
 		this.welcomeMessage= '<h3>Willkommen im Entdeckermodus!</h3> <img src="assets/hand.gemacht WebApp icon watch perlweiss.svg" alt="Entdecker-Icon" /><p>Hier kannst Du das Objekt im Raum platzieren. Danach kannst du Dir das 3D-Objekt genauer ansehen.</p><p>Möchtest Du den Entdecker-Modus starten?</p>';
 		this.firstContactMission = "<h3>Mission</h3> <p>Wilkommen bei deiner Mission. </br>Es gibt verschiedene Aufgaben, die du zu erledigen hast. Für jede erfolgreiche Aufgabe erhälst du ein Buch. </br> Info: Klicke oben links auf das Buch, um eine Übersicht anzeigen zu lassen. </br> Tipp: Gehe nah an das Objekt heran und ziele mit dem schwarzen Punkt auf auffällige Punkte.</p>";
 		this.firstContactTool = "<h3>Tools</h3> <p>Willkommen bei den Tools. Hier kannst du das Objekt mit Clipping genauer untersuchen. Bewege die Kamera dazu nahe an das Objekt, um das Objekt abzuschneiden. Außerdem kannst du einen Schnitt festhalten mit Freeze oder die Entfernung des Schnitts einstellen. </br> Du kannst die Textur, also die Beschaffenheit der Oberfläche, sowie das Wireframe, also das visuelle Modell des 3D-Object an- bzw. ausschalten.";
-		this.goodbyeMessage = "<h3>Entdecker-Modus verlassen</h3> <p>Möchtest du zum Modelviewer zurückkehren?</p>";
-		this.goodbyeMessageButton = "Entdeckermodus erneut starten";
+		this.goodbyeMessage = "<h3>Entdecker-Modus verlassen</h3> <p>Was möchtest du tun?</p>";
+		this.goodbyeMessageButton1 = "Entdeckermodus erneut starten";
+		this.goodbyeMessageButton2 = "Zum Modelviewer zurückkehren";
 		this.startPlacing = '<img src="assets/hand.gemacht WebApp icon move perlweiss.svg" alt="Platzierungs-Icon" height="50px" /> <p>Um das Objekt zu platzieren, suche eine freie Boden- oder Tischfläche. Das Objekt soll dort in realer Größe platziert werden.</p>';
 		this.leaveAR = '<p>Entdecker-Modus wirklich verlassen?</p>';
 		this.startPlacingButton = 'Platzierung starten!';
@@ -1224,6 +1225,7 @@ const app = {
 
 		this.pointHead = "Punkt gefunden";
 		this.quizHead = "Quiz";
+		this.animationHead = "Animation";
 		this.quizButton = "Antwort überprüfen";
 		this.quizFalse = "Leider falsch. Probiere es noch einmal!";
 		this.quizNull = "Bitte wähle etwas aus!";

@@ -5,7 +5,7 @@
 				"id": "animation000",
 				"mission": false,
 				"taskType": "animation",
-				"dependable": true,
+				"dependable": false,
 				"activates": "animation001",
 				"name": "Ofen Deckel öffnen",
 				"position": "-0.25m 0.7m -0.05m",
@@ -32,12 +32,28 @@
 				"mission": true,
 				"taskType": "preparation",
 				"dependable": false,
-				"activates": "mission001",
+				"activates": "missiontest",
 				"name": "Missionsvorbereitung",
-				"animName": ["Ofen_Tür_unten.anim_close", "Ofen_Tür_oben.anim_close"],
+				"animName": [ "Ofen_Tür_oben.anim_close"],
+				"animLoop":false,
+				"animFinished": 0
+			},	
+			{"id": "missiontest",
+				"mission": true,
+				"taskType": "animation",
+				"dependable": true,
+				"activates": "mission001",
+				"name": "Öffne den Deckel",
+				"descriptionStart": "Öffne den Deckel.",
+				"descriptionEnd": null,
+				"position":"-0.25m 0.7m -0.05m",
+				"animName": "Ofen_Deckel.anim_open",
 				"animLoop":false,
 				"animFinished": 0,
+				"deactivatesAnimName": "Ofen_Deckel.anim_close"
+
 			},
+
 			{
 				"id": "mission001",
 				"mission": true,
@@ -45,7 +61,7 @@
 				"dependable": true,
 				"activates": "mission002",
 				"name": "Kohle",
-				"descriptionDrag": "Nimm die Kohle und leg sie in den Ofen.",
+				"descriptionDrag": "Super du hast die Kohle aufgehoben. Nun leg sie in den Ofen.",
 				"descriptionDrop": "Gut gemacht! Als nächstes müssen wir ein Feuer entfachen.",
 				"searchable": 0,
 				"symbol": {
@@ -63,7 +79,7 @@
 				"dependable": true,
 				"activates": "mission003",
 				"name": "Streichhölzer",
-				"descriptionDrag": "Heb die Streichhölzer auf und zünde damit das Holz an.",
+				"descriptionDrag": "Zünde mit den Streichhölzern das Holz an.",
 				"descriptionDrop": "Das Feuer brennt! Öffne die Schublade damit Luft durch den Ofen ziehen kann.",
 				"searchable": 1,
 				"symbol": {
@@ -115,7 +131,7 @@
 				"name": "Ofen Deckel schließen",
 				"descriptionStart": null,
 				"descriptionEnd": "Puh, das ging noch einmal gut. Bei genauerem hinsehen sieht dieser Deckel schon besonders aus, oder nicht?",
-				"position":"-0.05m 0.7m 0.25m",
+				"position":"-0.05m 0.8m 0.25m",
 				"animName": "Ofen_Deckel.anim_close",
 				"animLoop":false,
 				"animFinished": 0, 
@@ -130,7 +146,7 @@
 				"searchable": 0,
 				"name": "Die Kochplatte",
 				"description": "Dieser Deckel diente auch als Kochplatte wenn der Ofen beheizt wurde.",
-				"position": "-0.01m 0.3125808615403411m -0.598m"
+				"position": "-0.05m 0.9125808615403411m -0.05m"
 			}
 			
 		],
