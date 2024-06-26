@@ -33,14 +33,10 @@
 				"taskType": "preparation",
 				"dependable": false,
 				"activates": "mission001",
-				"name": "Ofen Tür unten öffnen",
-				"descriptionStart": "Zuerst musst du die untere Türe des Ofens öffnen.",
-				"descriptionEnd": "Klasse! Als nächstes brauchen wir Feuerholz.",
-				"position":"0m 0.35m 0.15m",
-				"animName": "Ofen_Tür_unten.anim_open",
+				"name": "Missionsvorbereitung",
+				"animName": ["Ofen_Tür_unten.anim_close", "Ofen_Tür_oben.anim_close"],
 				"animLoop":false,
 				"animFinished": 0,
-				"deactivatesAnimName": "Ofen_Tür_unten.anim_close"
 			},
 			{
 				"id": "mission001",
