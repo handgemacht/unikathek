@@ -49,7 +49,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #FAF0E6;
+  background: #41403F;
   border-radius: 5px 5px 5px 5px;
 }
 
@@ -246,36 +246,41 @@ h1, h2, h3, h4, h5, h6 {
 /* gui */
 div.gui-title {
   position: fixed;
-  top: 20px;
-  left: 50px;
+  top: 10px;
+  left: 20px;
   margin: 0;
   padding: 0;
-  font-size: 1.8em;
+  font-size: 1.2em;
+  font-weight: 700;
   z-index: 6;
-}
-
-div.gui-version {
-  position: fixed;
-  bottom: 20px;
-  right: 50px;
-  left: initial;
-  width: 150px;
-  height: auto;
-  margin: 0;
-  padding: 0;
-  font-size: 12px;
-  z-index: 4;
 }
 
 div.gui-logo {
   position: fixed;
-  bottom: 30px;
-  right: 50px;
-  left: initial;
-  width: 150px;
+  bottom: 5px;
+  left: 50%;
+  right: initial;
+  width: 120px;
   height: auto;
   margin: 0;
   padding: 0;
+  transform: translate(-50%, -50%);
+  z-index: 4;
+}
+
+div.gui-version {
+  position: fixed;
+  bottom: 0px;
+  right: initial;
+  left: 50%;
+  width: 120px;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  font-size: 12px;
+  color: #9B9691;
   z-index: 4;
 }
 
@@ -328,9 +333,9 @@ div.gui-message-box {
 
 div.gui-message-container {
   position: relative;
-  top: 10%;
-  width: 270px;
-  height: 585px;
+  top: 1vh;
+  width: 96vw;
+  height: 98vh;
   margin: 0;
   pointer-events: none;
   z-index: 4;
@@ -339,16 +344,21 @@ div.gui-message-container {
 div.gui-message {
   position: absolute;
   width: 100%;
-  height: 40%;
-  bottom: 20px;
+  height: 35%;
+  bottom: 5px;
   border-radius: 0px 20px 0px 20px;
   pointer-events: all;
   text-align: right;
 }
 
+div.gui-message.buttonsActive {
+  height: calc(35% - 45px);
+  bottom: 50px;
+}
+
 div.gui-message-type {
   position: absolute;
-  bottom: calc(20px + 40%);
+  bottom: calc(5px + 35%);
   left: 0;
   padding: 2px 15px 1px 12px;
   border-radius: 0px 7px 0px 0px;
@@ -358,6 +368,10 @@ div.gui-message-type {
   font-weight: 356;
   letter-spacing: .6px;
   pointer-events: all;
+}
+
+div.gui-message-type.buttonsActive {
+  bottom: calc(50px + 35%);
 }
 
 div.gui-message-close {
@@ -399,15 +413,22 @@ div.gui-message-content > ul, p {
 
 div.gui-message-button-container {
   position: absolute;
-  bottom: 12px;
-  right: 0;
-  padding: 0 15px 0 15px;
+  right: -5px;
   pointer-events: all;
 }
 
 button.gui-message-button {
-  margin: 0 5px 0 5px;
+  margin: 0 1px 0 0;
   padding: 0 15px 0 15px;
+  border-radius: 0px;
+}
+
+button.gui-message-button:first-child {
+  border-radius: 0 0 0 20px;
+}
+
+button.gui-message-button:last-child {
+  border-radius: 0 0 20px 0;
 }
 
 div.gui-error-container {
@@ -479,8 +500,8 @@ img.gui-fullscreen-image {
 /* gui.menu */
 div.gui-menu-icon {
   position: fixed;
-  top: 25px;
-  right: 50px;
+  top: 15px;
+  right: 20px;
   margin: 0;
   padding: 0;
   overflow: hidden;
@@ -489,8 +510,8 @@ div.gui-menu-icon {
 
 img.gui-menu-icon-symbol {
   display: block;
-  width: 50px;
-  height: 50px;
+  width: 30px;
+  height: 30px;
 }
 
 img.gui-menu-icon-symbol.loading {
@@ -499,11 +520,11 @@ img.gui-menu-icon-symbol.loading {
 
 div.gui-menu-container {
   position: fixed;
-  top: 25px;
-  right: 50px;
-  left: initial;
-  width: 270px;
-  height: 585px;
+  top: 1vh;
+  right: 50%;
+  width: 96vw;
+  height: 98vh;
+  transform: translateX(50%);
   margin: 0;
   padding: 0;
   background-color: #41403F;
@@ -584,6 +605,11 @@ div.gui-menu-patronage-logo {
   position: absolute;
   bottom: 0;
   background-color: #fff;
+}
+
+/* gui.menu */
+dev.gui-toolbar-container {
+
 }
 
 /* END gui */
@@ -699,13 +725,13 @@ div.annotation {
   overflow-y: auto;
   overflow-x: hidden;
   padding: 15px 5px 15px 15px;
-  margin: 0;
-  min-width: 250px;
-  max-width: 35%;
-  min-height: 250px;
-  max-height: 35%;
-  top: 58%;
-  left: 52%;
+  margin: 15px;
+  min-width: 90%;
+  max-width: 90%;
+  min-height: 35%;
+  max-height: 40%;
+  top: 55%;
+  left: 0;
   background-color: #FAF0E6;
   font-size: .7em;
   border-radius: 0px 20px 0px 20px;
@@ -714,12 +740,13 @@ div.annotation {
 }
 
 div.annotation.context-story {
-  min-width: 250px;
-  max-width: 30%;
-  min-height: 250px;
-  max-height: 75%;
+  margin: 15px;
+  min-width: 90%;
+  max-width: 90%;
+  min-height: 45%;
+  max-height: 80%;
   top: 5%;
-  left: initial;
+  left: 0;
   right: 5%;
   opacity: 1;
   box-shadow: 3px 3px #FF7850; 
@@ -763,6 +790,7 @@ div.annotation-image {
   float: right;
   width: 200px;
   margin: 0 15px 15px 30px;
+  margin-left: 100%;
   background-color: #FF7850;
   border-radius: 0px 20px 0px 20px;
 }
@@ -1193,70 +1221,55 @@ img.help-symbol{
 
 /* START Layout Breakpoints */
 
-@media only screen and (max-width: 1200px) {
+/* small  */
+@media only screen and (min-width: 640px) {
 
-  div.annotation-image {
-    margin-left: 100%;
+
+
+}
+
+/* medium  */
+@media only screen and (min-width: 768px) {
+
+
+
+}
+
+/* large  */
+@media only screen and (min-width: 1024px) {
+
+  div.gui-version {
+    bottom: 20px;
+    right: 50px;
+    left: initial;
+  }
+
+  div.gui-logo {
+    position: fixed;
+    bottom: 30px;
+    right: 50px;
+    left: initial;
+  }
+
+  div.annotation {
+    margin: 0;
+    min-width: 250px;
+    max-width: 35%;
+    min-height: 250px;
+    max-height: 35%;
+    top: 58%;
+    left: 52%;
+  }
+
+  div.annotation.context-story {
+    min-width: 250px;
+    max-width: 30%;
+    min-height: 250px;
+    max-height: 75%;
+    top: 5%;
+    left: initial;
   }
 
 }
 
 /* END Layout Breakpoints */
-
-/* START Extra small devices (phones, 600px and down) */
-
-@media only screen and (max-width: 600px) {
-
-  .gui-version {
-    position: fixed;
-    bottom: 0px;
-    right: initial;
-    left: 50%;
-    width: 150px;
-    height: auto;
-    margin: 0;
-    padding: 0;
-    transform: translate(-50%, -50%);
-    font-size: 12px;
-    color: #9B9691;
-  }
-
-  .gui-logo {
-    position: fixed;
-    bottom: 0px;
-    left: 50%;
-    right: initial;
-    width: 150px;
-    height: auto;
-    margin: 0;
-    padding: 0;
-    transform: translate(-50%, -50%);
-  }
-
-  div.flex-container {
-    width: 450px;
-  }
-
-  div.annotation {
-    margin: 15px;
-    min-width: 90%;
-    max-width: 90%;
-    min-height: 35%;
-    max-height: 40%;
-    top: 55%;
-    left: 0;
-  }
-
-  div.annotation.context-story {
-    margin: 15px;
-    min-width: 90%;
-    max-width: 90%;
-    min-height: 45%;
-    max-height: 80%;
-    top: 5%;
-    left: 0;
-  }
-
-}
-
-/* END Extra small devices (phones, 600px and down) */

@@ -64,7 +64,7 @@ let modelViewerHTML =
 //START app 
 const app = {
 	title: 'Kulturspur',
-	version: 'Version: a0.8-2025/05/16',
+	version: 'alpha 0.9 25/06/27',
 	devMode: false,
 	viewerMode: false,
 
@@ -99,8 +99,8 @@ const app = {
 			document.body.innerHTML += modelViewerHTML;
 			this.gui.loadingScreen.content = 'loading model viewer';
 			this.gui.loadingScreen.showLoadingScreen();
-			
 		}
+
 		//test if WebXR AR is supported
 		if(navigator.xr){
 			navigator.xr.isSessionSupported("immersive-ar").then((isSupported) => {
@@ -299,7 +299,7 @@ const app = {
 
 				const guiMessageButtonContainer = document.createElement('div');
 				this.messageButtonContainerEl = guiMessageButtonContainer;
-				guiMessageContainer.appendChild(guiMessageButtonContainer);
+				guiMessage.appendChild(guiMessageButtonContainer);
 				guiMessageButtonContainer.className = 'gui-message-button-container';
 
 				const guiMessageButton = document.createElement('button');
@@ -504,7 +504,6 @@ const app = {
 				tooltipOverlay.appendChild(tooltipContentOverlay);
 				tooltipContentOverlay.classList.add('cv-tooltip-content', 'skyblue');
 
-
 			},
 			showMessage() {
 				this.messageContainerEl.classList.remove('hide');
@@ -549,27 +548,40 @@ const app = {
 
 			setMessage(message) {
 				this.hideMessage();
+
+				let buttonsActive = false;
+
 				Object.keys(message).includes("type") ? this.type = message.type : '';
 				Object.keys(message).includes("content") ? this.content = message.content : '';
 				Object.keys(message).includes("color") ? this.color = message.color : '';
 				Object.keys(message).includes("shadow") ? this.shadow = 'shadow-'+message.shadow : '';
+
 				if(Object.keys(message).includes("button1")){
+					buttonsActive = true;
 					Object.keys(message.button1).includes("content") ? this.button1.content = message.button1.content : '';
 					Object.keys(message.button1).includes("color") ? this.button1.color = message.button1.color : '';
 					Object.keys(message.button1).includes("shadow") ? this.button1.shadow = 'shadow-'+message.button1.shadow : '';
 				}
+
 				if(Object.keys(message).includes("button2")){
+					buttonsActive = true;
 					Object.keys(message.button2).includes("content") ? this.button2.content = message.button2.content : '';
 					Object.keys(message.button2).includes("color") ? this.button2.color = message.button2.color : '';
 					Object.keys(message.button2).includes("shadow") ? this.button2.shadow = 'shadow-'+message.button2.shadow : '';
 				}
+
 				Object.keys(message).includes("showClose") ? this.showClose = message.showClose : this.showClose = true;
+
 				this.type && this.messageTypeEl.classList.remove('hide');
+
+				buttonsActive && this.messageEl.classList.add('buttonsActive');
 				this.button1.content && this.messageButton1El.classList.remove('hide');
 				this.button2.content && this.messageButton2El.classList.remove('hide');
+
 				!this.showClose && this.messageCloseEl.classList.add('hide');
 
 				this.color && this.messageEl.classList.add(this.color);
+
 				if(this.color === 'pearlwhite'){
 					this.messageCloseSymbol.src = 'assets/hand.gemacht WebApp close kohlegrau.svg';
 					this.color && this.messageTypeEl.classList.add(message.shadow);
@@ -577,6 +589,7 @@ const app = {
 					this.messageCloseSymbol.src = 'assets/hand.gemacht WebApp close perlweiss.svg';
 					this.color && this.messageTypeEl.classList.add(this.color);
 				}
+
 				this.shadow && this.messageEl.classList.add(this.shadow);
 				this.button1.color && this.messageButton1El.classList.add(this.button1.color);
 				this.button1.shadow && this.messageButton1El.classList.add(this.button1.shadow);
@@ -866,7 +879,7 @@ const app = {
 				const toolbarContainer = document.createElement('div');
 				this.toolbarContainerEl = toolbarContainer;
 				document.body.appendChild(toolbarContainer);
-				toolbarContainer.className = 'gui-toolbar-container hide';
+				toolbarContainer.className = 'gui-toolbar-container';
 			}, 
 
 			setEventListener() {
@@ -988,7 +1001,8 @@ const app = {
 						return;
 					}
 				}
-				this.showTooltip(fgData.type, fgData.name, false);
+
+				!isTouchDevice() && this.showTooltip(fgData.type, fgData.name, false);
 			} 
 		},
 
@@ -1116,13 +1130,30 @@ const app = {
 								+ '<ul><li>Kategorien: ' + categoryList + '</li>'
 								+ '<li>Tags: ' + tagList + '</li>'
 								+ '<li>ID: ' + fgData.id + '</li></ul>',
-						color: 'skyblue',
-						button1: { content: 'Ansehen', color: 'pearlwhite', shadow: 'coalgrey' }
+						color: 'pearlwhite',
+						shadow: 'skyblue',
+						button1: { content: 'ansehen', color: 'skyblue', icon: 'eye' },
+						button2: { content: 'mehr erfahren', color: 'skyblue', icon: 'arrow' }
 					}
 
 					app.gui.message.setMessage(message);
 
+					let button1State = false;
+
 					app.gui.message.messageButton1El.addEventListener('click', (e) => {
+						button1State = !button1State;
+						if(button1State){
+							document.querySelector('a-camera').setAttribute('camera-move-to-target', {target: fgData, distance: 100, duration: 1200});
+							message.button1 = {content: 'zurück', color: 'skyblue', icon: 'eye'};
+							app.gui.message.setMessage(message);
+						}else{
+							document.querySelector('a-camera').setAttribute('camera-move-to-target', {target: 'start', distance: 100, duration: 1200});
+							message.button1 = { content: 'ansehen', color: 'skyblue', icon: 'eye' };
+							app.gui.message.setMessage(message);
+						}
+					})
+
+					app.gui.message.messageButton2El.addEventListener('click', (e) => {
 						let url = '?m=mv&model=' + fgData.id + '';
 						window.location.href = url;
 					})
@@ -1192,11 +1223,13 @@ const app = {
 
 			const camera = document.createElement('a-camera');
 			collectionViewerElement.appendChild(camera);
-			camera.setAttribute('my-look-controls', 'pointerLockEnabled: false;'); // reverseMouseDrag: true
-			camera.setAttribute('wasd-controls', 'fly: true; acceleration: 300;');
-			camera.setAttribute('position', '0 0 125');
+			//camera.setAttribute('my-look-controls', 'pointerLockEnabled: false;'); // reverseMouseDrag: true
+			camera.setAttribute('orbit-controls', 'enabled: false');
+			//camera.setAttribute('wasd-controls', 'fly: true; acceleration: 300;');
+			camera.setAttribute('position', '0 0 0');
 			camera.setAttribute('camera-focus-target', '');
-			camera.setAttribute('camera-move-to-target', '')
+			camera.setAttribute('camera-move-to-target', '');
+
 
 			const ambientLightEntity = document.createElement('a-entity');
 			collectionViewerElement.appendChild(ambientLightEntity);
