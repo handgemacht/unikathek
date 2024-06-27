@@ -130,6 +130,7 @@ const app = {
 			this.error.init();
 			this.fullScreen.init();
 			this.menu.init();
+			this.toolbar.init();
 		},
 
 		title: {
@@ -316,6 +317,7 @@ const app = {
 				
 
 			}, 
+
 			createElementsAR() {
 				const guiArOverlay = document.createElement('div');
 				this.messageBoxEl.appendChild(guiArOverlay);
@@ -348,8 +350,6 @@ const app = {
 				replaceButton.id = 'replace-button';
 				replaceButton.textContent = 'Neu platzieren';
 
-				
-				
 				function createToggle(id, label, checked) {
 					const wrapper = document.createElement('div');
 					wrapper.className = 'toggle-wrapper';
@@ -415,7 +415,7 @@ const app = {
 
 				const scoreImg = document.createElement('img');
 				scoreContainer.appendChild(scoreImg);
-				scoreImg.src = 'assets/hand.gemacht WebApp button context-story perlweiss.svg';
+				scoreImg.src = 'assets/hand.gemacht WebApp ar marker book.svg';
 				scoreImg.alt = 'Buch Score';
 
 				const scoreSpan = document.createElement('span');
@@ -853,6 +853,24 @@ const app = {
 					this.containerEl.classList.add('hide');
 					this.burgerEl.classList.remove('hide');
 				}
+			}
+		}, 
+
+		toolbar: {
+			init(){
+				this.createElements();
+				this.setEventListener();
+			},
+	
+			createElements() {
+				const toolbarContainer = document.createElement('div');
+				this.toolbarContainerEl = toolbarContainer;
+				document.body.appendChild(toolbarContainer);
+				toolbarContainer.className = 'gui-toolbar-container hide';
+			}, 
+
+			setEventListener() {
+
 			}
 		}
 	}, //gui
