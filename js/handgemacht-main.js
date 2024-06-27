@@ -317,6 +317,7 @@ const app = {
 				
 
 			}, 
+
 			createElementsAR() {
 				const guiArOverlay = document.createElement('div');
 				this.messageBoxEl.appendChild(guiArOverlay);
@@ -349,8 +350,6 @@ const app = {
 				replaceButton.id = 'replace-button';
 				replaceButton.textContent = 'Neu platzieren';
 
-				
-				
 				function createToggle(id, label, checked) {
 					const wrapper = document.createElement('div');
 					wrapper.className = 'toggle-wrapper';
@@ -416,7 +415,7 @@ const app = {
 
 				const scoreImg = document.createElement('img');
 				scoreContainer.appendChild(scoreImg);
-				scoreImg.src = 'assets/hand.gemacht WebApp ar marker book perlweiss.svg';
+				scoreImg.src = 'assets/hand.gemacht WebApp ar marker book.svg';
 				scoreImg.alt = 'Buch Score';
 
 				const scoreSpan = document.createElement('span');
@@ -1303,7 +1302,7 @@ const app = {
 			assets.appendChild(imgBook);
 			imgBook.id = 'book';
 			imgBook.crossOrigin = 'anonymous';
-			imgBook.src = 'assets/hand.gemacht WebApp ar marker book perlweiss.svg'
+			imgBook.src = 'assets/hand.gemacht WebApp ar marker book.svg'
 
 			const imgPlay = document.createElement('img');
 			assets.appendChild(imgPlay);
