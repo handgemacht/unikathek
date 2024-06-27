@@ -130,6 +130,7 @@ const app = {
 			this.error.init();
 			this.fullScreen.init();
 			this.menu.init();
+			this.toolbar.init();
 		},
 
 		title: {
@@ -836,6 +837,24 @@ const app = {
 					this.burgerEl.classList.remove('hide');
 				}
 			}
+		}, 
+
+		toolbar: {
+			init(){
+				this.createElements();
+				this.setEventListener();
+			},
+	
+			createElements() {
+				const toolbarContainer = document.createElement('div');
+				this.toolbarContainerEl = toolbarContainer;
+				document.body.appendChild(toolbarContainer);
+				toolbarContainer.className = 'gui-toolbar-container hide';
+			}, 
+
+			setEventListener() {
+
+			}
 		}
 	}, //gui
 
@@ -1284,7 +1303,7 @@ const app = {
 			assets.appendChild(imgBook);
 			imgBook.id = 'book';
 			imgBook.crossOrigin = 'anonymous';
-			imgBook.src = 'assets/hand.gemacht WebApp button context-story perlweiss.svg'
+			imgBook.src = 'assets/hand.gemacht WebApp ar marker book perlweiss.svg'
 
 			const imgPlay = document.createElement('img');
 			assets.appendChild(imgPlay);
