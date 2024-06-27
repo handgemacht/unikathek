@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="content" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 47.72">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: linen;
+        stroke-width: 0px;
+      }
+    </style>
+  </defs>
+  <path class="cls-1" d="M26.5-5.1h0v31.69c0,2.76-2.24,5-5,5h0V-.1c0-2.76,2.24-5,5-5Z" transform="translate(37.25 -10.75) rotate(90)"/>
+  <path class="cls-1" d="M26.5,6.15h0v31.69c0,2.76-2.24,5-5,5h0V11.15c0-2.76,2.24-5,5-5Z" transform="translate(48.5 .5) rotate(90)"/>
+  <path class="cls-1" d="M26.5,17.41h0v31.69c0,2.76-2.24,5-5,5h0v-31.69c0-2.76,2.24-5,5-5Z" transform="translate(59.75 11.75) rotate(90)"/>
+</svg>

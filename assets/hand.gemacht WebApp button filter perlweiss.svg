@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="content" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 47.72">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: linen;
+        stroke-width: 0px;
+      }
+    </style>
+  </defs>
+  <path class="cls-1" d="M10.64,31.75h6c1.1,0,2,.9,2,2v6h-6c-1.1,0-2-.9-2-2v-6h0Z" transform="translate(29.28 71.5) rotate(-180)"/>
+  <path class="cls-1" d="M20.64,34.75v2h20.71c.55,0,1-.45,1-1v-1h-21.71Z"/>
+  <path class="cls-1" d="M6.66,34.75c-.55,0-1,.45-1,1v1h2.98v-2h-1.98Z"/>
+  <path class="cls-1" d="M29.36,20.5h6c1.1,0,2,.9,2,2v6h-6c-1.1,0-2-.9-2-2v-6h0Z" transform="translate(66.73 49) rotate(-180)"/>
+  <path class="cls-1" d="M39.36,23.5v2h1.98c.55,0,1-.45,1-1v-1h-2.98Z"/>
+  <path class="cls-1" d="M6.66,23.5c-.55,0-1,.45-1,1v1h21.71v-2H6.66Z"/>
+  <path class="cls-1" d="M14.47,9.25h6c1.1,0,2,.9,2,2v6h-6c-1.1,0-2-.9-2-2v-6h0Z" transform="translate(36.94 26.5) rotate(-180)"/>
+  <path class="cls-1" d="M6.66,12.25c-.55,0-1,.45-1,1v1h6.81v-2h-5.81Z"/>
+  <path class="cls-1" d="M24.47,12.25v2h16.88c.55,0,1-.45,1-1v-1h-17.88Z"/>
+</svg>
