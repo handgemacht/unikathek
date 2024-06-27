@@ -423,15 +423,6 @@ const app = {
 				scoreSpan.id = 'score';
 				scoreSpan.textContent = '0/0';
 
-				const exclamationImg = document.createElement('img');
-				scoreContainer.appendChild(exclamationImg);
-				//TODO own exclamation mark
-				exclamationImg.src = 'https://cdn.glitch.global/5e3e06f0-b4c6-44f7-b937-2c6dd722ebec/14-10-13-121_256.gif?v=1716964501140';
-				exclamationImg.alt = 'exclamation mark';
-				exclamationImg.height = '40';
-				exclamationImg.width = '40';
-				exclamationImg.className = 'exclamation-mark hide';
-
 				var inventar = document.createElement('div');
 				missionOverlay.appendChild(inventar);
 				inventar.id = 'inventar';
@@ -447,6 +438,16 @@ const app = {
 				closeSymbol.className = 'annotation-close-symbol';
 				closeSymbol.width = '24';
 				closeSymbol.height = '24';
+
+				const helpContainer = document.createElement('div');
+				guiArOverlay.appendChild(helpContainer);
+				helpContainer.id = 'help-cont';
+				helpContainer.className = 'help-container hide';
+				var helpSymbol = document.createElement('img');
+				helpContainer.appendChild(helpSymbol);
+				helpSymbol.src = 'assets/hand.gemacht WebApp ar marker quiz.svg';
+				helpSymbol.alt = 'Help-Icon';
+				helpSymbol.className = 'help-symbol';
 
 				//close popup
 				const guiCloseContainer = document.createElement('div');
@@ -493,6 +494,15 @@ const app = {
 				tooltipAR.appendChild(tooltipContentAR);
 				tooltipContentAR.classList.add('cv-tooltip-content', 'duckyellow');
 
+				const tooltipOverlay = document.createElement('div');
+				this.tooltipElOverlay = tooltipOverlay;
+				this.messageBoxEl.appendChild(tooltipOverlay);
+				tooltipOverlay.className = 'cv-tooltip hide';
+	
+				const tooltipContentOverlay = document.createElement('div');
+				this.tooltipContentElOverlay = tooltipContentOverlay;
+				tooltipOverlay.appendChild(tooltipContentOverlay);
+				tooltipContentOverlay.classList.add('cv-tooltip-content', 'skyblue');
 
 
 			},
@@ -587,6 +597,14 @@ const app = {
 			hideTooltipAR(){
 				this.tooltipElAr.classList.add('hide');
 				this.tooltipContentElAr.innerHTML = '';
+			},
+			showTooltipOverlay(content){
+				this.tooltipContentElOverlay.appendChild(document.createTextNode(content));
+				this.tooltipElOverlay.classList.remove('hide');
+			},
+			hideTooltipOverlay(){
+				this.tooltipElOverlay.classList.add('hide');
+				this.tooltipContentElOverlay.innerHTML = '';
 			}
 		},
 
@@ -1239,7 +1257,10 @@ const app = {
 		this.restartAnim = "Animation neu starten";
 
 		this.rotationTip = "Klicke und ziehe hier um zu rotieren";
-		this.inventarTip = "Klick mich, um mich abzulegen"
+		this.inventarTip = "Klick mich, um mich abzulegen";
+		this.farAwayTip = "Gehe näher an das Objekt heran!";
+		this.clickTip = "Klicke hier!"
+		this.clickMeTip = "Klicke mich zum Ablegen";
 
 		},
 
@@ -1270,34 +1291,43 @@ const app = {
 			assets.appendChild(imgPlacer);
 			imgPlacer.id = 'placer';
 			imgPlacer.crossOrigin = 'anonymous';
-			//TODO upload or new placer svg or png
-			imgPlacer.src = 'https://cdn.glitch.global/5e3e06f0-b4c6-44f7-b937-2c6dd722ebec/placer.png?v=1715762971794';
+			imgPlacer.src = 'assets/hand.gemacht WebApp ar marker drop.svg';
+
+			const imgDrag = document.createElement('img');
+			assets.appendChild(imgDrag);
+			imgDrag.id = 'dragIcon';
+			imgDrag.crossOrigin = 'anonymous';
+			imgDrag.src = 'assets/hand.gemacht WebApp ar marker drag.svg';
 
 			const imgArrow = document.createElement('img');
 			assets.appendChild(imgArrow);
 			imgArrow.id = 'arrow';
 			imgArrow.crossOrigin = 'anonymous';
-			//TODO new svg or png
-			imgArrow.src = 'https://cdn.glitch.global/5e3e06f0-b4c6-44f7-b937-2c6dd722ebec/Sideways_Arrow_Icon.png?v=1716899874858';
+			imgArrow.src = 'assets/hand.gemacht WebApp ar rotate arrows rotate.svg';
 
 			const imgBook = document.createElement('img');
 			assets.appendChild(imgBook);
 			imgBook.id = 'book';
 			imgBook.crossOrigin = 'anonymous';
-			imgBook.src = 'assets/hand.gemacht WebApp button context-story perlweiss.svg'
+			imgBook.src = 'assets/hand.gemacht WebApp ar marker book.svg'
 
 			const imgPlay = document.createElement('img');
 			assets.appendChild(imgPlay);
 			imgPlay.id = 'playAnim';
 			imgPlay.crossOrigin = 'anonymous';
-			imgPlay.src = "assets/hand.gemacht WebApp play perlweiss.svg"
+			imgPlay.src = "assets/hand.gemacht WebApp ar marker animation.svg"
 
-			//TODO exclamation mark
 			const imgExcl = document.createElement('img');
 			assets.appendChild(imgExcl);
 			imgExcl.id = 'exclamation';
 			imgExcl.crossOrigin = 'anonymous';
-			imgExcl.src = "assets/hand.gemacht WebApp menu kohlegrau.svg"
+			imgExcl.src = "assets/hand.gemacht WebApp ar marker quest.svg"
+
+			const imgQuiz = document.createElement('img');
+			assets.appendChild(imgQuiz);
+			imgQuiz.id = 'question';
+			imgQuiz.crossOrigin = 'anonymous';
+			imgQuiz.src = "assets/hand.gemacht WebApp ar marker quiz.svg"
 
 			const ambientLightEntity = document.createElement('a-entity');
 			arViewerElement.appendChild(ambientLightEntity);
@@ -1320,7 +1350,7 @@ const app = {
 			cameraCursor.setAttribute('geometry', 'primitive: circle; radius: 0.001;');
 			cameraCursor.setAttribute('material', 'color:black; shader:flat');
 			cameraCursor.setAttribute('position', '0 0 -0.01');
-			cameraCursor.setAttribute('raycaster', 'objects: .collidable; enabled:false;');
+			cameraCursor.setAttribute('raycaster', 'objects: .collidable,.toolidable; enabled:false;');
 			
 			cameraCursor.setAttribute('scale', '0.1 0.1 0.1');
 
@@ -1365,8 +1395,8 @@ const app = {
 			const rotationControl = document.createElement('a-entity');
 			arViewerElement.appendChild(rotationControl);
 			rotationControl.setAttribute('id', 'rotation-ring');
-			rotationControl.setAttribute('geometry', 'primitive:ring; radiusInner:0; radiusOuter:0;');
-			rotationControl.setAttribute('material','transparent:true; opacity:0;');
+			rotationControl.setAttribute('geometry', 'primitive:circle');
+			rotationControl.setAttribute('material','transparent:true;src:#arrow');
 			rotationControl.setAttribute('rotation', '-90 0 0');
 
 			rotationControl.setAttribute('turn-to-camera', 'onlyYAxis:true');
@@ -1375,15 +1405,15 @@ const app = {
 			rotationControl.appendChild(touchCircle);
 			touchCircle.setAttribute('id', 'touch-circle');
 			touchCircle.setAttribute('geometry', 'primitive:circle; radius: 0.3;');
-			touchCircle.setAttribute('material', 'transparent:true; opacity:0;');
+			touchCircle.setAttribute('visible', 'false');
 			touchCircle.setAttribute("turn-to-camera", '');
 			touchCircle.setAttribute('rotation-handler', 'enabled:false');			
-			const arrow = document.createElement('a-entity');
-			rotationControl.appendChild(arrow);
-			arrow.setAttribute('id', 'rot-handle');
-			arrow.setAttribute('geometry', 'primitive:circle; radius: 0.3;');
-			arrow.setAttribute('rotation', ' 0 0 0');
-			arrow.setAttribute('material', 'src:#arrow');
+			const rotHandle = document.createElement('a-entity');
+			rotationControl.appendChild(rotHandle);
+			rotHandle.setAttribute('id', 'rot-handle');
+			rotHandle.setAttribute('geometry', 'primitive:circle; radius: 0.3;');
+			rotHandle.setAttribute('rotation', ' 0 0 0');
+			rotHandle.setAttribute('material', 'color:#FAF0E6');
 			
 			
 		}

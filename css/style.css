@@ -1169,6 +1169,21 @@ input[type="radio"]:checked + .answer-option {
 #close-cont {
   padding: 10px;
 }
+ /* help-container*/
+
+ div.help-container {
+  position: absolute;
+  bottom: 45px;
+}
+
+img.help-symbol{
+  display: block;
+  position: absolute;
+  left: 12px;
+  float: left;
+  width: 16px;
+  height: 16px;
+}
 
 /* END a-frame */
 

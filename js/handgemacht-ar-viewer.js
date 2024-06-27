@@ -11,6 +11,7 @@ let setError = '';
 //ar specific
 let originalObject;
 let missionMode = false;
+let toolMode = false;
 //tracks if missions are started
 let inMission = false;
 
@@ -40,7 +41,7 @@ AFRAME.registerComponent("controller", {
     reverse: { type: "boolean", default: false },
     mission: { type: "boolean", default: false },
     tool: { type: "boolean", default: false },
-    noMission: { type: "boolean", default: false},
+    noMission: { type: "boolean", default: false },
   },
   init: function () {
     let self = this.el;
@@ -54,6 +55,7 @@ AFRAME.registerComponent("controller", {
     this.startAR = this.startAR.bind(this);
     this.cancelAR = this.cancelAR.bind(this);
     this.activateMission = this.activateMission.bind(this);
+    this.resetActivatedMissions = this.resetActivatedMissions.bind(this);
     //load JSON 
     it.loadJSON();
     //inventar
@@ -80,9 +82,9 @@ AFRAME.registerComponent("controller", {
     });
     self.addEventListener("play-interaction", function (event) {
       let rotateBool = event.detail.rotate;
-      let noMissionBool = event.detail.noMission? true: false;
+      let noMissionBool = !inMission && !currentMission && !currentTool ? true : false;
       self.setAttribute("controller", {
-        raycaster: noMissionBool? noMissionBool: currentMission,
+        raycaster: noMissionBool ? noMissionBool : currentMission,
         tool: currentTool,
         mission: currentMission,
         inventar: currentMission,
@@ -90,42 +92,7 @@ AFRAME.registerComponent("controller", {
         noMission: noMissionBool,
       });
     });
-    //event listener placing, gets information if first contact from local storage
-    self.addEventListener("placingAchieved", function (e) {
-      let storedValue = JSON.parse(localStorage.getItem('firstContact'));
-      if (storedValue === false) it.firstContact = storedValue;
-      else it.firstContact = e.detail;
-      if (it.firstContact) {
-        let message = {
-          showClose: true,
-          content: it.missionExisting ? app.arViewer.firstContactWithMission : app.arViewer.firstContactWithoutMission,
-          color: 'skyblue'
-        }
-        self.emit("showFirstContactMessage", null, false);
-        app.gui.message.setMessage(message);
-        app.gui.message.messageCloseEl.addEventListener('click', (evt) => {
-          let rotation = document.getElementById('rot-handle');
-          self.setAttribute('controller', {
-            raycaster: true,
-            tool: false,
-            mission: false,
-            inventar: false,
-            rotate: true,
-            noMission: true
-          });
-          self.emit('start-tooltip', { description: app.arViewer.rotationTip, point: rotation }, true);
-        }, { once: true });
-      } else {
-        self.setAttribute('controller', {
-          raycaster: true,
-          tool: false,
-          mission: false,
-          inventar: false,
-          rotate: true,
-          noMission: true
-        });
-      }
-    });
+
     //init gui
     it.initGui();
   },
@@ -175,7 +142,7 @@ AFRAME.registerComponent("controller", {
     //no mission mode 
     const noMissionCont = document.getElementById("noMissions");
     const object = document.getElementById("object");
-    if(this.data.noMission){
+    if (this.data.noMission) {
       noMissionCont.object3D.visible = true;
     } else {
       noMissionCont.object3D.visible = false;
@@ -183,7 +150,7 @@ AFRAME.registerComponent("controller", {
     //mission mode
     const missionCont = document.getElementById("missions");
     const missionOverlay = document.getElementById("missionOverlay");
-    
+
     if (this.data.mission) {
       missionMode = true;
       missionCont.object3D.visible = true;
@@ -198,10 +165,12 @@ AFRAME.registerComponent("controller", {
     //tool mode
     const toolsCont = document.querySelector(".toggle-container");
     if (this.data.tool) {
+      toolMode = true;
       self.setAttribute("tools", "enabled", true);
       toolsCont.classList.remove('hide');
     } else {
       if (this.modelLoaded) {
+        toolMode = false;
         self.setAttribute("tools", "enabled", false);
         toolsCont.classList.add('hide');
       }
@@ -226,7 +195,7 @@ AFRAME.registerComponent("controller", {
     const domOverlay = document.getElementById("ar-overlay");
     const missionBtn = document.getElementById("missionBtn");
     const toolsBtn = document.getElementById("toolsBtn");
-    
+
     const replaceButton = document.getElementById("replace-button");
     const wireframe = document.getElementById("wireframe");
     const clipping = document.getElementById("clipping");
@@ -236,12 +205,51 @@ AFRAME.registerComponent("controller", {
     const closeButton = document.querySelector(
       "#close-cont .annotation-close-symbol"
     );
+    const helpCont = document.querySelector('.help-container');
+    const helpButton = document.querySelector('.help-symbol');
 
     //first contact variables
     it.firstContactMission = false;
     it.firstContactTool = false;
     it.firstContactInventar = false;
 
+    //event listener placing, gets information if first contact from local storage
+    self.addEventListener("placingAchieved", function (e) {
+      helpCont.classList.remove("hide");
+      let storedValue = JSON.parse(localStorage.getItem('firstContact'));
+      if (storedValue === false) it.firstContact = storedValue;
+      else it.firstContact = e.detail;
+      if (it.firstContact) {
+        let message = {
+          showClose: true,
+          content: it.missionExisting ? app.arViewer.firstContactWithMission : app.arViewer.firstContactWithoutMission,
+          color: 'skyblue'
+        }
+        self.emit("showFirstContactMessage", null, false);
+        app.gui.message.setMessage(message);
+        app.gui.message.messageCloseEl.addEventListener('click', (evt) => {
+          let rotation = document.getElementById('rot-handle');
+          self.setAttribute('controller', {
+            raycaster: true,
+            tool: false,
+            mission: false,
+            inventar: false,
+            rotate: true,
+            noMission: true
+          });
+          self.emit('start-tooltip', { description: app.arViewer.rotationTip, point: rotation }, true);
+        }, { once: true });
+      } else {
+        self.setAttribute('controller', {
+          raycaster: true,
+          tool: false,
+          mission: false,
+          inventar: false,
+          rotate: true,
+          noMission: true
+        });
+      }
+    });
     //model loaded listener start AR message
     self.addEventListener("model-loaded", function () {
       it.modelLoaded = true;
@@ -285,6 +293,7 @@ AFRAME.registerComponent("controller", {
     // exit ar mode
     self.addEventListener("exit-vr", function () {
       domOverlay.classList.add("hide");
+      helpCont.classList.add("hide");
 
       self.emit("pause-interaction", { rotate: false }, false);
       if (!it.firstContactMission && !it.firstContactTool) {
@@ -319,17 +328,17 @@ AFRAME.registerComponent("controller", {
     // mission menu button clicked
     missionBtn.addEventListener("click", () => {
       if (missionBtn.classList.contains('active')) {
-        devMode && console.log("mission removed")
+        devMode && console.log("inmIssion", inMission);
         self.setAttribute("controller", {
           mission: false,
           tool: false,
           rotate: true,
-          raycaster: true,
+          raycaster: inMission ? false : true,
           inventar: false,
-          noMission: inMission ? false: true,
+          noMission: inMission ? false : true,
         })
         activateButton(null);
-        
+
       } else {
         activateButton(missionBtn);
         if (it.firstContactMission) {
@@ -360,7 +369,7 @@ AFRAME.registerComponent("controller", {
             });
           }, { once: true });
           it.firstContactMission = false;
-         
+
         } else {
           self.setAttribute("controller", {
             mission: true,
@@ -371,21 +380,23 @@ AFRAME.registerComponent("controller", {
             noMission: false
           });
         }
-        if(!inMission){
+        if (!inMission) {
           inMission = true;
           //start preparation
-          self.emit('startPreparation', {animNames: it.preparation}, false);
-          
-          for (let i = 0; i < it.missions.length; i++) {
-            devMode && console.log("startPreparation", it.missions[i]);
-            if (it.missions[i].taskType === "preparation") {
-              it.missions[i].done = true;
-              if (it.missions[i].activates) {
-                
-                it.activateMission(it.missions[i].activates);
+          if (it.preparation) {
+            self.emit('startPreparation', { animNames: it.preparation }, false);
+
+            for (let i = 0; i < it.missions.length; i++) {
+              if (it.missions[i].taskType === "preparation") {
+                it.missions[i].done = true;
+                if (it.missions[i].activates) {
+
+                  it.activateMission(it.missions[i].activates);
+                }
               }
             }
           }
+
         }
       }
     });
@@ -393,14 +404,13 @@ AFRAME.registerComponent("controller", {
     //tools menu button clicked
     toolsBtn.addEventListener("click", () => {
       if (toolsBtn.classList.contains('active')) {
-        devMode && console.log("tool removed")
         self.setAttribute("controller", {
           mission: false,
           tool: false,
           rotate: true,
-          raycaster: inMission ? false: true,
+          raycaster: inMission ? false : true,
           inventar: false,
-          noMission: inMission ? false: true,
+          noMission: inMission ? false : true,
         })
         activateButton(null);
       } else {
@@ -426,7 +436,7 @@ AFRAME.registerComponent("controller", {
 
           app.gui.message.messageButton1El.addEventListener('click', () => {
             app.gui.message.hideMessage();
-                     self.setAttribute("controller", {
+            self.setAttribute("controller", {
               mission: false,
               tool: true,
               rotate: true,
@@ -437,7 +447,7 @@ AFRAME.registerComponent("controller", {
           }, { once: true });
           it.firstContactTool = false;
         } else {
-             self.setAttribute("controller", {
+          self.setAttribute("controller", {
             mission: false,
             tool: true,
             rotate: true,
@@ -460,7 +470,7 @@ AFRAME.registerComponent("controller", {
         tool: false,
       });
       activateButton(null);
-        });
+    });
     //tools toggle wireframe
     wireframe.addEventListener("change", () => {
       wireframe.checked
@@ -501,7 +511,7 @@ AFRAME.registerComponent("controller", {
     })
 
     distanceSlider.addEventListener('touchend', (event) => {
-      devMode && console.log("play distance Slider");
+
       self.emit("play-interaction", { rotate: true }, false);
     })
 
@@ -533,6 +543,42 @@ AFRAME.registerComponent("controller", {
         self.emit("play-interaction", { rotate: true }, false);
       }
     }
+
+    //help button
+    helpButton.addEventListener("click", (e) => {
+
+      let message;
+      if (toolMode) {
+
+        message = {
+          showClose: true,
+          content: app.arViewer.firstContactTool,
+          color: 'terracotta'
+
+        }
+      }
+      else if (missionMode) {
+        message = {
+          showClose: true,
+          content: app.arViewer.firstContactMission,
+          color: 'skyblue'
+
+        }
+
+      } else {
+        message = {
+          showClose: true,
+          content: it.missionExisting ? app.arViewer.firstContactWithMission : app.arViewer.firstContactWithoutMission,
+          color: 'duckyellow'
+        }
+      }
+      self.emit("pause-interaction", { rotate: false }, true);
+      app.gui.message.setMessage(message);
+      app.gui.message.messageCloseEl.addEventListener('click', () => {
+        app.gui.message.hideMessage();
+        self.emit("play-interaction", { rotate: true }, false);
+      }, { once: true });
+    })
   },
   loadJSON: function () {
     let it = this;
@@ -583,7 +629,7 @@ AFRAME.registerComponent("controller", {
 
       gltf_src_orig,
       function (gltf) {
-        devMode && console.log(gltf.scene);
+        devMode && console.log("gltf.scene", gltf.scene);
         originalObject = gltf.scene;
         object.setAttribute("gltf-model", gltf_src);
         placeObject.setAttribute("gltf-model", gltf_src);
@@ -603,6 +649,7 @@ AFRAME.registerComponent("controller", {
     const noMissionsContainer = document.getElementById("noMissions");
     this.el.addEventListener("radius-set", function (event) {
       let radius = event.detail.maxSize / 15;
+      let bigRadius = event.detail.maxSize / 5;
 
       for (let i = 0; i < json.appData.tasks.length; i++) {
         let currentTask = json.appData.tasks[i];
@@ -632,7 +679,7 @@ AFRAME.registerComponent("controller", {
             if (currentTask.searchable == 0) {
               dragElement.setAttribute("material", {
                 shader: "flat",
-                src: currentTask.symbol.imageType === "image" ? dirPath_Media + currentTask.symbol.filename : dirPath_Icon + currentTask.symbol.filename,
+                src: '#dragIcon',
                 transparent: true,
               });
             } else {
@@ -650,21 +697,36 @@ AFRAME.registerComponent("controller", {
             }
 
 
-            dragElement.setAttribute("collider-check", {
-              description: app.arViewer.dragObject,
-            });
+            dragElement.setAttribute("collider-check", "");
             dragElement.setAttribute("distance-tracker", "");
             dragElement.setAttribute(
               "position",
               formatPos(currentTask.positionDrag)
             );
             dragElement.setAttribute("rotation", "-90 0 0");
+
+            taskEl.appendChild(dragElement);
+            let dragTipElement = document.createElement("a-entity");
+            dragTipElement.classList.add(currentClass, "drag");
+            dragTipElement.setAttribute("geometry", {
+              primitive: "circle",
+              radius: bigRadius,
+            });
+            dragTipElement.setAttribute("collider-check", {
+              description: app.arViewer.dragObject,
+            });
+            dragTipElement.setAttribute("position",
+              formatPos(currentTask.positionDrag));
+            dragTipElement.setAttribute("rotation", "-90 0 0");
+            dragTipElement.object3D.visible = false;
+            taskEl.appendChild(dragTipElement);
             if (!currentTask.dependable) {
               dragElement.classList.add("collidable");
+              dragTipElement.classList.add("toolidable");
             } else {
               dragElement.object3D.visible = false;
             }
-            taskEl.appendChild(dragElement);
+            
             let dropElement = document.createElement("a-entity");
             dropElement.classList.add(currentClass, "drop");
             dropElement.setAttribute("geometry", {
@@ -677,9 +739,7 @@ AFRAME.registerComponent("controller", {
               src: "#placer",
               transparent: true,
             });
-            dropElement.setAttribute("collider-check", {
-              description: app.arViewer.dropObject,
-            });
+            dropElement.setAttribute("collider-check","");
             dropElement.setAttribute("turn-to-camera", "");
             dropElement.object3D.visible = false;
             dropElement.setAttribute(
@@ -687,11 +747,26 @@ AFRAME.registerComponent("controller", {
               formatPos(currentTask.positionDrop)
             );
             taskEl.appendChild(dropElement);
+            let dropTipElement = document.createElement("a-entity");
+            dropTipElement.classList.add(currentClass, "tipDrop");
+            dropTipElement.setAttribute("geometry", {
+              primitive: "circle",
+              radius: bigRadius,
+            });
+            dropTipElement.setAttribute("collider-check", {
+              description: app.arViewer.dropObject,
+            });
+            dropTipElement.setAttribute("position",
+              formatPos(currentTask.positionDrop));
+            dropTipElement.setAttribute("turn-to-camera", "");
+            dropTipElement.object3D.visible = false;
+            taskEl.appendChild(dropTipElement);
             break;
           case "point":
             taskEl.setAttribute("point-task", {
               name: currentTask.name,
               description: currentTask.description,
+              searchable: currentTask.searchable,
             });
             if (currentTask.image) {
               taskEl.setAttribute("point-task", {
@@ -733,18 +808,32 @@ AFRAME.registerComponent("controller", {
                 loop: true,
               });
             }
-            element.setAttribute("collider-check", {
-              description: app.arViewer.activatePoint,
-            });
+            element.setAttribute("collider-check","");
             element.setAttribute("distance-tracker", "");
             element.setAttribute("turn-to-camera", "");
             element.setAttribute("position", formatPos(currentTask.position));
+            taskEl.appendChild(element);
+            let tipElement = document.createElement("a-entity");
+            tipElement.classList.add(currentClass);
+            tipElement.setAttribute("geometry", {
+              primitive: "circle",
+              radius: bigRadius,
+            });
+            tipElement.setAttribute("collider-check",  {
+              description: app.arViewer.activatePoint,
+            });
+            tipElement.setAttribute("position",
+              formatPos(currentTask.position));
+            tipElement.setAttribute("turn-to-camera", "");
+            tipElement.object3D.visible = false;
+            taskEl.appendChild(tipElement);
             if (!currentTask.dependable) {
               element.classList.add("collidable");
+              tipElement.classList.add("toolidable");
             } else {
               element.object3D.visible = false;
             }
-            taskEl.appendChild(element);
+            
             break;
           case "quiz":
             taskEl.setAttribute("quiz-task", {
@@ -763,7 +852,7 @@ AFRAME.registerComponent("controller", {
             if (currentTask.searchable = 0) {
               quizEl.setAttribute("material", {
                 shader: "flat",
-                src: "#exclamation",
+                src: "#question",
                 transparent: true,
               });
             }
@@ -781,19 +870,32 @@ AFRAME.registerComponent("controller", {
               });
             }
 
-            quizEl.setAttribute("collider-check", {
-              description: app.arViewer.activateQuiz,
-            });
+            quizEl.setAttribute("collider-check", "");
             quizEl.setAttribute("distance-tracker", "");
             quizEl.setAttribute("turn-to-camera", "");
             quizEl.setAttribute("position", formatPos(currentTask.position));
-
+            taskEl.appendChild(quizEl);
+            let tipQuizEl = document.createElement("a-entity");
+            tipQuizEl.classList.add(currentClass);
+            tipQuizEl.setAttribute("geometry", {
+              primitive: "circle",
+              radius: bigRadius,
+            });
+            tipQuizEl.setAttribute("collider-check",  {
+              description: app.arViewer.activateQuiz,
+            });
+            tipQuizEl.setAttribute("position",
+              formatPos(currentTask.position));
+            tipQuizEl.setAttribute("turn-to-camera", "");
+            tipQuizEl.object3D.visible = false;
+            taskEl.appendChild(tipQuizEl);
             if (!currentTask.dependable) {
               quizEl.classList.add("collidable");
+              tipQuizEl.classList.add("toolidable");
             } else {
               quizEl.object3D.visible = false;
             }
-            taskEl.appendChild(quizEl);
+            
             break;
           case "animation":
             taskEl.setAttribute("animation-task", {
@@ -817,27 +919,41 @@ AFRAME.registerComponent("controller", {
               src: "#playAnim",
               transparent: true,
             });
-            animationEl.setAttribute("collider-check", {
-              description: currentTask.name,
-            });
+            animationEl.setAttribute("collider-check", "");
             animationEl.setAttribute("distance-tracker", "");
             animationEl.setAttribute("turn-to-camera", "");
             animationEl.setAttribute("position", formatPos(currentTask.position));
+            taskEl.appendChild(animationEl);
 
+            let tipAnimEl = document.createElement("a-entity");
+            tipAnimEl.classList.add(currentClass);
+            tipAnimEl.setAttribute("geometry", {
+              primitive: "circle",
+              radius: bigRadius,
+            });
+            tipAnimEl.setAttribute("collider-check",  {
+              description: currentTask.name,
+            });
+            tipAnimEl.setAttribute("position",
+              formatPos(currentTask.position));
+            tipAnimEl.setAttribute("turn-to-camera", "");
+            tipAnimEl.object3D.visible = false;
+            taskEl.appendChild(tipAnimEl);
             if (!currentTask.dependable) {
               animationEl.classList.add("collidable");
+              tipAnimEl.classList.add("toolidable");
             } else {
               animationEl.object3D.visible = false;
             }
-            taskEl.appendChild(animationEl);
+            
             break;
-            case "preparation": 
+          case "preparation":
             it.preparation = currentTask.animName;
             continue;
 
 
         }
-        
+
         if (currentTask.mission) {
           missionsContainer.appendChild(taskEl);
         } else {
@@ -908,10 +1024,10 @@ AFRAME.registerComponent("controller", {
             it.sumPointsPerCategory.animation++;
             break;
         }
-        if(!(mission.taskType == "preparation")){
-            it.sumPoints++;
+        if (!(mission.taskType == "preparation")) {
+          it.sumPoints++;
         }
-        
+
       } else {
         it.noMissions.push({
           taskType: mission.taskType,
@@ -922,13 +1038,12 @@ AFRAME.registerComponent("controller", {
       }
 
     }
-    devMode && console.log("sumPoints", it.sumPoints);
 
     //if point is achieved
 
     this.el.addEventListener("point-achieved", function (event) {
       it.solveMission(event.detail.pointID);
-      
+
     });
   },
   showMissionPopup: function (completed) {
@@ -989,6 +1104,12 @@ AFRAME.registerComponent("controller", {
     }
     this.initInventarClick();
     self.addEventListener("element-added-inventar", function (event) {
+      if(it.firstContactInventar){
+        app.gui.message.showTooltipOverlay(app.arViewer.clickMeTip);
+        app.gui.message.tooltipElOverlay.style.left = '20%';
+        app.gui.message.tooltipElOverlay.style.top = '70%';
+      }
+      
 
       const place = document.querySelector(
         `#inventar div[id="${it.getId(event.detail.origin.classList[0])}"]`
@@ -1020,6 +1141,10 @@ AFRAME.registerComponent("controller", {
       it.dropZones.forEach((element) => {
         element.classList.remove("collidable");
       });
+      it.tipDropZones = document.querySelectorAll(".tipDrop");
+      it.tipDropZones.forEach((element) => {
+        element.classList.remove("toolidable");
+      });
     });
   },
   getId: function (origin) {
@@ -1036,6 +1161,10 @@ AFRAME.registerComponent("controller", {
     places.forEach((place) => {
       i++;
       place.addEventListener("click", () => {
+        if(it.firstContactInventar){
+          app.gui.message.hideTooltipOverlay();
+          it.firstContactInventar = false;
+        }
         let placeId = i;
         //if place is already clicked
         if (place.classList.contains("clicked")) {
@@ -1073,53 +1202,62 @@ AFRAME.registerComponent("controller", {
             element.classList.remove("collidable");
           }
         });
+        const tipDropZones = document.querySelectorAll(".tipDrop");
+        tipDropZones.forEach((element) => {
+          if (it.oneSelected) {
+            if (!element.classList.contains("toolidable")) {
+              element.classList.add("toolidable");
+            }
+          } else {
+            element.classList.remove("toolidable");
+          }
+        });
       });
     });
   },
   solveMission: function (pointID) {
     let currentID = pointID;
-    if(missionMode){
-       //add point general
-    this.currentPoints++;
-    this.scoreField.textContent = `${this.currentPoints}/${this.sumPoints}`;
-    for (let i = 0; i < this.missions.length; i++) {
-      if (this.missions[i].id === currentID) {
-        this.missions[i].done = true;
-        if (this.missions[i].activates) {
-          this.activateMission(this.missions[i].activates);
+    if (missionMode) {
+      //add point general
+      this.currentPoints++;
+      this.scoreField.textContent = `${this.currentPoints}/${this.sumPoints}`;
+      for (let i = 0; i < this.missions.length; i++) {
+        if (this.missions[i].id === currentID) {
+          this.missions[i].done = true;
+          if (this.missions[i].activates) {
+            this.activateMission(this.missions[i].activates);
+          }
         }
       }
-    }
-    
-   
 
-    //actualize points per category    
 
-    for (let i = 0; i < this.missions.length; i++) {
-      if (this.missions[i].id === currentID) {
-        switch (this.missions[i].taskType) {
-          case "dragDrop":
-            this.currentPointsPerCategory.dragDrop++;
-            break;
-          case "point":
-            this.currentPointsPerCategory.point++;
-            break;
-          case "quiz":
-            this.currentPointsPerCategory.quiz++;
-            break;
-          case "animation":
-            this.currentPointsPerCategory.animation++;
-            break;
+
+      //actualize points per category    
+
+      for (let i = 0; i < this.missions.length; i++) {
+        if (this.missions[i].id === currentID) {
+          switch (this.missions[i].taskType) {
+            case "dragDrop":
+              this.currentPointsPerCategory.dragDrop++;
+              break;
+            case "point":
+              this.currentPointsPerCategory.point++;
+              break;
+            case "quiz":
+              this.currentPointsPerCategory.quiz++;
+              break;
+            case "animation":
+              this.currentPointsPerCategory.animation++;
+              break;
+          }
         }
       }
-    }
-  }else{
-    
-      for(let i = 0; i < this.noMissions.length; i++) {
-        if(this.noMissions[i].id === currentID) {
-          
-          if (this.noMissions[i].activates ) {
-            devMode && console.log("activate?", this.noMissions[i].activates);
+    } else {
+
+      for (let i = 0; i < this.noMissions.length; i++) {
+        if (this.noMissions[i].id === currentID) {
+
+          if (this.noMissions[i].activates) {
             this.activateNoMission(this.noMissions[i].activates);
           }
         }
@@ -1135,25 +1273,24 @@ AFRAME.registerComponent("controller", {
     }
   },
   activateMission: function (depId) {
-    devMode && console.log("missionActivate", depId);
     const missionGroup = document.getElementById("missions");
-    const dependableMission = missionGroup.querySelector("."+ depId).object3D;
+    const dependableMission = missionGroup.querySelector("." + depId).object3D;
     dependableMission.children[0].visible = true;
     dependableMission.children[0].el.classList.add("collidable");
-    this.el.emit('mission-activated', {id: depId}, false);
+    dependableMission.children[1].el.classList.add("toolidable");
+    this.el.emit('mission-activated', { id: depId }, false);
   },
   activateNoMission: function (id) {
-    devMode && console.log("noMissionActivate", id);
     const noMissionGroup = document.getElementById("noMissions");
-    const dependableNoMission = noMissionGroup.querySelector("."+ id).object3D;
+    const dependableNoMission = noMissionGroup.querySelector("." + id).object3D;
     dependableNoMission.children[0].visible = true;
     dependableNoMission.children[0].el.classList.add("collidable");
+    dependableNoMission.children[1].el.classList.add("toolidable");
   },
   showMissionFinished: function () {
-
-    const scoreCont = document.getElementById("score-container");
-    const exclamationMark = scoreCont.querySelector(".exclamation-mark");
-    exclamationMark.classList.remove("hide");
+    app.gui.message.showTooltipOverlay(app.arViewer.clickTip);
+        app.gui.message.tooltipElOverlay.style.left = '5%';
+        app.gui.message.tooltipElOverlay.style.top = '7%';
 
   },
   restartMissions: function (event) {
@@ -1169,22 +1306,38 @@ AFRAME.registerComponent("controller", {
       reverse: true,
       rotate: true,
     });
- 
+
   },
   resetActivatedMissions: function () {
+    const self = this.el;
+    const it = this;
     const missionGroup = document.getElementById("missions");
     for (let mission of this.missions) {
       if (mission.depends === true) {
-        let missionEl = missionGroup.querySelector('.point' + mission.id).object3D;
+        let missionEl = missionGroup.querySelector("." + mission.id).object3D;
         missionEl.children[0].visible = false;
         missionEl.children[0].el.classList.remove("collidable");
+        missionEl.children[1].el.classList.remove("toolidable");
       }
     }
+    if (it.preparation) {
+      self.emit('startPreparation', { animNames: it.preparation }, false);
+
+      for (let i = 0; i < it.missions.length; i++) {
+        if (it.missions[i].taskType === "preparation") {
+          it.missions[i].done = true;
+          if (it.missions[i].activates) {
+
+            it.activateMission(it.missions[i].activates);
+          }
+        }
+      }
+    }
+
   },
   resetScore: function () {
     const scoreCont = document.getElementById("score-container");
-    const exclamationMark = scoreCont.querySelector(".exclamation-mark");
-    exclamationMark.classList.add("hide");
+    app.gui.message.hideTooltipOverlay();
     scoreCont.classList.remove("hide");
     this.currentPoints = 0;
     Object.keys(this.currentPointsPerCategory).forEach(key => {
@@ -1394,10 +1547,11 @@ AFRAME.registerComponent("collider-check", {
     let self = this.el;
 
     this.checkCursor = this.checkCursor.bind(this);
-
     self.addEventListener("raycaster-intersected", this.checkCursor);
     self.addEventListener("raycaster-intersected-cleared", function () {
-      self.emit("collided-ended");
+      devMode &&  console.log(self.classList);
+      if (self.classList.contains("collidable")) self.emit("collided-ended");
+      else if(self.classList.contains("toolidable")) self.emit("tool-collided-ended");
     });
   },
   update: function () {
@@ -1407,16 +1561,22 @@ AFRAME.registerComponent("collider-check", {
     self.addEventListener("raycaster-intersected", it.checkCursor);
   },
   checkCursor: function (event) {
+    let self = this.el;
     let cursor = event.detail.el;
 
     let desc = this.data.description;
     let firstCollidedObject = cursor.components.raycaster.intersectedEls[0];
-    if (firstCollidedObject.getAttribute("id") == "object") return;
-       
-    if((!missionMode && !firstCollidedObject.parentElement.classList.contains('noMission')) || (!missionMode && inMission)){
+   
+    if ((missionMode && self.parentElement.classList.contains("noMission")) || (inMission && self.parentElement.classList.contains("noMission"))) {
       return;
     }
-    this.el.emit("collided", { description: desc, point: event.target }, true);
+    if ((!missionMode) && (!self.parentElement.classList.contains("noMission"))) {
+      return;
+    }
+    if (self.classList.contains("toolidable")) self.emit("tool-collided", { description: desc }, true);
+     if (firstCollidedObject.getAttribute("id") == "object") return;
+    if (self.classList.contains("collidable")) self.emit("collided", true);
+    
   },
 });
 
@@ -1426,11 +1586,14 @@ AFRAME.registerComponent("animation-handler", {
     let self = this.el;
     let currentClass;
     let srcElement;
+    let srcTipElement;
     let animationComplete = false;
     //animation to activate
     self.sceneEl.addEventListener("collided", function (event) {
       // test if a new point is activated
       srcElement = event.srcElement;
+      
+      devMode && console.log("src", srcElement);
       let from =
         currentClass == event.srcElement.classList
           ? self.getAttribute("geometry").thetaLength
@@ -1445,20 +1608,23 @@ AFRAME.registerComponent("animation-handler", {
       self.emit(`startRing`, null, false);
       //vibration for starting avtivation
       navigator.vibrate(5);
+
+      currentClass = event.srcElement.classList;
+    });
+    //activate tooltip
+    self.sceneEl.addEventListener("tool-collided", function (event) {
       //add text
       self.emit(
         "start-tooltip",
-        { description: event.detail.description, point: event.detail.point },
+        { description: event.detail.description, point: event.srcElement },
         true
       );
-      currentClass = event.srcElement.classList;
-    });
+    })
     //animation to reverse activation
     self.sceneEl.addEventListener("collided-ended", function (event) {
-      self.emit("stop-tooltip", null, true);
+
       if (animationComplete) {
-        animationComplete = false;
-        self.setAttribute("geometry", "thetaLength", 0);
+        
         return;
       }
       self.setAttribute("animation", {
@@ -1470,20 +1636,26 @@ AFRAME.registerComponent("animation-handler", {
       self.emit(`startRing`, null, false);
       // remove text
     });
+    self.sceneEl.addEventListener("tool-collided-ended", function (event) {
+      self.emit("stop-tooltip", null, true);
+    });
 
     self.addEventListener("animationcomplete", function (event) {
       if (self.getAttribute("geometry").thetaLength == 360) {
-        animationComplete = true;
+        self.setAttribute("geometry", "thetaLength", 0);
         //vibrate for acitivation
         navigator.vibrate([10, 50, 80]);
+        srcTipElement = srcElement.nextElementSibling;
         //event for components: place-element
-        self.emit("point-to-play-trigger", { point: srcElement }, true);
+        self.emit("point-to-play-trigger", { point: srcElement, tipPoint: srcTipElement}, true);
+       
+        self.emit("stop-tooltip", null, true);
       }
     });
   },
 });
 
-//VISIBILITY-HANDLER: handles cursor text visibility
+//VISIBILITY-HANDLER: handles tooltip visibility
 AFRAME.registerComponent("visibility-handler", {
   init: function () {
     let self = this.el;
@@ -1513,7 +1685,7 @@ AFRAME.registerComponent("visibility-handler", {
         y: Math.round((0.5 - targetPosition.y / 2) * (canvas.height / window.devicePixelRatio))
       }
 
-      app.gui.message.tooltipElAr.style.left = (targetScreenPosition.x - app.gui.message.tooltipElAr.clientWidth / 2) + "px";
+      app.gui.message.tooltipElAr.style.left = (targetScreenPosition.x - app.gui.message.tooltipElAr.clientWidth) + "px";
       app.gui.message.tooltipElAr.style.top = (targetScreenPosition.y + 50) + "px";
 
     }
@@ -1554,6 +1726,7 @@ AFRAME.registerComponent("distance-tracker", {
       if (self.object3D.children[0].el.getAttribute("visible") === true) {
         self.object3D.children[0].el.classList.remove("collidable");
       }
+
     });
     this.el.sceneEl.addEventListener("distance-middle", (event) => {
       self.object3D.children[0].el.setAttribute("material", "opacity", 0.5);
@@ -1596,13 +1769,22 @@ AFRAME.registerComponent("distance-listener", {
       if (distance > this.distanceLong && !(this.lastGroup == "far")) {
         this.lastGroup = "far";
         this.el.emit("distance-far", null, true);
+        app.gui.message.showTooltipOverlay(app.arViewer.farAwayTip);
+        app.gui.message.tooltipElOverlay.style.left = '5%';
+        app.gui.message.tooltipElOverlay.style.top = '60%';
+
       } else if (
         distance < this.distanceLong &&
         distance > this.distanceMiddle &&
         !(this.lastGroup == "middle")
       ) {
+         if(this.lastGroup =="far"){
+          app.gui.message.hideTooltipOverlay();
+        }
         this.lastGroup = "middle";
         this.el.emit("distance-middle", null, true);
+       
+        
       } else if (distance < this.distanceMiddle && !(this.lastGroup == "near")) {
         this.lastGroup = "near";
         this.el.emit("distance-near", null, true);
@@ -1725,13 +1907,13 @@ AFRAME.registerComponent("rotation-handler", {
   },
   endTouch: function (event) {
     this.canvas.removeEventListener("touchmove", this.trackTouch);
-    devMode && console.log("play distance endTouch");
     this.el.emit("play-interaction", { rotate: true }, true);
     this.touches.length = 0;
     this.arrayPos = this.pos;
+    const rotControl = document.getElementById('rotation-ring');
     const rotHandle = document.getElementById('rot-handle');
-    rotHandle.setAttribute('material', 'src', '#arrow');
-    rotHandle.removeAttribute('material', 'color');
+    rotControl.setAttribute('material', 'src', '#arrow');
+    rotHandle.setAttribute('material', 'color', '#FAF0E6');
 
     this.canvas.removeEventListener("touchend", this.endTouch);
   },
@@ -1756,17 +1938,17 @@ AFRAME.registerComponent("get-bounding-box", {
           let radiusInner = radius + (radius / 6);
           let radiusOuter = radius + (radius / 6 + 0.01);
           let largest = Math.max(size.x, size.y, size.z);
+          let radiusMiddle = (radiusInner + radiusOuter) / 2;
           //set radius
           ringEl.setAttribute("geometry", {
-            radiusInner: radiusInner,
-            radiusOuter: radiusOuter,
+            radius: radiusMiddle,
           });
 
-          let radiusMiddle = (radiusInner + radiusOuter) / 2;
+
           ringEl.children[0].object3D.position.x = radiusMiddle;
           ringEl.children[0].setAttribute("geometry", "radius", radiusMiddle);
           ringEl.children[1].object3D.position.x = radiusMiddle;
-          ringEl.children[1].setAttribute("geometry", "radius", radiusMiddle / 4);
+          ringEl.children[1].setAttribute("geometry", "radius", radiusMiddle / 6);
           //emit radius to rotation handler
           self.emit(
             "radius-set",
@@ -1866,9 +2048,9 @@ AFRAME.registerComponent('animation-mixer', {
   schema: {
     startClip: { default: null },
     stopClip: { default: null },
-    stopAllClip: {default:false},
+    stopAllClip: { default: false },
     clampWhenFinished: { default: false, type: 'boolean' },
-    repetition: { default: false, type: 'boolean'},
+    repetition: { default: false, type: 'boolean' },
     startAt: { default: 0 }
   },
 
@@ -1881,7 +2063,7 @@ AFRAME.registerComponent('animation-mixer', {
     this.activeActions = [];
 
     const model = this.el.getObject3D('mesh');
-    
+
 
     if (model) {
       this.load(model);
@@ -1906,13 +2088,12 @@ AFRAME.registerComponent('animation-mixer', {
       el.emit('animation-finished', { action: e.action, direction: e.direction });
     });
     el.sceneEl.addEventListener('startPreparation', (e) => {
-      devMode && console.log("event startPrep", e.detail.animNames);
       it.stopAllAction();
       let animNames = e.detail.animNames;
-      for (let anim of animNames){
+      for (let anim of animNames) {
         it.playAction(anim, false, 0, true);
       }
-      
+
 
     });
     if (this.data.clip) this.update({});
@@ -1924,42 +2105,40 @@ AFRAME.registerComponent('animation-mixer', {
 
   update: function (prevData) {
     if (!prevData) return;
-    if(this.data.startClip){
-      devMode && console.log("startClip", this.data.startClip);
+    if (this.data.startClip) {
       this.playAction(this.data.startClip, this.data.repetition, this.data.startAt, this.data.clampWhenFinished);
     }
-    if(this.data.stopClip){
-      devMode && console.log("stopClip", this.data.stopClip);
+    if (this.data.stopClip) {
       this.stopAction(this.data.stopClip);
     }
-    if(this.data.stopAllClip){
+    if (this.data.stopAllClip) {
       this.stopAllAction();
     }
-    
+
   },
 
   stopAction: function (animName) {
 
     for (let i = 0; i < this.activeActions.length; i++) {
-      if(this.activeActions[i].getClip().name == animName){
+      if (this.activeActions[i].getClip().name == animName) {
         this.activeActions[i].stop();
       }
-     
+
     }
-    
+
   },
-  stopAllAction: function (){
+  stopAllAction: function () {
     for (let i = 0; i < this.activeActions.length; i++) {
       this.activeActions[i].stop();
-     }
-     this.activeActions.length = 0;
+    }
+    this.activeActions.length = 0;
   },
 
   playAction: function (animName, repetition, startAt, clamp) {
     if (!this.mixer) return;
 
     const model = this.model,
-      clips = model.animations ;
+      clips = model.animations;
 
     if (!clips.length) return;
 
@@ -1974,9 +2153,8 @@ AFRAME.registerComponent('animation-mixer', {
         // AnimationAction.startAt indicates when to start the animation (from the 1st frame),
         // measured in global mixer time, in seconds.
         action.startAt(this.mixer.time - startAt / 1000);
-        devMode && console.log("reptition", repetition);
-        let loopMode = repetition? THREE.LoopRepeat: THREE.LoopOnce;
-        let rep = repetition? Infinity: 1;
+        let loopMode = repetition ? THREE.LoopRepeat : THREE.LoopOnce;
+        let rep = repetition ? Infinity : 1;
         action
           .setLoop(LoopMode[loopMode], rep)
           .play();
@@ -2034,6 +2212,7 @@ AFRAME.registerComponent("drag-drop-task", {
         if (evt.detail.point.classList.contains("drag")) {
           evt.detail.point.object3D.visible = false;
           evt.detail.point.classList.remove("collidable");
+          evt.detail.tipPoint.classList.remove("toolidable");
           //show popup
           it.showPopUp(
             it.data.name,
@@ -2050,13 +2229,15 @@ AFRAME.registerComponent("drag-drop-task", {
           if (self.classList.contains("selected")) {
 
             evt.detail.point.setAttribute("material", { src: "#book" });
-            evt.detail.point.setAttribute("collider-check", {
+            evt.detail.tipPoint.setAttribute("collider-check", {
               description: app.arViewer.showBook,
             });
             evt.detail.point.setAttribute("distance-tracker", "");
             //change class to book
             evt.detail.point.classList.remove("drop");
+            evt.detail.tipPoint.classList.remove("tipDrop");
             evt.detail.point.classList.add("book", "collidable");
+            evt.detail.tipPoint.classList.add("book", "toolidable");
             it.removeInventar();
 
             it.showPopUp(
@@ -2151,13 +2332,17 @@ AFRAME.registerComponent("drag-drop-task", {
   reverse: function (self) {
     self.children[0].object3D.visible = true;
     self.children[0].classList.add("collidable");
+    self.children[1].classList.add("toolidable");
 
-    self.children[1].object3D.visible = false;
-    self.children[1].classList.remove("book");
-    self.children[1].classList.add("drop");
-    self.children[1].classList.remove("collidable");
-    self.children[1].setAttribute("material", { src: "#placer" });
-    self.children[1].setAttribute("collider-check", {
+    self.children[2].object3D.visible = false;
+    self.children[2].classList.remove("book");
+    self.children[3].classList.remove("book");
+    self.children[2].classList.add("drop");
+    self.children[3].classList.add("tipDrop");
+    self.children[2].classList.remove("collidable");
+    self.children[3].classList.remove("toolidable");
+    self.children[2].setAttribute("material", { src: "#placer" });
+    self.children[3].setAttribute("collider-check", {
       description: app.arViewer.dropObject,
     });
   },
@@ -2196,6 +2381,10 @@ AFRAME.registerComponent("point-task", {
       type: "string",
       default: "",
     },
+    searchable: {
+      type: "int",
+      default: 1,
+    }
   },
   init: function () {
     let self = this.el;
@@ -2208,7 +2397,7 @@ AFRAME.registerComponent("point-task", {
       if (evt.detail.point.classList[0] == self.classList[0]) {
         evt.detail.point.removeAttribute("spritesheet-animation");
         evt.detail.point.setAttribute("material", { src: "#book" });
-        evt.detail.point.setAttribute("collider-check", {
+        evt.detail.tipPoint.setAttribute("collider-check", {
           description: app.arViewer.showBook,
         });
         //count points
@@ -2288,14 +2477,24 @@ AFRAME.registerComponent("point-task", {
     }, { once: true });
   },
   reverse: function (self, it) {
-    self.children[0].setAttribute("spritesheet-animation", {
-      rows: 4,
-      columns: 4,
-      frameDuration: 0.08,
-      loop: true,
-    }),
+    if (it.data.searchable == 0) {
+      self.children[0].setAttribute("material", {
+        shader: "flat",
+        src: '#exclamation',
+        transparent: true,
+      });
+    } else {
+      self.children[0].setAttribute("spritesheet-animation", {
+        rows: 4,
+        columns: 4,
+        frameDuration: 0.08,
+        loop: true,
+      });
+
+
       self.children[0].setAttribute("material", { src: "#sprite" });
-    self.children[0].setAttribute("collider-check", {
+    }
+    self.children[1].setAttribute("collider-check", {
       description: app.arViewer.activatePoint,
     });
     it.firstTime = true;
@@ -2407,7 +2606,7 @@ AFRAME.registerComponent("quiz-task", {
         // Prevent default click behavior on radio buttons
         this.disableRadios();
         this.el.children[0].setAttribute("material", { src: "#book" });
-        this.el.children[0].setAttribute("collider-check", {
+        this.el.children[1].setAttribute("collider-check", {
           description: app.arViewer.showBook,
         });
         this.solved = true;
@@ -2436,8 +2635,24 @@ AFRAME.registerComponent("quiz-task", {
   },
   reverse: function (self, it) {
     it.solved = false;
-    self.children[0].setAttribute("material", { src: "" });
-    self.children[0].setAttribute("collider-check", {
+    if (it.data.searchable == 0) {
+      self.children[0].setAttribute("material", {
+        shader: "flat",
+        src: '#question',
+        transparent: true,
+      });
+    } else {
+      self.children[0].setAttribute("spritesheet-animation", {
+        rows: 4,
+        columns: 4,
+        frameDuration: 0.08,
+        loop: true,
+      });
+
+
+      self.children[0].setAttribute("material", { src: "#sprite" });
+    }
+    self.children[1].setAttribute("collider-check", {
       description: app.arViewer.activateQuiz,
     });
   },
@@ -2449,9 +2664,9 @@ AFRAME.registerComponent("animation-task", {
     animName: { type: "string", default: null },
     repetition: { type: "boolean", default: true },
     animFinished: { type: "int", default: 0 },
-    deactivatesAnimName: {type: "string", default: null},
-    descriptionStart: {type: "string", default: null},
-    descriptionEnd: {type: "string", default: null},
+    deactivatesAnimName: { type: "string", default: null },
+    descriptionStart: { type: "string", default: null },
+    descriptionEnd: { type: "string", default: null },
   },
   init: function () {
     let self = this.el;
@@ -2460,39 +2675,39 @@ AFRAME.registerComponent("animation-task", {
     this.firstTime = true;
     this.object = document.getElementById('object');
 
-    if(it.data.descriptionStart){
-    this.el.sceneEl.addEventListener('mission-activated', function (evt){
-      if(self.classList[0] === evt.detail.id){
-        devMode && console.log("mission-activated", evt.detail);
-        it.showPopUp(it.data.descriptionStart);
-      }
-    })
-  }
-    if(it.data.descriptionEnd){
-      self.sceneEl.addEventListener('animation-finished', function (evt){
-
-      if(it.data.animName == evt.detail.action.getClip().name){
-        it.showPopUp(it.data.descriptionEnd);
-      }
-    })
+    if (it.data.descriptionStart) {
+      this.el.sceneEl.addEventListener('mission-activated', function (evt) {
+        if (self.classList[0] === evt.detail.id) {
+          it.showPopUp(it.data.descriptionStart);
+        }
+      })
     }
-   
+    if (it.data.descriptionEnd) {
+      self.sceneEl.addEventListener('animation-finished', function (evt) {
+        if (it.data.animName == evt.detail.action.getClip().name && !it.firstTime) {
+          it.showPopUp(it.data.descriptionEnd);
+        }
+      })
+    }
+
 
     this.el.sceneEl.addEventListener("point-to-play-trigger", function (evt) {
       if (evt.detail.point.classList[0] == self.classList[0]) {
         it.object.setAttribute('animation-mixer', `startClip:${it.data.animName}; stopClip:${it.data.deactivatesAnimName}; repetition:${it.data.repetition}; clampWhenFinished:true; startAt: ${it.data.animFinished}`);
         if (it.firstTime || !missionMode) {
-          if(missionMode){
-          evt.detail.point.setAttribute("material", { src: "#book" });
-          evt.detail.point.setAttribute("collider-check", {
-            description: app.arViewer.restartAnim,
-          });}
+          if (missionMode) {
+            evt.detail.point.setAttribute("material", { src: "#book" });
+            evt.detail.tipPoint.setAttribute("collider-check", {
+              description: app.arViewer.restartAnim,
+            });
+          }
           //emit to mission or noMission list
           self.emit("point-achieved", { pointID: self.classList[0] }, true);
           it.firstTime = false;
         }
         if (!it.data.repetition) {
           evt.detail.point.classList.remove("collidable");
+          evt.detail.tipPoint.classList.remove("toolidable");
           evt.detail.point.object3D.visible = false;
         }
       }
@@ -2510,8 +2725,8 @@ AFRAME.registerComponent("animation-task", {
       color: 'skyblue'
     }
     function getContent() {
-    
-   
+
+
       let description = `<p>${desc}</p>`
       return description;
 
@@ -2535,9 +2750,10 @@ AFRAME.registerComponent("animation-task", {
   },
   reverse: function (self, it) {
     self.children[0].classList.add('collidable');
+    self.children[1].classList.add('toolidable');
     self.children[0].object3D.visible = true;
     self.children[0].setAttribute("material", { src: '#playAnim' });
-    self.children[0].setAttribute("collider-check", {
+    self.children[1].setAttribute("collider-check", {
       description: it.data.name,
     });
     it.firstTime = true;
