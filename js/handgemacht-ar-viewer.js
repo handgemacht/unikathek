@@ -32,7 +32,7 @@ urlParams.get('model') ? primaryKey = urlParams.get('model') : setError = '001';
 //END Search URL Parameters
 
 
-//CONTROLLER: loads JSON model and missions, controls different modes: placing, tools, missions, inventar, score
+//CONTROLLER: loads JSON model, missions, gui | controls start and first Contact | states:  raycaster, tools, missions, inventar, score, reverse, noMissions
 AFRAME.registerComponent("controller", {
   schema: {
     raycaster: { type: "boolean", default: false },
@@ -54,15 +54,13 @@ AFRAME.registerComponent("controller", {
     this.resetScore = this.resetScore.bind(this);
     this.startAR = this.startAR.bind(this);
     this.cancelAR = this.cancelAR.bind(this);
+    this.activatePreparation = this.activatePreparation.bind(this);
     this.activateMission = this.activateMission.bind(this);
     this.resetActivatedMissions = this.resetActivatedMissions.bind(this);
     //load JSON 
     it.loadJSON();
-    //inventar
-    this.inventar = [];
-    this.oneSelected = false;
-    this.modelLoaded = false;
-
+    //init gui
+    it.initGui();
     //interaction pause/play listener for rotation and popups
     let currentMission, currentTool;
     self.addEventListener("pause-interaction", function (event) {
@@ -93,9 +91,9 @@ AFRAME.registerComponent("controller", {
       });
     });
 
-    //init gui
-    it.initGui();
+
   },
+  //turns on or off the components or/and the visibility
   update: function () {
     let self = this.el;
     //reverse missions
@@ -107,12 +105,10 @@ AFRAME.registerComponent("controller", {
         element.el.classList.remove("selected");
       }
       this.inventar.length = 0;
-
       self.emit("missions-reversed", null, false);
       this.resetActivatedMissions();
       //reset score
       this.resetScore();
-
       self.setAttribute("controller", "reverse", false);
       return;
     }
@@ -125,6 +121,7 @@ AFRAME.registerComponent("controller", {
       self.camera.el.children[0].setAttribute("raycaster", "enabled", "false");
       self.camera.el.children[0].object3D.visible = false;
     }
+
     // show or hide inventar
     const inventar = document.querySelector("#inventar");
     if (this.data.inventar) {
@@ -132,6 +129,7 @@ AFRAME.registerComponent("controller", {
     } else {
       inventar.classList.add("hide");
     }
+
     //on or off rotate
     const rotHandle = document.getElementById("touch-circle");
     if (this.data.rotate) {
@@ -139,6 +137,7 @@ AFRAME.registerComponent("controller", {
     } else {
       rotHandle.setAttribute("rotation-handler", "enabled", "false");
     }
+
     //no mission mode 
     const noMissionCont = document.getElementById("noMissions");
     const object = document.getElementById("object");
@@ -147,6 +146,7 @@ AFRAME.registerComponent("controller", {
     } else {
       noMissionCont.object3D.visible = false;
     }
+
     //mission mode
     const missionCont = document.getElementById("missions");
     const missionOverlay = document.getElementById("missionOverlay");
@@ -162,6 +162,7 @@ AFRAME.registerComponent("controller", {
       missionOverlay.classList.add("hide");
       object.setAttribute("distance-listener", "enabled", "false");
     }
+
     //tool mode
     const toolsCont = document.querySelector(".toggle-container");
     if (this.data.tool) {
@@ -192,10 +193,10 @@ AFRAME.registerComponent("controller", {
   initGui: function () {
     let self = this.el;
     let it = this;
+
     const domOverlay = document.getElementById("ar-overlay");
     const missionBtn = document.getElementById("missionBtn");
     const toolsBtn = document.getElementById("toolsBtn");
-
     const replaceButton = document.getElementById("replace-button");
     const wireframe = document.getElementById("wireframe");
     const clipping = document.getElementById("clipping");
@@ -213,7 +214,44 @@ AFRAME.registerComponent("controller", {
     it.firstContactTool = false;
     it.firstContactInventar = false;
 
-    //event listener placing, gets information if first contact from local storage
+    //after model loaded show welcome message
+    self.addEventListener("model-loaded", function () {
+      it.modelLoaded = true;
+      app.gui.loadingScreen.hideLoadingScreen();
+      //message to start ar
+      let message = {
+        type: app.arViewer.name,
+        showClose: false,
+        content: app.arViewer.welcomeMessage,
+        color: 'skyblue',
+        button1: { content: app.arViewer.yes, color: 'pearlwhite', shadow: 'coalgrey' },
+        button2: { content: app.arViewer.no, color: 'pearlwhite', shadow: 'coalgrey' },
+      }
+      app.gui.message.setMessage(message);
+      app.gui.message.messageButton1El.addEventListener('click', it.startAR, { once: true });
+      app.gui.message.messageButton2El.addEventListener('click', it.cancelAR, { once: true });
+    });
+
+    //after start AR
+    self.addEventListener("enter-vr", function () {
+      domOverlay.classList.remove("hide");
+      activateButton(null);
+      //show welcome message
+      let message = {
+        showClose: false,
+        content: app.arViewer.startPlacing,
+        color: 'terracotta',
+        button1: { content: app.arViewer.startPlacingButton, color: 'pearlwhite', shadow: 'coalgrey' },
+      }
+
+      app.gui.message.setMessage(message);
+      app.gui.message.messageButton1El.addEventListener('click', (e) => {
+        self.emit("ready-for-placing", null, true);
+      }, { once: true });
+
+    });
+
+    //after object is placed, gets information if first contact from local storage
     self.addEventListener("placingAchieved", function (e) {
       helpCont.classList.remove("hide");
       let storedValue = JSON.parse(localStorage.getItem('firstContact'));
@@ -250,46 +288,7 @@ AFRAME.registerComponent("controller", {
         });
       }
     });
-    //model loaded listener start AR message
-    self.addEventListener("model-loaded", function () {
-      it.modelLoaded = true;
-      app.gui.loadingScreen.hideLoadingScreen();
-      //message to start ar
-      //TODO src Icon Entdeckermodus
-      let message = {
-        type: app.arViewer.name,
-        showClose: false,
-        content: app.arViewer.welcomeMessage,
-        color: 'skyblue',
-        button1: { content: app.arViewer.yes, color: 'pearlwhite', shadow: 'coalgrey' },
-        button2: { content: app.arViewer.no, color: 'pearlwhite', shadow: 'coalgrey' },
-      }
-      app.gui.message.setMessage(message);
-      app.gui.message.messageButton1El.addEventListener('click', it.startAR, { once: true });
-      app.gui.message.messageButton2El.addEventListener('click', it.cancelAR, { once: true });
-    });
 
-    //after start ar mode
-    self.addEventListener("enter-vr", function () {
-      domOverlay.classList.remove("hide");
-      activateButton(null);
-      //show welcome message
-
-      let message = {
-        showClose: false,
-        //TODO src Icon Platzieren
-        content: app.arViewer.startPlacing,
-        color: 'terracotta',
-        button1: { content: app.arViewer.startPlacingButton, color: 'pearlwhite', shadow: 'coalgrey' },
-      }
-
-      app.gui.message.setMessage(message);
-      app.gui.message.messageButton1El.addEventListener('click', startPlacing, { once: true });
-
-    });
-    function startPlacing(event) {
-      self.emit("ready-for-placing", null, true);
-    }
     // exit ar mode
     self.addEventListener("exit-vr", function () {
       domOverlay.classList.add("hide");
@@ -328,7 +327,6 @@ AFRAME.registerComponent("controller", {
     // mission menu button clicked
     missionBtn.addEventListener("click", () => {
       if (missionBtn.classList.contains('active')) {
-        devMode && console.log("inmIssion", inMission);
         self.setAttribute("controller", {
           mission: false,
           tool: false,
@@ -383,20 +381,7 @@ AFRAME.registerComponent("controller", {
         if (!inMission) {
           inMission = true;
           //start preparation
-          if (it.preparation) {
-            self.emit('startPreparation', { animNames: it.preparation }, false);
-
-            for (let i = 0; i < it.missions.length; i++) {
-              if (it.missions[i].taskType === "preparation") {
-                it.missions[i].done = true;
-                if (it.missions[i].activates) {
-
-                  it.activateMission(it.missions[i].activates);
-                }
-              }
-            }
-          }
-
+          it.activatePreparation();
         }
       }
     });
@@ -429,9 +414,7 @@ AFRAME.registerComponent("controller", {
             content: app.arViewer.firstContactTool,
             color: 'terracotta',
             button1: { content: app.arViewer.allRight, color: 'pearlwhite', shadow: 'coalgrey' },
-
           }
-
           app.gui.message.setMessage(message);
 
           app.gui.message.messageButton1El.addEventListener('click', () => {
@@ -459,7 +442,6 @@ AFRAME.registerComponent("controller", {
       }
 
     });
-
     //replace object button
     replaceButton.addEventListener("click", function () {
       self.emit("new-placement", null, true);
@@ -511,7 +493,6 @@ AFRAME.registerComponent("controller", {
     })
 
     distanceSlider.addEventListener('touchend', (event) => {
-
       self.emit("play-interaction", { rotate: true }, false);
     })
 
@@ -546,15 +527,12 @@ AFRAME.registerComponent("controller", {
 
     //help button
     helpButton.addEventListener("click", (e) => {
-
       let message;
       if (toolMode) {
-
         message = {
           showClose: true,
           content: app.arViewer.firstContactTool,
           color: 'terracotta'
-
         }
       }
       else if (missionMode) {
@@ -562,9 +540,7 @@ AFRAME.registerComponent("controller", {
           showClose: true,
           content: app.arViewer.firstContactMission,
           color: 'skyblue'
-
         }
-
       } else {
         message = {
           showClose: true,
@@ -582,7 +558,6 @@ AFRAME.registerComponent("controller", {
   },
   loadJSON: function () {
     let it = this;
-
     if (loadAV && !setError) {
       fetch(dirPath_Files + 'json/' + primaryKey + '.json')
         .then((response) => response.json())
@@ -626,7 +601,6 @@ AFRAME.registerComponent("controller", {
     const gltf_src_orig = "./files/" + json.appData.model.quality2k;
 
     loader.load(
-
       gltf_src_orig,
       function (gltf) {
         devMode && console.log("gltf.scene", gltf.scene);
@@ -647,8 +621,11 @@ AFRAME.registerComponent("controller", {
     let it = this;
     const missionsContainer = document.getElementById("missions");
     const noMissionsContainer = document.getElementById("noMissions");
+    //radius of model calculated
     this.el.addEventListener("radius-set", function (event) {
+      //radius of the collidable visible points
       let radius = event.detail.maxSize / 15;
+      //radius of the toolidable unvisible points
       let bigRadius = event.detail.maxSize / 5;
 
       for (let i = 0; i < json.appData.tasks.length; i++) {
@@ -695,9 +672,9 @@ AFRAME.registerComponent("controller", {
                 loop: true,
               });
             }
-
-
-            dragElement.setAttribute("collider-check", "");
+            dragElement.setAttribute("collider-check", {
+              description: app.arViewer.dragObject,
+            });
             dragElement.setAttribute("distance-tracker", "");
             dragElement.setAttribute(
               "position",
@@ -726,7 +703,7 @@ AFRAME.registerComponent("controller", {
             } else {
               dragElement.object3D.visible = false;
             }
-            
+
             let dropElement = document.createElement("a-entity");
             dropElement.classList.add(currentClass, "drop");
             dropElement.setAttribute("geometry", {
@@ -739,7 +716,9 @@ AFRAME.registerComponent("controller", {
               src: "#placer",
               transparent: true,
             });
-            dropElement.setAttribute("collider-check","");
+            dropElement.setAttribute("collider-check", {
+              description: app.arViewer.dropObject,
+            });
             dropElement.setAttribute("turn-to-camera", "");
             dropElement.object3D.visible = false;
             dropElement.setAttribute(
@@ -808,7 +787,9 @@ AFRAME.registerComponent("controller", {
                 loop: true,
               });
             }
-            element.setAttribute("collider-check","");
+            element.setAttribute("collider-check", {
+              description: app.arViewer.activatePoint,
+            });
             element.setAttribute("distance-tracker", "");
             element.setAttribute("turn-to-camera", "");
             element.setAttribute("position", formatPos(currentTask.position));
@@ -819,7 +800,7 @@ AFRAME.registerComponent("controller", {
               primitive: "circle",
               radius: bigRadius,
             });
-            tipElement.setAttribute("collider-check",  {
+            tipElement.setAttribute("collider-check", {
               description: app.arViewer.activatePoint,
             });
             tipElement.setAttribute("position",
@@ -833,7 +814,7 @@ AFRAME.registerComponent("controller", {
             } else {
               element.object3D.visible = false;
             }
-            
+
             break;
           case "quiz":
             taskEl.setAttribute("quiz-task", {
@@ -841,6 +822,7 @@ AFRAME.registerComponent("controller", {
               description: currentTask.description,
               answers: currentTask.answers,
               rightAnswer: currentTask.rightAnswer,
+              searchable: currentTask.searchable,
             });
             let quizEl = document.createElement("a-entity");
             quizEl.classList.add(currentClass);
@@ -849,7 +831,7 @@ AFRAME.registerComponent("controller", {
               primitive: "circle",
               radius: radius,
             });
-            if (currentTask.searchable = 0) {
+            if (currentTask.searchable === 0) {
               quizEl.setAttribute("material", {
                 shader: "flat",
                 src: "#question",
@@ -870,7 +852,9 @@ AFRAME.registerComponent("controller", {
               });
             }
 
-            quizEl.setAttribute("collider-check", "");
+            quizEl.setAttribute("collider-check", {
+              description: app.arViewer.activateQuiz,
+            });
             quizEl.setAttribute("distance-tracker", "");
             quizEl.setAttribute("turn-to-camera", "");
             quizEl.setAttribute("position", formatPos(currentTask.position));
@@ -881,7 +865,7 @@ AFRAME.registerComponent("controller", {
               primitive: "circle",
               radius: bigRadius,
             });
-            tipQuizEl.setAttribute("collider-check",  {
+            tipQuizEl.setAttribute("collider-check", {
               description: app.arViewer.activateQuiz,
             });
             tipQuizEl.setAttribute("position",
@@ -895,7 +879,7 @@ AFRAME.registerComponent("controller", {
             } else {
               quizEl.object3D.visible = false;
             }
-            
+
             break;
           case "animation":
             taskEl.setAttribute("animation-task", {
@@ -919,7 +903,9 @@ AFRAME.registerComponent("controller", {
               src: "#playAnim",
               transparent: true,
             });
-            animationEl.setAttribute("collider-check", "");
+            animationEl.setAttribute("collider-check", {
+              description: currentTask.name,
+            });
             animationEl.setAttribute("distance-tracker", "");
             animationEl.setAttribute("turn-to-camera", "");
             animationEl.setAttribute("position", formatPos(currentTask.position));
@@ -931,7 +917,7 @@ AFRAME.registerComponent("controller", {
               primitive: "circle",
               radius: bigRadius,
             });
-            tipAnimEl.setAttribute("collider-check",  {
+            tipAnimEl.setAttribute("collider-check", {
               description: currentTask.name,
             });
             tipAnimEl.setAttribute("position",
@@ -945,13 +931,11 @@ AFRAME.registerComponent("controller", {
             } else {
               animationEl.object3D.visible = false;
             }
-            
+
             break;
           case "preparation":
             it.preparation = currentTask.animName;
             continue;
-
-
         }
 
         if (currentTask.mission) {
@@ -960,7 +944,6 @@ AFRAME.registerComponent("controller", {
           taskEl.classList.add("noMission");
           noMissionsContainer.appendChild(taskEl);
         }
-
       }
       function formatPos(position) {
         return position.replace(/m/g, "");
@@ -1036,17 +1019,14 @@ AFRAME.registerComponent("controller", {
           depends: mission.dependable,
         })
       }
-
     }
 
     //if point is achieved
-
     this.el.addEventListener("point-achieved", function (event) {
       it.solveMission(event.detail.pointID);
-
     });
   },
-  showMissionPopup: function (completed) {
+  showMissionPopup: function(completed) {
     let it = this;
     let self = this.el;
     let message = {
@@ -1056,9 +1036,7 @@ AFRAME.registerComponent("controller", {
       color: 'pearlwhite',
       shadow: 'shadow-terracotta',
       button1: completed ? { content: app.arViewer.restartMissionButton, color: 'duckyellow', shadow: 'shadowduckyellow' } : {},
-
     }
-
     app.gui.message.setMessage(message);
     if (completed) app.gui.message.messageButton1El.addEventListener('click', this.restartMissions, { once: true });
     const scoreCont = document.getElementById("score-container");
@@ -1090,7 +1068,12 @@ AFRAME.registerComponent("controller", {
   initInventar: function () {
     let self = this.el;
     let it = this;
+    //inventar variables
+    it.inventar = [];
+    it.oneSelected = false;
+    it.modelLoaded = false;
 
+    //each dropzone has one specific place gui element
     it.dropZones = document.querySelectorAll(".drop");
     const inventarCont = document.getElementById("inventar");
     for (let i = 0; i < it.dropZones.length; i++) {
@@ -1103,30 +1086,27 @@ AFRAME.registerComponent("controller", {
       inventarCont.appendChild(roundCont);
     }
     this.initInventarClick();
+    //element gets draged
     self.addEventListener("element-added-inventar", function (event) {
-      if(it.firstContactInventar){
+      if (it.firstContactInventar) {
         app.gui.message.showTooltipOverlay(app.arViewer.clickMeTip);
         app.gui.message.tooltipElOverlay.style.left = '20%';
         app.gui.message.tooltipElOverlay.style.top = '70%';
       }
-      
-
       const place = document.querySelector(
         `#inventar div[id="${it.getId(event.detail.origin.classList[0])}"]`
       );
-
       place.classList.remove("hide");
       it.inventar.push({ place: place, el: event.detail.origin });
       const img = place.querySelector("img");
       img.src = event.detail.src;
-
       it.dropZones = document.querySelectorAll(".drop");
-      //show drop zones 
+      //show all drop zones 
       it.dropZones.forEach((element) => {
         element.object3D.visible = true;
       });
     });
-
+    //element gets dropped
     self.addEventListener("element-dropped-inventar", function (event) {
       const place = document.querySelector(
         `#inventar div[id="${it.getId(event.detail.origin.classList[0])}"]`
@@ -1155,13 +1135,12 @@ AFRAME.registerComponent("controller", {
   initInventarClick: function () {
     let places = document.querySelectorAll(".round-container");
     let it = this;
-    let self = this.el;
     let i = 0;
     //each round-container(place) listens to a click event
     places.forEach((place) => {
       i++;
       place.addEventListener("click", () => {
-        if(it.firstContactInventar){
+        if (it.firstContactInventar) {
           app.gui.message.hideTooltipOverlay();
           it.firstContactInventar = false;
         }
@@ -1215,6 +1194,7 @@ AFRAME.registerComponent("controller", {
       });
     });
   },
+  //mission is done
   solveMission: function (pointID) {
     let currentID = pointID;
     if (missionMode) {
@@ -1230,10 +1210,7 @@ AFRAME.registerComponent("controller", {
         }
       }
 
-
-
       //actualize points per category    
-
       for (let i = 0; i < this.missions.length; i++) {
         if (this.missions[i].id === currentID) {
           switch (this.missions[i].taskType) {
@@ -1267,9 +1244,25 @@ AFRAME.registerComponent("controller", {
     //all missions solved
     if (this.currentPoints === this.sumPoints) {
       this.completed = true;
-      this.showMissionFinished();
+      this.showMissionFinishedTip();
       inMission = false;
 
+    }
+  },
+  activatePreparation: function () {
+    let it = this;
+    if (it.preparation) {
+      this.el.emit('startPreparation', { animNames: it.preparation }, false);
+
+      for (let i = 0; i < it.missions.length; i++) {
+        if (it.missions[i].taskType === "preparation") {
+          it.missions[i].done = true;
+          if (it.missions[i].activates) {
+
+            it.activateMission(it.missions[i].activates);
+          }
+        }
+      }
     }
   },
   activateMission: function (depId) {
@@ -1287,11 +1280,10 @@ AFRAME.registerComponent("controller", {
     dependableNoMission.children[0].el.classList.add("collidable");
     dependableNoMission.children[1].el.classList.add("toolidable");
   },
-  showMissionFinished: function () {
+  showMissionFinishedTip: function () {
     app.gui.message.showTooltipOverlay(app.arViewer.clickTip);
-        app.gui.message.tooltipElOverlay.style.left = '5%';
-        app.gui.message.tooltipElOverlay.style.top = '7%';
-
+    app.gui.message.tooltipElOverlay.style.left = '5%';
+    app.gui.message.tooltipElOverlay.style.top = '7%';
   },
   restartMissions: function (event) {
     app.gui.message.messageButton1El.removeEventListener("click", this.restartMissions);
@@ -1306,7 +1298,6 @@ AFRAME.registerComponent("controller", {
       reverse: true,
       rotate: true,
     });
-
   },
   resetActivatedMissions: function () {
     const self = this.el;
@@ -1320,19 +1311,7 @@ AFRAME.registerComponent("controller", {
         missionEl.children[1].el.classList.remove("toolidable");
       }
     }
-    if (it.preparation) {
-      self.emit('startPreparation', { animNames: it.preparation }, false);
-
-      for (let i = 0; i < it.missions.length; i++) {
-        if (it.missions[i].taskType === "preparation") {
-          it.missions[i].done = true;
-          if (it.missions[i].activates) {
-
-            it.activateMission(it.missions[i].activates);
-          }
-        }
-      }
-    }
+    it.activatePreparation();
 
   },
   resetScore: function () {
@@ -1537,7 +1516,7 @@ AFRAME.registerComponent("ar-hit-test-special", {
 
 
 
-//COLLIDER-CHECK: first raycast collision, tests if object is in between
+//COLLIDER-CHECK: tracks raycast collision on each collidable/toolidable element, tests if object is in between
 AFRAME.registerComponent("collider-check", {
   schema: {
     description: { type: "string", default: "" },
@@ -1549,9 +1528,8 @@ AFRAME.registerComponent("collider-check", {
     this.checkCursor = this.checkCursor.bind(this);
     self.addEventListener("raycaster-intersected", this.checkCursor);
     self.addEventListener("raycaster-intersected-cleared", function () {
-      devMode &&  console.log(self.classList);
       if (self.classList.contains("collidable")) self.emit("collided-ended");
-      else if(self.classList.contains("toolidable")) self.emit("tool-collided-ended");
+      else if (self.classList.contains("toolidable")) self.emit("tool-collided-ended");
     });
   },
   update: function () {
@@ -1563,10 +1541,10 @@ AFRAME.registerComponent("collider-check", {
   checkCursor: function (event) {
     let self = this.el;
     let cursor = event.detail.el;
-
     let desc = this.data.description;
     let firstCollidedObject = cursor.components.raycaster.intersectedEls[0];
-   
+    if (firstCollidedObject.getAttribute("id") == "object") return;
+    //tests if mission element is collided but it is not missionMode or the other way around then it returns
     if ((missionMode && self.parentElement.classList.contains("noMission")) || (inMission && self.parentElement.classList.contains("noMission"))) {
       return;
     }
@@ -1574,9 +1552,12 @@ AFRAME.registerComponent("collider-check", {
       return;
     }
     if (self.classList.contains("toolidable")) self.emit("tool-collided", { description: desc }, true);
-     if (firstCollidedObject.getAttribute("id") == "object") return;
-    if (self.classList.contains("collidable")) self.emit("collided", true);
-    
+
+    if (self.classList.contains("collidable")) {
+      self.emit("collided", true);
+      self.emit("tool-collided", { description: desc }, true);
+    }
+
   },
 });
 
@@ -1592,8 +1573,6 @@ AFRAME.registerComponent("animation-handler", {
     self.sceneEl.addEventListener("collided", function (event) {
       // test if a new point is activated
       srcElement = event.srcElement;
-      
-      devMode && console.log("src", srcElement);
       let from =
         currentClass == event.srcElement.classList
           ? self.getAttribute("geometry").thetaLength
@@ -1624,7 +1603,7 @@ AFRAME.registerComponent("animation-handler", {
     self.sceneEl.addEventListener("collided-ended", function (event) {
 
       if (animationComplete) {
-        
+
         return;
       }
       self.setAttribute("animation", {
@@ -1647,8 +1626,8 @@ AFRAME.registerComponent("animation-handler", {
         navigator.vibrate([10, 50, 80]);
         srcTipElement = srcElement.nextElementSibling;
         //event for components: place-element
-        self.emit("point-to-play-trigger", { point: srcElement, tipPoint: srcTipElement}, true);
-       
+        self.emit("point-to-play-trigger", { point: srcElement, tipPoint: srcTipElement }, true);
+
         self.emit("stop-tooltip", null, true);
       }
     });
@@ -1664,6 +1643,7 @@ AFRAME.registerComponent("visibility-handler", {
     this.point = null;
     this.camera = this.el.object3D;
     self.sceneEl.addEventListener("start-tooltip", function (event) {
+      app.gui.message.hideTooltipAR();
       it.show = true;
       it.point = event.detail.point.object3D;
       app.gui.message.showTooltipAR(event.detail.description);
@@ -1749,7 +1729,7 @@ AFRAME.registerComponent("distance-listener", {
     this.selfPos = new THREE.Vector3();
 
     this.el.sceneEl.addEventListener("radius-set", function (evt) {
-      let radius = evt.detail.radius[1];
+      let radius = evt.detail.radius;
       it.distanceMiddle = radius * 2.5;
       it.distanceLong = radius * 5;
     })
@@ -1758,7 +1738,6 @@ AFRAME.registerComponent("distance-listener", {
     this.lastGroup = "";
   },
   tick: function () {
-
     if (this.data.enabled) {
       // tracks the distance between camera and parallel to y axis at the position of the object each frame and emits an event if the threshold is changed
       let cameraPos = this.camera.object3D.position;
@@ -1772,19 +1751,16 @@ AFRAME.registerComponent("distance-listener", {
         app.gui.message.showTooltipOverlay(app.arViewer.farAwayTip);
         app.gui.message.tooltipElOverlay.style.left = '5%';
         app.gui.message.tooltipElOverlay.style.top = '60%';
-
       } else if (
         distance < this.distanceLong &&
         distance > this.distanceMiddle &&
         !(this.lastGroup == "middle")
       ) {
-         if(this.lastGroup =="far"){
+        if (this.lastGroup == "far") {
           app.gui.message.hideTooltipOverlay();
         }
         this.lastGroup = "middle";
         this.el.emit("distance-middle", null, true);
-       
-        
       } else if (distance < this.distanceMiddle && !(this.lastGroup == "near")) {
         this.lastGroup = "near";
         this.el.emit("distance-near", null, true);
@@ -1803,20 +1779,11 @@ AFRAME.registerComponent("rotation-handler", {
     it.canvas = document.querySelector('.a-dom-overlay');
     it.steps = 12;
     it.arrayPos = it.steps / 2;
-
-    //get circle positions after ring radius is calculated
+    //get circle positions after radius is calculated
     self.sceneEl.addEventListener("radius-set", function (event) {
-      let radiusInner = event.detail.radius[0];
-      let radiusOuter = event.detail.radius[1];
-      let r = (radiusInner + radiusOuter) / 2;
-
-      let i = 0;
       it.circlePos = [];
       for (let t = 0; t <= 2 * Math.PI; t += Math.PI / it.steps) {
-        var x = r * Math.cos(t);
-        var y = r * Math.sin(t);
-        it.circlePos.push({ t: t, x: x, y: y });
-        i = i + 1;
+        it.circlePos.push({ t: t });
       }
     });
     it.checkTouch = it.checkTouch.bind(it);
@@ -1836,24 +1803,12 @@ AFRAME.registerComponent("rotation-handler", {
       //set container positon of circle handler
       let posCont = containerEl.object3D.position;
       circleContainer.position.set(posCont.x, posCont.y, posCont.z);
-      //set start rotation of object container
-      it.arrayPos = findPosition(containerEl.object3D.rotation.y);
-      // set init position of the sphere
       circleContainer.visible = true;
 
       it.canvas.addEventListener("touchstart", this.checkTouch);
     } else {
       this.el.object3D.parent.visible = false;
       it.canvas.removeEventListener("touchstart", this.checkTouch);
-    }
-    function findPosition(value) {
-      value = -value + Math.PI / 2;
-      for (let i = 0; i < it.circlePos.length; i++) {
-        if (it.circlePos[i].t > value) {
-          return i;
-        }
-      }
-      return -1;
     }
   },
   checkTouch: function (event) {
@@ -1935,24 +1890,20 @@ AFRAME.registerComponent("get-bounding-box", {
           boundingBox.getSize(size);
           //get radius
           let radius = size.x > size.z ? size.x / 2 : size.z / 2;
-          let radiusInner = radius + (radius / 6);
-          let radiusOuter = radius + (radius / 6 + 0.01);
+          let radiusWide = radius + (radius / 6);
           let largest = Math.max(size.x, size.y, size.z);
-          let radiusMiddle = (radiusInner + radiusOuter) / 2;
           //set radius
           ringEl.setAttribute("geometry", {
-            radius: radiusMiddle,
+            radius: radiusWide,
           });
-
-
-          ringEl.children[0].object3D.position.x = radiusMiddle;
-          ringEl.children[0].setAttribute("geometry", "radius", radiusMiddle);
-          ringEl.children[1].object3D.position.x = radiusMiddle;
-          ringEl.children[1].setAttribute("geometry", "radius", radiusMiddle / 6);
+          ringEl.children[0].object3D.position.x = radiusWide;
+          ringEl.children[0].setAttribute("geometry", "radius", radiusWide);
+          ringEl.children[1].object3D.position.x = radiusWide;
+          ringEl.children[1].setAttribute("geometry", "radius", radiusWide / 6);
           //emit radius to rotation handler
           self.emit(
             "radius-set",
-            { radius: [radiusInner, radiusOuter], maxSize: largest },
+            { radius: radiusWide, maxSize: largest },
             true
           );
         }
@@ -2030,11 +1981,9 @@ AFRAME.registerComponent("spritesheet-animation", {
   },
 });
 
-
-
 /**
  * ANIMATION-MIXER
- *  from: https://github.com/c-frame/aframe-extras/blob/master/src/loaders/animation-mixer.js
+ *  from: https://github.com/c-frame/aframe-extras/blob/master/src/loaders/animation-mixer.js and edited
  * Player for animation clips. Intended to be compatible with any model format that supports
  * skeletal or morph animations through THREE.AnimationMixer.
  * See: https://threejs.org/docs/?q=animation#Reference/Animation/AnimationMixer
@@ -2118,12 +2067,10 @@ AFRAME.registerComponent('animation-mixer', {
   },
 
   stopAction: function (animName) {
-
     for (let i = 0; i < this.activeActions.length; i++) {
       if (this.activeActions[i].getClip().name == animName) {
         this.activeActions[i].stop();
       }
-
     }
 
   },
@@ -2145,7 +2092,6 @@ AFRAME.registerComponent('animation-mixer', {
     for (let clip, i = 0; (clip = clips[i]); i++) {
       if (clip.name == animName) {
         const action = this.mixer.clipAction(clip, model);
-
         action.enabled = true;
         action.clampWhenFinished = clamp;
         // animation-mixer.startAt and AnimationAction.startAt have very different meanings.
@@ -2162,7 +2108,6 @@ AFRAME.registerComponent('animation-mixer', {
       }
     }
   },
-
   tick: function (t, dt) {
     if (this.mixer && !isNaN(dt)) this.mixer.update(dt / 1000);
   }
@@ -2229,6 +2174,9 @@ AFRAME.registerComponent("drag-drop-task", {
           if (self.classList.contains("selected")) {
 
             evt.detail.point.setAttribute("material", { src: "#book" });
+            evt.detail.point.setAttribute("collider-check", {
+              description: app.arViewer.showBook,
+            });
             evt.detail.tipPoint.setAttribute("collider-check", {
               description: app.arViewer.showBook,
             });
@@ -2327,8 +2275,6 @@ AFRAME.registerComponent("drag-drop-task", {
     app.gui.message.setMessage(message);
 
   },
-
-
   reverse: function (self) {
     self.children[0].object3D.visible = true;
     self.children[0].classList.add("collidable");
@@ -2342,6 +2288,9 @@ AFRAME.registerComponent("drag-drop-task", {
     self.children[2].classList.remove("collidable");
     self.children[3].classList.remove("toolidable");
     self.children[2].setAttribute("material", { src: "#placer" });
+    self.children[2].setAttribute("collider-check", {
+      description: app.arViewer.dropObject,
+    });
     self.children[3].setAttribute("collider-check", {
       description: app.arViewer.dropObject,
     });
@@ -2390,13 +2339,14 @@ AFRAME.registerComponent("point-task", {
     let self = this.el;
     let it = this;
     this.firstTime = true;
-
     this.showPopUp = this.showPopUp.bind(this);
-
     this.el.sceneEl.addEventListener("point-to-play-trigger", function (evt) {
       if (evt.detail.point.classList[0] == self.classList[0]) {
         evt.detail.point.removeAttribute("spritesheet-animation");
         evt.detail.point.setAttribute("material", { src: "#book" });
+        evt.detail.point.setAttribute("collider-check", {
+          description: app.arViewer.showBook,
+        });
         evt.detail.tipPoint.setAttribute("collider-check", {
           description: app.arViewer.showBook,
         });
@@ -2405,7 +2355,6 @@ AFRAME.registerComponent("point-task", {
           self.emit("point-achieved", { pointID: self.classList[0] }, true);
           it.firstTime = false;
         }
-
         it.showPopUp(
           it.data.name,
           it.data.description,
@@ -2453,13 +2402,9 @@ AFRAME.registerComponent("point-task", {
       if (src_audio != "") {
         audioEl = `<audio controls autoplay><source src="${src_audio}" type"audio/mpeg"></audio>`
       }
-
-
       let description = `<p>${desc}</p></div>`
       return content + headline + image + audioEl + description;
-
     }
-
     app.gui.message.setMessage(message);
     self.sceneEl.setAttribute("controller", {
       raycaster: false,
@@ -2494,6 +2439,9 @@ AFRAME.registerComponent("point-task", {
 
       self.children[0].setAttribute("material", { src: "#sprite" });
     }
+    self.children[0].setAttribute("collider-check", {
+      description: app.arViewer.activatePoint,
+    });
     self.children[1].setAttribute("collider-check", {
       description: app.arViewer.activatePoint,
     });
@@ -2512,6 +2460,7 @@ AFRAME.registerComponent("quiz-task", {
       default:
         "",
     },
+    searchable: { type: 'int', default: 1 },
   },
   init: function () {
     let self = this.el;
@@ -2566,9 +2515,7 @@ AFRAME.registerComponent("quiz-task", {
         description = '<p id="quiz-text"></p>';
       }
       return content + headline + form + description;
-
     }
-
     app.gui.message.setMessage(message);
     app.gui.message.messageButton1El.addEventListener("click", this.checkAnswer);
     if (this.solved) this.disableRadios();
@@ -2577,17 +2524,13 @@ AFRAME.registerComponent("quiz-task", {
       inventar: false,
       rotate: false,
     });
-
     app.gui.message.messageCloseEl.addEventListener('click', function (e) {
-
       self.sceneEl.setAttribute("controller", {
         raycaster: true,
         inventar: true,
         rotate: true,
       });
     }, { once: true });
-
-
     self.sceneEl.setAttribute("controller", {
       raycaster: false,
       inventar: false,
@@ -2603,9 +2546,14 @@ AFRAME.registerComponent("quiz-task", {
         text.innerHTML = "Richtig!<br>" + this.data.description;
         event.target.removeEventListener("click", this.checkAnswer);
         app.gui.message.messageButton1El.classList.add("hide");
+        //scroll to end
+        scrollToEnd()
         // Prevent default click behavior on radio buttons
         this.disableRadios();
         this.el.children[0].setAttribute("material", { src: "#book" });
+        this.el.children[0].setAttribute("collider-check", {
+          description: app.arViewer.showBook,
+        });
         this.el.children[1].setAttribute("collider-check", {
           description: app.arViewer.showBook,
         });
@@ -2614,6 +2562,13 @@ AFRAME.registerComponent("quiz-task", {
         this.el.emit("point-achieved", { pointID: this.el.classList[0] }, true);
       } else {
         text.textContent = app.arViewer.quizFalse;
+        scrollToEnd();
+      }
+      function scrollToEnd() {
+        app.gui.message.messageContentContainerEl.scrollTo({
+          top: app.gui.message.messageContentContainerEl.scrollHeight,
+          behavior: 'smooth'
+        });
       }
     } else {
       text.textContent = app.arViewer.quizNull;
@@ -2648,10 +2603,11 @@ AFRAME.registerComponent("quiz-task", {
         frameDuration: 0.08,
         loop: true,
       });
-
-
       self.children[0].setAttribute("material", { src: "#sprite" });
     }
+    self.children[0].setAttribute("collider-check", {
+      description: app.arViewer.activateQuiz,
+    });
     self.children[1].setAttribute("collider-check", {
       description: app.arViewer.activateQuiz,
     });
@@ -2689,17 +2645,12 @@ AFRAME.registerComponent("animation-task", {
         }
       })
     }
-
-
     this.el.sceneEl.addEventListener("point-to-play-trigger", function (evt) {
       if (evt.detail.point.classList[0] == self.classList[0]) {
         it.object.setAttribute('animation-mixer', `startClip:${it.data.animName}; stopClip:${it.data.deactivatesAnimName}; repetition:${it.data.repetition}; clampWhenFinished:true; startAt: ${it.data.animFinished}`);
         if (it.firstTime || !missionMode) {
           if (missionMode) {
             evt.detail.point.setAttribute("material", { src: "#book" });
-            evt.detail.tipPoint.setAttribute("collider-check", {
-              description: app.arViewer.restartAnim,
-            });
           }
           //emit to mission or noMission list
           self.emit("point-achieved", { pointID: self.classList[0] }, true);
@@ -2725,20 +2676,16 @@ AFRAME.registerComponent("animation-task", {
       color: 'skyblue'
     }
     function getContent() {
-
-
       let description = `<p>${desc}</p>`
       return description;
 
     }
     app.gui.message.setMessage(message);
-
     self.sceneEl.setAttribute("controller", {
       raycaster: false,
       inventar: false,
       rotate: false,
     });
-
     app.gui.message.messageCloseEl.addEventListener('click', function (e) {
       self.sceneEl.setAttribute("controller", {
         raycaster: true,
@@ -2753,9 +2700,6 @@ AFRAME.registerComponent("animation-task", {
     self.children[1].classList.add('toolidable');
     self.children[0].object3D.visible = true;
     self.children[0].setAttribute("material", { src: '#playAnim' });
-    self.children[1].setAttribute("collider-check", {
-      description: it.data.name,
-    });
     it.firstTime = true;
   }
 })
@@ -2846,14 +2790,11 @@ AFRAME.registerComponent("tools", {
       };
 
       po.renderOrder = 1.1;
-
       it.object.add(stencilGroup);
       it.poGroup.add(po);
-
       it.planeObject = po;
       it.poGroup.name = "po_group";
       it.scene.add(it.poGroup);
-
       let material = new THREE.MeshStandardMaterial({
         metalness: 0.1,
         roughness: 0.75,

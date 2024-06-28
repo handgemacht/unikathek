@@ -2,14 +2,17 @@
 	"appData": {
 		"tasks": [
 			{
-				"id": 1,
+				"id": "mission1",
+				"mission": true,
 				"taskType": "dragDrop",
 				"dependable": false,
-				"activates": 0,
+				"searchable": 0,
+				"activates": null,
 				"name": "„Rosshaar und Leinen“: Das Material",
 				"descriptionDrag": "Großen Wert hat Florian auf die Verwendung von Naturmaterialien gelegt. Um dem Mieder Festigkeit zu verleihen, hat er nicht etwa Vlieseline verwendet, sondern ein Gewebe aus Rosshaar und Leinen.",
 				"descriptionDrop": "„[A]uch die Volkstrachten und so, die haben ja auch so schwere Stoffe und so. So schwere Mieder und so Sachen, haben die dann Rosshaar genommen und das haben sie dann quasi irgendwie, ich glaube mit Leinen verwebt. Und genau das habe ich dann auch genommen und das ist dann da, weil ich mir gedacht hab: Na ja, Polyester ist halt das blanke Plastik. Und das habe ich dann da auch eingearbeitet. Das ist quasi das, was dem Ganzen irgendwie die Festigkeit gibt.“",
-				"image": {
+				"symbol": {
+					"imageType": "image",
 					"fileCopyright": "Eva Gröninger",
 					"filename": "6D0549BE-3890-8245-9D95-9B5E526327DB_dirndl-stoffauswahl.png",
 					"imageAlt": "Stoffauswahl für ein Dirndl",
@@ -19,19 +22,23 @@
 				"positionDrag": "-0.03m 0m 0.18m"
 			},
 			{
-				"id": 2,
+				"id": "mission2",
+				"mission": true,
 				"taskType": "point",
 				"dependable": false,
-				"activates": 0,
+				"searchable": 1,
+				"activates": null,
 				"name": "Ein Identitätsanker: Das Dirndl als Ausdruck von Tradition und Lebensstil",
 				"description": "Über die Dinge, die wir besitzen, die Kleidung, die wir tragen, zeigen wir, dass wir zu einer bestimmten sozialen Gruppe gehören oder eben nicht gehören. So verhält es sich auch mit dem Dirndl: Es dient der sozialen Positionierung. Sowohl Eva als auch Florian sind heimatverbunden und präsentieren sich dementsprechend in den sozialen Medien. Tracht, das Ländliche und das Traditionelle sind in ihren Beiträgen stark vertreten. #lederhosnlifestyle. Das Dirndl passt in diese Bilderwelt, spiegelt den Lebensstil und die soziale Identität der beiden wider.",
 				"position": "-0.01m 0.3125808615403411m -0.598m"
 			},
 			{
-				"id": 3,
+				"id":"mission3",
+				"mission": true,
 				"taskType": "point",
 				"dependable": false,
-				"activates": 0,
+				"activates": null,
+				"searchable": 1,
 				"name": "Kontakte und Anerkennung: Einfluss des Dirndls auf soziale Beziehungen",
 				"audio": {
 					"fileCopyright": "Florian Gröninger",
@@ -41,10 +48,12 @@
 				"position": "0.06548471336084594m 0.494m -0.075m"
 			},
 			{
-				"id": 4,
+				"id": "mission4",
+				"mission": true,
 				"taskType": "quiz",
 				"dependable": false,
-				"activates": 5,
+				"activates": "mission5",
+				"searchable": 0,
 				"name": "Wie viele Knöpfe sind am Dirndl angebracht?",
 				"answers": [
 					"5",
@@ -56,11 +65,13 @@
 				"position": "-0.268m 0.774m 0.055m"
 			},
 			{
-				"id": 5,
+				"id": "mission5",
+				"mission": true,
 				"dependable": true,
-				"activates": 0,
+				"activates": null,
 				"taskType":"point",
 				"position": "-0.168m 0.774m 0.035m",
+				"searchable": 0,
 				"name": "Knopf",
 				"description": "„Nein, aber ich glaube, mit dem Knopf ist es schon so, dass der mir bei der Fronleichnamsprozession runtergefallen ist, wo ich das das erste Mal angehabt habe. Und – nein, nicht das erste – doch, eins von den ersten Malen habe ich das, bei der Fronleichnamsprozession habe ich das angehabt. Und da ist der runtergegangen, der Knopf, aber er ist mir in die Hand gefallen. Das weiß ich noch, weil dann habe ich ihn nämlich mit heimgenommen und wieder angeklebt. Und der muss jetzt dann im Schrank beim Rausziehen oder wie auch immer wieder runtergefallen sein. Also das ist, den haben wir schon einmal geklebt wieder. Aber wir haben noch einen Ersatzknopf zum Nachnähen. Aber ich glaube tatsächlich, der erste Anlass, das Dirndl zu tragen, war die Fronleichnamsprozession in Ensdorf.“"
 			}
