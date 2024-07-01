@@ -63,8 +63,8 @@ let modelViewerHTML =
 
 //START app 
 const app = {
-	title: 'Kulturspur',
-	version: 'alpha 0.9 25/06/27',
+	title: 'appTitle',
+	version: 'alpha 1.0 24/07/01',
 	devMode: false,
 	viewerMode: false,
 
@@ -1099,7 +1099,6 @@ const app = {
 				fgData ? type = fgData.type : type = 'none';
 			
 				if(type !== 'none'){
-					//this.showHighlight(type, fgData.name, true);
 					app.gui.message.hideMessage();
 					app.collectionViewer.highlight.generateMessage(fgData);
 				}else{
@@ -1119,42 +1118,33 @@ const app = {
 				
 
 				if(type === 'node-object'){
-					let categoryList = fgData.categories.toString();
-					categoryList = categoryList.replace(/,/g, ", ");
+					let categoryList = '<div class="categorys">';
+					for(let category in fgData.categories) {
+						let onClickString = "document.querySelector('#forcegraph').components.highlight.highlightFromPill('" + fgData.categories[category] + "', 'category')"
+						categoryList += '<div class="pill category" onclick="' + onClickString + '">' + fgData.categories[category] + '</div>';
+					}
+					categoryList += '</div>';
 	
-					let tagList = fgData.tags.toString();
-					tagList = tagList.replace(/,/g, ", ");
+					let tagList = '<div class="tags">';
+					for(let tag in fgData.tags) {
+						let onClickString = "document.querySelector('#forcegraph').components.highlight.highlightFromPill('" + fgData.tags[tag] + "', 'tag')"
+						tagList += '<div class="pill tag" onclick="' + onClickString + '">' + fgData.tags[tag] + '</div>';
+					}
+					tagList += '</div>';
 
 					let message = {
 						type: 'Objekt',
 						content: '<h3>' + fgData.name + '</h3>'
-								+ '<ul><li>Kategorien: ' + categoryList + '</li>'
-								+ '<li>Tags: ' + tagList + '</li>'
-								+ '<li>ID: ' + fgData.id + '</li></ul>',
+								+ categoryList
+								+ tagList,
 						color: 'pearlwhite',
 						shadow: 'skyblue',
-						button1: { content: 'ansehen', color: 'skyblue', icon: 'eye' },
-						button2: { content: 'mehr erfahren', color: 'skyblue', icon: 'arrow' }
+						button1: { content: 'erkunden', color: 'skyblue', icon: 'eye' }
 					}
 
 					app.gui.message.setMessage(message);
 
-					let button1State = false;
-
 					app.gui.message.messageButton1El.addEventListener('click', (e) => {
-						button1State = !button1State;
-						if(button1State){
-							document.querySelector('a-camera').setAttribute('camera-move-to-target', {target: fgData, distance: 100, duration: 1200});
-							message.button1 = {content: 'zurück', color: 'skyblue', icon: 'eye'};
-							app.gui.message.setMessage(message);
-						}else{
-							document.querySelector('a-camera').setAttribute('camera-move-to-target', {target: 'start', distance: 100, duration: 1200});
-							message.button1 = { content: 'ansehen', color: 'skyblue', icon: 'eye' };
-							app.gui.message.setMessage(message);
-						}
-					})
-
-					app.gui.message.messageButton2El.addEventListener('click', (e) => {
 						let url = '?m=mv&model=' + fgData.id + '';
 						window.location.href = url;
 					})
@@ -1190,6 +1180,10 @@ const app = {
 					app.gui.message.setMessage(message);
 				}
 			},
+
+			pillHandler(name) {
+
+			}
 		},
 
 		filter: {
@@ -1224,13 +1218,9 @@ const app = {
 
 			const camera = document.createElement('a-camera');
 			collectionViewerElement.appendChild(camera);
-			//camera.setAttribute('my-look-controls', 'pointerLockEnabled: false;'); // reverseMouseDrag: true
-			camera.setAttribute('orbit-controls', 'enabled: false');
-			//camera.setAttribute('wasd-controls', 'fly: true; acceleration: 300;');
-			camera.setAttribute('position', '0 0 0');
-			camera.setAttribute('camera-focus-target', '');
-			camera.setAttribute('camera-move-to-target', '');
-
+			camera.setAttribute('orbit-controls', 'enabled: true, target: #orbit-target, autoRotate: true');
+			camera.setAttribute('wasd-controls', 'enabled: false');
+			//camera.setAttribute('camera-focus-target', '');
 
 			const ambientLightEntity = document.createElement('a-entity');
 			collectionViewerElement.appendChild(ambientLightEntity);
