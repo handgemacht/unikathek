@@ -59,7 +59,7 @@ body {
 
 audio {
   border: 1px solid #9B9691;
-  border-radius: 50vh;
+  border-radius: 50dvh;
   margin-left: 40px;
   max-height: 100%;
   max-width: 100%;
@@ -306,7 +306,7 @@ div.gui-loading-screen {
   align-items: center;
   justify-content: center;
   width: 100vw;
-  height: 100vh;
+  height: 100dvh;
   background-color: #9B9691;
   pointer-events: none;
   z-index: 4;
@@ -341,14 +341,14 @@ div.gui-message-box {
   align-items: center;
   justify-content: center;
   width: 100vw;
-  height: 100vh;
+  height: 100dvh;
   pointer-events: none;
 }
 
 div.gui-message-container {
   position: relative;
-  width: calc(100% - 40px);
-  height: calc(100% - 40px);
+  width: calc(100vw - 40px);
+  height: calc(100dvh - 40px);
   margin: 0;
   pointer-events: none;
   z-index: 4;
@@ -525,7 +525,7 @@ div.gui-fullscreen-image-container {
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: 100dvh;
   margin: 0;
   background-color: #41403FAA;
   z-index: 2; 
@@ -667,14 +667,14 @@ div.gui-toolbar-box {
   align-items: center;
   justify-content: center;
   width: 100vw;
-  height: 100vh;
+  height: 100dvh;
   pointer-events: none;
 }
 
 div.gui-toolbar-container {
   position: relative;
   width: calc(100vw - 40px);
-  height: calc(100vh - 40px);
+  height: calc(100dvh - 40px);
   margin: 0;
   pointer-events: none;
   z-index: 3;
@@ -706,7 +706,7 @@ button.gui-toolbar-button {
   margin: 5px;
   padding: 5px;
   border-radius: 25px 25px 25px 25px;
-  transition: all 0.6s allow-discrete;
+  transition: all 0.6s;
   align-self: center;
   text-align: left;
   overflow: hidden;
@@ -714,7 +714,11 @@ button.gui-toolbar-button {
 
 button.gui-toolbar-button.feedback {
   transition: none;
-  opacity: 0.3;
+}
+
+button.gui-toolbar-button.feedback > img {
+  width: 20px;
+  height: 20px;
 }
 
 button.gui-toolbar-button.slide {
@@ -746,12 +750,13 @@ button.gui-toolbar-button.remove {
 
 img.gui-toolbar-button-icon {
   position: relative;
-  width: 100%;
-  height: 100%;
-  bottom: 0;
+  width: 40px;
+  height: 40px;
+  left: 50%;
+  transform: translateX(-50%);
   align-self: center;
-  transition: width 0.6s allow-discrete;
-  transition-delay: 1s;
+  transition-duration: 0.6s;
+  transition-property: width, left, transform;
 }
 
 img.gui-toolbar-button-icon:active {
@@ -759,15 +764,13 @@ img.gui-toolbar-button-icon:active {
 }
 
 img.gui-toolbar-button-icon.slide {
-  width: 40px;
-  height: 40px;
-  margin-left: 5px;
-  transition: margin-left 0.5s allow-discrete;
+  margin: 5px;
+  left: 0;
+  transform: translateX(0px);
 }
 
 img.gui-toolbar-button-icon.tab {
-  width: 40px;
-  height: 40px;
+
 }
 
 img.gui-toolbar-button-icon.inactive {
@@ -857,7 +860,7 @@ div.gui-toolbar-tab-content {
 
 model-viewer {
   width: 100vw;
-  height: 100vh;
+  height: 100dvh;
   opacity: 1;
 }
 
@@ -1204,7 +1207,7 @@ pointer-events: auto !important;
 #ar-overlay {
   position: fixed;
   width: 100vw;
-  height: 100vh;
+  height: 100dvh;
   top: 0;
   left: 0;
 }

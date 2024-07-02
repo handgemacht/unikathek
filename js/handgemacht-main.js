@@ -1126,7 +1126,7 @@ const app = {
 					//remove button class action after 100ms
 					setTimeout(() => {
 					  button.classList.remove('feedback');
-					}, 100);
+					}, 200);
 				}	
 			},
 
