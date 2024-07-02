@@ -274,8 +274,8 @@ AFRAME.registerComponent('load-json-models', {
 					newEntity.setAttribute('forcegraph', {
 						nodes: newNodes,
 						links: newLinks,
-						warmupTicks: 0,
-						cooldownTicks: 1500,
+						warmupTicks: 2000,
+						cooldownTicks: 0,
 						d3VelocityDecay: 0.6,
 						linkWidth: 0.7,
 						linkCurvature: 0.15,
@@ -498,6 +498,7 @@ AFRAME.registerComponent('highlight', {
 		this.fgComp = this.el.components.forcegraph.data;
 
 		let newDistance = 0;
+		let newDesiredCameraPitch = -5;
 
 		if(!source) {
 			this.resetHighlight();
@@ -507,16 +508,18 @@ AFRAME.registerComponent('highlight', {
 		if(source.type === 'node-object' || source.type === 'node-category') {
 			this.highlightModel(source);
 			newDistance = this.camera.position.distanceTo(this.data.source.__threeObj.position);
+			newDesiredCameraPitch = -12;
 		}
 
 		if(source.type === 'link-tag' || source.type === 'link-category') {
 			this.highlightLinks(source);
 			newDistance = this.camera.position.distanceTo(this.data.source.__curve.v1);
+			newDesiredCameraPitch = -12;
 		}
 
-		let newDesiredDistance = this.data.highestDistance * 4;
+		let newDesiredDistance = this.data.highestDistance * 2.5;
 
-		this.cameraEl.setAttribute('orbit-controls', { autoRotate: false, distance: newDistance, desiredDistance: newDesiredDistance, forceUpdate: true });
+		this.cameraEl.setAttribute('orbit-controls', { autoRotate: false, distance: newDistance, desiredDistance: newDesiredDistance, desiredCameraPitch: newDesiredCameraPitch, forceUpdate: true });
 
 		this.data.highestDistance = 0;
 	},
@@ -703,13 +706,14 @@ AFRAME.registerComponent('orbit-controls', {
   schema: {
 	enabled: { default: false },
 	target: { default: '#orbit-target' }, 
-	distance: { default: 700 }, 
+	distance: { default: 50 }, 
 	desiredDistance: { default: 500 },
 	minDistance: { default: 30 },
 	maxDistance: { default: 700 }, 
 	autoRotate: { default: true }, 
 	autoRotateSpeed: { default: 10 }, 
-	cameraPitch: { default: -12 }, 
+	cameraPitch: { default: 0 },
+	desiredCameraPitch: { default: -5 }, 
 	forceUpdate: { default: false }
   },
 
@@ -784,6 +788,14 @@ AFRAME.registerComponent('orbit-controls', {
 		//this.controls.update();
 		this.updateOrientation();
 		this.updatePosition();
+
+		if(this.data.cameraPitch > this.data.desiredCameraPitch) {
+			this.data.cameraPitch -= 0.3;
+		}
+
+		if(this.data.cameraPitch < this.data.desiredCameraPitch) {
+			this.data.cameraPitch += 0.3;
+		}
 
 		this.el.object3D.rotation.x += (this.data.cameraPitch * 0.01745);
 	}

@@ -116,9 +116,7 @@ const app = {
 			});
 		}else{
 			this.devMode && console.log("dev --- WebXR is not supported on this browser");
-		}
-
-				
+		}	
 	}, //init
 
 	gui: {
@@ -249,7 +247,7 @@ const app = {
 			init() {
 				this.createElements();
 				this.createElementsAR();
-				this.setEventlistener();
+				this.setEventListener();
 			}, 
 
 			createElements() {
@@ -314,9 +312,6 @@ const app = {
 				guiMessageButtonContainer.appendChild(guiMessageButton2);
 				guiMessageButton2.className = 'gui-message-button hide';
 				guiMessageButton2.appendChild(document.createTextNode(this.button2Text));
-
-				
-
 			}, 
 
 			createElementsAR() {
@@ -504,10 +499,11 @@ const app = {
 				this.tooltipContentElOverlay = tooltipContentOverlay;
 				tooltipOverlay.appendChild(tooltipContentOverlay);
 				tooltipContentOverlay.classList.add('cv-tooltip-content', 'skyblue');
-
 			},
+
 			showMessage() {
 				this.messageContainerEl.classList.remove('hide');
+				app.gui.toolbar.toggleToolbar(false);
 			}, 
 
 			hideMessage() {
@@ -535,9 +531,10 @@ const app = {
 				this.messageContentEl.innerHTML = this.content;
 				this.messageButton1El.innerHTML = this.buttonText;
 				this.messageButton2El.innerHTML = this.button2Text;
+				app.gui.toolbar.toggleToolbar(true);
 			},
 
-			setEventlistener() {
+			setEventListener() {
 				const self = this;
 
 				if(this.messageCloseEl) {
@@ -604,18 +601,22 @@ const app = {
 
 				this.showMessage();
 			},
+
 			showTooltipAR(content){
 				this.tooltipContentElAr.appendChild(document.createTextNode(content));
 				this.tooltipElAr.classList.remove('hide');
 			},
+
 			hideTooltipAR(){
 				this.tooltipElAr.classList.add('hide');
 				this.tooltipContentElAr.innerHTML = '';
 			},
+
 			showTooltipOverlay(content){
 				this.tooltipContentElOverlay.appendChild(document.createTextNode(content));
 				this.tooltipElOverlay.classList.remove('hide');
 			},
+
 			hideTooltipOverlay(){
 				this.tooltipElOverlay.classList.add('hide');
 				this.tooltipContentElOverlay.innerHTML = '';
@@ -628,7 +629,7 @@ const app = {
 
 			init() {
 				this.createElements();
-				this.setEventlistener();
+				this.setEventListener();
 			}, 
 
 			createElements() {
@@ -674,7 +675,7 @@ const app = {
 				this.errorButtonEl.innerHTML = this.buttonText;
 			}, 
 
-			setEventlistener() {
+			setEventListener() {
 				const self = this;
 				if(this.errorButtonEl) {
 					this.errorButtonEl.addEventListener('click', (evt) => {
@@ -795,6 +796,7 @@ const app = {
 				buttons.appendChild(buttonsLinkProject);
 				const projectButton = document.createElement('button');
 				buttonsLinkProject.appendChild(projectButton);
+				projectButton.className = 'pearlwhite shadow-smokegrey';
 				projectButton.appendChild(document.createTextNode('Das Projekt'));
 	
 				const buttonsLinkPatronage = document.createElement('a');
@@ -802,18 +804,13 @@ const app = {
 				buttons.appendChild(buttonsLinkPatronage);
 				const patronageButton = document.createElement('button');
 				buttonsLinkPatronage.appendChild(patronageButton);
+				patronageButton.className = 'pearlwhite shadow-smokegrey';
 				patronageButton.appendChild(document.createTextNode('Die Förderung'));
 	
 				const links = document.createElement('div');
 				container.appendChild(links);
 				links.className = 'gui-menu-links';
 
-				//Test AR Button vor release entfernen
-				const linksLinkTest = document.createElement('a');
-				linksLinkTest.href = 'https://dev.handgemacht.bayern/?m=ar&model=00000000-0000-0000-0000-000000000000&dev=true';
-				links.appendChild(linksLinkTest);
-				linksLinkTest.appendChild(document.createTextNode('Test AR'));
-	
 				const linksLinkContact = document.createElement('a');
 				linksLinkContact.href = '#'; //Links anpassen
 				links.appendChild(linksLinkContact);
@@ -873,19 +870,292 @@ const app = {
 		toolbar: {
 			init(){
 				this.createElements();
-				this.setEventListener();
 			},
 	
 			createElements() {
+				const toolbarBox = document.createElement('div');
+				this.toolbarBoxEl = toolbarBox;
+				document.body.appendChild(toolbarBox);
+				toolbarBox.className = 'gui-toolbar-box';
+
 				const toolbarContainer = document.createElement('div');
 				this.toolbarContainerEl = toolbarContainer;
-				document.body.appendChild(toolbarContainer);
+				toolbarBox.appendChild(toolbarContainer);
 				toolbarContainer.className = 'gui-toolbar-container';
+
+				const toolbar = document.createElement('div');
+				this.toolbarEl = toolbar;
+				toolbarContainer.appendChild(toolbar);
+				toolbar.className = 'gui-toolbar';
+
+				const toolbarTab = document.createElement('div');
+				this.toolbarTabEl = toolbarTab;
+				toolbarContainer.appendChild(toolbarTab);
+				toolbarTab.className = 'gui-toolbar-tab';
+
+				const toolbarTabBox = document.createElement('div');
+				this.toolbarTabBoxEl = toolbarTabBox;
+				toolbarTab.appendChild(toolbarTabBox);
+				toolbarTabBox.className = 'gui-toolbar-tab-box';
+
+				const toolbarTabContentContainer = document.createElement('div');
+				this.toolbarTabContentContainerEl = toolbarTabContentContainer;
+				toolbarTabBox.appendChild(toolbarTabContentContainer);
+				toolbarTabContentContainer.className = 'gui-toolbar-tab-content-container';
+
+				const toolbarTabContentFade = document.createElement('div');
+				this.toolbarTabContentFadeEl = toolbarTabContentFade;
+				toolbarTabBox.appendChild(toolbarTabContentFade);
+				toolbarTabContentFade.className = 'gui-toolbar-tab-content-fade';
+
+				const toolbarTabContentFadeBar = document.createElement('div');
+				this.toolbarTabContentFadeBarEl = toolbarTabContentFadeBar;
+				toolbarTabBox.appendChild(toolbarTabContentFadeBar);
+				toolbarTabContentFadeBar.className = 'gui-toolbar-tab-content-fade-bar';
+
+				const toolbarTabContent = document.createElement('div');
+				this.toolbarTabContentEl = toolbarTabContent;
+				toolbarTabContentContainer.appendChild(toolbarTabContent);
+				toolbarTabContent.className = 'gui-toolbar-tab-content';
+
+				const toolbarButton1 = document.createElement('button');
+				this.toolbarButton1El = toolbarButton1;
+				toolbar.appendChild(toolbarButton1);
+				toolbarButton1.setAttribute('id', 'toolbar-button-1');
+				toolbarButton1.className = 'gui-toolbar-button hide';
+
+				const toolbarButton1Icon = document.createElement('img');
+				this.toolbarButton1IconEl = toolbarButton1Icon;
+				toolbarButton1.appendChild(toolbarButton1Icon);
+				toolbarButton1Icon.className = 'gui-toolbar-button-icon';
+				toolbarButton1Icon.width = 100;
+				toolbarButton1Icon.height = 100;
+
+				const toolbarButton2 = document.createElement('button');
+				this.toolbarButton2El = toolbarButton2;
+				toolbar.appendChild(toolbarButton2);
+				toolbarButton2.setAttribute('id', 'toolbar-button-2');
+				toolbarButton2.className = 'gui-toolbar-button hide';
+
+				const toolbarButton2Icon = document.createElement('img');
+				this.toolbarButton2IconEl = toolbarButton2Icon;
+				toolbarButton2.appendChild(toolbarButton2Icon);
+				toolbarButton2Icon.className = 'gui-toolbar-button-icon';
+				toolbarButton2Icon.width = 100;
+				toolbarButton2Icon.height = 100;
+
+				const toolbarButton3 = document.createElement('button');
+				this.toolbarButton3El = toolbarButton3;
+				toolbar.appendChild(toolbarButton3);
+				toolbarButton3.setAttribute('id', 'toolbar-button-3');
+				toolbarButton3.className = 'gui-toolbar-button hide';
+
+				const toolbarButton3Icon = document.createElement('img');
+				this.toolbarButton3IconEl = toolbarButton3Icon;
+				toolbarButton3.appendChild(toolbarButton3Icon);
+				toolbarButton3Icon.className = 'gui-toolbar-button-icon';
+				toolbarButton3Icon.width = 100;
+				toolbarButton3Icon.height = 100;
+
+				const toolbarButton4 = document.createElement('button');
+				this.toolbarButton4El = toolbarButton4;
+				toolbar.appendChild(toolbarButton4);
+				toolbarButton4.setAttribute('id', 'toolbar-button-4');
+				toolbarButton4.className = 'gui-toolbar-button hide';
+
+				const toolbarButton4Icon = document.createElement('img');
+				this.toolbarButton4IconEl = toolbarButton4Icon;
+				toolbarButton4.appendChild(toolbarButton4Icon);
+				toolbarButton4Icon.className = 'gui-toolbar-button-icon';
+				toolbarButton4Icon.width = 100;
+				toolbarButton4Icon.height = 100;
+
 			}, 
 
-			setEventListener() {
+			setToolbar(color = 'pearlwhite', shadowColor = 'shadow-smokegrey') {
+				if(typeof this.toolbarEl != 'undefined'){
+					let toolbar = this.toolbarEl;
+					color && toolbar.classList.add(color);
+					shadowColor && toolbar.classList.add(shadowColor);
+					toolbar.classList.add('active');
+				}
+			},
 
-			}
+			toggleToolbar(forceShow = null) {
+				if(forceShow === true) {
+					this.toolbarEl.classList.remove('active');
+					this.toolbarEl.classList.add('active');
+					return;
+				}
+				if(forceShow === false) {
+					this.toolbarEl.classList.remove('active');
+					return;
+				}
+				this.toolbarEl.classList.toggle('active');
+			},
+
+			setToolbarTab(color = 'coalgrey', shadowColor = null) {
+				if(typeof this.toolbarTabEl != 'undefined'){
+					let toolbarTab = this.toolbarTabEl;
+					let fade = this.toolbarTabContentFadeEl;
+					let fadeBar = this.toolbarTabContentFadeBarEl;
+
+					if(toolbarTab.classList.contains('active')){
+						toolbarTab.className = 'gui-toolbar-tab active';
+					}else{
+						toolbarTab.className = 'gui-toolbar-tab';
+					}
+
+					fadeBar.className = 'gui-toolbar-tab-content-fade-bar';			
+
+					if(color === 'coalgrey' || color === 'smokegrey' || color === 'skyblue' || color === 'terracotta') {
+						toolbarTab.classList.add('text-pearlwhite');
+					}else{
+						toolbarTab.classList.add('text-coalgrey');
+					}
+
+					toolbarTab.classList.add(color);
+					shadowColor && toolbarTab.classList.add('shadow-' + shadowColor);
+					shadowColor && fadeBar.classList.add(shadowColor);
+
+					let fadeColor = '#000000';
+
+					switch (color) {
+						case 'coalgrey':
+							fadeColor = '#41403F';
+							break;
+						case 'smokegrey':
+							fadeColor = '#9B9691';
+							break;
+						case 'pearlwhite':
+							fadeColor = '#FAF0E6';
+							break;
+						case 'terracotta':
+							fadeColor = '#FF7850';
+							break;
+						case 'duckyellow':
+							fadeColor = '#FFC800';
+							break;
+						case 'skyblue':
+							fadeColor = '#46AAC8';
+							break;
+						default:
+							fadeColor = '#41403F';
+					}
+
+					fade.style.setProperty('--color-var', fadeColor);
+				}
+			},
+
+			setButton(id, color, func, action = 'feedback') {
+				if(typeof document.querySelector(id) != 'undefined' && document.querySelector(id).children.length != 0){
+					let element = document.querySelector(id);
+					element.setAttribute('data-color', color);
+					element.setAttribute('data-func', func);
+					element.setAttribute('data-action', action);
+					element.classList.add(color);
+					let iconElement = element.children[0];
+
+					if(color === 'coalgrey' || color === 'smokegrey' || color === 'skyblue' || color === 'terracotta') {
+						iconElement.src = 'assets/hand.gemacht WebApp button ' + func + ' perlweiss.svg';
+					}else {
+						iconElement.src = 'assets/hand.gemacht WebApp button ' + func + ' kohlegrau.svg';
+					}
+					element.classList.remove('hide');
+					iconElement.addEventListener('click', app.gui.toolbar.buttonClickHandler);				
+				}				
+			}, 
+
+			removeButton(id) {
+				if(typeof document.querySelector(id) != 'undefined' && document.querySelector(id).children.length != 0){
+					let element = document.querySelector(id);
+					let action = element.getAttribute('data-action');
+					element.removeAttribute('data-action');
+					element.className = 'gui-toolbar-button hide';
+					let iconElement = element.children[0];
+					iconElement.src = '';
+					iconElement.removeEventListener('click', app.gui.toolbar.buttonClickHandler)					
+				}	
+			}, 
+
+			buttonClickHandler(event){
+				let button = event.srcElement.parentElement;
+				if(typeof button != 'undefined' && button.children.length != 0){
+					let action = button.getAttribute('data-action');
+
+					if(action === 'feedback'){
+						app.gui.toolbar.buttonActionFeedback(button);
+					}
+
+					if(action === 'slide'){
+						app.gui.toolbar.buttonActionSlide(button);
+					}
+
+					if(action === 'tab'){
+						app.gui.toolbar.buttonActionTab(button);
+					}
+					
+				}
+			},
+
+			buttonActionSlide(button) {
+				let toolbar = this.toolbarEl;
+				if(typeof button != 'undefined' && button.children.length != 0){
+					let iconElement = button.children[0];
+
+					//toggle remove on all buttons
+					for(const child of toolbar.children){
+						child.classList.toggle('remove');
+					}
+
+					//toggle button class action
+					button.classList.toggle('slide');
+					//toggle button class remove
+					button.classList.toggle('remove');
+					//toggle icon class active
+					iconElement.classList.toggle('slide');
+				}	
+			}, 
+
+			buttonActionFeedback(button) {
+				let toolbar = this.toolbarEl;
+				if(typeof button != 'undefined' && button.children.length != 0){
+					let iconElement = button.children[0];
+					//add button class action
+					button.classList.add('feedback');
+					//remove button class action after 100ms
+					setTimeout(() => {
+					  button.classList.remove('feedback');
+					}, 100);
+				}	
+			},
+
+			buttonActionTab(button) {
+				let toolbar = this.toolbarEl;
+				let toolbarTab = this.toolbarTabEl
+				let toolbarTabFade = this.toolbarTabContentFadeEl;
+				if(typeof button != 'undefined' && button.children.length != 0){
+					let iconElement = button.children[0];
+					let color = button.getAttribute('data-color');
+
+					//toggle remove on all buttons
+					for(const child of toolbar.children){
+						child.classList.toggle('inactive');
+						iconElement.classList.toggle('inactive');
+					}
+
+					//set toolbarTab color to button color
+					this.setToolbarTab('pearlwhite', color);
+
+					toolbarTab.classList.toggle('active');
+
+					//toggle button class action
+					button.classList.toggle('tab');
+					//toggle button class remove
+					button.classList.toggle('inactive');
+					iconElement.classList.toggle('tab');
+				}	
+			},
 		}
 	}, //gui
 
@@ -895,6 +1165,13 @@ const app = {
 			this.createElements();
 			this.tooltip.init();
 			this.highlight.init();
+
+			app.gui.toolbar.setToolbar();
+
+			app.gui.toolbar.setButton("#toolbar-button-1", 'skyblue', 'info', 'tab');
+			app.gui.toolbar.setButton("#toolbar-button-2", 'terracotta', 'search', 'slide');
+			app.gui.toolbar.setButton("#toolbar-button-3", 'duckyellow', 'filter', 'tab');
+			app.gui.toolbar.setButton("#toolbar-button-4", 'coalgrey', 'reset view');
 		},
 
 		tooltip: {
@@ -1011,7 +1288,7 @@ const app = {
 
 			init() {
 				this.createElements();
-				this.setEventlistener();
+				this.setEventListener();
 			},
 
 			createElements() {
@@ -1039,7 +1316,7 @@ const app = {
 				highlightArrow.height = 100;
 			}, 
 
-			setEventlistener(){
+			setEventListener(){
 				if(app.gui.message.messageCloseEl) {
 					app.gui.message.messageCloseEl.addEventListener('click', (evt) => {
 						document.querySelector('#forcegraph').setAttribute('highlight', {source: ''});

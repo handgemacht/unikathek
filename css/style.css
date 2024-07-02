@@ -151,10 +151,7 @@ audio {
   color: #FFC800;
 }
 
-
 button {
-  min-width: 70px;
-  min-height: 30px;
   font-family: 'Roboto Slab', serif;
   font-size: 1.0em;
   border: none;
@@ -234,16 +231,25 @@ h1, h2, h3, h4, h5, h6 {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-
 }
 
 /* END Basics and Design */
 
 
 
+
+
+
+
+
+
 /* START gui */
 
-/* gui */
+
+
+
+/* gui title, logo, version, loading-screen */
+
 div.gui-title {
   position: fixed;
   top: 10px;
@@ -299,11 +305,11 @@ div.gui-loading-screen {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
+  width: 100vw;
   height: 100vh;
   background-color: #9B9691;
   pointer-events: none;
-  z-index: 3;
+  z-index: 4;
 }
 
 div.gui-loading-container {
@@ -324,21 +330,25 @@ object.gui-loading-animation {
   height: auto;
 }
 
+
+
+
+/* gui message */
+
 div.gui-message-box {
   position: absolute;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
+  width: 100vw;
   height: 100vh;
   pointer-events: none;
 }
 
 div.gui-message-container {
   position: relative;
-  top: 1vh;
-  width: 96vw;
-  height: 98vh;
+  width: calc(100% - 40px);
+  height: calc(100% - 40px);
   margin: 0;
   pointer-events: none;
   z-index: 4;
@@ -347,7 +357,7 @@ div.gui-message-container {
 div.gui-message {
   position: absolute;
   width: 100%;
-  height: 35%;
+  height: 40%;
   bottom: 5px;
   border-radius: 0px 20px 0px 20px;
   pointer-events: all;
@@ -355,13 +365,13 @@ div.gui-message {
 }
 
 div.gui-message.buttonsActive {
-  height: calc(35% - 45px);
-  bottom: 50px;
+  height: calc(40% - 25px);
+  bottom: 30px;
 }
 
 div.gui-message-type {
   position: absolute;
-  bottom: calc(5px + 35%);
+  bottom: calc(5px + 40%);
   left: 0;
   padding: 2px 15px 1px 12px;
   border-radius: 0px 7px 0px 0px;
@@ -374,7 +384,7 @@ div.gui-message-type {
 }
 
 div.gui-message-type.buttonsActive {
-  bottom: calc(50px + 35%);
+  bottom: calc(25px + 40%);
 }
 
 div.gui-message-close {
@@ -440,6 +450,8 @@ div.gui-message-button-container {
 }
 
 button.gui-message-button {
+  min-width: 70px;
+  min-height: 30px;
   margin: 0 1px 0 0;
   padding: 0 15px 0 15px;
   border-radius: 0px;
@@ -452,6 +464,11 @@ button.gui-message-button:first-child {
 button.gui-message-button:last-child {
   border-radius: 0 0 20px 0;
 }
+
+
+
+
+/* gui error */
 
 div.gui-error-container {
   position: absolute;
@@ -498,6 +515,11 @@ button.gui-error-button:hover {
   box-shadow: 5px 5px #FF7850;
 }
 
+
+
+
+/* gui fullscreen-image */
+
 div.gui-fullscreen-image-container {
   position: fixed;
   top: 0;
@@ -513,13 +535,17 @@ img.gui-fullscreen-image {
   position: fixed;
   top: 50%;
   left: 50%;
-  width: 80vh;
-  max-width: 80vw;
+  width: 80%;
+  max-width: 80%;
   height: auto;
   transform: translate(-50%, -50%);
 }
 
-/* gui.menu */
+
+
+
+/* gui menu */
+
 div.gui-menu-icon {
   position: fixed;
   top: 15px;
@@ -542,10 +568,10 @@ img.gui-menu-icon-symbol.loading {
 
 div.gui-menu-container {
   position: fixed;
-  top: 1vh;
+  top: 1%;
   right: 50%;
-  width: 96vw;
-  height: 98vh;
+  width: 96%;
+  height: 98%;
   transform: translateX(50%);
   margin: 0;
   padding: 0;
@@ -586,13 +612,14 @@ div.gui-menu-title {
 
 div.gui-menu-text {
   text-align: center;
-  font-size: 1.2em;
+  font-size: 1.0em;
   margin: 0 50px 0 50px;
 }
 
 div.gui-menu-buttons {
   width: 100%;
   text-align: center;
+  font-size: 1.2em;
 }
 
 div.gui-menu-links {
@@ -629,19 +656,207 @@ div.gui-menu-patronage-logo {
   background-color: #fff;
 }
 
-/* gui.menu */
-dev.gui-toolbar-container {
 
+
+
+/* gui toolbar */
+
+div.gui-toolbar-box {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
 }
 
+div.gui-toolbar-container {
+  position: relative;
+  width: calc(100vw - 40px);
+  height: calc(100vh - 40px);
+  margin: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+div.gui-toolbar {
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  width: 100%;
+  height: 60px;
+  left: 50%;
+  bottom:-75px;
+  transform: translateX(-50%);
+  border-radius: 30px 30px 30px 30px;
+  pointer-events: all;
+  transition: bottom 0.5s;
+  z-index: 4;
+}
+
+div.gui-toolbar.active {
+  bottom: 25px;
+}
+
+button.gui-toolbar-button {
+  display: flex;
+  width: 50px;
+  height: 50px;
+  margin: 5px;
+  padding: 5px;
+  border-radius: 25px 25px 25px 25px;
+  transition: all 0.6s allow-discrete;
+  align-self: center;
+  text-align: left;
+  overflow: hidden;
+}
+
+button.gui-toolbar-button.feedback {
+  transition: none;
+  opacity: 0.3;
+}
+
+button.gui-toolbar-button.slide {
+  width: 100%;
+  height: 60px;
+  margin: 0;
+  border-radius: 30px;
+}
+
+button.gui-toolbar-button.tab {
+  height: 60px;
+  transform: translateY(-5px);
+  border-radius: 0 0 30px 30px;
+}
+
+button.gui-toolbar-button.inactive {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+button.gui-toolbar-button.remove {
+  width: 0;
+  height: 0;
+  opacity: 0;
+  margin: 0;
+  padding: 0;
+  transition: all 0s;
+}
+
+img.gui-toolbar-button-icon {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  bottom: 0;
+  align-self: center;
+  transition: width 0.6s allow-discrete;
+  transition-delay: 1s;
+}
+
+img.gui-toolbar-button-icon:active {
+  opacity: 0.5;
+}
+
+img.gui-toolbar-button-icon.slide {
+  width: 40px;
+  height: 40px;
+  margin-left: 5px;
+  transition: margin-left 0.5s allow-discrete;
+}
+
+img.gui-toolbar-button-icon.tab {
+  width: 40px;
+  height: 40px;
+}
+
+img.gui-toolbar-button-icon.inactive {
+  opacity: 0.2;
+}
+
+div.gui-toolbar-tab {
+  position: absolute;
+  width: calc(100% - 12px);
+  height: 0;
+  left: 0;
+  bottom: 40px;
+  margin: 6px;
+  border-radius: 0 30px 0 0;
+  pointer-events: none;
+  transition: height 0.5s;
+}
+
+div.gui-toolbar-tab.active {
+  height: 85%;
+  pointer-events: all;
+}
+
+div.gui-toolbar-tab-box {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+div.gui-toolbar-tab-content-container {
+  width: 100%;
+  height: 100%;
+  padding: 12px 20px 120px 12px;
+  overflow-y: scroll;
+}
+
+div.gui-toolbar-tab-content-container::-webkit-scrollbar-thumb {
+  background: #9B9691;
+}
+
+.gui-toolbar-tab-content-container::-webkit-scrollbar-button:start:increment {
+  height: 30px;
+  display: block;
+}
+
+.gui-toolbar-tab-content-container::-webkit-scrollbar-button:end:decrement {
+  height: 60px;
+  display: block;
+}
+
+div.gui-toolbar-tab-content-fade {
+  position: absolute;
+  width: 100%;
+  height: 60px;
+  transform: translateY(-60px);
+  background: linear-gradient(0deg, var(--color-var, rgba(0,0,0,0)) 75%, rgba(0,0,0,0) 100%);
+}
+
+div.gui-toolbar-tab-content-fade-bar {
+  position: absolute;
+  width: 100%;
+  height: 60px;
+  transform: translateY(-45px);
+}
+
+div.gui-toolbar-tab-content {
+  width: 100%;
+  height: auto;
+}
+
+
+
+
+
 /* END gui */
+
+
+
+
+
+
 
 
 
 /* START model-viewer */
 
 model-viewer {
-  width: 100%;
+  width: 100vw;
   height: 100vh;
   opacity: 1;
 }
@@ -987,11 +1202,11 @@ pointer-events: auto !important;
 }
 
 #ar-overlay {
-    position: fixed;
-    width: 100vw;
-    height: 100vh;
-    top: 0;
-    left: 0;
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
 }
 #gui-close-popup{
   z-index: 5;
