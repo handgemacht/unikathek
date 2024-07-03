@@ -37,23 +37,23 @@ AFRAME.registerComponent('load-json-models', {
 			this.categoryModelEl = document.createElement('a-entity');
 			this.categoryModelEl.setAttribute('id', 'category-model');
 			this.categoryModelEl.setAttribute('geometry', 'primitive: sphere; radius: 4');
-			this.categoryModelEl.setAttribute('material', 'color: #FFC800; shader: flat');
+			this.categoryModelEl.setAttribute('material', 'color: #FF7850; shader: flat');
 			this.categoryModelEl.setAttribute('visible', false);
 			this.el.sceneEl.querySelector('a-assets').appendChild(this.categoryModelEl);
 
 			//create link category model 
 			this.linkCategoryModelEl = document.createElement('a-entity');
 			this.linkCategoryModelEl.setAttribute('id', 'link-category-model');
-			this.linkCategoryModelEl.setAttribute('geometry', 'primitive: sphere; radius: 2');			
-			this.linkCategoryModelEl.setAttribute('material', 'color: #FFC800; shader: flat; opacity: 0.2');
+			this.linkCategoryModelEl.setAttribute('geometry', 'primitive: sphere; radius: 4');			
+			this.linkCategoryModelEl.setAttribute('material', 'color: #FF7850; shader: flat; opacity: 0.4');
 			this.linkCategoryModelEl.setAttribute('visible', false);
 			this.el.sceneEl.querySelector('a-assets').appendChild(this.linkCategoryModelEl);
 
 			//create link tag model 
 			this.linkTagModelEl = document.createElement('a-entity');
 			this.linkTagModelEl.setAttribute('id', 'link-tag-model');
-			this.linkTagModelEl.setAttribute('geometry', 'primitive: sphere; radius: 2');			
-			this.linkTagModelEl.setAttribute('material', 'color: #9B9691; shader: flat; opacity: 0.2');
+			this.linkTagModelEl.setAttribute('geometry', 'primitive: sphere; radius: 4');			
+			this.linkTagModelEl.setAttribute('material', 'color: #9B9691; shader: flat; opacity: 0.4');
 			this.linkTagModelEl.setAttribute('visible', false);
 			this.el.sceneEl.querySelector('a-assets').appendChild(this.linkTagModelEl);
 
@@ -280,11 +280,11 @@ AFRAME.registerComponent('load-json-models', {
 						warmupTicks: 2000,
 						cooldownTicks: 0,
 						d3VelocityDecay: 0.6,
-						linkWidth: 0.7,
+						linkWidth: 0.6,
 						linkCurvature: 0.15,
-						linkThreeObjectExtend: true,
-						nodeRelSize: 1,
-						nodeThreeObjectExtend: true,
+						linkThreeObjectExtend: false,
+						nodeRelSize: 1.5,
+						nodeThreeObjectExtend: false,
 						nodeOpacity: 0,
 						onLinkHover: link => { 
 							app.collectionViewer.tooltip.mouseoverHandler(link);
@@ -336,8 +336,8 @@ AFRAME.registerComponent('load-json-models', {
 					let thisChild = scene.children[child];
 					if(thisNode.id != '' && thisChild.name != '' && thisChild.name === thisNode.id && thisNode.type === 'node-object'){
 						
-						//devMode && console.log('dev --- assignModelsToNodes: ', thisChild);
 						thisNode.gltf = thisChild.children[0].clone();
+						//devMode && console.log('dev --- assignModelsToNodes: ', thisNode);
 
 						//find highest value of x, y, z in bounding box of object
 						let bBoxSize = new THREE.Vector3();
@@ -353,14 +353,12 @@ AFRAME.registerComponent('load-json-models', {
 
 						thisNode.gltf.scale.set(newScale, newScale, newScale);
 						
-						devMode && console.log('dev --- assignModelsToNodes: ', thisNode);
+						
 						
 					}else if(thisNode.id != '' && thisChild.name != '' && thisNode.type === 'node-category' ){
 						thisNode.gltf = categoryModel.children[0].clone();
-						thisNode.gltfVisible = categoryModel.children[0].clone();
-						thisNode.gltfVisible.visible = true;
-						thisNode.gltfInvisible = categoryModel.children[0].clone();
-						thisNode.gltfInvisible.visible = false;
+						thisNode.gltf.material = new THREE.MeshBasicMaterial();
+						thisNode.gltf.material.copy(categoryModel.children[0].material);
 					}
 				}
 			}
@@ -385,7 +383,7 @@ AFRAME.registerComponent('load-json-models', {
 						thisLink.materialHighlight = categoryMaterial.clone();
 						thisLink.materialHighlight.opacity = 1;
 						thisLink.materialFaint = categoryMaterial.clone();
-						thisLink.materialFaint.opacity = 0.05;
+						thisLink.materialFaint.opacity = 0.1;
 						thisLink.materialInvisible = categoryMaterial.clone();
 						thisLink.materialInvisible.visible = false;
 						thisLink.material = thisLink.materialNormal.clone();
@@ -394,7 +392,7 @@ AFRAME.registerComponent('load-json-models', {
 						thisLink.materialHighlight = tagMaterial.clone();
 						thisLink.materialHighlight.opacity = 1;
 						thisLink.materialFaint = tagMaterial.clone();
-						thisLink.materialFaint.opacity = 0.05;
+						thisLink.materialFaint.opacity = 0.1;
 						thisLink.materialInvisible = tagMaterial.clone();
 						thisLink.materialInvisible.visible = false;
 						thisLink.material = thisLink.materialNormal.clone();
@@ -596,7 +594,7 @@ AFRAME.registerComponent('highlight', {
 					this.setHighestDistance(distance);
 				}else{
 					thisNode.gltf.material.transparent = true;
-					thisNode.gltf.material.opacity = 0.05;
+					thisNode.gltf.material.opacity = 0;
 					thisNode.gltf.material.visible = false;
 				}
 			}
@@ -626,18 +624,13 @@ AFRAME.registerComponent('highlight', {
 			let thisNode = fgComp.nodes[node];
 			if (thisNode.id != '' && thisNode.gltf.material) {
 				let distance = thisNode.__threeObj.position.distanceTo(sourceNode.__threeObj.position);
-				if(modelArray.includes(thisNode.id) && thisNode.type === 'node-object'){
+				if(modelArray.includes(thisNode.id)){
 					thisNode.gltf.material.opacity = 1;
 					thisNode.gltf.material.visible = true;
 					this.setHighestDistance(distance);
-				}else if(modelArray.includes(thisNode.id) && thisNode.type === 'node-category') {
-					thisNode.gltf.copy(thisNode.gltfVisible);
-					this.setHighestDistance(distance);
-				}else if(thisNode.type === 'node-category') {
-					thisNode.gltf.copy(thisNode.gltfInvisible);
 				}else{
 					thisNode.gltf.material.transparent = true;
-					thisNode.gltf.material.opacity = 0.05;
+					thisNode.gltf.material.opacity = 0;
 					thisNode.gltf.material.visible = false;
 				}
 			}
@@ -659,12 +652,8 @@ AFRAME.registerComponent('highlight', {
 		for(let node in fgComp.nodes){
 			let thisNode = fgComp.nodes[node];
 			if (thisNode.id != '' && thisNode.gltf.material) {
-				if(thisNode.type === 'node-category') {
-					thisNode.gltf.copy(thisNode.gltfVisible);
-				}else{
-					thisNode.gltf.material.opacity = 1;
-					thisNode.gltf.material.visible = true;
-				}
+				thisNode.gltf.material.opacity = 1;
+				thisNode.gltf.material.visible = true;
 				let distance = document.querySelector('#forcegraph').object3D.position.distanceTo(thisNode.__threeObj.position);
 				this.setHighestDistance(distance);
 			}
@@ -673,10 +662,10 @@ AFRAME.registerComponent('highlight', {
 	}, 
 
 	setHighestDistance: function(distance) {
-		devMode && console.log('dev --- highlight > distance: ', distance);
+		//devMode && console.log('dev --- highlight > distance: ', distance);
 		if (this.data.highestDistance < distance) {
 			this.data.highestDistance = distance;
-			devMode && console.log('dev --- highlight > new highest distance set: ', distance);
+			//devMode && console.log('dev --- highlight > new highest distance set: ', distance);
 		}
 	}, 
 
@@ -768,8 +757,6 @@ AFRAME.registerComponent('orbit-controls', {
 	//this.controls.update();
 	this.updateOrientation();
 	this.updatePosition();
-	devMode && console.log('dev --- orbit-controls > distance: ', this.distance);
-	devMode && console.log('dev --- orbit-controls > data.desiredDistance: ', this.data.desiredDistance);
   },
 
   play: function () {

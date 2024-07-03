@@ -1490,7 +1490,7 @@ const app = {
 					let categoryList = '<div class="categorys">';
 					for(let category in fgData.categories) {
 						let onClickString = "document.querySelector('#forcegraph').components.highlight.highlightFromPill('" + fgData.categories[category] + "', 'category')"
-						categoryList += '<div class="pill duckyellow text-coalgrey" onclick="' + onClickString + '">' + fgData.categories[category] + '</div>';
+						categoryList += '<div class="pill terracotta text-pearlwhite" onclick="' + onClickString + '">' + fgData.categories[category] + '</div>';
 					}
 					categoryList += '</div>';
 	
@@ -1531,7 +1531,7 @@ const app = {
 						content: '<h3>' + fgData.name + '</h3>'
 								+ '<p>Hier steht später eine Kategoriebeschreibung</p>',
 						color: 'pearlwhite',
-						shadow: 'duckyellow'
+						shadow: 'terracotta'
 					}
 
 					app.gui.message.setMessage(message);
@@ -1584,7 +1584,7 @@ const app = {
 
 				document.addEventListener('proxyfgData-update', (event) => {
 					app.devMode && console.log('dev --- cv > filter > proxyfgData-update: ', app.collectionViewer.proxyfgData.data);
-					this.generateCheckBoxList('#cv-filter-category-list', app.collectionViewer.proxyfgData.data.categorylist, 'duckyellow');
+					this.generateCheckBoxList('#cv-filter-category-list', app.collectionViewer.proxyfgData.data.categorylist, 'terracotta');
 					this.generateCheckBoxList('#cv-filter-tag-list', app.collectionViewer.proxyfgData.data.taglist, 'smokegrey');
 				});
 			},
@@ -1753,6 +1753,7 @@ const app = {
 			collectionViewerElement.setAttribute('gltf-model', 'dracoDecoderPath: ./draco/');
 			collectionViewerElement.setAttribute('load-json-models', '');
 			collectionViewerElement.setAttribute('xr-mode-ui', 'enabled: false');
+			collectionViewerElement.setAttribute('device-orientation-permission-ui', 'enabled: false');
 			collectionViewerElement.setAttribute('light', 'defaultLightsEnabled: false');
 			app.showStats && collectionViewerElement.setAttribute('stats', '');
 
