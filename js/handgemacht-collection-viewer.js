@@ -67,6 +67,11 @@ AFRAME.registerComponent('load-json-models', {
 				comp.assignMaterialToLinks();
 				app.gui.loadingScreen.hideLoadingScreen();
 			}, {once: true});
+
+			this.el.sceneEl.addEventListener('filter-updated', (e) => {
+				comp.assignModelsToNodes(this.data.scaleFactor, this.data.scaleNormalizationFactor);	
+				comp.assignMaterialToLinks();
+			});
 		},
 
 		update: function () {},
@@ -85,7 +90,7 @@ AFRAME.registerComponent('load-json-models', {
 				return tag !== '';
 			}
 
-			let fgData={ 'nodes': [], 'links': []};
+			let fgData={ 'nodes': [], 'links': [], 'categorylist': [], 'taglist': [] };
 		
 			//containsObject
 			function containsObject(obj, list) {
@@ -188,15 +193,18 @@ AFRAME.registerComponent('load-json-models', {
 			function filterDoubles(link) {
 				return link.double == false || link.type == 'link-category';
 			}
+
+			fgData.categorylist = json.categorylist;
+			fgData.taglist = json.taglist;
 		
 			return fgData;
 		},
 
 		filterFgData: function(fgData, tags = [], categories = []) {
-			let filteredFgData = { 'nodes': [], 'links': []};
+			let filteredFgData = { 'nodes': [], 'links': [] };
 
-			devMode && console.log('dev --- filterFgData tags: ', tags);
-			devMode && console.log('dev --- filterFgData categories: ', categories);
+			devMode && console.log('dev --- forcegraph filter Data tags: ', tags);
+			devMode && console.log('dev --- forcegraph filter Data categories: ', categories);
 
 			for( let link in fgData.links ){
 				let thisLink = fgData.links[link];
@@ -221,9 +229,16 @@ AFRAME.registerComponent('load-json-models', {
 				}
 			}
 
-			devMode && console.log('dev --- filtered forcegraph Data: ', filteredFgData);
+			filteredFgData.nodes = JSON.stringify(filteredFgData.nodes);
+			filteredFgData.links = JSON.stringify(filteredFgData.links);
 
-			return filteredFgData;
+			document.querySelector('#forcegraph').setAttribute('forcegraph', {
+				nodes: filteredFgData.nodes,
+				links: filteredFgData.links
+			});
+
+			let event = new Event('filter-updated');
+			document.querySelector('a-scene').dispatchEvent(event);
 		},
 
 		loadJSONObjects: function () {
@@ -232,19 +247,16 @@ AFRAME.registerComponent('load-json-models', {
 			let objectsJSON = fetch(fileJSON)
 				.then((response) => response.json())
 				.then((json) => {
-					app.collectionViewer.jsonData = json;
-
-					devMode && console.log('dev --- objects JSON: ', app.collectionViewer.jsonData);
-
-
 					//load models to scene
 					let scene = document.querySelector('a-scene').object3D;
 					for(let object in json.objects){
 						if(json.objects[object].quality512){
 							loader.load(dirPath_Files + json.objects[object].quality512, (gltf) => {
 								gltf.scene.name = json.objects[object].primaryKey;
+								gltf.scene.altName = json.objects[object].name;
 								gltf.scene.visible = false;
 								scene.add( gltf.scene );
+								//devMode && console.log('dev --- load model: ', json.objects[object]);
 							}, (xhr) =>{ 
 								//devMode && console.log( ( 'dev --- load model: ' + object.name + ' - ' + xhr.loaded / xhr.total * 100 ) + '% loaded' );
 							}, (error) => {		
@@ -253,30 +265,18 @@ AFRAME.registerComponent('load-json-models', {
 						}
 					}
 
-					//translate json to forcegraph data
-					this.fgData = this.getDataFromJSON(json);
-					devMode && console.log('dev --- complete forcegraph Data: ', this.fgData);
-					devMode && console.log('dev --- complete forcegraph Data tags: ', json.taglist);
-					devMode && console.log('dev --- complete forcegraph Data categories: ', json.categorylist);
-
-					//filter out categories for initial display
-					//let filteredFgData = this.filterFgData(this.fgData, json.taglist[22]);					 	//tag "Kirwa" and no categories 
-					//let filteredFgData = this.filterFgData(this.fgData, json.taglist);							//all tags, no categories
-					let filteredFgData = this.filterFgData(this.fgData, json.taglist, [json.categorylist[1], json.categorylist[4]]); 	//all tags and categorys "Bräuche", "Kirwa"
-					//let filteredFgData = this.filterFgData(this.fgData, '', json.categorylist); 					//no tags and all categories 
-					//let filteredFgData = this.filterFgData(this.fgData, json.taglist[22], json.categorylist); 	//tag "Kirwa" and all categories 
-
-					//stringify fgData to JSON 
-					let newNodes = JSON.stringify(filteredFgData.nodes);
-					let newLinks = JSON.stringify(filteredFgData.links);
-						
 					//create a-entity forcegraph
-					let newEntity = document.createElement('a-entity');
-					this.el.sceneEl.appendChild(newEntity);
-					newEntity.setAttribute('id', 'forcegraph');
-					newEntity.setAttribute('forcegraph', {
-						nodes: newNodes,
-						links: newLinks,
+					let forcegraphEntity = document.createElement('a-entity');
+					this.el.sceneEl.appendChild(forcegraphEntity);
+					forcegraphEntity.setAttribute('id', 'forcegraph');
+
+					this.fgData = this.getDataFromJSON(json);
+					app.collectionViewer.proxyfgData.data = this.fgData;
+
+					//initial display
+					this.filterFgData(this.fgData, this.fgData.taglist, this.fgData.categorylist); 					//no tags and all categories 
+
+					forcegraphEntity.setAttribute('forcegraph', {
 						warmupTicks: 2000,
 						cooldownTicks: 0,
 						d3VelocityDecay: 0.6,
@@ -311,6 +311,7 @@ AFRAME.registerComponent('load-json-models', {
 							document.querySelector('#forcegraph').setAttribute('highlight', {source: node});
 						}
 					});
+
 					THREE.DefaultLoadingManager.onLoad = function () {
 						let event = new Event('JSON-models-loaded');
 						document.querySelector('a-scene').dispatchEvent(event);
@@ -327,32 +328,39 @@ AFRAME.registerComponent('load-json-models', {
 
 			devMode && console.log('dev --- forcegraph component: ', fgComp);
 
+			devMode && console.log('dev --- scene: ', scene);
+
 			for(let node in fgComp.nodes){
 				let thisNode = fgComp.nodes[node];
 				for (let child in scene.children){
 					let thisChild = scene.children[child];
 					if(thisNode.id != '' && thisChild.name != '' && thisChild.name === thisNode.id && thisNode.type === 'node-object'){
 						
+						//devMode && console.log('dev --- assignModelsToNodes: ', thisChild);
+						thisNode.gltf = thisChild.children[0].clone();
+
 						//find highest value of x, y, z in bounding box of object
 						let bBoxSize = new THREE.Vector3();
 						let boundingBox = new THREE.Box3();
-						boundingBox.setFromObject(thisChild.children[0]).getSize(bBoxSize);
+						boundingBox.setFromObject(thisNode.gltf).getSize(bBoxSize);
 						let maxSize = bBoxSize.x;
 						bBoxSize.y > maxSize ? maxSize = bBoxSize.y : '';
 						bBoxSize.z > maxSize ? maxSize = bBoxSize.z : '';
 						//normalize scale
+						thisNode.gltf.scale.set(1, 1, 1);
 						let normScale =  1 / (maxSize * normFactor + (1-normFactor));
 						let newScale = normScale * scaleFactor;
-						thisChild.children[0].scale.set(newScale, newScale, newScale);
+
+						thisNode.gltf.scale.set(newScale, newScale, newScale);
 						
-						thisNode.gltf = thisChild.children[0];
+						devMode && console.log('dev --- assignModelsToNodes: ', thisNode);
+						
 					}else if(thisNode.id != '' && thisChild.name != '' && thisNode.type === 'node-category' ){
 						thisNode.gltf = categoryModel.children[0].clone();
 						thisNode.gltfVisible = categoryModel.children[0].clone();
 						thisNode.gltfVisible.visible = true;
 						thisNode.gltfInvisible = categoryModel.children[0].clone();
 						thisNode.gltfInvisible.visible = false;
-						//devMode && console.log('dev --- thisNode.gltfInvisible.material.visible: ', thisNode.gltfInvisible.material.visible);
 					}
 				}
 			}

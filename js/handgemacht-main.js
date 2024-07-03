@@ -117,7 +117,9 @@ const app = {
 			});
 		}else{
 			this.devMode && console.log("dev --- WebXR is not supported on this browser");
-		}	
+		}
+
+		this.gui.setupCollapsibles();
 	}, //init
 
 	gui: {
@@ -975,7 +977,6 @@ const app = {
 				toolbarButton4Icon.className = 'gui-toolbar-button-icon';
 				toolbarButton4Icon.width = 100;
 				toolbarButton4Icon.height = 100;
-
 			}, 
 
 			setToolbar(color = 'pearlwhite', shadowColor = 'shadow-smokegrey') {
@@ -1000,7 +1001,7 @@ const app = {
 				this.toolbarEl.classList.toggle('active');
 			},
 
-			setToolbarTab(color = 'coalgrey', shadowColor = null) {
+			setToolbarTab(colors) {
 				if(typeof this.toolbarTabEl != 'undefined'){
 					let toolbarTab = this.toolbarTabEl;
 					let fade = this.toolbarTabContentFadeEl;
@@ -1012,21 +1013,18 @@ const app = {
 						toolbarTab.className = 'gui-toolbar-tab';
 					}
 
-					fadeBar.className = 'gui-toolbar-tab-content-fade-bar';			
+					fadeBar.className = 'gui-toolbar-tab-content-fade-bar';	
 
-					if(color === 'coalgrey' || color === 'smokegrey' || color === 'skyblue' || color === 'terracotta') {
-						toolbarTab.classList.add('text-pearlwhite');
-					}else{
-						toolbarTab.classList.add('text-coalgrey');
-					}
+					app.devMode && console.log('dev --- tabColors: ', typeof colors);		
 
-					toolbarTab.classList.add(color);
-					shadowColor && toolbarTab.classList.add('shadow-' + shadowColor);
-					shadowColor && fadeBar.classList.add(shadowColor);
+					toolbarTab.classList.add(colors.tabText);
+					toolbarTab.classList.add(colors.tabBackground);
+					colors.tabShadow && toolbarTab.classList.add(colors.tabShadow);
+					colors.tabShadow && fadeBar.classList.add(colors.button);
 
 					let fadeColor = '#000000';
 
-					switch (color) {
+					switch (colors.tabBackground) {
 						case 'coalgrey':
 							fadeColor = '#41403F';
 							break;
@@ -1053,20 +1051,20 @@ const app = {
 				}
 			},
 
-			setButton(id, color, func, action = 'feedback') {
+			setButton(id, setup) {
 				if(typeof document.querySelector(id) != 'undefined' && document.querySelector(id).children.length != 0){
 					let element = document.querySelector(id);
-					element.setAttribute('data-color', color);
-					element.setAttribute('data-func', func);
-					element.setAttribute('data-action', action);
-					element.classList.add(color);
+					element.setAttribute('data-colors', JSON.stringify(setup.colors));
+					element.setAttribute('data-func', setup.func);
+					element.setAttribute('data-action', setup.action.type);
+					element.setAttribute('data-selector', setup.action.selector);
+					element.classList.add(setup.colors.button);
 					let iconElement = element.children[0];
 
-					if(color === 'coalgrey' || color === 'smokegrey' || color === 'skyblue' || color === 'terracotta') {
-						iconElement.src = 'assets/hand.gemacht WebApp button ' + func + ' perlweiss.svg';
-					}else {
-						iconElement.src = 'assets/hand.gemacht WebApp button ' + func + ' kohlegrau.svg';
-					}
+					if(setup.colors.buttonIcon === 'coalgrey') {setup.colors.buttonIcon = 'kohlegrau'};
+					if(setup.colors.buttonIcon === 'pearlwhite') {setup.colors.buttonIcon = 'perlweiss'};
+					iconElement.src = 'assets/hand.gemacht WebApp button ' + setup.func + ' ' + setup.colors.buttonIcon + '.svg';
+					
 					element.classList.remove('hide');
 					iconElement.addEventListener('click', app.gui.toolbar.buttonClickHandler);				
 				}				
@@ -1139,19 +1137,29 @@ const app = {
 			buttonActionTab(button) {
 				let toolbar = this.toolbarEl;
 				let toolbarTab = this.toolbarTabEl
+				let toolbarTabContent = this.toolbarTabContentEl;
 				let toolbarTabFade = this.toolbarTabContentFadeEl;
 				if(typeof button != 'undefined' && button.children.length != 0){
 					let iconElement = button.children[0];
-					let color = button.getAttribute('data-color');
+					let colors = JSON.parse(button.getAttribute('data-colors'));
+
+					for(let child of toolbarTabContent.children){
+						child.classList.add('hide');
+					}
+
+					let selectedContentElement = document.querySelector(button.getAttribute('data-selector'));
+					if(selectedContentElement){
+						selectedContentElement.classList.remove('hide');
+					}
 
 					//toggle remove on all buttons
-					for(const child of toolbar.children){
+					for(let child of toolbar.children){
 						child.classList.toggle('inactive');
 						iconElement.classList.toggle('inactive');
 					}
 
 					//set toolbarTab color to button color
-					this.setToolbarTab('pearlwhite', color);
+					this.setToolbarTab(colors);
 
 					toolbarTab.classList.toggle('active');
 
@@ -1162,25 +1170,100 @@ const app = {
 					iconElement.classList.toggle('tab');
 				}	
 			},
+		}, 
+
+		setupCollapsibles() {
+			var collapsibles = document.querySelectorAll('.collapsible-button');
+
+			collapsibles.forEach(function(element) {
+				var contentElement = element.nextElementSibling;
+				if(!contentElement) {return;}
+				if(!contentElement.classList.contains('collapsible-content')){return;}
+				element.addEventListener("click", function() {
+					element.classList.toggle('active');
+					contentElement.classList.toggle('active');
+				})
+			})
 		}
 	}, //gui
 
 	collectionViewer: {
 
-		jsonData: null,
+		proxyfgData: new Proxy({
+				data: null, 
+				update: new CustomEvent("proxyfgData-update")
+			}, 
+			{
+				set: function(target, prop, value){
+					target[prop] = value;
+					document.dispatchEvent(app.collectionViewer.proxyfgData.update)
+					return true;
+				}
+			}
+		),
 
 		init() {
 			this.createElements();
 			this.tooltip.init();
 			this.highlight.init();
 
-			this.filter.init();
-			app.gui.toolbar.setToolbar();
-			app.gui.toolbar.setButton("#toolbar-button-1", 'skyblue', 'info', 'tab');
-			app.gui.toolbar.setButton("#toolbar-button-2", 'terracotta', 'search', 'slide');
-			app.gui.toolbar.setButton("#toolbar-button-3", 'duckyellow', 'filter', 'tab');
-			app.gui.toolbar.setButton("#toolbar-button-4", 'coalgrey', 'reset view');
+			let buttonSetup1 = {
+				colors: {
+					button: 'skyblue',
+					buttonIcon: 'pearlwhite', 
+					tabBackground: 'pearlwhite',
+					tabShadow: 'shadow-skyblue',
+					tabText: 'text-coalgrey',
+					tabIcon: 'coalgrey'
+				}, 
+				func: 'info', 
+				action: {
+					type: 'tab',
+					selector: '.cv-info-container' 
+				}
+			}
 
+			let buttonSetup2 = {
+				colors: {
+					button: 'terracotta',
+					buttonIcon: 'pearlwhite', 
+					tabBackground: 'pearlwhite',
+					tabShadow: 'shadow-terracotta',
+					tabText: 'text-coalgrey',
+					tabIcon: 'coalgrey'
+				}, 
+				func: 'search', 
+				action: { 
+					type: 'slide', 
+					selector: null
+				}
+			}
+
+			let buttonSetup4 = {
+				colors: {
+					button: 'coalgrey',
+					buttonIcon: 'pearlwhite', 
+					tabBackground: 'pearlwhite',
+					tabShadow: null,
+					tabText: null,
+					tabIcon: null
+				}, 
+				func: 'reset view', 
+				action: { 
+					type: 'feedback', 
+					selector: null
+				}
+			}
+
+			app.gui.toolbar.setToolbar();
+			app.gui.toolbar.setButton("#toolbar-button-1", buttonSetup1);
+			app.gui.toolbar.setButton("#toolbar-button-2", buttonSetup2);
+			app.gui.toolbar.setButton("#toolbar-button-3", this.filter.buttonSetup);
+			this.filter.init();
+			app.gui.toolbar.toolbarButton3IconEl.addEventListener('click', (e) => {
+				app.collectionViewer.filter.filterUpdated ? app.collectionViewer.filter.updateForcegraph() : '';
+			})
+			app.gui.toolbar.setButton("#toolbar-button-4", buttonSetup4);
 		},
 
 		tooltip: {
@@ -1407,14 +1490,14 @@ const app = {
 					let categoryList = '<div class="categorys">';
 					for(let category in fgData.categories) {
 						let onClickString = "document.querySelector('#forcegraph').components.highlight.highlightFromPill('" + fgData.categories[category] + "', 'category')"
-						categoryList += '<div class="pill category" onclick="' + onClickString + '">' + fgData.categories[category] + '</div>';
+						categoryList += '<div class="pill duckyellow text-coalgrey" onclick="' + onClickString + '">' + fgData.categories[category] + '</div>';
 					}
 					categoryList += '</div>';
 	
 					let tagList = '<div class="tags">';
 					for(let tag in fgData.tags) {
 						let onClickString = "document.querySelector('#forcegraph').components.highlight.highlightFromPill('" + fgData.tags[tag] + "', 'tag')"
-						tagList += '<div class="pill tag" onclick="' + onClickString + '">' + fgData.tags[tag] + '</div>';
+						tagList += '<div class="pill smokegrey text-pearlwhite" onclick="' + onClickString + '">' + fgData.tags[tag] + '</div>';
 					}
 					tagList += '</div>';
 
@@ -1466,23 +1549,44 @@ const app = {
 					app.gui.message.setMessage(message);
 				}
 			},
-
-			pillHandler(name) {
-
-			}
 		},
 
 		filter: {
+
+			buttonSetup: {
+				colors: {
+					button: 'duckyellow',
+					buttonIcon: 'coalgrey', 
+					tabBackground: 'pearlwhite',
+					tabShadow: 'shadow-duckyellow',
+					tabText: 'text-coalgrey',
+					tabIcon: 'coalgrey'
+				}, 
+				func: 'filter', 
+				action: {
+					type: 'tab',
+					selector: '.cv-filter-container' 
+				}
+			},
 
 			texts: {
 				title: 'Filter',
 				intro: 'Aktiviere oder deaktiviere Kategorien und Tags um deine Ergebnisse zu filtern.',
 				categoriesButton: 'Kategorien',
 				tagsButton: 'Tags',
+				selectAllButton: 'Alle aus-/abwählen'
 			},
+
+			filterUpdated: false,
 
 			init() {
 				this.createElements();
+
+				document.addEventListener('proxyfgData-update', (event) => {
+					app.devMode && console.log('dev --- cv > filter > proxyfgData-update: ', app.collectionViewer.proxyfgData.data);
+					this.generateCheckBoxList('#cv-filter-category-list', app.collectionViewer.proxyfgData.data.categorylist, 'duckyellow');
+					this.generateCheckBoxList('#cv-filter-tag-list', app.collectionViewer.proxyfgData.data.taglist, 'smokegrey');
+				});
 			},
 
 			createElements() {
@@ -1494,7 +1598,6 @@ const app = {
 
 				const filterHeadline = document.createElement('h3');
 				filterContainer.appendChild(filterHeadline);
-				filterHeadline.className = '';
 				filterHeadline.appendChild(document.createTextNode(this.texts.title));
 
 				const filterText = document.createElement('p');
@@ -1504,24 +1607,143 @@ const app = {
 
 				const categoryListContainer = document.createElement('div');
 				filterContainer.appendChild(categoryListContainer);
-				categoryListContainer.className = 'cv-filter-category-list-container';
+				categoryListContainer.className = 'cv-filter-list-container';
 
 				const categoryListButton = document.createElement('button');
 				categoryListContainer.appendChild(categoryListButton);
-				categoryListButton.className = 'cv-filter-category-button collapsible-button';
+				categoryListButton.className = 'cv-filter-button collapsible-button ' + this.buttonSetup.colors.tabText;
 				categoryListButton.appendChild(document.createTextNode(this.texts.categoriesButton));
+
+				const categoryListButtonArrow = document.createElement('div');
+				categoryListButton.appendChild(categoryListButtonArrow);
+				categoryListButtonArrow.className = 'arrow right ' + this.buttonSetup.colors.tabIcon;
 
 				const categoryList = document.createElement('div');
 				categoryListContainer.appendChild(categoryList);
-				categoryList.className = 'cv-filter-category-list collapsible-content';
+				categoryList.className = 'cv-filter-container collapsible-content';
+				categoryList.setAttribute('id', 'cv-filter-category-list');
+
+				const categorySelectAllButton = document.createElement('button');
+				categoryList.appendChild(categorySelectAllButton);
+				categorySelectAllButton.className = 'cv-filter-button text-small';
+				categorySelectAllButton.setAttribute('data-selected', true);
+				categorySelectAllButton.setAttribute('id', 'cv-filter-category-list-select-all');
+				categorySelectAllButton.appendChild(document.createTextNode(this.texts.selectAllButton));
+
+				const tagListContainer = document.createElement('div');
+				filterContainer.appendChild(tagListContainer);
+				tagListContainer.className = 'cv-filter-list-container';
+
+				const tagListButton = document.createElement('button');
+				tagListContainer.appendChild(tagListButton);
+				tagListButton.className = 'cv-filter-button collapsible-button ' + this.buttonSetup.colors.tabText;
+				tagListButton.appendChild(document.createTextNode(this.texts.tagsButton));
+
+				const tagListButtonArrow = document.createElement('div');
+				tagListButton.appendChild(tagListButtonArrow);
+				tagListButtonArrow.className = 'arrow right ' + this.buttonSetup.colors.tabIcon;
 
 				const tagList = document.createElement('div');
-				categoryListContainer.appendChild(tagList);
-				tagList.className = 'cv-filter-tag-list collapsible-content';
-			}, 
-		},
+				tagListContainer.appendChild(tagList);
+				tagList.className = 'cv-filter-container collapsible-content';
+				tagList.setAttribute('id', 'cv-filter-tag-list');
 
-		
+				const tagSelectAllButton = document.createElement('button');
+				tagList.appendChild(tagSelectAllButton);
+				tagSelectAllButton.className = 'cv-filter-button text-small';
+				tagSelectAllButton.setAttribute('data-selected', true);
+				tagSelectAllButton.setAttribute('id', 'cv-filter-tag-list-select-all');
+				tagSelectAllButton.appendChild(document.createTextNode(this.texts.selectAllButton));
+			}, 
+
+			generateCheckBoxList(id, dataArray, color){
+				let element = document.querySelector(id);
+				if(!element){return;}
+				let selectAllButton = document.querySelector(id+'-select-all');
+				selectAllButton.addEventListener('click', (e) => {
+					this.selectAllCheckBoxList(id)
+				});
+
+				let shadowColor = 'shadow-' + color;
+
+				dataArray.forEach(function(data) {
+					let newPill = document.createElement('div');
+					element.appendChild(newPill);
+					newPill.className = 'pill ' + color + ' ' + shadowColor;
+					newPill.setAttribute('data-color', color);
+					newPill.setAttribute('data-active', true);
+					newPill.appendChild(document.createTextNode(data));
+
+					newPill.addEventListener('click', app.collectionViewer.filter.clickPillHandler);
+				})
+			}, 
+
+			clickPillHandler(e){
+				let element = e.srcElement;
+				let color = element.getAttribute('data-color');
+				let active = ( element.getAttribute('data-active') === 'true');
+
+				active ? element.setAttribute('data-active', false) : element.setAttribute('data-active', true);
+
+				element.classList.toggle(color);
+
+				this.filterUpdated = true;
+			},
+
+			selectAllCheckBoxList(id) {
+				let listElement = document.querySelector(id);
+				if(!listElement){return;}
+				let selectAllButton = document.querySelector(id+'-select-all');
+				let selected = (selectAllButton.getAttribute('data-selected') === 'true');
+
+				for(let element of listElement.children) {
+					let isPill = element.classList.contains('pill');
+					if(isPill) {
+						let color = element.getAttribute('data-color');
+						let active = (element.getAttribute('data-active') === 'true');
+						if(selected){
+							element.setAttribute('data-active', false);
+							element.classList.remove(color);
+						}else{
+							element.setAttribute('data-active', true);
+							element.classList.remove(color);
+							element.classList.add(color);
+						}
+					}
+				}
+
+				selected ? selectAllButton.setAttribute('data-selected', false) : selectAllButton.setAttribute('data-selected', true);
+
+				this.filterUpdated = true;
+			}, 
+
+			updateForcegraph() {
+				let loadJSONModelsComponent = document.querySelector('a-scene').components['load-json-models'];
+				let fgData = app.collectionViewer.proxyfgData.data;
+				let categoryListElement = document.querySelector('#cv-filter-category-list');
+				let filteredCategoryArray = [];
+				let tagListElement = document.querySelector('#cv-filter-tag-list');
+				let filteredTabArray = [];
+
+				app.devMode && console.log('dev --- cv > filter > updateForcegraph > loadJSONModelsComponent', loadJSONModelsComponent);
+
+				for(let element of categoryListElement.children) {
+					let active = (element.getAttribute('data-active') === 'true');
+					let name = element.innerHTML;
+					active ? filteredCategoryArray.push(name) : '';
+				}
+
+				for(let element of tagListElement.children) {
+					let active = (element.getAttribute('data-active') === 'true');
+					let name = element.innerHTML;
+					active ? filteredTabArray.push(name) : '';
+				}
+
+				document.querySelector('a-scene').setAttribute('load-json-models', 'normFactor: 0')
+
+				loadJSONModelsComponent.filterFgData(fgData, filteredTabArray, filteredCategoryArray);
+			}
+		},
 
 		createElements() {
 
