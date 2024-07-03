@@ -1,4 +1,8 @@
 /* START Basics and Design */
+
+
+
+
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@356;700&display=swap');
 
 :root {
@@ -224,6 +228,30 @@ button.shadow-duckyellow:hover {
 
 h1, h2, h3, h4, h5, h6 {
   font-weight: 356;
+  margin-block-start: 0;
+  margin-block-end: 0.25em;
+}
+
+h1 {
+  font-size: 1.6em;
+  font-weight: 700;
+}
+
+h2 {
+  font-size: 1.6em;
+}
+
+h3 {
+  font-size: 1.4em;
+}
+
+p {
+  font-size: 1em;
+  margin-block-start: 0;
+}
+
+p.text-small {
+  font-size: 0.75em;
 }
 
 .landing-message {
@@ -232,6 +260,9 @@ h1, h2, h3, h4, h5, h6 {
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
+
+
 
 /* END Basics and Design */
 
@@ -248,18 +279,25 @@ h1, h2, h3, h4, h5, h6 {
 
 
 
-/* gui title, logo, version, loading-screen */
+/* ---------- gui title ---------- */
 
-div.gui-title {
+div.gui-title-container {
   position: fixed;
   top: 10px;
   left: 20px;
   margin: 0;
   padding: 0;
-  font-size: 1.6em;
-  font-weight: 700;
   z-index: 6;
 }
+
+h1.gui-title {
+  
+}
+
+
+
+
+/* ---------- gui logo ---------- */
 
 div.gui-logo {
   display: none;
@@ -274,6 +312,19 @@ div.gui-logo {
   transform: translate(-50%, -50%);
   z-index: 4;
 }
+
+img.logo {
+  position: relative;
+  width: 100%;
+  height: auto;
+  aspect-ratio: auto;
+  z-index: 1;
+}
+
+
+
+
+/* ---------- gui version ---------- */
 
 div.gui-version {
   display: none;
@@ -292,13 +343,10 @@ div.gui-version {
   z-index: 4;
 }
 
-img.logo {
-  position: relative;
-  width: 100%;
-  height: auto;
-  aspect-ratio: auto;
-  z-index: 1;
-}
+
+
+
+/* ---------- gui loading screen ---------- */
 
 div.gui-loading-screen {
   position: absolute;
@@ -333,7 +381,7 @@ object.gui-loading-animation {
 
 
 
-/* gui message */
+/* ---------- gui message ---------- */
 
 div.gui-message-box {
   position: absolute;
@@ -468,7 +516,7 @@ button.gui-message-button:last-child {
 
 
 
-/* gui error */
+/* ---------- gui error ---------- */
 
 div.gui-error-container {
   position: absolute;
@@ -518,7 +566,7 @@ button.gui-error-button:hover {
 
 
 
-/* gui fullscreen-image */
+/* ---------- gui fullscreen-image ---------- */
 
 div.gui-fullscreen-image-container {
   position: fixed;
@@ -544,7 +592,7 @@ img.gui-fullscreen-image {
 
 
 
-/* gui menu */
+/* ---------- gui menu ---------- */
 
 div.gui-menu-icon {
   position: fixed;
@@ -659,7 +707,7 @@ div.gui-menu-patronage-logo {
 
 
 
-/* gui toolbar */
+/* ---------- gui toolbar ---------- */
 
 div.gui-toolbar-box {
   position: absolute;
@@ -717,8 +765,8 @@ button.gui-toolbar-button.feedback {
 }
 
 button.gui-toolbar-button.feedback > img {
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
 }
 
 button.gui-toolbar-button.slide {
@@ -856,7 +904,15 @@ div.gui-toolbar-tab-content {
 
 
 
-/* START model-viewer */
+/* START model viewer */
+
+
+
+
+
+
+
+
 
 model-viewer {
   width: 100vw;
@@ -1125,13 +1181,26 @@ button.dim {
   display: none;
 }
 
+
+
+
 /* END model-viewer */
 
 
 
-/* START a-frame */
 
-/* --- collection viewer --- */
+
+
+
+
+
+/* START collection viewer */
+
+
+
+
+
+/* ---------- tooltip ---------- */
 
 div.cv-tooltip {
   position: absolute;
@@ -1159,6 +1228,11 @@ div.cv-tooltip-content {
   font-size: 1.2em;
   white-space: nowrap;
 }
+
+
+
+
+/* ---------- highlight ---------- */
 
 div.cv-highlight {
   position: absolute;
@@ -1192,6 +1266,40 @@ img.cv-highlight-arrow {
   width: 20px;
   height: 20px;
 }
+
+
+
+
+/* ---------- filter ---------- */
+
+div.cv-filter-container {
+
+}
+
+div.cv-filter-category-list {
+  
+}
+
+div.cv-filter-tag-list {
+  
+}
+
+
+
+
+/* END collection viewer */
+
+
+
+
+
+
+
+
+
+/* START ar viewer */
+
+
 
 
 /* --- AR-MODE specific ----*/
@@ -1454,13 +1562,23 @@ img.help-symbol{
   height: 16px;
 }
 
-/* END a-frame */
+
+
+
+/* END ar viewer */
+
+
+
+
 
 
 
 
 
 /* START Layout Breakpoints */
+
+
+
 
 /* small  */
 @media only screen and (min-width: 640px) {
@@ -1475,7 +1593,6 @@ img.help-symbol{
   body {
     font-size: 1.4em;
   }
-
 
 }
 
@@ -1518,5 +1635,8 @@ img.help-symbol{
   }
 
 }
+
+
+
 
 /* END Layout Breakpoints */

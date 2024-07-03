@@ -73,7 +73,8 @@ const app = {
 
 		this.gui.init();
 
-		this.devMode = this.getDevModeFromURL();
+		this.devMode = this.getParamsModeFromURL('dev');
+		this.showStats = this.getParamsModeFromURL('stats');
 		this.viewerMode = this.getViewerModeFromURL();
 		this.error = this.getErrorFromURL();
 
@@ -139,9 +140,14 @@ const app = {
 			},
 
 			createElements() {
-				const guiTitle = document.createElement('div');
+				const guiTitleContainer = document.createElement('div');
+				this.titleContainerEl = guiTitleContainer;
+				document.body.appendChild(guiTitleContainer);
+				guiTitleContainer.className = 'gui-title-container';
+
+				const guiTitle = document.createElement('h1');
 				this.titleEl = guiTitle;
-				document.body.appendChild(guiTitle);
+				guiTitleContainer.appendChild(guiTitle);
 				guiTitle.className = 'gui-title';
 				guiTitle.appendChild(document.createTextNode(app.title));
 			}
@@ -1161,17 +1167,20 @@ const app = {
 
 	collectionViewer: {
 
+		jsonData: null,
+
 		init() {
 			this.createElements();
 			this.tooltip.init();
 			this.highlight.init();
 
+			this.filter.init();
 			app.gui.toolbar.setToolbar();
-
 			app.gui.toolbar.setButton("#toolbar-button-1", 'skyblue', 'info', 'tab');
 			app.gui.toolbar.setButton("#toolbar-button-2", 'terracotta', 'search', 'slide');
 			app.gui.toolbar.setButton("#toolbar-button-3", 'duckyellow', 'filter', 'tab');
 			app.gui.toolbar.setButton("#toolbar-button-4", 'coalgrey', 'reset view');
+
 		},
 
 		tooltip: {
@@ -1465,17 +1474,54 @@ const app = {
 
 		filter: {
 
+			texts: {
+				title: 'Filter',
+				intro: 'Aktiviere oder deaktiviere Kategorien und Tags um deine Ergebnisse zu filtern.',
+				categoriesButton: 'Kategorien',
+				tagsButton: 'Tags',
+			},
+
 			init() {
 				this.createElements();
 			},
 
 			createElements() {
-				const filter = document.createElement('div');
-				this.filterEl = filter;
-				document.body.appendChild(filter);
-				filter.className = 'cv-filter hide';
+				let toolBarTabContent = app.gui.toolbar.toolbarTabContentEl;
+
+				const filterContainer = document.createElement('div');
+				toolBarTabContent.appendChild(filterContainer);
+				filterContainer.className = 'cv-filter-container';
+
+				const filterHeadline = document.createElement('h3');
+				filterContainer.appendChild(filterHeadline);
+				filterHeadline.className = '';
+				filterHeadline.appendChild(document.createTextNode(this.texts.title));
+
+				const filterText = document.createElement('p');
+				filterContainer.appendChild(filterText);
+				filterText.className = 'text-small';
+				filterText.appendChild(document.createTextNode(this.texts.intro));
+
+				const categoryListContainer = document.createElement('div');
+				filterContainer.appendChild(categoryListContainer);
+				categoryListContainer.className = 'cv-filter-category-list-container';
+
+				const categoryListButton = document.createElement('button');
+				categoryListContainer.appendChild(categoryListButton);
+				categoryListButton.className = 'cv-filter-category-button collapsible-button';
+				categoryListButton.appendChild(document.createTextNode(this.texts.categoriesButton));
+
+				const categoryList = document.createElement('div');
+				categoryListContainer.appendChild(categoryList);
+				categoryList.className = 'cv-filter-category-list collapsible-content';
+
+				const tagList = document.createElement('div');
+				categoryListContainer.appendChild(tagList);
+				tagList.className = 'cv-filter-tag-list collapsible-content';
 			}, 
 		},
+
+		
 
 		createElements() {
 
@@ -1486,7 +1532,7 @@ const app = {
 			collectionViewerElement.setAttribute('load-json-models', '');
 			collectionViewerElement.setAttribute('xr-mode-ui', 'enabled: false');
 			collectionViewerElement.setAttribute('light', 'defaultLightsEnabled: false');
-			app.devMode && collectionViewerElement.setAttribute('stats', '');
+			app.showStats && collectionViewerElement.setAttribute('stats', '');
 
 			const cursorEntity = document.createElement('a-entity');
 			collectionViewerElement.appendChild(cursorEntity);
@@ -1497,7 +1543,6 @@ const app = {
 			collectionViewerElement.appendChild(camera);
 			camera.setAttribute('orbit-controls', 'enabled: true, target: #orbit-target, autoRotate: true');
 			camera.setAttribute('wasd-controls', 'enabled: false');
-			//camera.setAttribute('camera-focus-target', '');
 
 			const ambientLightEntity = document.createElement('a-entity');
 			collectionViewerElement.appendChild(ambientLightEntity);
@@ -1745,15 +1790,17 @@ const app = {
 		}
 	},
 
-	getDevModeFromURL() {
+	getParamsModeFromURL(param = null) {
 		const queryString = window.location.search;
 		this.urlParams = new URLSearchParams(queryString);
 
-		if(this.urlParams.get('dev')==='true') {
+		if(!param) {return false;}
+
+		if(this.urlParams.get(param)==='true') {
 			return true;
-		}else{
-			return false;
 		}
+
+		return false;
 	}, 
 
 	getErrorFromURL() {

@@ -232,7 +232,10 @@ AFRAME.registerComponent('load-json-models', {
 			let objectsJSON = fetch(fileJSON)
 				.then((response) => response.json())
 				.then((json) => {
-					devMode && console.log('dev --- objects JSON: ', json.objects);
+					app.collectionViewer.jsonData = json;
+
+					devMode && console.log('dev --- objects JSON: ', app.collectionViewer.jsonData);
+
 
 					//load models to scene
 					let scene = document.querySelector('a-scene').object3D;
@@ -928,8 +931,14 @@ AFRAME.registerComponent('orbit-controls', {
 			z: this.target3D.position.z
 		});
 
-		if(this.distance < this.data.minDistance) { this.distance = this.data.minDistance };
-		if(this.distance > this.data.maxDistance) { this.distance = this.data.maxDistance };
+		if(this.distance < this.data.minDistance) { 
+			this.distance = this.data.minDistance;
+			this.data.desiredDistance = this.data.minDistance; 
+		};
+		if(this.distance > this.data.maxDistance) { 
+			this.distance = this.data.maxDistance;
+			this.data.desiredDistance = this.data.maxDistance; 
+		};
 
 		var targetCameraPosition = this.el.object3D.translateOnAxis( new THREE.Vector3(0,0,1), this.distance ).position;
 
@@ -1003,6 +1012,9 @@ AFRAME.registerComponent('orbit-controls', {
   onMouseDown: function (event) {
 	this.mouseDown = true;
 	this.previousMouseEvent = event;
+
+	// Stop Zoom
+	this.data.desiredDistance = this.distance;
   },
 
   releaseMouse: function () {
@@ -1022,9 +1034,6 @@ AFRAME.registerComponent('orbit-controls', {
 		scrollDelta = -event.detail;
 	}
 
-	if(this.data.desiredDistance < this.data.minDistance) { this.data.desiredDistance = this.data.minDistance };
-	if(this.data.desiredDistance > this.data.maxDistance) { this.data.desiredDistance = this.data.maxDistance };
-
 	if (scrollDelta > 0) {
 		this.data.desiredDistance += 20;
 	} else if (scrollDelta < 0) {
@@ -1040,17 +1049,26 @@ AFRAME.registerComponent('orbit-controls', {
 	  y: e.touches[0].pageY
 	};
 	this.touchStarted = true;
+
+	// Stop Zoom
+	this.data.desiredDistance = this.distance;
   },
 
   onTouchMove: function (e) {
   	this.touchMove = true;
 	var deltaY;
+	var deltaX;
 	var yawObject = this.yawObject;
 	if (!this.touchStarted) { return; }
-	deltaY = 2 * Math.PI * (e.touches[0].pageX - this.touchStart.x) /
-	this.el.sceneEl.canvas.clientWidth;
+	deltaY = 2 * Math.PI * (e.touches[0].pageX - this.touchStart.x) / this.el.sceneEl.canvas.clientWidth;
+	deltaX = 2 * Math.PI * (e.touches[0].pageY - this.touchStart.y) / this.el.sceneEl.canvas.clientHeight;
+
 	// Limits touch orientaion to to yaw (y axis)
 	yawObject.rotation.y -= deltaY * 0.5;
+
+	// Zoom on x Axis
+	this.data.desiredDistance -= deltaX * 100;
+
 	this.touchStart = {
 	  x: e.touches[0].pageX,
 	  y: e.touches[0].pageY
