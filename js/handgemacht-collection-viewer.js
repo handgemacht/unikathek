@@ -532,7 +532,7 @@ AFRAME.registerComponent('highlight', {
 			newDesiredCameraPitch = -12;
 		}
 
-		let newDesiredDistance = this.data.highestDistance * 2.5;
+		let newDesiredDistance = this.data.highestDistance * 1.5;
 
 		this.cameraEl.setAttribute('orbit-controls', { autoRotate: false, distance: newDistance, desiredDistance: newDesiredDistance, desiredCameraPitch: newDesiredCameraPitch, forceUpdate: true });
 
@@ -728,7 +728,7 @@ AFRAME.registerComponent('orbit-controls', {
 	enabled: { default: false },
 	target: { default: '#orbit-target' }, 
 	distance: { default: 50 }, 
-	desiredDistance: { default: 500 },
+	desiredDistance: { default: 300 },
 	minDistance: { default: 30 },
 	maxDistance: { default: 700 }, 
 	autoRotate: { default: true }, 
