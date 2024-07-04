@@ -306,6 +306,10 @@ div.pill {
   cursor: pointer;
 }
 
+div.pill.inactive {
+  opacity: 0.3;
+}
+
 div.pill.shadow-coalgrey {
   border: 1px solid #41403F;
   box-shadow: 1px 1px #41403F;
@@ -1375,7 +1379,7 @@ div.cv-filter-container.collapsible-content {
 
 div.cv-filter-container.collapsible-content.active {
   padding: 15px 0 0 0;
-  max-height: 100dvh;
+  max-height: 200dvh;
 }
 
 

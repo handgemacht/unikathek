@@ -37,7 +37,7 @@ AFRAME.registerComponent('load-json-models', {
 			this.categoryModelEl = document.createElement('a-entity');
 			this.categoryModelEl.setAttribute('id', 'category-model');
 			this.categoryModelEl.setAttribute('geometry', 'primitive: sphere; radius: 4');
-			this.categoryModelEl.setAttribute('material', 'color: #FF7850; shader: flat');
+			this.categoryModelEl.setAttribute('material', 'color: #46AAC8; shader: flat');
 			this.categoryModelEl.setAttribute('visible', false);
 			this.el.sceneEl.querySelector('a-assets').appendChild(this.categoryModelEl);
 
@@ -45,7 +45,7 @@ AFRAME.registerComponent('load-json-models', {
 			this.linkCategoryModelEl = document.createElement('a-entity');
 			this.linkCategoryModelEl.setAttribute('id', 'link-category-model');
 			this.linkCategoryModelEl.setAttribute('geometry', 'primitive: sphere; radius: 4');			
-			this.linkCategoryModelEl.setAttribute('material', 'color: #FF7850; shader: flat; opacity: 0.4');
+			this.linkCategoryModelEl.setAttribute('material', 'color: #46AAC8; shader: flat; opacity: 0.4');
 			this.linkCategoryModelEl.setAttribute('visible', false);
 			this.el.sceneEl.querySelector('a-assets').appendChild(this.linkCategoryModelEl);
 
@@ -53,7 +53,7 @@ AFRAME.registerComponent('load-json-models', {
 			this.linkTagModelEl = document.createElement('a-entity');
 			this.linkTagModelEl.setAttribute('id', 'link-tag-model');
 			this.linkTagModelEl.setAttribute('geometry', 'primitive: sphere; radius: 4');			
-			this.linkTagModelEl.setAttribute('material', 'color: #9B9691; shader: flat; opacity: 0.4');
+			this.linkTagModelEl.setAttribute('material', 'color: #FFC800; shader: flat; opacity: 0.4');
 			this.linkTagModelEl.setAttribute('visible', false);
 			this.el.sceneEl.querySelector('a-assets').appendChild(this.linkTagModelEl);
 
@@ -269,6 +269,7 @@ AFRAME.registerComponent('load-json-models', {
 					let forcegraphEntity = document.createElement('a-entity');
 					this.el.sceneEl.appendChild(forcegraphEntity);
 					forcegraphEntity.setAttribute('id', 'forcegraph');
+					forcegraphEntity.setAttribute('highlight', { noUpdate: true });
 
 					this.fgData = this.getDataFromJSON(json);
 					app.collectionViewer.proxyfgData.data = this.fgData;
@@ -289,18 +290,17 @@ AFRAME.registerComponent('load-json-models', {
 						onLinkHover: link => { 
 							app.collectionViewer.tooltip.mouseoverHandler(link);
 						},
-						onLinkClick: link => { 
-							devMode && console.log('dev --- onLinkClick: ', link);
-							if(link.type === 'link-tag'){
-								app.collectionViewer.highlight.onclickHandler(link);
-								document.querySelector('#forcegraph').setAttribute('highlight', {source: link});
-							}
-							if(link.type === 'link-category'){
-								app.collectionViewer.highlight.onclickHandler(link.source);
-								document.querySelector('#forcegraph').setAttribute('highlight', {source: link.source});
-							}
-							
-						},
+						//onLinkClick: link => { 
+							//devMode && console.log('dev --- onLinkClick: ', link);
+							//if(link.type === 'link-tag'){
+								//app.collectionViewer.highlight.onclickHandler(link);
+								//document.querySelector('#forcegraph').setAttribute('highlight', {source: link});
+							//}
+							//if(link.type === 'link-category'){
+								//app.collectionViewer.highlight.onclickHandler(link.source);
+								//document.querySelector('#forcegraph').setAttribute('highlight', {source: link.source});
+							//}
+						//},
 						onNodeHover: node => { 
 							app.collectionViewer.tooltip.mouseoverHandler(node);
 						},
@@ -494,7 +494,8 @@ AFRAME.registerComponent('highlight', {
 
 	schema: {
 		source: {default: ''}, 
-		highestDistance: { default: 0 }
+		highestDistance: { default: 0 }, 
+		noUpdate: { default: false }
 	}, 
 
 	init: function () {
@@ -508,6 +509,11 @@ AFRAME.registerComponent('highlight', {
 
 		let newDistance = 0;
 		let newDesiredCameraPitch = -5;
+
+		if(this.data.noUpdate){
+			this.data.noUpdate = false;
+			return;
+		};
 
 		if(!source) {
 			this.resetHighlight();
@@ -587,11 +593,9 @@ AFRAME.registerComponent('highlight', {
 		for(let node in fgComp.nodes){
 			let thisNode = fgComp.nodes[node];
 			if (thisNode.id != '' && thisNode.gltf.material) {
-				let distance = thisNode.__threeObj.position.distanceTo(sourceLink.__curve.v1);
 				if(thisNode.tags.includes(sourceLink.name)){
 					thisNode.gltf.material.opacity = 1;
 					thisNode.gltf.material.visible = true;
-					this.setHighestDistance(distance);
 				}else{
 					thisNode.gltf.material.transparent = true;
 					thisNode.gltf.material.opacity = 0;
@@ -671,11 +675,16 @@ AFRAME.registerComponent('highlight', {
 
 	highlightFromPill: function(name, type) {
 		let fgComp = this.fgComp;
+		let pill = {};
+		pill.name = name;
+		pill.type = type;
+
+		this.highlightLinks(pill);
 
 		if (type === 'category') {
 			for(let node in fgComp.nodes){
 				let thisNode = fgComp.nodes[node];
-				if (thisNode.type === 'node-category' && thisNode.name === name) {
+				if (thisNode.type === 'node-category' && thisNode.name === pill.name) {
 					this.highlightModel(thisNode);
 					return;
 				}
@@ -683,6 +692,7 @@ AFRAME.registerComponent('highlight', {
 		}
 
 		if (type === 'tag') {
+			let thisLink = null;
 			for(let link in fgComp.links){
 				let thisLink = fgComp.links[link];
 				if (thisLink.type === 'link-tag' && thisLink.name === name) {
@@ -691,6 +701,7 @@ AFRAME.registerComponent('highlight', {
 				}
 			}
 		}
+
 	}
 });
 //END highlight

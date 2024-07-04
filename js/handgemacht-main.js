@@ -511,6 +511,11 @@ const app = {
 
 			showMessage() {
 				this.messageContainerEl.classList.remove('hide');
+
+				if(app.collectionViewer.highlight.pillArray.length > 0) {
+					app.collectionViewer.highlight.setPillEventlisteners();
+				}
+
 				app.gui.toolbar.toggleToolbar(false);
 			}, 
 
@@ -539,6 +544,7 @@ const app = {
 				this.messageContentEl.innerHTML = this.content;
 				this.messageButton1El.innerHTML = this.buttonText;
 				this.messageButton2El.innerHTML = this.button2Text;
+
 				app.gui.toolbar.toggleToolbar(true);
 			},
 
@@ -1202,6 +1208,12 @@ const app = {
 			}
 		),
 
+		elementColor: {
+			object: 'terracotta', 
+			category: 'skyblue', 
+			tag: 'duckyellow'
+		},
+
 		init() {
 			this.createElements();
 			this.tooltip.init();
@@ -1294,23 +1306,23 @@ const app = {
 
 				if(type === 'node-object'){
 					typeText = 'Objekt'
-					this.tooltipTypeEl.classList.add('skyblue');
-					this.tooltipContentEl.classList.add('skyblue');
+					this.tooltipTypeEl.classList.add(this.elementColor.object);
+					this.tooltipContentEl.classList.add(this.elementColor.object);
 				}
 				if(type === 'node-category'){
 					typeText = 'Kategorie'
-					this.tooltipTypeEl.classList.add('duckyellow');
-					this.tooltipContentEl.classList.add('duckyellow');
+					this.tooltipTypeEl.classList.add(this.elementColor.category);
+					this.tooltipContentEl.classList.add(this.elementColor.category);
 				}
 				if(type === 'link-tag'){
 					typeText = 'Link'
-					this.tooltipTypeEl.classList.add('smokegrey');
-					this.tooltipContentEl.classList.add('smokegrey');
+					this.tooltipTypeEl.classList.add(this.elementColor.tag);
+					this.tooltipContentEl.classList.add(this.elementColor.tag);
 				}
 				if(type === 'link-category'){
 					typeText = 'Link'
-					this.tooltipTypeEl.classList.add('duckyellow');
-					this.tooltipContentEl.classList.add('duckyellow');
+					this.tooltipTypeEl.classList.add(this.elementColor.category);
+					this.tooltipContentEl.classList.add(this.elementColor.category);
 				}
 				this.tooltipTypeEl.appendChild(document.createTextNode(typeText));
 				this.tooltipContentEl.appendChild(document.createTextNode(content));
@@ -1378,6 +1390,8 @@ const app = {
 
 		highlight: {
 
+			pillArray: [],
+
 			init() {
 				this.createElements();
 				this.setEventListener();
@@ -1423,23 +1437,23 @@ const app = {
 
 				if(type === 'node-object'){
 					typeText = 'Objekt'
-					this.highlightTypeEl.classList.add('skyblue');
-					this.highlightContentEl.classList.add('skyblue');
+					this.highlightTypeEl.classList.add(this.elementColor.object);
+					this.highlightContentEl.classList.add(this.elementColor.object);
 				}
 				if(type === 'node-category'){
 					typeText = 'Kategorie'
-					this.highlightTypeEl.classList.add('duckyellow');
-					this.highlightContentEl.classList.add('duckyellow');
+					this.highlightTypeEl.classList.add(this.elementColor.category);
+					this.highlightContentEl.classList.add(this.elementColor.category);
 				}
 				if(type === 'link-tag'){
 					typeText = 'Link'
-					this.highlightTypeEl.classList.add('smokegrey');
-					this.highlightContentEl.classList.add('smokegrey');
+					this.highlightTypeEl.classList.add(this.elementColor.tag);
+					this.highlightContentEl.classList.add(this.elementColor.tag);
 				}
 				if(type === 'link-category'){
 					typeText = 'Link'
-					this.highlightTypeEl.classList.add('duckyellow');
-					this.highlightContentEl.classList.add('duckyellow');
+					this.highlightTypeEl.classList.add(this.elementColor.category);
+					this.highlightContentEl.classList.add(this.elementColor.category);
 				}
 				this.highlightTypeEl.innerHTML = '';
 				this.highlightTypeEl.appendChild(document.createTextNode(typeText));
@@ -1484,20 +1498,22 @@ const app = {
 				let type = '';
 				fgData ? type = fgData.type : type = 'none';
 
+				this.pillArray = [];
 				
-
 				if(type === 'node-object'){
 					let categoryList = '<div class="categorys">';
 					for(let category in fgData.categories) {
-						let onClickString = "document.querySelector('#forcegraph').components.highlight.highlightFromPill('" + fgData.categories[category] + "', 'category')"
-						categoryList += '<div class="pill terracotta text-pearlwhite" onclick="' + onClickString + '">' + fgData.categories[category] + '</div>';
+						let pillId = 'c-' + self.crypto.randomUUID();;
+						categoryList += '<div id="' + pillId + '" class="pill shadow-' + app.collectionViewer.elementColor.category + ' text-coalgrey" data-color="' + app.collectionViewer.elementColor.category + '"" data-name="' + fgData.categories[category] + '" data-type="category">' + fgData.categories[category] + '</div>';
+						this.pillArray.push('#'+pillId);
 					}
 					categoryList += '</div>';
 	
 					let tagList = '<div class="tags">';
 					for(let tag in fgData.tags) {
-						let onClickString = "document.querySelector('#forcegraph').components.highlight.highlightFromPill('" + fgData.tags[tag] + "', 'tag')"
-						tagList += '<div class="pill smokegrey text-pearlwhite" onclick="' + onClickString + '">' + fgData.tags[tag] + '</div>';
+						let pillId = 't-' + self.crypto.randomUUID();;
+						tagList += '<div id="' + pillId + '" class="pill shadow-' + app.collectionViewer.elementColor.tag + ' text-coalgrey" data-color="' + app.collectionViewer.elementColor.tag + '"" data-name="' + fgData.tags[tag] + '" data-type="tag">' + fgData.tags[tag] + '</div>';
+						this.pillArray.push('#'+pillId);
 					}
 					tagList += '</div>';
 
@@ -1507,8 +1523,8 @@ const app = {
 								+ categoryList
 								+ tagList,
 						color: 'pearlwhite',
-						shadow: 'skyblue',
-						button1: { content: 'erkunden', color: 'skyblue', icon: 'eye' }
+						shadow: app.collectionViewer.elementColor.object,
+						button1: { content: 'erkunden', color: app.collectionViewer.elementColor.object, icon: 'eye' }
 					}
 
 					app.gui.message.setMessage(message);
@@ -1531,7 +1547,7 @@ const app = {
 						content: '<h3>' + fgData.name + '</h3>'
 								+ '<p>Hier steht später eine Kategoriebeschreibung</p>',
 						color: 'pearlwhite',
-						shadow: 'terracotta'
+						shadow: app.collectionViewer.elementColor.category
 					}
 
 					app.gui.message.setMessage(message);
@@ -1542,13 +1558,42 @@ const app = {
 						type: 'Tag',
 						content: '<h3>' + fgData.name + '</h3>'
 								+ '<p>Hier steht später eine Tagbeschreibung</p>',
-						color: 'pearlwhite',
-						shadow: 'smokegrey'
+						color: 'coalgrey',
+						shadow: app.collectionViewer.elementColor.tag
 					}
 
 					app.gui.message.setMessage(message);
 				}
 			},
+
+			setPillEventlisteners() {
+				let filteredTags = app.collectionViewer.filter.filteredData.tags;
+				let filteredCategories = app.collectionViewer.filter.filteredData.categories;
+				for(let pill of this.pillArray){
+					let element = document.querySelector(pill);
+					let name = element.getAttribute('data-name');
+					if(filteredTags.includes(name) || filteredCategories.includes(name)){
+						element.classList.remove('inactive');
+						element.classList.add('inactive');
+					}else{
+						element.addEventListener('click', this.highlightFromPill);
+					}
+				}
+			},
+
+			highlightFromPill(e) {
+				for(let pill of app.collectionViewer.highlight.pillArray){
+					let element = document.querySelector(pill);
+					let color = element.getAttribute('data-color');
+					element.classList.remove(color);
+				}
+				let pill = e.srcElement;
+				let name = pill.getAttribute('data-name');
+				let type = pill.getAttribute('data-type');
+				let color = pill.getAttribute('data-color');
+				pill.classList.toggle(color);
+				document.querySelector('#forcegraph').components.highlight.highlightFromPill(name, type);
+			}
 		},
 
 		filter: {
@@ -1579,13 +1624,18 @@ const app = {
 
 			filterUpdated: false,
 
+			filteredData: {
+				tags: [], 
+				categories: []
+			},
+
 			init() {
 				this.createElements();
 
 				document.addEventListener('proxyfgData-update', (event) => {
 					app.devMode && console.log('dev --- cv > filter > proxyfgData-update: ', app.collectionViewer.proxyfgData.data);
-					this.generateCheckBoxList('#cv-filter-category-list', app.collectionViewer.proxyfgData.data.categorylist, 'terracotta');
-					this.generateCheckBoxList('#cv-filter-tag-list', app.collectionViewer.proxyfgData.data.taglist, 'smokegrey');
+					this.generateCheckBoxList('#cv-filter-category-list', app.collectionViewer.proxyfgData.data.categorylist, app.collectionViewer.elementColor.category);
+					this.generateCheckBoxList('#cv-filter-tag-list', app.collectionViewer.proxyfgData.data.taglist, app.collectionViewer.elementColor.tag);
 				});
 			},
 
@@ -1686,6 +1736,7 @@ const app = {
 				active ? element.setAttribute('data-active', false) : element.setAttribute('data-active', true);
 
 				element.classList.toggle(color);
+				element.classList.toggle('inactive');
 
 				this.filterUpdated = true;
 			},
@@ -1704,10 +1755,13 @@ const app = {
 						if(selected){
 							element.setAttribute('data-active', false);
 							element.classList.remove(color);
+							element.classList.remove('inactive');
+							element.classList.add('inactive');
 						}else{
 							element.setAttribute('data-active', true);
 							element.classList.remove(color);
 							element.classList.add(color);
+							element.classList.remove('inactive');
 						}
 					}
 				}
@@ -1721,27 +1775,29 @@ const app = {
 				let loadJSONModelsComponent = document.querySelector('a-scene').components['load-json-models'];
 				let fgData = app.collectionViewer.proxyfgData.data;
 				let categoryListElement = document.querySelector('#cv-filter-category-list');
-				let filteredCategoryArray = [];
 				let tagListElement = document.querySelector('#cv-filter-tag-list');
-				let filteredTabArray = [];
+				let showCategoriesArray = [];
+				let showTabsArray = [];
+				app.collectionViewer.filter.filteredData.categories = [];
+				app.collectionViewer.filter.filteredData.tags = [];
 
 				app.devMode && console.log('dev --- cv > filter > updateForcegraph > loadJSONModelsComponent', loadJSONModelsComponent);
 
 				for(let element of categoryListElement.children) {
 					let active = (element.getAttribute('data-active') === 'true');
 					let name = element.innerHTML;
-					active ? filteredCategoryArray.push(name) : '';
+					active ? showCategoriesArray.push(name) : app.collectionViewer.filter.filteredData.categories.push(name);
 				}
 
 				for(let element of tagListElement.children) {
 					let active = (element.getAttribute('data-active') === 'true');
 					let name = element.innerHTML;
-					active ? filteredTabArray.push(name) : '';
+					active ? showTabsArray.push(name) : app.collectionViewer.filter.filteredData.tags.push(name);
 				}
 
 				document.querySelector('a-scene').setAttribute('load-json-models', 'normFactor: 0')
 
-				loadJSONModelsComponent.filterFgData(fgData, filteredTabArray, filteredCategoryArray);
+				loadJSONModelsComponent.filterFgData(fgData, showTabsArray, showCategoriesArray);
 			}
 		},
 
