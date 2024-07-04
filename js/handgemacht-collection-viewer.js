@@ -608,6 +608,7 @@ AFRAME.registerComponent('highlight', {
 	highlightModel: function (sourceNode) {
 
 		let fgComp = this.fgComp;
+		let distance = 0;
 
 		let modelArray = [];
 
@@ -627,7 +628,9 @@ AFRAME.registerComponent('highlight', {
 		for(let node in fgComp.nodes){
 			let thisNode = fgComp.nodes[node];
 			if (thisNode.id != '' && thisNode.gltf.material) {
-				let distance = thisNode.__threeObj.position.distanceTo(sourceNode.__threeObj.position);
+				if(typeof sourceNode.__threeObj !== 'undefined'){
+					distance = thisNode.__threeObj.position.distanceTo(sourceNode.__threeObj.position);
+				}
 				if(modelArray.includes(thisNode.id)){
 					thisNode.gltf.material.opacity = 1;
 					thisNode.gltf.material.visible = true;
@@ -673,11 +676,18 @@ AFRAME.registerComponent('highlight', {
 		}
 	}, 
 
-	highlightFromPill: function(name, type) {
+	highlightFromPill: function(name, type, active, modelId) {
 		let fgComp = this.fgComp;
 		let pill = {};
+		pill.id = modelId;
 		pill.name = name;
 		pill.type = type;
+		pill.active = active;
+
+		if (active) {
+			this.highlightModel(pill);
+			return;
+		}
 
 		this.highlightLinks(pill);
 

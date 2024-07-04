@@ -1504,7 +1504,14 @@ const app = {
 					let categoryList = '<div class="categorys">';
 					for(let category in fgData.categories) {
 						let pillId = 'c-' + self.crypto.randomUUID();;
-						categoryList += '<div id="' + pillId + '" class="pill shadow-' + app.collectionViewer.elementColor.category + ' text-coalgrey" data-color="' + app.collectionViewer.elementColor.category + '"" data-name="' + fgData.categories[category] + '" data-type="category">' + fgData.categories[category] + '</div>';
+						categoryList += '<div id="' + pillId +'" '
+										+ 'class="pill shadow-' + app.collectionViewer.elementColor.category + ' text-coalgrey" '
+										+ 'data-model-id="' + fgData.id +'" '
+										+ 'data-color="' + app.collectionViewer.elementColor.category +'" '
+										+ 'data-name="' + fgData.categories[category] +'" '
+										+ 'data-type="category" data-active="false">' 
+										+ fgData.categories[category] 
+										+ '</div>';
 						this.pillArray.push('#'+pillId);
 					}
 					categoryList += '</div>';
@@ -1512,7 +1519,14 @@ const app = {
 					let tagList = '<div class="tags">';
 					for(let tag in fgData.tags) {
 						let pillId = 't-' + self.crypto.randomUUID();;
-						tagList += '<div id="' + pillId + '" class="pill shadow-' + app.collectionViewer.elementColor.tag + ' text-coalgrey" data-color="' + app.collectionViewer.elementColor.tag + '"" data-name="' + fgData.tags[tag] + '" data-type="tag">' + fgData.tags[tag] + '</div>';
+						tagList += '<div id="' + pillId +'" '
+										+ 'class="pill shadow-' + app.collectionViewer.elementColor.tag + ' text-coalgrey" '
+										+ 'data-model-id="' + fgData.id +'" '
+										+ 'data-color="' + app.collectionViewer.elementColor.tag +'" '
+										+ 'data-name="' + fgData.tags[tag] +'" '
+										+ 'data-type="tag" data-active="false">' 
+										+ fgData.tags[tag] 
+										+ '</div>';
 						this.pillArray.push('#'+pillId);
 					}
 					tagList += '</div>';
@@ -1582,17 +1596,31 @@ const app = {
 			},
 
 			highlightFromPill(e) {
+				
+				let pill = e.srcElement;
+				let modelId = pill.getAttribute('data-model-id');
+				let name = pill.getAttribute('data-name');
+				let type = pill.getAttribute('data-type');
+				let color = pill.getAttribute('data-color');
+				let active = (pill.getAttribute('data-active') === 'true');
+				
+				document.querySelector('#forcegraph').components.highlight.highlightFromPill(name, type, active, modelId);
+
 				for(let pill of app.collectionViewer.highlight.pillArray){
 					let element = document.querySelector(pill);
 					let color = element.getAttribute('data-color');
 					element.classList.remove(color);
+					element.setAttribute('data-active', false);
 				}
-				let pill = e.srcElement;
-				let name = pill.getAttribute('data-name');
-				let type = pill.getAttribute('data-type');
-				let color = pill.getAttribute('data-color');
-				pill.classList.toggle(color);
-				document.querySelector('#forcegraph').components.highlight.highlightFromPill(name, type);
+
+				if(!active){
+					pill.classList.remove(color);
+					pill.classList.add(color);
+					pill.setAttribute('data-active', true);
+				}else{
+					pill.classList.remove(color);
+					pill.setAttribute('data-active', false);
+				}
 			}
 		},
 
