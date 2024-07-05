@@ -569,8 +569,12 @@ button.gui-message-button {
   min-width: 70px;
   min-height: 30px;
   margin: 0 1px 0 0;
-  padding: 0 15px 0 15px;
+  padding: 0 15px 5px 25px;
   border-radius: 0px;
+}
+
+button.gui-message-button > * {
+  display: inline;
 }
 
 button.gui-message-button:first-child {
@@ -579,6 +583,13 @@ button.gui-message-button:first-child {
 
 button.gui-message-button:last-child {
   border-radius: 0 0 20px 0;
+}
+
+img.gui-message-button-icon {
+  position: relative;
+  top: 0.3em;
+  width: 1.45em;
+  height: 1.45em;
 }
 
 

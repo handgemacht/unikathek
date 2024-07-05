@@ -313,13 +313,37 @@ const app = {
 				this.messageButton1El = guiMessageButton;
 				guiMessageButtonContainer.appendChild(guiMessageButton);
 				guiMessageButton.className = 'gui-message-button hide';
-				guiMessageButton.appendChild(document.createTextNode(this.buttonText));
+
+				const guiMessageButtonText = document.createElement('div');
+				this.messageButton1TextEl = guiMessageButtonText;
+				guiMessageButton.appendChild(guiMessageButtonText);
+				guiMessageButtonText.appendChild(document.createTextNode(this.buttonText));
+
+				const guiMessageButtonIcon = document.createElement('img');
+				this.messageButton1IconEl = guiMessageButtonIcon;
+				guiMessageButton.appendChild(guiMessageButtonIcon);
+				guiMessageButtonIcon.className = 'gui-message-button-icon hide';
+				guiMessageButtonIcon.alt = 'Button-Icon';
+				guiMessageButtonIcon.width = 100;
+				guiMessageButtonIcon.height = 100;
 
 				const guiMessageButton2 = document.createElement('button');
 				this.messageButton2El = guiMessageButton2;
 				guiMessageButtonContainer.appendChild(guiMessageButton2);
 				guiMessageButton2.className = 'gui-message-button hide';
-				guiMessageButton2.appendChild(document.createTextNode(this.button2Text));
+
+				const guiMessageButton2Text = document.createElement('div');
+				this.messageButton2TextEl = guiMessageButton2Text;
+				guiMessageButton2.appendChild(guiMessageButton2Text);
+				guiMessageButton2Text.appendChild(document.createTextNode(this.button2Text));
+
+				const guiMessageButton2Icon = document.createElement('img');
+				this.messageButton2IconEl = guiMessageButton2Icon;
+				guiMessageButton2.appendChild(guiMessageButton2Icon);
+				guiMessageButton2Icon.className = 'gui-message-button-icon hide';
+				guiMessageButton2Icon.alt = 'Button-Icon';
+				guiMessageButton2Icon.width = 100;
+				guiMessageButton2Icon.height = 100;
 			}, 
 
 			createElementsAR() {
@@ -540,10 +564,12 @@ const app = {
 				this.messageCloseEl.className = 'gui-message-close';
 				this.messageButton1El.className = 'gui-message-button hide';
 				this.messageButton2El.className = 'gui-message-button hide';
+				this.messageButton1IconEl.className = 'gui-message-button-icon hide';
+				this.messageButton2IconEl.className = 'gui-message-button-icon hide';
 
 				this.messageContentEl.innerHTML = this.content;
-				this.messageButton1El.innerHTML = this.buttonText;
-				this.messageButton2El.innerHTML = this.button2Text;
+				this.messageButton1TextEl.innerHTML = this.buttonText;
+				this.messageButton2TextEl.innerHTML = this.button2Text;
 
 				app.gui.toolbar.toggleToolbar(true);
 			},
@@ -573,6 +599,7 @@ const app = {
 					Object.keys(message.button1).includes("content") ? this.button1.content = message.button1.content : '';
 					Object.keys(message.button1).includes("color") ? this.button1.color = message.button1.color : '';
 					Object.keys(message.button1).includes("shadow") ? this.button1.shadow = 'shadow-'+message.button1.shadow : '';
+					Object.keys(message.button1).includes("icon") ? this.button1.icon = message.button1.icon : '';
 				}
 
 				if(Object.keys(message).includes("button2")){
@@ -580,6 +607,7 @@ const app = {
 					Object.keys(message.button2).includes("content") ? this.button2.content = message.button2.content : '';
 					Object.keys(message.button2).includes("color") ? this.button2.color = message.button2.color : '';
 					Object.keys(message.button2).includes("shadow") ? this.button2.shadow = 'shadow-'+message.button2.shadow : '';
+					Object.keys(message.button2).includes("icon") ? this.button2.icon = message.button2.icon : '';
 				}
 
 				Object.keys(message).includes("showClose") ? this.showClose = message.showClose : this.showClose = true;
@@ -588,7 +616,22 @@ const app = {
 
 				buttonsActive && this.messageEl.classList.add('buttonsActive');
 				this.button1.content && this.messageButton1El.classList.remove('hide');
+				this.button1.icon && this.messageButton1IconEl.classList.remove('hide');
 				this.button2.content && this.messageButton2El.classList.remove('hide');
+				this.button2.icon && this.messageButton2IconEl.classList.remove('hide');
+
+				if(this.button1.icon && (this.button1.color === 'coalgrey' || this.button1.color === 'smokegrey' || this.button1.color === 'skyblue' || this.button1.color === 'terracotta')){
+					this.messageButton1IconEl.src = 'assets/hand.gemacht WebApp ' + this.button1.icon + ' perlweiss.svg';
+				}else if(this.button1.icon){
+					this.messageButton1IconEl.src = 'assets/hand.gemacht WebApp ' + this.button1.icon + ' kohlegrau.svg';
+				}
+
+				if(this.button2.icon && (this.button2.color === 'coalgrey' || this.button2.color === 'smokegrey' || this.button2.color === 'skyblue' || this.button2.color === 'terracotta')){
+					this.messageButton2IconEl.src = 'assets/hand.gemacht WebApp ' + this.button2.icon + ' perlweiss.svg';
+				}else if(this.button2.icon){
+					this.messageButton2IconEl.src = 'assets/hand.gemacht WebApp ' + this.button2.icon + ' kohlegrau.svg';
+				}
+
 
 				!this.showClose && this.messageCloseEl.classList.add('hide');
 
@@ -603,15 +646,19 @@ const app = {
 				}
 
 				this.shadow && this.messageEl.classList.add(this.shadow);
+
 				this.button1.color && this.messageButton1El.classList.add(this.button1.color);
 				this.button1.shadow && this.messageButton1El.classList.add(this.button1.shadow);
+
 				this.button2.color && this.messageButton2El.classList.add(this.button2.color);
 				this.button2.shadow && this.messageButton2El.classList.add(this.button2.shadow);
 
 				this.messageTypeEl.innerHTML = this.type;
+
 				this.messageContentEl.innerHTML = this.content;
-				this.messageButton1El.innerHTML = this.button1.content;
-				this.messageButton2El.innerHTML = this.button2.content;
+
+				this.messageButton1TextEl.innerHTML = this.button1.content;
+				this.messageButton2TextEl.innerHTML = this.button2.content;
 
 				this.showMessage();
 			},
@@ -1303,26 +1350,26 @@ const app = {
 
 			showTooltip(type, content, showArrow = false) {
 				let typeText = '';
-
+				app.devMode && console.log('dev --- tooltip: ', content)
 				if(type === 'node-object'){
 					typeText = 'Objekt'
-					this.tooltipTypeEl.classList.add(this.elementColor.object);
-					this.tooltipContentEl.classList.add(this.elementColor.object);
+					this.tooltipTypeEl.classList.add(app.collectionViewer.elementColor.object);
+					this.tooltipContentEl.classList.add(app.collectionViewer.elementColor.object);
 				}
 				if(type === 'node-category'){
 					typeText = 'Kategorie'
-					this.tooltipTypeEl.classList.add(this.elementColor.category);
-					this.tooltipContentEl.classList.add(this.elementColor.category);
+					this.tooltipTypeEl.classList.add(app.collectionViewer.elementColor.category);
+					this.tooltipContentEl.classList.add(app.collectionViewer.elementColor.category);
 				}
 				if(type === 'link-tag'){
 					typeText = 'Link'
-					this.tooltipTypeEl.classList.add(this.elementColor.tag);
-					this.tooltipContentEl.classList.add(this.elementColor.tag);
+					this.tooltipTypeEl.classList.add(app.collectionViewer.elementColor.tag);
+					this.tooltipContentEl.classList.add(app.collectionViewer.elementColor.tag);
 				}
 				if(type === 'link-category'){
 					typeText = 'Link'
-					this.tooltipTypeEl.classList.add(this.elementColor.category);
-					this.tooltipContentEl.classList.add(this.elementColor.category);
+					this.tooltipTypeEl.classList.add(app.collectionViewer.elementColor.category);
+					this.tooltipContentEl.classList.add(app.collectionViewer.elementColor.category);
 				}
 				this.tooltipTypeEl.appendChild(document.createTextNode(typeText));
 				this.tooltipContentEl.appendChild(document.createTextNode(content));
@@ -1437,23 +1484,23 @@ const app = {
 
 				if(type === 'node-object'){
 					typeText = 'Objekt'
-					this.highlightTypeEl.classList.add(this.elementColor.object);
-					this.highlightContentEl.classList.add(this.elementColor.object);
+					this.highlightTypeEl.classList.add(app.collectionViewer.elementColor.object);
+					this.highlightContentEl.classList.add(app.collectionViewer.elementColor.object);
 				}
 				if(type === 'node-category'){
 					typeText = 'Kategorie'
-					this.highlightTypeEl.classList.add(this.elementColor.category);
-					this.highlightContentEl.classList.add(this.elementColor.category);
+					this.highlightTypeEl.classList.add(app.collectionViewer.elementColor.category);
+					this.highlightContentEl.classList.add(app.collectionViewer.elementColor.category);
 				}
 				if(type === 'link-tag'){
 					typeText = 'Link'
-					this.highlightTypeEl.classList.add(this.elementColor.tag);
-					this.highlightContentEl.classList.add(this.elementColor.tag);
+					this.highlightTypeEl.classList.add(app.collectionViewer.elementColor.tag);
+					this.highlightContentEl.classList.add(app.collectionViewer.elementColor.tag);
 				}
 				if(type === 'link-category'){
 					typeText = 'Link'
-					this.highlightTypeEl.classList.add(this.elementColor.category);
-					this.highlightContentEl.classList.add(this.elementColor.category);
+					this.highlightTypeEl.classList.add(app.collectionViewer.elementColor.category);
+					this.highlightContentEl.classList.add(app.collectionViewer.elementColor.category);
 				}
 				this.highlightTypeEl.innerHTML = '';
 				this.highlightTypeEl.appendChild(document.createTextNode(typeText));
@@ -1538,7 +1585,7 @@ const app = {
 								+ tagList,
 						color: 'pearlwhite',
 						shadow: app.collectionViewer.elementColor.object,
-						button1: { content: 'erkunden', color: app.collectionViewer.elementColor.object, icon: 'eye' }
+						button1: { content: 'erkunden', color: app.collectionViewer.elementColor.object, icon: 'arrow right' }
 					}
 
 					app.gui.message.setMessage(message);
