@@ -441,9 +441,15 @@ div.gui-loading-screen {
   justify-content: center;
   width: 100vw;
   height: 100dvh;
-  background-color: #9B9691;
+  background-color: #FAF0E6;
   pointer-events: none;
-  z-index: 4;
+  opacity: 1;
+  transition: opacity 1.5s;
+  z-index: 3;
+}
+
+div.gui-loading-screen.transparent {
+  opacity: 0;
 }
 
 div.gui-loading-container {
@@ -455,7 +461,7 @@ div.gui-loading-container {
 }
 
 div.gui-loading-text {
-  color: #FAF0E6;
+  color: #9B9691;
   padding: 20px;
 }
 

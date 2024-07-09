@@ -57,14 +57,15 @@ AFRAME.registerComponent('load-json-models', {
 			this.linkTagModelEl.setAttribute('visible', false);
 			this.el.sceneEl.querySelector('a-assets').appendChild(this.linkTagModelEl);
 
-			comp.loadJSONObjects();
-
+			this.loadJSONObjects();
+			this.createForceGraph();
+			
 			this.el.sceneEl.addEventListener('JSON-models-loaded', (e) => {
-				devMode && console.log('dev --- JSON-models-loaded', e);
-				devMode && console.log('dev --- scene', comp.el.sceneEl.object3D);
-				devMode && console.log('dev --- forcegraph object3D: ', document.querySelector('#forcegraph').object3D);
-				comp.assignModelsToNodes(this.data.scaleFactor, this.data.scaleNormalizationFactor);	
-				comp.assignMaterialToLinks();
+				if(this.json) {
+					this.fgData = this.getDataFromJSON(this.json);
+					app.collectionViewer.proxyfgData.data = this.fgData;
+					this.filterFgData(this.fgData, this.fgData.taglist, this.fgData.categorylist); //default: all tags, all categories
+				}
 				app.gui.loadingScreen.hideLoadingScreen();
 			}, {once: true});
 
@@ -85,6 +86,7 @@ AFRAME.registerComponent('load-json-models', {
 		play: function () {}, 
 
 		getDataFromJSON: function (json) {
+			if(!this.json) {return;};
 
 			function filterEmptyTag(tag){
 				return tag !== '';
@@ -241,12 +243,63 @@ AFRAME.registerComponent('load-json-models', {
 			document.querySelector('a-scene').dispatchEvent(event);
 		},
 
+		createForceGraph: function() {
+			//create a-entity forcegraph
+			let forcegraphEntity = document.createElement('a-entity');
+			this.el.sceneEl.appendChild(forcegraphEntity);
+			forcegraphEntity.setAttribute('id', 'forcegraph');
+			forcegraphEntity.setAttribute('highlight', { noUpdate: true });
+			forcegraphEntity.setAttribute('forcegraph', {
+				forceEngine: 'd3', //'d3' (default) or 'ngraph'
+				warmupTicks: 2000,
+				cooldownTicks: 0,
+				d3AlphaMin: 0.5,
+				d3AlphaDecay: 0.028,
+				d3VelocityDecay: 0.6,
+				linkWidth: 0.6,
+				linkCurvature: 0.15,
+				//linkDirectionalParticles: 10,
+				//linkDirectionalParticleSpeed: 0.001,
+				//linkDirectionalParticleWidth: 1,
+				linkThreeObjectExtend: false,
+				nodeRelSize: 1.5,
+				nodeThreeObjectExtend: false,
+				nodeOpacity: 0,
+				onLinkHover: link => { 
+					app.collectionViewer.tooltip.mouseoverHandler(link);
+				},
+				onLinkClick: link => { 
+					devMode && console.log('dev --- onLinkClick: ', link);
+					devMode && console.log('dev --- onLinkClick > link.strength: ', link.strength);
+					//if(link.type === 'link-tag'){
+						//app.collectionViewer.highlight.onclickHandler(link);
+						//document.querySelector('#forcegraph').setAttribute('highlight', {source: link});
+					//}
+					//if(link.type === 'link-category'){
+						//app.collectionViewer.highlight.onclickHandler(link.source);
+						//document.querySelector('#forcegraph').setAttribute('highlight', {source: link.source});
+					//}
+				},
+				onNodeHover: node => { 
+					app.collectionViewer.tooltip.mouseoverHandler(node);
+				},
+				onNodeClick: node => { 
+					devMode && console.log('dev --- onNodeClick: ', node);
+					document.querySelector('a-camera').setAttribute('camera-focus-target', {target: node, duration: 1200});
+					app.collectionViewer.highlight.onclickHandler(node);
+					document.querySelector('#forcegraph').setAttribute('highlight', {source: node});
+				}
+			});
+		},
+
 		loadJSONObjects: function () {
 			let fgData = '';
 			const fileJSON = dirPath_Files + dirPath_CollectionJSON;
 			let objectsJSON = fetch(fileJSON)
 				.then((response) => response.json())
 				.then((json) => {
+
+					this.json = json;
 					//load models to scene
 					let scene = document.querySelector('a-scene').object3D;
 					for(let object in json.objects){
@@ -264,53 +317,6 @@ AFRAME.registerComponent('load-json-models', {
 							});
 						}
 					}
-
-					//create a-entity forcegraph
-					let forcegraphEntity = document.createElement('a-entity');
-					this.el.sceneEl.appendChild(forcegraphEntity);
-					forcegraphEntity.setAttribute('id', 'forcegraph');
-					forcegraphEntity.setAttribute('highlight', { noUpdate: true });
-
-					this.fgData = this.getDataFromJSON(json);
-					app.collectionViewer.proxyfgData.data = this.fgData;
-
-					//initial display
-					this.filterFgData(this.fgData, this.fgData.taglist, this.fgData.categorylist); 					//no tags and all categories 
-
-					forcegraphEntity.setAttribute('forcegraph', {
-						warmupTicks: 2000,
-						cooldownTicks: 0,
-						d3VelocityDecay: 0.6,
-						linkWidth: 0.6,
-						linkCurvature: 0.15,
-						linkThreeObjectExtend: false,
-						nodeRelSize: 1.5,
-						nodeThreeObjectExtend: false,
-						nodeOpacity: 0,
-						onLinkHover: link => { 
-							app.collectionViewer.tooltip.mouseoverHandler(link);
-						},
-						//onLinkClick: link => { 
-							//devMode && console.log('dev --- onLinkClick: ', link);
-							//if(link.type === 'link-tag'){
-								//app.collectionViewer.highlight.onclickHandler(link);
-								//document.querySelector('#forcegraph').setAttribute('highlight', {source: link});
-							//}
-							//if(link.type === 'link-category'){
-								//app.collectionViewer.highlight.onclickHandler(link.source);
-								//document.querySelector('#forcegraph').setAttribute('highlight', {source: link.source});
-							//}
-						//},
-						onNodeHover: node => { 
-							app.collectionViewer.tooltip.mouseoverHandler(node);
-						},
-						onNodeClick: node => { 
-							devMode && console.log('dev --- onNodeClick: ', node);
-							document.querySelector('a-camera').setAttribute('camera-focus-target', {target: node, duration: 1200});
-							app.collectionViewer.highlight.onclickHandler(node);
-							document.querySelector('#forcegraph').setAttribute('highlight', {source: node});
-						}
-					});
 
 					THREE.DefaultLoadingManager.onLoad = function () {
 						let event = new Event('JSON-models-loaded');
@@ -796,12 +802,12 @@ AFRAME.registerComponent('orbit-controls', {
 
 		if(this.distance > this.data.desiredDistance) {
 			let distFactor = (this.distance - this.data.desiredDistance)/50;
-			this.distance -= 1 + distFactor;
+			this.distance -= 0.5 + distFactor;
 		}
 
 		if(this.distance < this.data.desiredDistance) {
 			let distFactor = (this.data.desiredDistance - this.distance)/50;
-			this.distance += 1 + distFactor;
+			this.distance += 0.5 + distFactor;
 		}
 
 		//this.controls.update();

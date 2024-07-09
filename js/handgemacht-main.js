@@ -220,6 +220,7 @@ const app = {
 				guiLoadingScreen.className = 'gui-loading-screen hide';
 
 				const guiLoadingContainer = document.createElement('div');
+				this.loadingContainerEl = guiLoadingContainer;
 				guiLoadingScreen.appendChild(guiLoadingContainer);
 				guiLoadingContainer.className = 'gui-loading-container';
 		
@@ -242,18 +243,30 @@ const app = {
 
 			showLoadingScreen() {
 				this.loadingScreenEl.classList.remove('hide');
+				this.loadingContainerEl.classList.remove('hide');
+				this.loadingScreenEl.classList.remove('transparent');
 				this.loadingTextEl.innerHTML = this.content;
 				if(app.gui.title.titleEl){
 					app.gui.title.titleEl.classList.add('text-pearlwhite');
 				}
 			}, 
 
-			hideLoadingScreen() {
-				this.loadingScreenEl.classList.add('hide');
-				this.content = 'loading ...';
-				if(app.gui.title.titleEl){
-					app.gui.title.titleEl.classList.remove('text-pearlwhite');
-				}
+			hideLoadingScreen(timeout = 0) {
+				setTimeout(() => {
+				  this.loadingScreenEl.classList.add('transparent');
+				  this.content = 'loading ...';
+
+				  if(app.gui.title.titleEl){
+				  	app.gui.title.titleEl.classList.remove('text-pearlwhite');
+				  }
+
+				  this.loadingContainerEl.classList.add('hide');
+
+				  setTimeout(() => {
+				  	this.loadingScreenEl.classList.add('hide');
+				  }, 1500)
+
+				}, timeout);
 			}
 		},
 
