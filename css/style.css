@@ -155,6 +155,66 @@ audio {
   color: #FFC800;
 }
 
+.text-coalgrey::placeholder {
+  color: #41403F;
+  opacity: 0.7;
+}
+
+.text-smokegrey::placeholder {
+  color: #9B9691;
+  opacity: 0.7;
+}
+
+.text-pearlwhite::placeholder {
+  color: #FAF0E6;
+  opacity: 0.7;
+}
+
+.text-skyblue::placeholder {
+  color: #46AAC8;
+  opacity: 0.7;
+}
+
+.text-terracotta::placeholder {
+  color: #FF7850;
+  opacity: 0.7;
+}
+
+.text-duckyellow::placeholder {
+  color: #FFC800;
+  opacity: 0.7;
+}
+
+.coalgrey::selection {
+  background-color: #9B9691;
+  color: #41403F;
+}
+
+.smokegrey::selection {
+  background-color: #FAF0E6;
+  color: #41403F;
+}
+
+.pearlwhite::selection {
+  background-color: #9B9691;
+  color: #FAF0E6;
+}
+
+.skyblue::selection {
+  background-color: #A0E6FF;
+  color: #14647D;
+}
+
+.terracotta::selection {
+  background-color: #FFAF96;
+  color: #A04B19;
+}
+
+.duckyellow::selection {
+  background-color: #FFE696;
+  color: #966400;
+}
+
 button {
   font-family: 'Roboto Slab', serif;
   font-size: 1.0em;
@@ -224,6 +284,11 @@ button.shadow-duckyellow {
 
 button.shadow-duckyellow:hover {
   box-shadow: 5px 5px #FFC800;
+}
+
+input {
+  font: inherit;
+  font-size: 1.4em;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -1403,6 +1468,58 @@ div.cv-filter-container.collapsible-content.active {
 
 
 
+/* ---------- search ---------- */
+
+
+
+
+div.cv-search-input-container {
+  width: 100%;
+  height: 100%;
+}
+
+input.cv-search-input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background-color: transparent;
+  padding: 0 20px 0 10px;
+}
+
+input.cv-search-input:focus {
+  outline: none;
+}
+
+div.cv-search-autocomplete-list-container {
+  position: absolute;
+  width: 100%;
+  max-height: 250px;
+  left: 0;
+  bottom: 70px;
+  border-radius: 0 20px 0 20px;
+  overflow: hidden;
+  overflow-y: scroll;
+}
+
+div.cv-search-autocomplete-list {
+  padding: 10px;
+}
+
+div.cv-search-autocomplete-list > div {
+  margin: 2px;
+}
+
+div.cv-search-autocomplete-list > div.autocomplete-active {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-left: 5px;
+}
+
+
+
+
+
+
 /* END collection viewer */
 
 
@@ -1697,7 +1814,7 @@ img.help-symbol{
 
 
 /* very small  */
-@media only screen and (min-width: 320px) {
+@media only screen and (min-width: 420px) {
 
   div.gui-message-container {
     width: calc(440px - 40px);

@@ -115,7 +115,7 @@ AFRAME.registerComponent('load-json-models', {
 					'tags': [], // category.tags.filter(filterEmptyTag)
 					'gltf': '',
 					'gltfVisible': '',
-					'gltfInvisible': ''  
+					'gltfInvisible': ''
 				};
 				if(category !== ''){
 					fgData.nodes.push(newCategory);
@@ -285,6 +285,7 @@ AFRAME.registerComponent('load-json-models', {
 				},
 				onNodeClick: node => { 
 					devMode && console.log('dev --- onNodeClick: ', node);
+					if(document.querySelector('a-camera').components['orbit-controls'].hasUserInput) {return;}
 					document.querySelector('a-camera').setAttribute('camera-focus-target', {target: node, duration: 1200});
 					app.collectionViewer.highlight.onclickHandler(node);
 					document.querySelector('#forcegraph').setAttribute('highlight', {source: node});
@@ -354,7 +355,7 @@ AFRAME.registerComponent('load-json-models', {
 						bBoxSize.z > maxSize ? maxSize = bBoxSize.z : '';
 						//normalize scale
 						thisNode.gltf.scale.set(1, 1, 1);
-						let normScale =  1 / (maxSize * normFactor + (1-normFactor));
+						let normScale = 1 / (maxSize * normFactor + (1-normFactor));
 						let newScale = normScale * scaleFactor;
 
 						thisNode.gltf.scale.set(newScale, newScale, newScale);
@@ -514,7 +515,7 @@ AFRAME.registerComponent('highlight', {
 		this.fgComp = this.el.components.forcegraph.data;
 
 		let newDistance = 0;
-		let newDesiredCameraPitch = -5;
+		let newDesiredCameraTilt = -5;
 
 		if(this.data.noUpdate){
 			this.data.noUpdate = false;
@@ -529,18 +530,18 @@ AFRAME.registerComponent('highlight', {
 		if(source.type === 'node-object' || source.type === 'node-category') {
 			this.highlightModel(source);
 			newDistance = this.camera.position.distanceTo(this.data.source.__threeObj.position);
-			newDesiredCameraPitch = -12;
+			newDesiredCameraTilt = -12;
 		}
 
 		if(source.type === 'link-tag' || source.type === 'link-category') {
 			this.highlightLinks(source);
 			newDistance = this.camera.position.distanceTo(this.data.source.__curve.v1);
-			newDesiredCameraPitch = -12;
+			newDesiredCameraTilt = -12;
 		}
 
 		let newDesiredDistance = this.data.highestDistance * 1.5;
 
-		this.cameraEl.setAttribute('orbit-controls', { autoRotate: false, distance: newDistance, desiredDistance: newDesiredDistance, desiredCameraPitch: newDesiredCameraPitch, forceUpdate: true });
+		this.cameraEl.setAttribute('orbit-controls', { autoRotate: false, distance: newDistance, desiredDistance: newDesiredDistance, pitchCamera: true, desiredCameraPitch: 0,desiredCameraTilt: newDesiredCameraTilt, forceUpdate: true });
 
 		this.data.highestDistance = 0;
 	},
@@ -730,377 +731,498 @@ var PI_2 = Math.PI / 2;
 
 AFRAME.registerComponent('orbit-controls', {
 
-  schema: {
-	enabled: { default: false },
-	target: { default: '#orbit-target' }, 
-	distance: { default: 50 }, 
-	desiredDistance: { default: 300 },
-	minDistance: { default: 30 },
-	maxDistance: { default: 700 }, 
-	autoRotate: { default: true }, 
-	autoRotateSpeed: { default: 10 }, 
-	cameraPitch: { default: 0 },
-	desiredCameraPitch: { default: -5 }, 
-	forceUpdate: { default: false }
-  },
+	schema: {
+		enabled: { default: false },
+		target: { default: '#orbit-target' }, 
+		distance: { default: 50 }, 
+		desiredDistance: { default: 300 },
+		minDistance: { default: 30 },
+		maxDistance: { default: 700 }, 
+		autoRotate: { default: true }, 
+		autoRotateSpeed: { default: 10 },
+		pitchCamera: { default: false },
+		desiredCameraPitch: { default: 0 }, 
+		cameraTilt: { default: 0 },
+		desiredCameraTilt: { default: -5 }, 
+		forceUpdate: { default: false }
+	},
 
-  init: function () {
-	this.previousPosition = new THREE.Vector3();
-	this.deltaPosition = new THREE.Vector3();
-	this.setupMouseControls();
-	this.setupHMDControls();
-	this.bindMethods();
-
-	if (this.el.components['look-controls']) {
-		this.lookControls = this.el.components['look-controls'];
-		this.lookControls.pause();
-	} else {
-		this.el.setAttribute('look-controls', '');
-		this.lookControls = this.el.components['look-controls'];
-		this.lookControls.pause();
-	}
-  },
-
-  update: function () {
-	if (!this.data.enabled) { return; }
-
-	if(document.querySelector(this.data.target)){
-		this.target3D = document.querySelector(this.data.target).object3D;
-	}else{
-		//create orbit target
-		this.orbitTargetEl = document.createElement('a-entity');
-		this.orbitTarget = this.orbitTargetEl.object3D;
-		this.el.sceneEl.appendChild(this.orbitTargetEl);
-		this.orbitTargetEl.setAttribute('id', 'orbit-target');
-		devMode && this.orbitTargetEl.setAttribute('geometry', 'primitive: sphere; radius: 1');
-
-		this.target3D = document.querySelector(this.data.target).object3D;
-	}
-
-	if(this.data.distance) {
-		this.distance = this.data.distance;
-	}
+	init: function () {
+		this.touchEventCache = [];
+		this.previousDistance = -1;
+		this.hasUserInput = false;
+		this.previousPosition = new THREE.Vector3();
+		this.deltaPosition = new THREE.Vector3();
+		this.setupMouseControls();
+		this.setupHMDControls();
+		this.bindMethods();
 	
-	//this.controls.update();
-	this.updateOrientation();
-	this.updatePosition();
-  },
+		if (this.el.components['look-controls']) {
+			this.lookControls = this.el.components['look-controls'];
+			this.lookControls.pause();
+		} else {
+			this.el.setAttribute('look-controls', '');
+			this.lookControls = this.el.components['look-controls'];
+			this.lookControls.pause();
+		}
+	},
 
-  play: function () {
-	this.previousPosition.set(0, 0, 0);
-	this.addEventListeners();
-  },
+	update: function () {
+		if (!this.data.enabled) { return; }
 
-  pause: function () {
-	this.removeEventListeners();
-  },
-
-  tick: function (t) {
-	if(this.data.enabled){
-
-		this.data.forceUpdate && this.update;
-
-		if(this.distance > this.data.desiredDistance) {
-			let distFactor = (this.distance - this.data.desiredDistance)/50;
-			this.distance -= 0.5 + distFactor;
+		if(document.querySelector(this.data.target)){
+			this.target3D = document.querySelector(this.data.target).object3D;
+		}else{
+			//create orbit target
+			this.orbitTargetEl = document.createElement('a-entity');
+			this.orbitTarget = this.orbitTargetEl.object3D;
+			this.el.sceneEl.appendChild(this.orbitTargetEl);
+			this.orbitTargetEl.setAttribute('id', 'orbit-target');
+			devMode && this.orbitTargetEl.setAttribute('geometry', 'primitive: sphere; radius: 1');
+	
+			this.target3D = document.querySelector(this.data.target).object3D;
+		}
+	
+		if(this.data.distance) {
+			this.distance = this.data.distance;
 		}
 
-		if(this.distance < this.data.desiredDistance) {
-			let distFactor = (this.data.desiredDistance - this.distance)/50;
-			this.distance += 0.5 + distFactor;
+		if(this.data.desiredDistance){
+			this.desiredDistance = this.data.desiredDistance;
 		}
-
+		
 		//this.controls.update();
 		this.updateOrientation();
 		this.updatePosition();
+	},
 
-		if(this.data.cameraPitch > this.data.desiredCameraPitch) {
-			this.data.cameraPitch -= 0.3;
+	play: function () {
+		this.previousPosition.set(0, 0, 0);
+		this.addEventListeners();
+	},
+
+	pause: function () {
+		this.removeEventListeners();
+	},
+
+	tick: function (t) {
+		if(this.data.enabled){
+	
+			this.data.forceUpdate && this.update;
+
+			if(this.distance > this.desiredDistance) {
+				let distFactor = (this.distance - this.desiredDistance)/50;
+				this.distance -= 1 + distFactor;
+			}
+	
+			if(this.distance < this.desiredDistance) {
+				let distFactor = (this.desiredDistance - this.distance)/50;
+				this.distance += 1 + distFactor;
+			}
+	
+			//this.controls.update();
+			this.updateOrientation();
+			this.updatePosition();
+	
+			if(this.data.cameraTilt > this.data.desiredCameraTilt) {
+				this.data.cameraTilt -= 0.3;
+			}
+	
+			if(this.data.cameraTilt < this.data.desiredCameraTilt) {
+				this.data.cameraTilt += 0.3;
+			}
+	
+			this.el.object3D.rotation.x += (this.data.cameraTilt * 0.01745);
 		}
+	},
 
-		if(this.data.cameraPitch < this.data.desiredCameraPitch) {
-			this.data.cameraPitch += 0.3;
+	remove: function () {
+		this.pause();
+	},
+
+	bindMethods: function () {
+		this.onMouseDown = this.onMouseDown.bind(this);
+		this.onMouseMove = this.onMouseMove.bind(this);
+		this.onMouseWheel = this.onMouseWheel.bind(this);
+		this.releaseMouse = this.releaseMouse.bind(this);
+		this.onTouchStart = this.onTouchStart.bind(this);
+		this.onTouchMove = this.onTouchMove.bind(this);
+		this.onTouchEnd = this.onTouchEnd.bind(this);
+		this.pointerdownHandler = this.pointerdownHandler.bind(this);
+		this.pointermoveHandler = this.pointermoveHandler.bind(this);
+		this.pointerupHandler = this.pointerupHandler.bind(this);
+	},
+
+	setupMouseControls: function () {
+		// The canvas where the scene is painted
+		this.mouseDown = false;
+		this.pitchObject = new THREE.Object3D();
+		this.yawObject = new THREE.Object3D();
+		this.yawObject.position.y = 10;
+		this.yawObject.add(this.pitchObject);
+	},
+
+	setupHMDControls: function () {
+		this.dolly = new THREE.Object3D();
+		this.euler = new THREE.Euler();
+		//this.controls = new THREE.VRControls(this.dolly);
+		this.zeroQuaternion = new THREE.Quaternion();
+	},
+
+	addEventListeners: function () {
+		var sceneEl = this.el.sceneEl;
+		var canvasEl = sceneEl.canvas;
+	
+		// listen for canvas to load.
+		if (!canvasEl) {
+			sceneEl.addEventListener('render-target-loaded', this.addEventListeners.bind(this));
+			return;
 		}
+	
+		// Mouse Events
+		canvasEl.addEventListener('mousedown', this.onMouseDown, false);
+		canvasEl.addEventListener('mousemove', this.onMouseMove, false);
+		canvasEl.addEventListener('mouseup', this.releaseMouse, false);
+		canvasEl.addEventListener('mouseout', this.releaseMouse, false);
+		canvasEl.addEventListener('mousewheel', this.onMouseWheel, false);
+		canvasEl.addEventListener('MozMousePixelScroll', this.onMouseWheel, false); // firefox
+	
+		// Touch events
+		canvasEl.addEventListener('touchstart', this.onTouchStart);
+		canvasEl.addEventListener('touchmove', this.onTouchMove);
+		canvasEl.addEventListener('touchend', this.onTouchEnd);
+	
+		// Touch pinch events
+		canvasEl.addEventListener('pointerdown', this.pointerdownHandler);
+		canvasEl.addEventListener('pointermove', this.pointermoveHandler);
+	
+		canvasEl.addEventListener('pointerup', this.pointerupHandler);
+		canvasEl.addEventListener('pointercancel', this.pointerupHandler);
+		canvasEl.addEventListener('pointerout', this.pointerupHandler);
+		canvasEl.addEventListener('pointerleave', this.pointerupHandler);
+	},
 
-		this.el.object3D.rotation.x += (this.data.cameraPitch * 0.01745);
-	}
-  },
+	removeEventListeners: function () {
+		var sceneEl = document.querySelector('a-scene');
+		var canvasEl = sceneEl && sceneEl.canvas;
+		if (!canvasEl) { return; }
+	
+		// Mouse Events
+		canvasEl.removeEventListener('mousedown', this.onMouseDown);
+		canvasEl.removeEventListener('mousemove', this.onMouseMove);
+		canvasEl.removeEventListener('mouseup', this.releaseMouse);
+		canvasEl.removeEventListener('mouseout', this.releaseMouse);
+		canvasEl.removeEventListener('mousewheel', this.onMouseWheel, false);
+		canvasEl.removeEventListener('MozMousePixelScroll', this.onMouseWheel, false); // firefox
+	
+		// Touch events
+		canvasEl.removeEventListener('touchstart', this.onTouchStart);
+		canvasEl.removeEventListener('touchmove', this.onTouchMove);
+		canvasEl.removeEventListener('touchend', this.onTouchEnd);
+	
+		// Touch pinch events
+		canvasEl.removeEventListener('pointerdown', this.pointerdownHandler);
+		canvasEl.removeEventListener('pointermove', this.pointermoveHandler);
+	
+		canvasEl.removeEventListener('pointerup', this.pointerupHandler);
+		canvasEl.removeEventListener('pointercancel', this.pointerupHandler);
+		canvasEl.removeEventListener('pointerout', this.pointerupHandler);
+		canvasEl.removeEventListener('pointerleave', this.pointerupHandler);
+	},
 
-  remove: function () {
-	this.pause();
-  },
+	updateOrientation: (function () {
+		var hmdEuler = new THREE.Euler();
+		hmdEuler.order = 'YXZ';
+		return function () {
+			var pitchObject = this.pitchObject;
+			var yawObject = this.yawObject;
+			var desiredCameraPitch = (this.data.desiredCameraPitch * 0.01745);
+			var hmdQuaternion = this.calculateHMDQuaternion();
+			hmdEuler.setFromQuaternion(hmdQuaternion);
+	
+			if(this.data.autoRotate){
+				yawObject.rotation.y += this.data.autoRotateSpeed * 0.0001;
+			}
 
-  bindMethods: function () {
-	this.onMouseDown = this.onMouseDown.bind(this);
-	this.onMouseMove = this.onMouseMove.bind(this);
-	this.onMouseWheel = this.onMouseWheel.bind(this);
-	this.releaseMouse = this.releaseMouse.bind(this);
-	this.onTouchStart = this.onTouchStart.bind(this);
-	this.onTouchMove = this.onTouchMove.bind(this);
-	this.onTouchEnd = this.onTouchEnd.bind(this);
-  },
+			if((pitchObject.rotation.x > desiredCameraPitch) && this.data.pitchCamera) {
+				pitchObject.rotation.x -= 0.005;
+			}
+	
+			if((pitchObject.rotation.x < desiredCameraPitch) && this.data.pitchCamera) {
+				pitchObject.rotation.x += 0.005;
+			}
 
-  setupMouseControls: function () {
-	// The canvas where the scene is painted
-	this.mouseDown = false;
-	this.pitchObject = new THREE.Object3D();
-	this.yawObject = new THREE.Object3D();
-	this.yawObject.position.y = 10;
-	this.yawObject.add(this.pitchObject);
-  },
-
-  setupHMDControls: function () {
-	this.dolly = new THREE.Object3D();
-	this.euler = new THREE.Euler();
-	//this.controls = new THREE.VRControls(this.dolly);
-	this.zeroQuaternion = new THREE.Quaternion();
-  },
-
-  addEventListeners: function () {
-	var sceneEl = this.el.sceneEl;
-	var canvasEl = sceneEl.canvas;
-
-	// listen for canvas to load.
-	if (!canvasEl) {
-	  sceneEl.addEventListener('render-target-loaded', this.addEventListeners.bind(this));
-	  return;
-	}
-
-	// Mouse Events
-	canvasEl.addEventListener('mousedown', this.onMouseDown, false);
-	canvasEl.addEventListener('mousemove', this.onMouseMove, false);
-	canvasEl.addEventListener('mouseup', this.releaseMouse, false);
-	canvasEl.addEventListener('mouseout', this.releaseMouse, false);
-	canvasEl.addEventListener('mousewheel', this.onMouseWheel, false);
-	canvasEl.addEventListener('MozMousePixelScroll', this.onMouseWheel, false); // firefox
-
-	// Touch events
-	canvasEl.addEventListener('touchstart', this.onTouchStart);
-	canvasEl.addEventListener('touchmove', this.onTouchMove);
-	canvasEl.addEventListener('touchend', this.onTouchEnd);
-  },
-
-  removeEventListeners: function () {
-	var sceneEl = document.querySelector('a-scene');
-	var canvasEl = sceneEl && sceneEl.canvas;
-	if (!canvasEl) { return; }
-
-	// Mouse Events
-	canvasEl.removeEventListener('mousedown', this.onMouseDown);
-	canvasEl.removeEventListener('mousemove', this.onMouseMove);
-	canvasEl.removeEventListener('mouseup', this.releaseMouse);
-	canvasEl.removeEventListener('mouseout', this.releaseMouse);
-	canvasEl.removeEventListener('mousewheel', this.onMouseWheel, false);
-	canvasEl.removeEventListener('MozMousePixelScroll', this.onMouseWheel, false); // firefox
-
-	// Touch events
-	canvasEl.removeEventListener('touchstart', this.onTouchStart);
-	canvasEl.removeEventListener('touchmove', this.onTouchMove);
-	canvasEl.removeEventListener('touchend', this.onTouchEnd);
-  },
-
-  updateOrientation: (function () {
-	var hmdEuler = new THREE.Euler();
-	hmdEuler.order = 'YXZ';
-	return function () {
-	  var pitchObject = this.pitchObject;
-	  var yawObject = this.yawObject;
-	  var hmdQuaternion = this.calculateHMDQuaternion();
-	  hmdEuler.setFromQuaternion(hmdQuaternion);
-
-	  if(this.data.autoRotate){
-	  	yawObject.rotation.y += this.data.autoRotateSpeed * 0.0001;
-	  }
-
-	  this.el.setAttribute('rotation', {
-		x: (hmdEuler.x * 114.59155903) + (pitchObject.rotation.x * 114.59155903),
-		y: (hmdEuler.y * 114.59155903) + (yawObject.rotation.y * 114.59155903),
-		z: (hmdEuler.z * 114.59155903) + (yawObject.rotation.z * 114.59155903)
-	  });
-	};
-  })(),
-
-  calculateHMDQuaternion: (function () {
-	var hmdQuaternion = new THREE.Quaternion();
-	return function () {
-	  var dolly = this.dolly;
-	  if (!this.zeroed && !dolly.quaternion.equals(this.zeroQuaternion)) {
-		this.zeroOrientation();
-		this.zeroed = true;
-	  }
-	  hmdQuaternion.copy(this.zeroQuaternion).multiply(dolly.quaternion);
-	  return hmdQuaternion;
-	};
-  })(),
-
-  updatePosition: (function () {
-	var position = new THREE.Vector3();
-	var quaternion = new THREE.Quaternion();
-	var scale = new THREE.Vector3();
-	return function () {
-		var el = this.el;
-		var deltaPosition = this.calculateDeltaPosition();
-		var currentPosition = this.target3D.position;
-		this.el.object3D.matrixWorld.decompose(position, quaternion, scale);
-
-		deltaPosition.applyQuaternion(quaternion);
-
-		// Reset the Camera to 0
-
-		el.setAttribute('position', {
-			x: this.target3D.position.x,
-			y: this.target3D.position.y,
-			z: this.target3D.position.z
-		});
-
-		if(this.distance < this.data.minDistance) { 
-			this.distance = this.data.minDistance;
-			this.data.desiredDistance = this.data.minDistance; 
+			if((pitchObject.rotation.x < (desiredCameraPitch + 0.01)) && (pitchObject.rotation.x > (desiredCameraPitch - 0.01))) {
+				this.data.pitchCamera = false;
+			}
+	
+			this.el.setAttribute('rotation', {
+			x: (hmdEuler.x * 114.59155903) + (pitchObject.rotation.x * 114.59155903),
+			y: (hmdEuler.y * 114.59155903) + (yawObject.rotation.y * 114.59155903),
+			z: (hmdEuler.z * 114.59155903) + (yawObject.rotation.z * 114.59155903)
+			});
 		};
-		if(this.distance > this.data.maxDistance) { 
-			this.distance = this.data.maxDistance;
-			this.data.desiredDistance = this.data.maxDistance; 
+	})(),
+
+	calculateHMDQuaternion: (function () {
+		var hmdQuaternion = new THREE.Quaternion();
+		return function () {
+			var dolly = this.dolly;
+			if (!this.zeroed && !dolly.quaternion.equals(this.zeroQuaternion)) {
+			this.zeroOrientation();
+			this.zeroed = true;
+			}
+			hmdQuaternion.copy(this.zeroQuaternion).multiply(dolly.quaternion);
+			return hmdQuaternion;
 		};
+	})(),
 
-		var targetCameraPosition = this.el.object3D.translateOnAxis( new THREE.Vector3(0,0,1), this.distance ).position;
+	updatePosition: (function () {
+		var position = new THREE.Vector3();
+		var quaternion = new THREE.Quaternion();
+		var scale = new THREE.Vector3();
+		return function () {
+			var el = this.el;
+			var deltaPosition = this.calculateDeltaPosition();
+			var currentPosition = this.target3D.position;
+			this.el.object3D.matrixWorld.decompose(position, quaternion, scale);
+	
+			deltaPosition.applyQuaternion(quaternion);
+	
+			// Reset the Camera to 0
+	
+			el.setAttribute('position', {
+				x: this.target3D.position.x,
+				y: this.target3D.position.y,
+				z: this.target3D.position.z
+			});
+	
+			if(this.distance < this.data.minDistance) { 
+				this.distance = this.data.minDistance;
+				this.desiredDistance = this.data.minDistance; 
+			};
 
-		el.setAttribute('position', {
-			x: targetCameraPosition.x,
-			y: targetCameraPosition.y,
-			z: targetCameraPosition.z
-		});
-	};
-  })(),
+			if(this.distance > this.data.maxDistance) { 
+				this.distance = this.data.maxDistance;
+				this.desiredDistance = this.data.maxDistance; 
+			};
 
-  calculateDeltaPosition: function () {
-	var dolly = this.dolly;
-	var deltaPosition = this.deltaPosition;
-	var previousPosition = this.previousPosition;
-	deltaPosition.copy(dolly.position);
-	deltaPosition.sub(previousPosition);
-	previousPosition.copy(dolly.position);
-	return deltaPosition;
-  },
+			var targetCameraPosition = this.el.object3D.translateOnAxis( new THREE.Vector3(0,0,1), this.distance ).position;
+	
+			el.setAttribute('position', {
+				x: targetCameraPosition.x,
+				y: targetCameraPosition.y,
+				z: targetCameraPosition.z
+			});
+		};
+	})(),
 
-  updateHMDQuaternion: (function () {
-	var hmdQuaternion = new THREE.Quaternion();
-	return function () {
-	  var dolly = this.dolly;
-	  this.controls.update();
-	  if (!this.zeroed && !dolly.quaternion.equals(this.zeroQuaternion)) {
-		this.zeroOrientation();
-		this.zeroed = true;
-	  }
-	  hmdQuaternion.copy(this.zeroQuaternion).multiply(dolly.quaternion);
-	  return hmdQuaternion;
-	};
-  })(),
+	calculateDeltaPosition: function () {
+		var dolly = this.dolly;
+		var deltaPosition = this.deltaPosition;
+		var previousPosition = this.previousPosition;
+		deltaPosition.copy(dolly.position);
+		deltaPosition.sub(previousPosition);
+		previousPosition.copy(dolly.position);
+		return deltaPosition;
+	},
 
-  zeroOrientation: function () {
-	var euler = new THREE.Euler();
-	euler.setFromQuaternion(this.dolly.quaternion.clone().inverse());
-	// Cancel out roll and pitch. We want to only reset yaw
-	euler.z = 0;
-	euler.x = 0;
-	this.zeroQuaternion.setFromEuler(euler);
-  },
+	updateHMDQuaternion: (function () {
+		var hmdQuaternion = new THREE.Quaternion();
+		return function () {
+			var dolly = this.dolly;
+			this.controls.update();
+			if (!this.zeroed && !dolly.quaternion.equals(this.zeroQuaternion)) {
+			this.zeroOrientation();
+			this.zeroed = true;
+			}
+			hmdQuaternion.copy(this.zeroQuaternion).multiply(dolly.quaternion);
+			return hmdQuaternion;
+		};
+	})(),
 
-  onMouseMove: function (event) {
-	var pitchObject = this.pitchObject;
-	var yawObject = this.yawObject;
-	var previousMouseEvent = this.previousMouseEvent;
+	zeroOrientation: function () {
+		var euler = new THREE.Euler();
+		euler.setFromQuaternion(this.dolly.quaternion.clone().inverse());
+		// Cancel out roll and pitch. We want to only reset yaw
+		euler.z = 0;
+		euler.x = 0;
+		this.zeroQuaternion.setFromEuler(euler);
+	},
 
-	if (!this.mouseDown || !this.data.enabled) { 
-		this.mouseMove = false;
-		return;
+	onMouseMove: function (event) {
+		var pitchObject = this.pitchObject;
+		var yawObject = this.yawObject;
+		var previousMouseEvent = this.previousMouseEvent;
+	
+		if (!this.mouseDown || !this.data.enabled) { 
+			this.mouseMove = false;
+			return;
+		}
+	
+		this.mouseMove = true;
+
+		if(!this.hasUserInput) {
+			setTimeout(() => {
+				this.hasUserInput = true;
+			}, 100)
+		}
+	
+		var movementX = event.movementX || event.mozMovementX;
+		var movementY = event.movementY || event.mozMovementY;
+	
+		if (movementX === undefined || movementY === undefined) {
+			movementX = event.screenX - previousMouseEvent.screenX;
+			movementY = event.screenY - previousMouseEvent.screenY;
+		}
+		this.previousMouseEvent = event;
+	
+		yawObject.rotation.y -= movementX * 0.002;
+		pitchObject.rotation.x -= movementY * 0.002;
+		pitchObject.rotation.x = Math.max(-PI_2/4, Math.min(PI_2, pitchObject.rotation.x));
+	},
+
+	onMouseDown: function (event) {
+		this.mouseDown = true;
+		this.previousMouseEvent = event;
+	},
+
+	releaseMouse: function () {
+		this.mouseDown = false;
+
+		if(this.hasUserInput) {
+			setTimeout(() => {
+				this.hasUserInput = false;
+			}, 300)
+		}
+	},
+
+	onMouseWheel: function (event) {
+		if (!this.data.enabled) return;
+	
+		event.preventDefault();
+		event.stopPropagation();
+	
+		var scrollDelta = 0;
+		if (event.wheelDelta !== undefined) { // WebKit,Opera,IE 9
+			scrollDelta = event.wheelDelta;
+		} else if (event.detail !== undefined) { // Firefox
+			scrollDelta = -event.detail;
+		}
+	
+		if (scrollDelta > 0) {
+			this.desiredDistance += 20;
+		} else if (scrollDelta < 0) {
+			this.desiredDistance -= 20;
+		}
+	},
+
+	onTouchStart: function (e) {
+		if (e.touches.length !== 1) { return; }
+		this.touchStart = {
+			x: e.touches[0].pageX,
+			y: e.touches[0].pageY
+		};
+		this.touchStarted = true;
+	
+		// Stop Zoom
+		this.desiredDistance = this.distance;
+
+		if(!this.hasUserInput) {
+			setTimeout(() => {
+				this.hasUserInput = true;
+			}, 100)
+		}
+	},
+
+	onTouchMove: function (e) {
+		if (e.touches.length !== 1) { return; }
+		this.touchMove = true;
+		var deltaY;
+		var deltaX;
+		var yawObject = this.yawObject;
+		var pitchObject = this.pitchObject;
+		if (!this.touchStarted) { return; }
+		deltaY = 2 * Math.PI * (e.touches[0].pageX - this.touchStart.x) / this.el.sceneEl.canvas.clientWidth;
+		deltaX = 2 * Math.PI * (e.touches[0].pageY - this.touchStart.y) / this.el.sceneEl.canvas.clientHeight;
+	
+		// Limits touch orientaion to to yaw (y axis)
+		yawObject.rotation.y -= deltaY * 0.5;
+
+		// Limits touch orientation to pitch (x axis)
+		pitchObject.rotation.x -= deltaX * 0.5;
+		pitchObject.rotation.x = Math.max(-PI_2, Math.min(PI_2, pitchObject.rotation.x));
+	
+		this.touchStart = {
+			x: e.touches[0].pageX,
+			y: e.touches[0].pageY
+		};
+	},
+
+	onTouchEnd: function () {
+		this.touchStarted = false;
+		this.touchMove = false;
+
+		if(this.hasUserInput) {
+			setTimeout(() => {
+				this.hasUserInput = false;
+			}, 300)
+		}
+	}, 
+
+	pointerdownHandler: function (e) {
+		if(!this.touchEventCache) {
+			this.touchEventCache = [];
+		}
+		this.touchEventCache.push(e);
+
+		if(!this.hasUserInput) {
+			setTimeout(() => {
+				this.hasUserInput = true;
+			}, 100)
+		}
+	},
+
+	pointermoveHandler: function (e) {
+		let currentDistance = 0;
+		let difference = 0;
+
+		const index = this.touchEventCache.findIndex(
+			(cachedEvent) => cachedEvent.pointerId === e.pointerId,
+		);
+
+		this.touchEventCache[index] = e;
+
+		if (this.touchEventCache.length === 2) {
+			let currentDistanceY = Math.abs(this.touchEventCache[0].clientY - this.touchEventCache[1].clientY);
+			let currentDistanceX = Math.abs(this.touchEventCache[0].clientX - this.touchEventCache[1].clientX);
+			currentDistance = Math.sqrt(currentDistanceY*currentDistanceY  + currentDistanceX*currentDistanceX)
+			difference = currentDistance - this.previousDistance;
+			if (this.previousDistance > 0) {
+				this.desiredDistance -= difference;
+			}
+			this.previousDistance = currentDistance;
+		}
+	},
+
+	pointerupHandler: function (e) {
+		// Remove this event from the target's cache
+		const index = this.touchEventCache.findIndex(
+			(cachedEvent) => cachedEvent.pointerId === e.pointerId,
+		);
+
+		this.touchEventCache.splice(index, 1);
+		// If the number of pointers down is less than two then reset diff tracker
+		if (this.touchEventCache.length < 2) {
+			this.previousDistance = -1;
+		}	
+
+		if(this.hasUserInput) {
+			setTimeout(() => {
+				this.hasUserInput = false;
+			}, 300)
+		}
 	}
-
-	this.mouseMove = true;
-
-	var movementX = event.movementX || event.mozMovementX;
-	var movementY = event.movementY || event.mozMovementY;
-
-	if (movementX === undefined || movementY === undefined) {
-	  movementX = event.screenX - previousMouseEvent.screenX;
-	  movementY = event.screenY - previousMouseEvent.screenY;
-	}
-	this.previousMouseEvent = event;
-
-	yawObject.rotation.y -= movementX * 0.002;
-	pitchObject.rotation.x -= movementY * 0.002;
-	pitchObject.rotation.x = Math.max(-PI_2, Math.min(PI_2, pitchObject.rotation.x));
-  },
-
-  onMouseDown: function (event) {
-	this.mouseDown = true;
-	this.previousMouseEvent = event;
-
-	// Stop Zoom
-	this.data.desiredDistance = this.distance;
-  },
-
-  releaseMouse: function () {
-	this.mouseDown = false;
-  },
-
-  onMouseWheel: function (event) {
-	if (!this.data.enabled) return;
-
-	event.preventDefault();
-	event.stopPropagation();
-
-	var scrollDelta = 0;
-	if (event.wheelDelta !== undefined) { // WebKit,Opera,IE 9
-		scrollDelta = event.wheelDelta;
-	} else if (event.detail !== undefined) { // Firefox
-		scrollDelta = -event.detail;
-	}
-
-	if (scrollDelta > 0) {
-		this.data.desiredDistance += 20;
-	} else if (scrollDelta < 0) {
-		this.data.desiredDistance -= 20;
-	}
-
-  },
-
-  onTouchStart: function (e) {
-	if (e.touches.length !== 1) { return; }
-	this.touchStart = {
-	  x: e.touches[0].pageX,
-	  y: e.touches[0].pageY
-	};
-	this.touchStarted = true;
-
-	// Stop Zoom
-	this.data.desiredDistance = this.distance;
-  },
-
-  onTouchMove: function (e) {
-  	this.touchMove = true;
-	var deltaY;
-	var deltaX;
-	var yawObject = this.yawObject;
-	if (!this.touchStarted) { return; }
-	deltaY = 2 * Math.PI * (e.touches[0].pageX - this.touchStart.x) / this.el.sceneEl.canvas.clientWidth;
-	deltaX = 2 * Math.PI * (e.touches[0].pageY - this.touchStart.y) / this.el.sceneEl.canvas.clientHeight;
-
-	// Limits touch orientaion to to yaw (y axis)
-	yawObject.rotation.y -= deltaY * 0.5;
-
-	// Zoom on x Axis
-	this.data.desiredDistance -= deltaX * 100;
-
-	this.touchStart = {
-	  x: e.touches[0].pageX,
-	  y: e.touches[0].pageY
-	};
-  },
-
-  onTouchEnd: function () {
-	this.touchStarted = false;
-	this.touchMove = false;
-  }
 });
 //END custom orbit-controls
 
@@ -1473,8 +1595,8 @@ AFRAME.registerComponent('orbit-controls', {
 // var PI_2 = Math.PI / 2;
 
 // /**
-//  * look-controls. Update entity pose, factoring mouse, touch, and WebVR API data.
-//  */
+//	* look-controls. Update entity pose, factoring mouse, touch, and WebVR API data.
+//	*/
 // AFRAME.registerComponent('my-look-controls', {
 // 	dependencies: ['position', 'rotation'],
 
@@ -1597,7 +1719,7 @@ AFRAME.registerComponent('orbit-controls', {
 // 		this.onPointerLockError = this.onPointerLockError.bind(this);
 // 	},
 
-//  /**
+//	/**
 // 	* Set up states and Object3Ds needed to store rotation data.
 // 	*/
 // 	setupMouseControls: function () {

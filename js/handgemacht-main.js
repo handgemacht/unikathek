@@ -104,10 +104,10 @@ const app = {
 		}
 
 		if (this.viewerMode === 'cv') {
-			this.collectionViewer.init();
 			this.gui.title.init();
 			this.gui.loadingScreen.content = 'loading collection';
 			this.gui.loadingScreen.showLoadingScreen();
+			this.collectionViewer.init();
 		}
 
 		if (this.viewerMode === 'mv') {
@@ -1131,13 +1131,16 @@ const app = {
 				}
 			},
 
-			setButton(id, setup) {
+			setButton(setup) {
+				if(!setup) {return;}
+				let id = setup.id;
 				if(typeof document.querySelector(id) != 'undefined' && document.querySelector(id).children.length != 0){
 					let element = document.querySelector(id);
 					element.setAttribute('data-colors', JSON.stringify(setup.colors));
 					element.setAttribute('data-func', setup.func);
 					element.setAttribute('data-action', setup.action.type);
 					element.setAttribute('data-selector', setup.action.selector);
+					element.setAttribute('data-active', false);
 					element.classList.add(setup.colors.button);
 					let iconElement = element.children[0];
 
@@ -1183,22 +1186,50 @@ const app = {
 			},
 
 			buttonActionSlide(button) {
+				if(typeof button === 'undefined' || button.children.length < 1) { return; }
+				
 				let toolbar = this.toolbarEl;
-				if(typeof button != 'undefined' && button.children.length != 0){
-					let iconElement = button.children[0];
-
-					//toggle remove on all buttons
-					for(const child of toolbar.children){
-						child.classList.toggle('remove');
+				let iconElement = button.children[0];
+				let active = (button.getAttribute('data-active') === 'true');
+				let selectedContentElement = document.querySelector(button.getAttribute('data-selector'));
+				
+				if(!active){
+					button.setAttribute('data-active', true);
+					//set content visibility
+					if(selectedContentElement){
+						selectedContentElement.classList.remove('hide');
 					}
+					//add class 'remove' on all buttons
+					for(const child of toolbar.children){
+						child.classList.remove('remove');
+						child.classList.add('remove');
+					}
+					//set class 'remove' on this button
+					button.classList.remove('remove');
+					//set class 'slide' on this button
+					button.classList.remove('slide');
+					button.classList.add('slide');
+					//set class 'slide' on this button icon
+					iconElement.classList.remove('slide');
+					iconElement.classList.add('slide');
+				}
 
-					//toggle button class action
-					button.classList.toggle('slide');
-					//toggle button class remove
-					button.classList.toggle('remove');
-					//toggle icon class active
-					iconElement.classList.toggle('slide');
-				}	
+				if(active){
+					button.setAttribute('data-active', false);
+					//set content visibility
+					if(selectedContentElement){
+						selectedContentElement.classList.remove('hide');
+						selectedContentElement.classList.add('hide');
+					}
+					//remove class 'remove' on all buttons
+					for(const child of toolbar.children){
+						child.classList.remove('remove');
+					}
+					//set class 'slide' on this button
+					button.classList.remove('slide');
+					//set class 'slide' on this button icon
+					iconElement.classList.remove('slide');
+				}
 			}, 
 
 			buttonActionFeedback(button) {
@@ -1293,63 +1324,28 @@ const app = {
 			this.tooltip.init();
 			this.highlight.init();
 
-			let buttonSetup1 = {
-				colors: {
-					button: 'skyblue',
-					buttonIcon: 'pearlwhite', 
-					tabBackground: 'pearlwhite',
-					tabShadow: 'shadow-skyblue',
-					tabText: 'text-coalgrey',
-					tabIcon: 'coalgrey'
-				}, 
-				func: 'info', 
-				action: {
-					type: 'tab',
-					selector: '.cv-info-container' 
-				}
-			}
-
-			let buttonSetup2 = {
-				colors: {
-					button: 'terracotta',
-					buttonIcon: 'pearlwhite', 
-					tabBackground: 'pearlwhite',
-					tabShadow: 'shadow-terracotta',
-					tabText: 'text-coalgrey',
-					tabIcon: 'coalgrey'
-				}, 
-				func: 'search', 
-				action: { 
-					type: 'slide', 
-					selector: null
-				}
-			}
-
-			let buttonSetup4 = {
-				colors: {
-					button: 'coalgrey',
-					buttonIcon: 'pearlwhite', 
-					tabBackground: 'pearlwhite',
-					tabShadow: null,
-					tabText: null,
-					tabIcon: null
-				}, 
-				func: 'reset view', 
-				action: { 
-					type: 'feedback', 
-					selector: null
-				}
-			}
-
 			app.gui.toolbar.setToolbar();
-			app.gui.toolbar.setButton("#toolbar-button-1", buttonSetup1);
-			app.gui.toolbar.setButton("#toolbar-button-2", buttonSetup2);
-			app.gui.toolbar.setButton("#toolbar-button-3", this.filter.buttonSetup);
+
+			app.gui.toolbar.setButton(this.info.buttonSetup);
+			this.info.init();
+
+			app.gui.toolbar.setButton(this.search.buttonSetup);
+			this.search.init();
+			app.gui.toolbar.toolbarButton2IconEl.addEventListener('click', (e) => {
+				app.collectionViewer.search.resetSearchInput();
+			})
+
+			app.gui.toolbar.setButton(this.filter.buttonSetup);
 			this.filter.init();
 			app.gui.toolbar.toolbarButton3IconEl.addEventListener('click', (e) => {
 				app.collectionViewer.filter.filterUpdated ? app.collectionViewer.filter.updateForcegraph() : '';
 			})
-			app.gui.toolbar.setButton("#toolbar-button-4", buttonSetup4);
+
+			app.gui.toolbar.setButton(this.resetView.buttonSetup);
+			this.resetView.init();
+			app.gui.toolbar.toolbarButton4IconEl.addEventListener('click', (e) => {
+				app.collectionViewer.resetView.resetCameraView();
+			})
 		},
 
 		tooltip: {
@@ -1499,8 +1495,7 @@ const app = {
 			setEventListener(){
 				if(app.gui.message.messageCloseEl) {
 					app.gui.message.messageCloseEl.addEventListener('click', (evt) => {
-						document.querySelector('#forcegraph').setAttribute('highlight', {source: ''});
-						app.collectionViewer.highlight.hideHighlight();
+						app.collectionViewer.resetView.resetCameraView();
 					});
 				}
 			},
@@ -1698,9 +1693,245 @@ const app = {
 			}
 		},
 
+		info: {
+
+			buttonSetup: {
+				id: '#toolbar-button-1',
+				colors: {
+					button: 'skyblue',
+					buttonIcon: 'pearlwhite', 
+					tabBackground: 'pearlwhite',
+					tabShadow: 'shadow-skyblue',
+					tabText: 'text-coalgrey',
+					tabIcon: 'coalgrey'
+				}, 
+				func: 'info', 
+				action: {
+					type: 'tab',
+					selector: '.cv-info-container' 
+				}
+			},
+
+			texts: {
+				title: '',
+				intro: '',
+			},
+
+			init() {
+
+			},
+		},
+
+		search: {
+
+			buttonSetup: {
+				id: '#toolbar-button-2',
+				colors: {
+					button: 'terracotta',
+					buttonText: 'text-pearlwhite',
+					buttonIcon: 'pearlwhite', 
+					tabBackground: 'pearlwhite',
+					tabShadow: 'shadow-terracotta',
+					tabText: 'text-coalgrey',
+					tabIcon: 'coalgrey'
+				}, 
+				func: 'search', 
+				action: {
+					type: 'slide',
+					selector: '.cv-search-input-container'
+				}
+			},
+
+			texts: {
+				placeholder: 'Suche...'
+			},
+
+			nodeArray: [],
+
+			init() {
+				this.createElements();
+
+				document.addEventListener('proxyfgData-update', (event) => {
+					app.devMode && console.log('dev --- cv > search > proxyfgData: ', app.collectionViewer.proxyfgData.data);
+					let fgData = app.collectionViewer.proxyfgData.data.nodes;
+					for( let index in fgData){
+						let object = fgData[index];
+						if(object.name){
+							this.nodeArray.push(object.name);
+						}
+					}
+					app.devMode && console.log('dev --- cv > search > nodeArray: ', this.nodeArray);
+					this.autocomplete(this.inputEl, this.nodeArray);
+				});
+			}, 
+
+			createElements() {
+				if(typeof document.querySelector(this.buttonSetup.id) === 'undefined'){ return; };
+
+				this.buttonEl = document.querySelector(this.buttonSetup.id);
+
+				let inputContainer = document.createElement('div');
+				this.inputContainer = inputContainer;
+				this.buttonEl.appendChild(inputContainer);
+				inputContainer.className = 'cv-search-input-container hide';
+
+				let input = document.createElement('input');
+				this.inputEl = input;
+				inputContainer.appendChild(input);
+				input.className = 'cv-search-input ' + this.buttonSetup.colors.buttonText + ' ' + this.buttonSetup.colors.button;
+				input.setAttribute('id', 'cv-search-input');
+				input.setAttribute('type', 'text');
+				input.setAttribute('name', 'searchBar');
+				input.setAttribute('placeholder', this.texts.placeholder);
+
+				let customCaret = document.createElement('div');
+				input.appendChild(customCaret);
+				customCaret.className = 'custom-caret';
+				customCaret.classList.add(this.buttonSetup.colors.tabBackground);
+				customCaret.innerHTML = 'Test &nbsp;';
+
+				let autocompleteListContainer = document.createElement('div');
+				this.autocompleteListContainerEL = autocompleteListContainer;
+				this.buttonEl.appendChild(autocompleteListContainer);
+				autocompleteListContainer.className = 'cv-search-autocomplete-list-container hide';
+				autocompleteListContainer.classList.add(this.buttonSetup.colors.tabBackground);
+				autocompleteListContainer.classList.add(this.buttonSetup.colors.tabShadow);
+			}, 
+
+			autocomplete(element, array) {
+				//source: https://www.w3schools.com/howto/howto_js_autocomplete.asp
+				var currentFocus;
+
+				element.addEventListener('input', function(e) {
+					let inputValue = this.value;
+					app.collectionViewer.search.removeAutoCompleteList();
+					if (!inputValue || inputValue.length < 1) { return false;}
+					
+					app.collectionViewer.search.autocompleteListContainerEL.classList.remove('hide');
+
+					let autocompleteList = document.createElement('div');
+					app.collectionViewer.search.autocompleteListEl = autocompleteList;
+					app.collectionViewer.search.autocompleteListContainerEL.appendChild(autocompleteList);
+					autocompleteList.setAttribute('id', 'cv-search-input-autocomplete-list');
+					autocompleteList.className = 'cv-search-autocomplete-list ';
+					autocompleteList.classList.add(app.collectionViewer.search.buttonSetup.colors.tabText);
+	
+					currentFocus = -1;
+	
+					for(let index in array){
+						let name = array[index];
+						if (name.substr(0, inputValue.length).toUpperCase() == inputValue.toUpperCase()) {
+							let listItemEl = document.createElement('div');
+							listItemEl.innerHTML = "<strong>" + name.substr(0, inputValue.length) + "</strong>";
+							listItemEl.innerHTML += name.substr(inputValue.length);
+							listItemEl.innerHTML += "<input type='hidden' value='" + name + "'>";
+							listItemEl.addEventListener("click", function(e) {
+								element.value = this.getElementsByTagName("input")[0].value;
+								app.collectionViewer.search.removeAutoCompleteList();
+								app.gui.toolbar.buttonActionSlide(app.collectionViewer.search.buttonEl);
+								app.collectionViewer.search.executeRequest(name);
+							});
+							app.collectionViewer.search.autocompleteListEl.appendChild(listItemEl);
+						}
+					}
+
+					if(!app.collectionViewer.search.autocompleteListEl.hasChildNodes()) {
+						let listItemEl = document.createElement('div');
+						listItemEl.innerHTML = 'keine Ergebnisse';
+						app.collectionViewer.search.autocompleteListEl.appendChild(listItemEl);
+					}
+				});
+
+				element.addEventListener("keydown", function(e) {
+					var x = app.collectionViewer.search.autocompleteListEl;
+					if (x) x = x.getElementsByTagName("div");
+					if (e.keyCode == 40) {
+						/*If the arrow DOWN key is pressed,
+						increase the currentFocus variable:*/
+						currentFocus++;
+						/*and and make the current item more visible:*/
+						addActive(x);
+					} else if (e.keyCode == 38) { //up
+						/*If the arrow UP key is pressed,
+						decrease the currentFocus variable:*/
+						currentFocus--;
+						/*and and make the current item more visible:*/
+						addActive(x);
+					} else if (e.keyCode == 13) {
+						/*If the ENTER key is pressed, prevent the form from being submitted,*/
+						e.preventDefault();
+						if (currentFocus > -1) {
+						  /*and simulate a click on the "active" item:*/
+						  if (x) x[currentFocus].click();
+						}
+					}
+					function addActive(x) {
+						/*a function to classify an item as "active":*/
+						if (!x) return false;
+						/*start by removing the "active" class on all items:*/
+						removeActive(x);
+						if (currentFocus >= x.length) currentFocus = 0;
+						if (currentFocus < 0) currentFocus = (x.length - 1);
+						/*add class "autocomplete-active":*/
+						x[currentFocus].classList.add('autocomplete-active');
+						x[currentFocus].scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+					}
+					function removeActive(x) {
+						/*a function to remove the "active" class from all autocomplete items:*/
+						for (var i = 0; i < x.length; i++) {
+							x[i].classList.remove('autocomplete-active');
+						}
+					}
+				});
+			}, 
+
+			removeAutoCompleteList() {
+				let autocompleteLists = document.getElementsByClassName('cv-search-autocomplete-list');
+				
+				if(typeof autocompleteLists === 'undefined') { return; }
+				if(autocompleteLists.length < 1) { return; };
+				for (let list of autocompleteLists) {
+					list.parentNode.removeChild(list);
+				}
+				this.autocompleteListContainerEL.classList.remove('hide');
+				this.autocompleteListContainerEL.classList.add('hide');
+			}, 
+
+			resetSearchInput() {
+				window.setTimeout( () => {
+					app.collectionViewer.search.inputEl.focus({ focusVisible: true });
+				}, 10)
+				this.inputEl.value = null;
+				this.removeAutoCompleteList();
+			}, 
+
+			executeRequest(name) {
+				let fgElement = document.querySelector('#forcegraph');
+				let aCameraElement = document.querySelector('a-camera');
+				let fgComponent = document.querySelector('#forcegraph').components['forcegraph'];
+				let fgNodes = fgComponent.data.nodes;
+				let node = null;
+
+				app.devMode && console.log('dev --- fgComponent: ', fgComponent);
+
+				for(let n of fgNodes) {
+					if(n.name === name){
+						node = n;
+					}
+				}
+
+				if(!node) { return; }
+
+				aCameraElement.setAttribute('camera-focus-target', {target: node, duration: 1200});
+				app.collectionViewer.highlight.onclickHandler(node);
+				fgElement.setAttribute('highlight', {source: node});
+			}
+		},
+
 		filter: {
 
 			buttonSetup: {
+				id: '#toolbar-button-3',
 				colors: {
 					button: 'duckyellow',
 					buttonIcon: 'coalgrey', 
@@ -1900,6 +2131,46 @@ const app = {
 				document.querySelector('a-scene').setAttribute('load-json-models', 'normFactor: 0')
 
 				loadJSONModelsComponent.filterFgData(fgData, showTabsArray, showCategoriesArray);
+			}
+		},
+
+		resetView: {
+
+			buttonSetup: {
+				id: '#toolbar-button-4',
+				colors: {
+					button: 'coalgrey',
+					buttonIcon: 'pearlwhite', 
+					tabBackground: 'pearlwhite',
+					tabShadow: null,
+					tabText: null,
+					tabIcon: null
+				}, 
+				func: 'reset view', 
+				action: { 
+					type: 'feedback', 
+					selector: null
+				}
+			},
+
+			init() {
+
+			}, 
+
+			resetCameraView() {
+				document.querySelector('#forcegraph').setAttribute('highlight', {source: ''});
+				app.collectionViewer.highlight.hideHighlight();
+				document.querySelector('a-camera').setAttribute('orbit-controls', {
+					enabled: true, 
+					target: '#orbit-target', 
+					distance: 50, 
+					desiredDistance: 300, 
+					autoRotate: true,
+					pitchCamera: true, 
+					desiredCameraPitch: 0,
+					desiredCameraTilt: -5,
+					forceUpdate: true
+				});
 			}
 		},
 
