@@ -2,7 +2,6 @@
 import { app } from './handgemacht-main.js';
 
 //START Global Variables
-let devMode = false;
 const dirPath_Files = './files/';
 const dirPath_CollectionJSON = 'json/handgemacht-collection.json';
 
@@ -14,68 +13,37 @@ loader.setDRACOLoader( dracoLoader );
 
 
 
-//START Search URL Parameters
-const queryString = window.location.search;
-const urlParams = new URLSearchParams(queryString);
-urlParams.get('dev')==='true' ? devMode=true : devMode=false;
-//END Search URL Parameters
-
-
 
 //START A-Frame load-json-objects
 AFRAME.registerComponent('load-json-models', {
 		
 		schema: { 
-			scaleFactor: { default: 0.03 }, 
-			scaleNormalizationFactor: { default: 0.6 }, 
+			scaleFactor: { default: 1 }, 
+			normalization: { default: 0 } 
 		},
 
 		init: function () {
 			const comp = this;
+			this.nodeModelSet = false;
+			this.linkMaterialSet = false;
+			this.scaleFactor = this.data.scaleFactor;
+			this.normalization = this.data.normalization;
 
-			//create category model 
-			this.categoryModelEl = document.createElement('a-entity');
-			this.categoryModelEl.setAttribute('id', 'category-model');
-			this.categoryModelEl.setAttribute('geometry', 'primitive: sphere; radius: 4');
-			this.categoryModelEl.setAttribute('material', 'color: #46AAC8; shader: flat');
-			this.categoryModelEl.setAttribute('visible', false);
-			this.el.sceneEl.querySelector('a-assets').appendChild(this.categoryModelEl);
-
-			//create link category model 
-			this.linkCategoryModelEl = document.createElement('a-entity');
-			this.linkCategoryModelEl.setAttribute('id', 'link-category-model');
-			this.linkCategoryModelEl.setAttribute('geometry', 'primitive: sphere; radius: 4');			
-			this.linkCategoryModelEl.setAttribute('material', 'color: #46AAC8; shader: flat; opacity: 0.4');
-			this.linkCategoryModelEl.setAttribute('visible', false);
-			this.el.sceneEl.querySelector('a-assets').appendChild(this.linkCategoryModelEl);
-
-			//create link tag model 
-			this.linkTagModelEl = document.createElement('a-entity');
-			this.linkTagModelEl.setAttribute('id', 'link-tag-model');
-			this.linkTagModelEl.setAttribute('geometry', 'primitive: sphere; radius: 4');			
-			this.linkTagModelEl.setAttribute('material', 'color: #FFC800; shader: flat; opacity: 0.4');
-			this.linkTagModelEl.setAttribute('visible', false);
-			this.el.sceneEl.querySelector('a-assets').appendChild(this.linkTagModelEl);
-
-			this.loadJSONObjects();
+			this.setEventlisteners();
+			this.loadJSONModels();
+			this.createCategoryAndTagModels();
 			this.createForceGraph();
-			
-			this.el.sceneEl.addEventListener('JSON-models-loaded', (e) => {
-				if(this.json) {
-					this.fgData = this.getDataFromJSON(this.json);
-					app.collectionViewer.proxyfgData.data = this.fgData;
-					this.filterFgData(this.fgData, this.fgData.taglist, this.fgData.categorylist); //default: all tags, all categories
-				}
-				app.gui.loadingScreen.hideLoadingScreen();
-			}, {once: true});
-
-			this.el.sceneEl.addEventListener('filter-updated', (e) => {
-				comp.assignModelsToNodes(this.data.scaleFactor, this.data.scaleNormalizationFactor);	
-				comp.assignMaterialToLinks();
-			});
 		},
 
-		update: function () {},
+		update: function () {
+			this.scaleFactor = this.data.scaleFactor;
+			this.normalization = this.data.normalization;
+			app.devMode && console.log('dev --- scaleFactor: ', this.scaleFactor);
+			app.devMode && console.log('dev --- normalization: ', this.normalization);
+			if(this.nodeModelSet){
+				this.normalizeScale(this.scaleFactor, this.normalization);
+			}
+		},
 
 		tick: function () {},
 
@@ -85,116 +53,187 @@ AFRAME.registerComponent('load-json-models', {
 
 		play: function () {}, 
 
+		setEventlisteners: function() {
+			const comp = this;
+
+			//listen for filter-updated event
+			this.el.sceneEl.addEventListener('filter-updated', (e) => {
+				comp.assignModelsToNodes();	
+				comp.assignMaterialToLinks();
+				comp.scaleLinks(0.7);
+				comp.normalizeScale(this.scaleFactor, this.normalization);
+			});
+
+			//listen for JSON-models-loaded event
+			this.el.sceneEl.addEventListener('JSON-models-loaded', (e) => {
+				if(comp.json) {
+					//prepare JSON data for forcegraph
+					comp.fgData = comp.getDataFromJSON(comp.json);
+					//parse forcegraph data to app.collectionViewer
+					app.collectionViewer.proxyfgData.data = comp.fgData;
+					//filter forcegraph data for default view
+					comp.filterFgData(comp.fgData, comp.fgData.taglist, comp.fgData.categorylist); //default: all tags, all categories
+				}
+				app.gui.loadingScreen.hideLoadingScreen();
+			}, {once: true});
+		},
+
+		loadJSONModels: function () {
+			const fgData = '';
+			const fileJSON = dirPath_Files + dirPath_CollectionJSON;
+
+			//fetch json data from file
+			const objectsJSON = fetch(fileJSON)
+				.then((response) => response.json())
+				.then((json) => {
+					this.json = json;
+					//load models to scene
+					const scene = document.querySelector('a-scene').object3D;
+					for(let object of json.objects){
+						if(object.quality512){
+							loader.load(dirPath_Files + object.quality512, (gltf) => {
+								gltf.scene.name = object.primaryKey;
+								gltf.scene.altName = object.name;
+								gltf.scene.visible = false;
+								scene.add( gltf.scene );
+							}, (xhr) =>{ 
+								//app.devMode && console.log( ( 'dev --- load model: ' + object.name + ' - ' + xhr.loaded / xhr.total * 100 ) + '% loaded' );
+							}, (error) => {		
+								console.log( 'An error happened: ' + error );
+							});
+						}
+					}
+
+					//event dispatcher for JSON-models-loaded event
+					THREE.DefaultLoadingManager.onLoad = function () {
+						let event = new Event('JSON-models-loaded');
+						document.querySelector('a-scene').dispatchEvent(event);
+					};
+				});
+		},
+
+		createCategoryAndTagModels: function() {
+			//create category model 
+			this.categoryModelEl = document.createElement('a-entity');
+			this.categoryModelEl.setAttribute('id', 'category-model');
+			this.categoryModelEl.setAttribute('geometry', 'primitive: sphere; radius: 5');
+			this.categoryModelEl.setAttribute('material', 'color: #46AAC8; shader: flat');
+			this.categoryModelEl.setAttribute('visible', false);
+			this.el.sceneEl.querySelector('a-assets').appendChild(this.categoryModelEl);
+
+			//create link category model 
+			this.linkCategoryModelEl = document.createElement('a-entity');
+			this.linkCategoryModelEl.setAttribute('id', 'link-category-model');
+			this.linkCategoryModelEl.setAttribute('geometry', 'primitive: sphere; radius: 1');			
+			this.linkCategoryModelEl.setAttribute('material', 'color: #46AAC8; shader: flat; opacity: 0.4, transparent: true');
+			this.linkCategoryModelEl.setAttribute('visible', false);
+			this.el.sceneEl.querySelector('a-assets').appendChild(this.linkCategoryModelEl);
+
+			//create link tag model 
+			this.linkTagModelEl = document.createElement('a-entity');
+			this.linkTagModelEl.setAttribute('id', 'link-tag-model');
+			this.linkTagModelEl.setAttribute('geometry', 'primitive: sphere; radius: 1');			
+			this.linkTagModelEl.setAttribute('material', 'color: #FFC800; shader: flat; opacity: 0.4, transparent: true');
+			this.linkTagModelEl.setAttribute('visible', false);
+			this.el.sceneEl.querySelector('a-assets').appendChild(this.linkTagModelEl);
+		},
+
 		getDataFromJSON: function (json) {
 			if(!this.json) {return;};
+			const fgData={ 'nodes': [], 'links': [], 'categorylist': [], 'taglist': [] };
 
 			function filterEmptyTag(tag){
 				return tag !== '';
 			}
 
-			let fgData={ 'nodes': [], 'links': [], 'categorylist': [], 'taglist': [] };
-		
-			//containsObject
 			function containsObject(obj, list) {
-				let i;
-				for (i = 0; i < list.length; i++) {
-					if (list[i] === obj) {
+				for(let item of list){
+					if (item === obj) {
 						return true;
 					}
 				}
 				return false;
 			}
+
+			function filterDoubles(link) {
+				return link.double == false || link.type == 'link-category';
+			}
 		
-			//nodes from categories 
+			//create nodes from categories 
 			for(let category of json.categorylist){
-				let newCategory = { 
-					'id': category, 
-					'categories': [category], 
-					'name': category, 
-					'type': 'node-category',
-					'tags': [], // category.tags.filter(filterEmptyTag)
-					'gltf': '',
-					'gltfVisible': '',
-					'gltfInvisible': ''
-				};
-				if(category !== ''){
-					fgData.nodes.push(newCategory);
-				}
+				if(category === '') { continue; }
+				const newNode = {}
+				newNode.id = category;
+				newNode.categories = [category];
+				newNode.name = category;
+				newNode.type = 'node-category';
+				newNode.tags = [];
+				newNode.size = 0;
+				newNode.model = '';
+				fgData.nodes.push(newNode);
 			}
 		
-			//nodes from objects
+			//create nodes from objects
 			for(let object of json.objects){
-				let newObject = { 
-					'id': object.primaryKey, 
-					'categories': object.categories, 
-					'name': object.name, 
-					'type': 'node-object',
-					'tags': object.tags.filter(filterEmptyTag),
-					'gltf': ''
-				};
-				fgData.nodes.push(newObject);
+				const newNode = {}
+				newNode.id = object.primaryKey;
+				newNode.categories = object.categories;
+				newNode.name = object.name;
+				newNode.type = 'node-object';
+				newNode.tags = object.tags.filter(filterEmptyTag);
+				newNode.size = 1;
+				newNode.model = ''
+				fgData.nodes.push(newNode);
 			}
 		
-			//links by categories
+			//create links for categories
 			for(let category of json.categorylist){
 				for(let object of json.objects){
 					if(containsObject(category, object.categories)){
-						let newLink = { 
-							'source': category, 
-							'target': object.primaryKey, 
-							'name': category,
-							'type': 'link-category',
-							'material': '',
-							'materialNormal': '',
-							'materialHighlight': '',
-							'materialFaint': '',
-							'materialInvisible': ''
-						};
+						const newLink = {};
+						newLink.source = category; 
+						newLink.target = object.primaryKey; 
+						newLink.name = category;
+						newLink.type = 'link-category';
+						newLink.material = '';
 						fgData.links.push(newLink);
 					}
 				}
 			}
 		
-			//links by tags
-			for(let object of json.objects){
-				for(let tag of object.tags){
-					for(let object2 of json.objects){
-						if(object!==object2 && tag!=='' && containsObject(tag,object2.tags)) {
-							let newLink = { 
-								'source': object.primaryKey, 
-								'target': object2.primaryKey, 
-								'name': tag,
-								'type': 'link-tag',
-								'material': '',
-								'materialNormal': '',
-								'materialHighlight': '',
-								'materialFaint': '',
-								'materialInvisible': ''
-							};
+			//create links for tags
+			for(let objectSource of json.objects){
+				for(let tag of objectSource.tags){
+					for(let objectTarget of json.objects){
+						if(objectSource !== objectTarget && tag !== '' && containsObject(tag, objectTarget.tags)) {
+							const newLink = {}; 
+							newLink.source = objectSource.primaryKey; 
+							newLink.target = objectTarget.primaryKey; 
+							newLink.name = tag;
+							newLink.type = 'link-tag';
+							newLink.material = '';
 							fgData.links.push(newLink);
 						}
 					}
 				}
 			}
-		
-			for(let aLink of fgData.links){
-				let aSource = aLink.source;
-				let aTarget = aLink.target;
-				for(let bLink of fgData.links){
-					let bSource = bLink.source;
-					let bTarget = bLink.target;
-					if(aSource === bTarget && aTarget === bSource){
-						aLink.double = true;
-						bLink.double = false;
+			
+			//mark doubled link
+			for(let linkA of fgData.links){
+				let sourceA = linkA.source;
+				let targetA = linkA.target;
+				for(let linkB of fgData.links){
+					let sourceB = linkB.source;
+					let targetB = linkB.target;
+					if(sourceA === targetB && targetA === sourceB){
+						linkA.double = true;
+						linkB.double = false;
 					}
 				}
 			}
 
+			//remove marked doubled links
 			fgData.links = fgData.links.filter(filterDoubles);
-
-			function filterDoubles(link) {
-				return link.double == false || link.type == 'link-category';
-			}
 
 			fgData.categorylist = json.categorylist;
 			fgData.taglist = json.taglist;
@@ -205,8 +244,8 @@ AFRAME.registerComponent('load-json-models', {
 		filterFgData: function(fgData, tags = [], categories = []) {
 			let filteredFgData = { 'nodes': [], 'links': [] };
 
-			devMode && console.log('dev --- forcegraph filter Data tags: ', tags);
-			devMode && console.log('dev --- forcegraph filter Data categories: ', categories);
+			app.devMode && console.log('dev --- forcegraph filter Data tags: ', tags);
+			app.devMode && console.log('dev --- forcegraph filter Data categories: ', categories);
 
 			for( let link in fgData.links ){
 				let thisLink = fgData.links[link];
@@ -258,33 +297,22 @@ AFRAME.registerComponent('load-json-models', {
 				d3VelocityDecay: 0.6,
 				linkWidth: 0.6,
 				linkCurvature: 0.15,
-				//linkDirectionalParticles: 10,
-				//linkDirectionalParticleSpeed: 0.001,
-				//linkDirectionalParticleWidth: 1,
 				linkThreeObjectExtend: false,
-				nodeRelSize: 1.5,
+				nodeRelSize: 1,
+				nodeVal: node => { return node.size },
 				nodeThreeObjectExtend: false,
 				nodeOpacity: 0,
 				onLinkHover: link => { 
 					app.collectionViewer.tooltip.mouseoverHandler(link);
 				},
 				onLinkClick: link => { 
-					devMode && console.log('dev --- onLinkClick: ', link);
-					devMode && console.log('dev --- onLinkClick > link.strength: ', link.strength);
-					//if(link.type === 'link-tag'){
-						//app.collectionViewer.highlight.onclickHandler(link);
-						//document.querySelector('#forcegraph').setAttribute('highlight', {source: link});
-					//}
-					//if(link.type === 'link-category'){
-						//app.collectionViewer.highlight.onclickHandler(link.source);
-						//document.querySelector('#forcegraph').setAttribute('highlight', {source: link.source});
-					//}
+					app.devMode && console.log('dev --- onLinkClick: ', link);
 				},
 				onNodeHover: node => { 
 					app.collectionViewer.tooltip.mouseoverHandler(node);
 				},
 				onNodeClick: node => { 
-					devMode && console.log('dev --- onNodeClick: ', node);
+					app.devMode && console.log('dev --- onNodeClick: ', node);
 					if(document.querySelector('a-camera').components['orbit-controls'].hasUserInput) {return;}
 					document.querySelector('a-camera').setAttribute('camera-focus-target', {target: node, duration: 1200});
 					app.collectionViewer.highlight.onclickHandler(node);
@@ -293,122 +321,144 @@ AFRAME.registerComponent('load-json-models', {
 			});
 		},
 
-		loadJSONObjects: function () {
-			let fgData = '';
-			const fileJSON = dirPath_Files + dirPath_CollectionJSON;
-			let objectsJSON = fetch(fileJSON)
-				.then((response) => response.json())
-				.then((json) => {
+		assignModelsToNodes: function () {
+			const scene = document.querySelector('a-scene').object3D;
+			const fgComp = document.querySelector('#forcegraph').getAttribute('forcegraph');
 
-					this.json = json;
-					//load models to scene
-					let scene = document.querySelector('a-scene').object3D;
-					for(let object in json.objects){
-						if(json.objects[object].quality512){
-							loader.load(dirPath_Files + json.objects[object].quality512, (gltf) => {
-								gltf.scene.name = json.objects[object].primaryKey;
-								gltf.scene.altName = json.objects[object].name;
-								gltf.scene.visible = false;
-								scene.add( gltf.scene );
-								//devMode && console.log('dev --- load model: ', json.objects[object]);
-							}, (xhr) =>{ 
-								//devMode && console.log( ( 'dev --- load model: ' + object.name + ' - ' + xhr.loaded / xhr.total * 100 ) + '% loaded' );
-							}, (error) => {		
-								console.log( 'An error happened: ' + error );
-							});
-						}
+			const categoryModel = this.categoryModelEl.object3D;
+
+			//set JSON-model or category-model for each node
+			for(let node of fgComp.nodes){
+				if(node.id === ''){continue;}
+				for (let child of scene.children){
+					if(child.name === ''){continue;}
+					//set model for objects
+					if(child.name === node.id && node.type === 'node-object'){
+						node.model = child.children[0].clone();
 					}
-
-					THREE.DefaultLoadingManager.onLoad = function () {
-						let event = new Event('JSON-models-loaded');
-						document.querySelector('a-scene').dispatchEvent(event);
-					};
-				});
-		}, 
-
-		assignModelsToNodes: function (scaleFactor = 1, normFactor = 0) {
-			let sceneEl = document.querySelector('a-scene');
-			let scene = document.querySelector('a-scene').object3D;
-			let fgComp = document.querySelector('#forcegraph').getAttribute('forcegraph');
-
-			let categoryModel = this.categoryModelEl.object3D;
-
-			devMode && console.log('dev --- forcegraph component: ', fgComp);
-
-			devMode && console.log('dev --- scene: ', scene);
-
-			for(let node in fgComp.nodes){
-				let thisNode = fgComp.nodes[node];
-				for (let child in scene.children){
-					let thisChild = scene.children[child];
-					if(thisNode.id != '' && thisChild.name != '' && thisChild.name === thisNode.id && thisNode.type === 'node-object'){
-						
-						thisNode.gltf = thisChild.children[0].clone();
-						//devMode && console.log('dev --- assignModelsToNodes: ', thisNode);
-
-						//find highest value of x, y, z in bounding box of object
-						let bBoxSize = new THREE.Vector3();
-						let boundingBox = new THREE.Box3();
-						boundingBox.setFromObject(thisNode.gltf).getSize(bBoxSize);
-						let maxSize = bBoxSize.x;
-						bBoxSize.y > maxSize ? maxSize = bBoxSize.y : '';
-						bBoxSize.z > maxSize ? maxSize = bBoxSize.z : '';
-						//normalize scale
-						thisNode.gltf.scale.set(1, 1, 1);
-						let normScale = 1 / (maxSize * normFactor + (1-normFactor));
-						let newScale = normScale * scaleFactor;
-
-						thisNode.gltf.scale.set(newScale, newScale, newScale);
-						
-						
-						
-					}else if(thisNode.id != '' && thisChild.name != '' && thisNode.type === 'node-category' ){
-						thisNode.gltf = categoryModel.children[0].clone();
-						thisNode.gltf.material = new THREE.MeshBasicMaterial();
-						thisNode.gltf.material.copy(categoryModel.children[0].material);
+					//set model for categories
+					if(node.type === 'node-category'){
+						node.model = categoryModel.children[0].clone();
+						node.model.material = new THREE.MeshBasicMaterial();
+						node.model.material.copy(categoryModel.children[0].material);
 					}
+					//skip if no model was set
+					if(!node.model) {continue;}
 				}
 			}
 
 			document.querySelector('#forcegraph').setAttribute('forcegraph', {
-				nodeThreeObject: node => { return node.gltf }
+				nodeThreeObject: node => { return node.model }
 			});
+
+			this.nodeModelSet = true;
 		}, 
 
 		assignMaterialToLinks: function () {
-			let sceneEl = document.querySelector('a-scene');
 			let scene = document.querySelector('a-scene').object3D;
 			let fgComp = document.querySelector('#forcegraph').getAttribute('forcegraph');
 
 			let categoryMaterial = this.linkCategoryModelEl.object3D.children[0].material;
 			let tagMaterial = this.linkTagModelEl.object3D.children[0].material;
 
-			for(let link in fgComp.links){
-				let thisLink = fgComp.links[link];
-					if(thisLink.type === 'link-category'){
-						thisLink.materialNormal = categoryMaterial.clone();
-						thisLink.materialHighlight = categoryMaterial.clone();
-						thisLink.materialHighlight.opacity = 1;
-						thisLink.materialFaint = categoryMaterial.clone();
-						thisLink.materialFaint.opacity = 0.1;
-						thisLink.materialInvisible = categoryMaterial.clone();
-						thisLink.materialInvisible.visible = false;
-						thisLink.material = thisLink.materialNormal.clone();
-					}else if(thisLink.type === 'link-tag'){
-						thisLink.materialNormal = tagMaterial.clone();
-						thisLink.materialHighlight = tagMaterial.clone();
-						thisLink.materialHighlight.opacity = 1;
-						thisLink.materialFaint = tagMaterial.clone();
-						thisLink.materialFaint.opacity = 0.1;
-						thisLink.materialInvisible = tagMaterial.clone();
-						thisLink.materialInvisible.visible = false;
-						thisLink.material = thisLink.materialNormal.clone();
-					}
+			//set tag-material or category-material for each link
+			for(let link of fgComp.links){
+				if(link.type === 'link-category'){
+					link.material = new THREE.MeshBasicMaterial();
+					link.material.copy(categoryMaterial);
+				}else if(link.type === 'link-tag'){
+					link.material = new THREE.MeshBasicMaterial();
+					link.material.copy(tagMaterial);
+				}
 			}
 
 			document.querySelector('#forcegraph').setAttribute('forcegraph', {
 				linkMaterial: link => { return link.material }
 			});
+
+			this.linkMaterialSet = true;
+		},
+
+		scaleLinks(factor) {
+			let fgComp = document.querySelector('#forcegraph').getAttribute('forcegraph');
+
+			for(let link of fgComp.links){
+				if(typeof link.__lineObj !== 'undefined'){
+					app.devMode && console.log(`dev --- link scaled: `, link)
+					link.__lineObj.scale.set(factor, factor, factor);
+				}
+			}
+		},
+
+		normalizeScale: function(scaleFactor, normalization) {
+			if(typeof scaleFactor !== 'number'){
+				app.devMode && console.log('dev --- normalizeScale error! > scaleFactor is not a Number! Setting factor to 1. Old value: ', scaleFactor);
+				scaleFactor = 1;
+			}
+			if(typeof normalization !== 'number'){
+				app.devMode && console.log('dev --- normalizeScale error! > normalization is not a Number! Setting factor to 0. Old value: ', normalization);
+				normalization = 0;
+			}
+
+			//normalization must range from 0 to 1
+			if(normalization > 1){
+				normalization = 1;
+			}else if( normalization < 0) {
+				normalization = 1;
+			}
+
+			const mapToRange = (number, [inputMinRange, inputMaxRange], [outputMinRange, outputMaxRange]) => {
+				return (number - inputMinRange) / (inputMaxRange - inputMinRange) * (outputMaxRange - outputMinRange) + outputMinRange;
+			}
+
+			const fgComp = document.querySelector('#forcegraph').getAttribute('forcegraph');
+
+			let sizeLog = {
+				mean: 0,
+				min: Infinity, 
+				minObject: '',
+				max: 0, 
+				maxObject: ''
+			}
+
+			//find mean, max and min sizes of every non category model bounding box
+			for(let node of fgComp.nodes){
+				if(node.type === 'node-category') { continue; };
+				node.model.scale.set(1, 1, 1);
+				node.boundingBox = new THREE.Box3();
+				node.boundingBox.size = new THREE.Vector3();
+				node.boundingBox.setFromObject(node.model).getSize(node.boundingBox.size);
+				//find highest value of x, y, z in bounding box of object
+				node.boundingBox.size.max = node.boundingBox.size.x;
+				node.boundingBox.size.y > node.boundingBox.size.max ? node.boundingBox.size.max = node.boundingBox.size.y : '';
+				node.boundingBox.size.z > node.boundingBox.size.max ? node.boundingBox.size.max = node.boundingBox.size.z : '';
+				sizeLog.mean += node.boundingBox.size.max;
+				if(sizeLog.min > node.boundingBox.size.max) {
+					sizeLog.min = node.boundingBox.size.max;
+					sizeLog.minObject = node;
+				}
+				if(sizeLog.max < node.boundingBox.size.max) {
+					sizeLog.max = node.boundingBox.size.max;
+					sizeLog.maxObject = node;
+				}
+			}
+			sizeLog.mean = sizeLog.mean / fgComp.nodes.length;
+
+			//calculate normalized scale for every node and set node size
+			for(let node of fgComp.nodes){
+				if(node.type === 'node-category') { 
+					node.size = sizeLog.mean * scaleFactor;
+					continue;
+				};
+				const sizeDeviation = sizeLog.mean - node.boundingBox.size.max;
+				const sizeFactor = 1 + mapToRange(sizeDeviation, [sizeLog.min, sizeLog.max], [0, 1]); // range from 0 to 2 with 1 as median
+				const normFactor = normalization * sizeFactor;
+				const normalizedScale = scaleFactor * ((1 + normFactor) - normalization);
+				app.devMode && console.log(`dev --- normalizeScale node: ${node.name} > \nnormalization: ${normalization}, \nsizeFactor: ${sizeFactor}, \nnormFactor: ${normFactor}, \nscaleFactor: ${scaleFactor}, \nnormalizedScale: ${normalizedScale}`);
+				node.model.scale.set(normalizedScale, normalizedScale, normalizedScale);
+			}
+
+			app.devMode && console.log(`dev --- normalizeScale > \nsizeLog: `, sizeLog);
 		}
 
 });
@@ -434,7 +484,7 @@ AFRAME.registerComponent('camera-focus-target', {
 
 	update: function () {
 		this.moveOrbitTarget();
-		devMode && console.log('dev --- camera-focus-target: ', this.data.target);
+		app.devMode && console.log('dev --- camera-focus-target: ', this.data.target);
 	},
 
 	tick: function () {},
@@ -490,7 +540,6 @@ AFRAME.registerComponent('camera-focus-target', {
 		
 		this.orbitTargetEl.emit('anim-orbit-target', null, false);
 	}, 
-
 });
 //END camera-focus-target
 
@@ -590,23 +639,24 @@ AFRAME.registerComponent('highlight', {
 			let thisLink = fgComp.links[link];
 			if (thisLink.material) {
 				if(thisLink.name === sourceLink.name){
-					thisLink.material.copy(thisLink.materialHighlight);
+					thisLink.material.opacity = 1;
+					thisLink.material.visible = true;
 				}else{
-					thisLink.material.copy(thisLink.materialInvisible);
+					thisLink.material.opacity = 0;
+					thisLink.material.visible = false;
 				}
 			}
 		}
 
 		for(let node in fgComp.nodes){
 			let thisNode = fgComp.nodes[node];
-			if (thisNode.id != '' && thisNode.gltf.material) {
+			if (thisNode.id != '' && thisNode.model.material) {
 				if(thisNode.tags.includes(sourceLink.name)){
-					thisNode.gltf.material.opacity = 1;
-					thisNode.gltf.material.visible = true;
+					thisNode.model.material.opacity = 1;
+					thisNode.model.material.visible = true;
 				}else{
-					thisNode.gltf.material.transparent = true;
-					thisNode.gltf.material.opacity = 0;
-					thisNode.gltf.material.visible = false;
+					thisNode.model.material.opacity = 0;
+					thisNode.model.material.visible = false;
 				}
 			}
 		}
@@ -623,29 +673,30 @@ AFRAME.registerComponent('highlight', {
 			let thisLink = fgComp.links[link];
 			if (thisLink.material) {
 				if(thisLink.source.id === sourceNode.id || thisLink.target.id === sourceNode.id){
-					thisLink.material.copy(thisLink.materialHighlight);
+					thisLink.material.opacity = 1;
+					thisLink.material.visible = true;
 					modelArray.push(thisLink.source.id);
 					modelArray.push(thisLink.target.id);
 				}else{
-					thisLink.material.copy(thisLink.materialInvisible);
+					thisLink.material.opacity = 0;
+					thisLink.material.visible = false;
 				}
 			}
 		}
 
 		for(let node in fgComp.nodes){
 			let thisNode = fgComp.nodes[node];
-			if (thisNode.id != '' && thisNode.gltf.material) {
+			if (thisNode.id != '' && thisNode.model.material) {
 				if(typeof sourceNode.__threeObj !== 'undefined'){
 					distance = thisNode.__threeObj.position.distanceTo(sourceNode.__threeObj.position);
 				}
 				if(modelArray.includes(thisNode.id)){
-					thisNode.gltf.material.opacity = 1;
-					thisNode.gltf.material.visible = true;
+					thisNode.model.material.opacity = 1;
+					thisNode.model.material.visible = true;
 					this.setHighestDistance(distance);
 				}else{
-					thisNode.gltf.material.transparent = true;
-					thisNode.gltf.material.opacity = 0;
-					thisNode.gltf.material.visible = false;
+					thisNode.model.material.opacity = 0;
+					thisNode.model.material.visible = false;
 				}
 			}
 		}
@@ -654,20 +705,21 @@ AFRAME.registerComponent('highlight', {
 	resetHighlight: function () {
 		let fgComp = this.fgComp;
 
-		devMode && console.log('dev --- resetHighlight');
+		app.devMode && console.log('dev --- resetHighlight');
 
 		for(let link in fgComp.links){
 			let thisLink = fgComp.links[link];
 			if(thisLink.material){
-				thisLink.material.copy(thisLink.materialNormal);
+				thisLink.material.opacity = 0.4;
+				thisLink.material.visible = true;
 			}
 		}
 
 		for(let node in fgComp.nodes){
 			let thisNode = fgComp.nodes[node];
-			if (thisNode.id != '' && thisNode.gltf.material) {
-				thisNode.gltf.material.opacity = 1;
-				thisNode.gltf.material.visible = true;
+			if (thisNode.id != '' && thisNode.model.material) {
+				thisNode.model.material.opacity = 1;
+				thisNode.model.material.visible = true;
 				let distance = document.querySelector('#forcegraph').object3D.position.distanceTo(thisNode.__threeObj.position);
 				this.setHighestDistance(distance);
 			}
@@ -676,10 +728,10 @@ AFRAME.registerComponent('highlight', {
 	}, 
 
 	setHighestDistance: function(distance) {
-		//devMode && console.log('dev --- highlight > distance: ', distance);
+		//app.devMode && console.log('dev --- highlight > distance: ', distance);
 		if (this.data.highestDistance < distance) {
 			this.data.highestDistance = distance;
-			//devMode && console.log('dev --- highlight > new highest distance set: ', distance);
+			//app.devMode && console.log('dev --- highlight > new highest distance set: ', distance);
 		}
 	}, 
 
@@ -718,7 +770,6 @@ AFRAME.registerComponent('highlight', {
 				}
 			}
 		}
-
 	}
 });
 //END highlight
@@ -778,17 +829,19 @@ AFRAME.registerComponent('orbit-controls', {
 			this.orbitTarget = this.orbitTargetEl.object3D;
 			this.el.sceneEl.appendChild(this.orbitTargetEl);
 			this.orbitTargetEl.setAttribute('id', 'orbit-target');
-			devMode && this.orbitTargetEl.setAttribute('geometry', 'primitive: sphere; radius: 1');
+			app.devMode && this.orbitTargetEl.setAttribute('geometry', 'primitive: sphere; radius: 1');
 	
 			this.target3D = document.querySelector(this.data.target).object3D;
 		}
 	
 		if(this.data.distance) {
 			this.distance = this.data.distance;
+			this.data.distance = null;
 		}
 
 		if(this.data.desiredDistance){
 			this.desiredDistance = this.data.desiredDistance;
+			this.data.desiredDistance = null;
 		}
 		
 		//this.controls.update();
@@ -808,7 +861,8 @@ AFRAME.registerComponent('orbit-controls', {
 	tick: function (t) {
 		if(this.data.enabled){
 	
-			this.data.forceUpdate && this.update;
+			this.data.forceUpdate && this.update();
+			this.data.forceUpdate = false;
 
 			if(this.distance > this.desiredDistance) {
 				let distFactor = (this.distance - this.desiredDistance)/50;
@@ -1111,9 +1165,9 @@ AFRAME.registerComponent('orbit-controls', {
 		}
 	
 		if (scrollDelta > 0) {
-			this.desiredDistance += 20;
-		} else if (scrollDelta < 0) {
 			this.desiredDistance -= 20;
+		} else if (scrollDelta < 0) {
+			this.desiredDistance += 20;
 		}
 	},
 
@@ -1225,849 +1279,3 @@ AFRAME.registerComponent('orbit-controls', {
 	}
 });
 //END custom orbit-controls
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// OLD DELETE LATER
-
-
-
-
-
-
-
-
-// //START camera-focus-target
-// AFRAME.registerComponent('camera-focus-target', {
-
-// 	schema: {
-// 		target: { default: null },
-// 		duration: { default: 1500 }
-// 	},
-
-// 	init: function () {
-// 		this.cameraEl = this.el;
-// 		this.camera = this.el.object3D;
-
-// 		//create focus element in camera reference frame and look at target
-// 		this.focusEl = document.createElement('a-entity');
-// 		this.focus = this.focusEl.object3D;
-// 		this.el.sceneEl.appendChild(this.focusEl);
-
-// 		this.setEventlistener();
-// 	},
-
-// 	update: function () {
-// 		if(this.data.target) {
-// 			this.cameraFocusTarget();
-// 			devMode && console.log('dev --- camera-focus-target: ', this.data.target);
-// 		}		
-// 	},
-
-// 	tick: function () {},
-
-// 	remove: function () {},
-
-// 	pause: function () {},
-
-// 	play: function () {},
-
-// 	cameraFocusTarget: function() {
-// 		this.orbitTarget = document.querySelector('#orbit-target');
-// 		if(this.data.target.type === 'link-tag'){
-// 			this.target = {};
-// 			this.target.position = this.data.target.__curve.v1;
-// 		}else{
-// 			this.target = this.data.target.__threeObj;
-// 		}
-
-// 		let posString = '' + this.target.position.x + ' ' + this.target.position.y + ' ' + this.target.position.z + '';
-// 		this.orbitTarget.setAttribute('position', posString);
-		
-// 		//this.cameraEl.setAttribute('my-look-controls', {enabled: false});
-// 		//this.cameraEl.setAttribute('wasd-controls', {enabled: false});
-// 		//this.cameraEl.setAttribute('orbit-controls', {enabled: false});
-
-// 		//set focus element
-// 		this.focusEl.setAttribute('position', this.camera.position.x + ' ' + this.camera.position.y + ' ' + this.camera.position.z);
-// 		//geometry for debugging
-// 		devMode && this.focusEl.setAttribute('geometry', 'primitive: cone; height: 10; radius-top: 0; radius-bottom: 1');
-		
-// 		//set new camera rotation
-// 		let newCameraRotation = new THREE.Vector3();
-// 		this.focus.lookAt(this.target.position);
-// 		this.focus.rotateY(Math.PI);
-// 		newCameraRotation.x = this.focus.rotation.x;
-// 		newCameraRotation.y = this.focus.rotation.y;
-// 		newCameraRotation.z = this.focus.rotation.z;
-
-// 		//fix cone geometry to correct direction
-// 		devMode ? this.focus.rotation.x -= Math.PI/2 : '';
-
-// 		//rotation values
-// 		let newCameraRotX = ((newCameraRotation.x*180)/Math.PI)-15;
-// 		let newCameraRotY = ((newCameraRotation.y*180)/Math.PI)%360;
-// 		//let newCameraRotZ = (this.focus.rotation.z*180)/Math.PI;
-// 		let newCameraRotZ = 0;
-// 		let cameraRotX = (this.camera.rotation.x*180)/Math.PI;
-// 		let cameraRotY = ((this.camera.rotation.y*180)/Math.PI)%360;
-// 		let cameraRotZ = (this.camera.rotation.z*180)/Math.PI;
-
-// 		// Y rotation fix for +-180deg overrotation
-// 		cameraRotY > 180 ? cameraRotY = cameraRotY-360 : cameraRotY = cameraRotY;
-// 		cameraRotY < -180 ? cameraRotY = cameraRotY+360 : cameraRotY = cameraRotY;
-
-// 		//animation camera point to focus X
-// 		this.cameraEl.setAttribute('animation__cft-x', {
-// 			'property': 'object3D.rotation.x',
-// 			'from': cameraRotX,
-// 			'to': newCameraRotX,
-// 			'dur': this.data.duration, 
-// 			'easing': 'easeInOutQuad',
-// 			'startEvent': 'anim-camera-focus-target'
-// 		});
-
-// 		//animation camera point to focus Y
-// 		this.cameraEl.setAttribute('animation__cft-y', {
-// 			'property': 'object3D.rotation.y',
-// 			'from': cameraRotY,
-// 			'to': newCameraRotY,
-// 			'dur': this.data.duration, 
-// 			'easing': 'easeInOutQuad',
-// 			'startEvent': 'anim-camera-focus-target'
-// 		});
-
-// 		//animation camera point to focus Z
-// 		this.cameraEl.setAttribute('animation__cft-z', {
-// 			'property': 'object3D.rotation.z',
-// 			'from': cameraRotZ,
-// 			'to': newCameraRotZ,
-// 			'dur': this.data.duration, 
-// 			'easing': 'easeInOutQuad',
-// 			'startEvent': 'anim-camera-focus-target'
-// 		});
-
-// 		this.cameraEl.emit('anim-camera-focus-target', null, false);
-// 	},
-
-// 	lookAtVector: function (origin, target) {
-// 		let targetPosition = new THREE.Vector3();
-// 		target.getWorldPosition(targetPosition);
-		
-// 		let originPosition = new THREE.Vector3();
-// 		origin.getWorldPosition(originPosition);
-		
-// 		let lookAtVector = new THREE.Vector3(targetPosition.x, targetPosition.y, targetPosition.z); 
-// 		lookAtVector.subVectors(originPosition, lookAtVector);//.add(originPosition);
-// 		return lookAtVector;
-// 	}, 
-
-// 	setEventlistener: function() {
-// 		//set camera-vars for event listener context
-// 		let cameraEl = this.cameraEl;
-// 		let comp = this;
-
-// 		this.cameraEl.addEventListener('animationcomplete__mot-z', (e) => {
-// 			//comp.cameraFocusFinished();
-// 		});
-// 	}, 
-
-// 	cameraFocusFinished: function() {
-// 		//set camera-vars for event listener context
-// 		let cameraEl = this.cameraEl;
-// 		let camera = this.camera;
-
-// 		cameraEl.removeAttribute('animation__cft-x');
-// 		cameraEl.removeAttribute('animation__cft-y');
-// 		cameraEl.removeAttribute('animation__cft-z');
-
-// 		let cameraWorldPosition = new THREE.Vector3();
-// 		camera.getWorldPosition(cameraWorldPosition);
-// 		let cameraWorldRotation = new THREE.Euler();
-// 		cameraWorldRotation = camera.rotation;
-
-// 		//cameraEl.setAttribute('my-look-controls', {enabled: true, orientation: {'position': cameraWorldPosition, 'rotation': cameraWorldRotation}});
-// 		//cameraEl.setAttribute('wasd-controls', {enabled: true});
-
-// 		this.orbitTarget.setAttribute('rotation', '' + cameraWorldRotation.x + ' ' + cameraWorldRotation.y + ' ' + cameraWorldRotation.z + '')
-
-// 		cameraEl.setAttribute('orbit-controls', {enabled: true, target: '#orbit-target', orientation: {'position': cameraWorldPosition, 'rotation': cameraWorldRotation}});
-
-// 		devMode && console.log('dev --- orbit-controls: ', this.el.components['orbit-controls']);
-
-// 		cameraEl.setAttribute('camera-focus-target', {target: ''});
-// 	}
-
-// });
-// //END camera-focus-target
-
-
-
-
-// //START camera-move-to-target
-// AFRAME.registerComponent('camera-move-to-target', {
-
-// 	schema: {
-// 		target: { default: '' },
-// 		distance: { default: 60 },
-// 		duration: { default: 1500 }
-// 	},
-
-// 	init: function () {
-// 		this.cameraEl = this.el;
-// 		this.camera = this.el.object3D;
-
-// 		//create default camera position
-// 		this.defaultCameraEl = document.createElement('a-entity');
-// 		this.defaultCamera = this.defaultCameraEl.object3D;
-// 		this.el.sceneEl.appendChild(this.defaultCameraEl);
-// 		this.defaultCameraEl.setAttribute('position', this.camera.position.x + ' ' + this.camera.position.y + ' ' + this.camera.position.z);
-
-// 		//create focus element in camera reference frame and look at target
-// 		this.focusEl = document.createElement('a-entity');
-// 		this.focus = this.focusEl.object3D;
-// 		this.el.sceneEl.appendChild(this.focusEl);
-
-// 		this.setEventlistener();
-// 	},
-
-// 	update: function () {
-		
-// 		if(this.data.target === 'start'){
-// 			devMode && console.log('dev --- camera-move-to-target > this.data.target: ', this.data.target);
-// 			this.cameraMoveToTarget(true);
-// 		}else if(this.data.target) {
-// 			devMode && console.log('dev --- camera-move-to-target > this.data.target: ', this.data.target);
-// 			this.defaultCameraEl.setAttribute('position', this.camera.position.x + ' ' + this.camera.position.y + ' ' + this.camera.position.z);
-// 			this.cameraMoveToTarget();
-// 		}		
-// 	},
-
-// 	tick: function () {},
-
-// 	remove: function () {},
-
-// 	pause: function () {},
-
-// 	play: function () {},
-
-// 	cameraMoveToTarget: function(isDefaultCamera = false) {
-// 		if(isDefaultCamera){
-// 			this.target = this.defaultCamera;
-// 			this.data.distance = 0;
-// 		}else{
-// 			this.target = this.data.target.__threeObj;
-// 		}		
-		
-// 		//this.cameraEl.setAttribute('my-look-controls', {enabled: false});
-// 		//this.cameraEl.setAttribute('wasd-controls', {enabled: false});
-// 		this.cameraEl.setAttribute('orbit-controls', {enabled: false});
-
-// 		//set focus element
-// 		this.focusEl.setAttribute('position', this.camera.position.x + ' ' + this.camera.position.y + ' ' + this.camera.position.z);
-// 		//geometry for debugging
-// 		devMode && this.focusEl.setAttribute('geometry', 'primitive: cone; height: 10; radius-top: 0; radius-bottom: 1');
-
-// 		//set new camera position in front of object
-// 		let newCameraPosition = new THREE.Vector3(); 
-// 		this.target.getWorldPosition(newCameraPosition);
-// 		this.targetVector = this.lookAtVector(this.camera, this.target);
-// 		newCameraPosition.sub(this.targetVector.setLength(this.data.distance).negate());
-		
-// 		//set new camera rotation
-// 		let newCameraRotation = new THREE.Vector3();
-// 		this.focusEl.setAttribute('position', newCameraPosition);
-// 		this.focus.lookAt(this.target.position);
-// 		this.focus.rotateY(Math.PI);
-// 		newCameraRotation.x = this.focus.rotation.x;
-// 		newCameraRotation.y = this.focus.rotation.y;
-// 		newCameraRotation.z = this.focus.rotation.z;
-
-// 		//fix cone geometry to correct direction
-// 		devMode ? this.focus.rotation.x -= Math.PI/2 : '';
-
-// 		//animation camera move to target x
-// 		this.cameraEl.setAttribute('animation__cmtt-x', {
-// 			'property': 'object3D.position.x',
-// 			'from': this.camera.position.x,
-// 			'to': newCameraPosition.x,
-// 			'dur': this.data.duration, 
-// 			'easing': 'easeInOutQuad',
-// 			'startEvent': 'anim-camera-move-to-target'
-// 		});	
-
-// 		//animation camera move to target y
-// 		this.cameraEl.setAttribute('animation__cmtt-y', {
-// 			'property': 'object3D.position.y',
-// 			'from': this.camera.position.y,
-// 			'to': newCameraPosition.y,
-// 			'dur': this.data.duration, 
-// 			'easing': 'easeInOutQuad',
-// 			'startEvent': 'anim-camera-move-to-target'
-// 		});	
-
-// 		//animation camera move to target z
-// 		this.cameraEl.setAttribute('animation__cmtt-z', {
-// 			'property': 'object3D.position.z',
-// 			'from': this.camera.position.z,
-// 			'to': newCameraPosition.z,
-// 			'dur': this.data.duration, 
-// 			'easing': 'easeInOutQuad',
-// 			'startEvent': 'anim-camera-move-to-target'
-// 		});	
-		
-// 		this.cameraEl.emit('anim-camera-move-to-target', null, false);
-// 	},
-
-// 	lookAtVector: function (origin, target) {
-// 		let targetPosition = new THREE.Vector3();
-// 		target.getWorldPosition(targetPosition);
-		
-// 		let originPosition = new THREE.Vector3();
-// 		origin.getWorldPosition(originPosition);
-		
-// 		let lookAtVector = new THREE.Vector3(targetPosition.x, targetPosition.y, targetPosition.z); 
-// 		lookAtVector.subVectors(originPosition, lookAtVector);//.add(originPosition);
-// 		return lookAtVector;
-// 	}, 
-
-// 	setEventlistener: function() {
-// 		//set camera-vars for event listener context
-// 		let cameraEl = this.cameraEl;
-// 		let comp = this;
-
-// 		this.cameraEl.addEventListener('animationcomplete__cmtt-z', (e) => {
-// 			devMode && console.log('dev --- animation fin')
-// 			comp.cameraMoveFinished();
-// 		});
-// 	},
-
-// 	cameraMoveFinished: function() {
-// 		//set camera-vars for event listener context
-// 		let cameraEl = this.cameraEl;
-// 		let camera = this.camera;
-
-// 		cameraEl.removeAttribute('animation__cmtt-x');
-// 		cameraEl.removeAttribute('animation__cmtt-y');
-// 		cameraEl.removeAttribute('animation__cmtt-z');
-
-// 		let cameraWorldPosition = new THREE.Vector3();
-// 		camera.getWorldPosition(cameraWorldPosition);
-// 		let cameraWorldRotation = new THREE.Euler();
-// 		cameraWorldRotation = camera.rotation;
-
-// 		//cameraEl.setAttribute('my-look-controls', {enabled: true, orientation: {'position': cameraWorldPosition, 'rotation': cameraWorldRotation}});
-// 		//cameraEl.setAttribute('wasd-controls', {enabled: true});
-// 		cameraEl.setAttribute('orbit-controls', {enabled: true, target: '#orbit-target'});
-
-// 		devMode && console.log('dev --- orbit-controls: ', this.el.components['orbit-controls']);		
-
-// 		cameraEl.setAttribute('camera-move-to-target', {target: ''});
-// 	}
-// });
-// //END camera-move-to-target
-
-
-
-
-// //START custom look-controls
-// /* global DeviceOrientationEvent	*/
-// //delete AFRAME.components['look-controls'];
-// //var registerComponent = AFRAME.registerComponent;
-// //var THREE = window.THREE;
-// var utils = AFRAME.utils;
-
-// // To avoid recalculation at every mouse movement tick
-// var PI_2 = Math.PI / 2;
-
-// /**
-//	* look-controls. Update entity pose, factoring mouse, touch, and WebVR API data.
-//	*/
-// AFRAME.registerComponent('my-look-controls', {
-// 	dependencies: ['position', 'rotation'],
-
-// 	schema: {
-// 		enabled: {default: true},
-// 		magicWindowTrackingEnabled: {default: true},
-// 		pointerLockEnabled: {default: false},
-// 		reverseMouseDrag: {default: false},
-// 		reverseTouchDrag: {default: false},
-// 		touchEnabled: {default: true},
-// 		mouseEnabled: {default: true},
-// 		orientation: {default: null}
-// 	},
-
-// 	init: function () {
-// 		this.deltaYaw = 0;
-// 		this.previousHMDPosition = new THREE.Vector3();
-// 		this.hmdQuaternion = new THREE.Quaternion();
-// 		this.magicWindowAbsoluteEuler = new THREE.Euler();
-// 		this.magicWindowDeltaEuler = new THREE.Euler();
-// 		this.position = new THREE.Vector3();
-// 		this.magicWindowObject = new THREE.Object3D();
-// 		this.rotation = {};
-// 		this.deltaRotation = {};
-// 		this.savedPose = null;
-// 		this.pointerLocked = false;
-// 		this.setupMouseControls();
-// 		this.bindMethods();
-// 		this.previousMouseEvent = {};
-
-// 		this.setupMagicWindowControls();
-
-// 		// To save / restore camera pose
-// 		this.savedPose = {
-// 			position: new THREE.Vector3(),
-// 			rotation: new THREE.Euler()
-// 		};
-
-// 		// Call enter VR handler if the scene has entered VR before the event listeners attached.
-// 		if (this.el.sceneEl.is('vr-mode') || this.el.sceneEl.is('ar-mode')) { this.onEnterVR(); }
-
-// 	},
-
-// 	setupMagicWindowControls: function () {
-// 		var magicWindowControls;
-// 		var data = this.data;
-
-// 		// Only on mobile devices and only enabled if DeviceOrientation permission has been granted.
-// 		if (utils.device.isMobile() || utils.device.isMobileDeviceRequestingDesktopSite()) {
-// 			magicWindowControls = this.magicWindowControls = new THREE.DeviceOrientationControls(this.magicWindowObject);
-// 			if (typeof DeviceOrientationEvent !== 'undefined' && DeviceOrientationEvent.requestPermission) {
-// 				magicWindowControls.enabled = false;
-// 				if (this.el.sceneEl.components['device-orientation-permission-ui'].permissionGranted) {
-// 					magicWindowControls.enabled = data.magicWindowTrackingEnabled;
-// 				} else {
-// 					this.el.sceneEl.addEventListener('deviceorientationpermissiongranted', function () {
-// 						magicWindowControls.enabled = data.magicWindowTrackingEnabled;
-// 					});
-// 				}
-// 			}
-// 		}
-// 	},
-
-// 	update: function (oldData) {
-// 		var data = this.data;
-
-// 		// Disable grab cursor classes if no longer enabled.
-// 		if (data.enabled !== oldData.enabled) {
-// 			this.updateGrabCursor(data.enabled);
-// 		}
-
-// 		// Reset magic window eulers if tracking is disabled.
-// 		if (oldData && !data.magicWindowTrackingEnabled && oldData.magicWindowTrackingEnabled) {
-// 			this.magicWindowAbsoluteEuler.set(0, 0, 0);
-// 			this.magicWindowDeltaEuler.set(0, 0, 0);
-// 		}
-
-// 		// Pass on magic window tracking setting to magicWindowControls.
-// 		if (this.magicWindowControls) {
-// 			this.magicWindowControls.enabled = data.magicWindowTrackingEnabled;
-// 		}
-
-// 		if (oldData && !data.pointerLockEnabled !== oldData.pointerLockEnabled) {
-// 			this.removeEventListeners();
-// 			this.addEventListeners();
-// 			if (this.pointerLocked) { this.exitPointerLock(); }
-// 		}
-// 	},
-
-// 	tick: function (t) {
-// 		var data = this.data;
-// 		if (!data.enabled) { return; }
-// 		this.updateOrientation();
-// 	},
-
-// 	play: function () {
-// 		this.addEventListeners();
-// 	},
-
-// 	pause: function () {
-// 		this.removeEventListeners();
-// 		if (this.pointerLocked) { this.exitPointerLock(); }
-// 	},
-
-// 	remove: function () {
-// 		this.removeEventListeners();
-// 		if (this.pointerLocked) { this.exitPointerLock(); }
-// 	},
-
-// 	bindMethods: function () {
-// 		this.onMouseDown = this.onMouseDown.bind(this);
-// 		this.onMouseMove = this.onMouseMove.bind(this);
-// 		this.onMouseUp = this.onMouseUp.bind(this);
-// 		this.onTouchStart = this.onTouchStart.bind(this);
-// 		this.onTouchMove = this.onTouchMove.bind(this);
-// 		this.onTouchEnd = this.onTouchEnd.bind(this);
-// 		this.onEnterVR = this.onEnterVR.bind(this);
-// 		this.onExitVR = this.onExitVR.bind(this);
-// 		this.onPointerLockChange = this.onPointerLockChange.bind(this);
-// 		this.onPointerLockError = this.onPointerLockError.bind(this);
-// 	},
-
-//	/**
-// 	* Set up states and Object3Ds needed to store rotation data.
-// 	*/
-// 	setupMouseControls: function () {
-// 		this.mouseDown = false;
-// 		this.pitchObject = new THREE.Object3D();
-// 		this.yawObject = new THREE.Object3D();
-// 		this.yawObject.position.y = 10;
-// 		this.yawObject.add(this.pitchObject);
-// 	},
-
-// 	/**
-// 	 * Add mouse and touch event listeners to canvas.
-// 	 */
-// 	addEventListeners: function () {
-// 		var sceneEl = this.el.sceneEl;
-// 		var canvasEl = sceneEl.canvas;
-
-// 		// Wait for canvas to load.
-// 		if (!canvasEl) {
-// 			sceneEl.addEventListener('render-target-loaded', this.addEventListeners.bind(this));
-// 			return;
-// 		}
-
-// 		// Mouse events.
-// 		canvasEl.addEventListener('mousedown', this.onMouseDown, false);
-// 		window.addEventListener('mousemove', this.onMouseMove, false);
-// 		window.addEventListener('mouseup', this.onMouseUp, false);
-
-// 		// Touch events.
-// 		canvasEl.addEventListener('touchstart', this.onTouchStart);
-// 		window.addEventListener('touchmove', this.onTouchMove);
-// 		window.addEventListener('touchend', this.onTouchEnd);
-
-// 		// sceneEl events.
-// 		sceneEl.addEventListener('enter-vr', this.onEnterVR);
-// 		sceneEl.addEventListener('exit-vr', this.onExitVR);
-
-// 		// Pointer Lock events.
-// 		if (this.data.pointerLockEnabled) {
-// 			document.addEventListener('pointerlockchange', this.onPointerLockChange, false);
-// 			document.addEventListener('mozpointerlockchange', this.onPointerLockChange, false);
-// 			document.addEventListener('pointerlockerror', this.onPointerLockError, false);
-// 		}
-// 	},
-
-// 	/**
-// 	 * Remove mouse and touch event listeners from canvas.
-// 	 */
-// 	removeEventListeners: function () {
-// 		var sceneEl = this.el.sceneEl;
-// 		var canvasEl = sceneEl && sceneEl.canvas;
-
-// 		if (!canvasEl) { return; }
-
-// 		// Mouse events.
-// 		canvasEl.removeEventListener('mousedown', this.onMouseDown);
-// 		window.removeEventListener('mousemove', this.onMouseMove);
-// 		window.removeEventListener('mouseup', this.onMouseUp);
-
-// 		// Touch events.
-// 		canvasEl.removeEventListener('touchstart', this.onTouchStart);
-// 		window.removeEventListener('touchmove', this.onTouchMove);
-// 		window.removeEventListener('touchend', this.onTouchEnd);
-
-// 		// sceneEl events.
-// 		sceneEl.removeEventListener('enter-vr', this.onEnterVR);
-// 		sceneEl.removeEventListener('exit-vr', this.onExitVR);
-
-// 		// Pointer Lock events.
-// 		document.removeEventListener('pointerlockchange', this.onPointerLockChange, false);
-// 		document.removeEventListener('mozpointerlockchange', this.onPointerLockChange, false);
-// 		document.removeEventListener('pointerlockerror', this.onPointerLockError, false);
-// 	},
-
-// 	/**
-// 	 * Update orientation for mobile, mouse drag, and headset.
-// 	 * Mouse-drag only enabled if HMD is not active.
-// 	 */
-// 	updateOrientation: function () {
-// 		var object3D = this.el.object3D;
-// 		var pitchObject = this.pitchObject;
-// 		var yawObject = this.yawObject;
-// 		var sceneEl = this.el.sceneEl;
-
-// 		// In VR or AR mode, THREE is in charge of updating the camera pose.
-// 		if ((sceneEl.is('vr-mode') || sceneEl.is('ar-mode')) && sceneEl.checkHeadsetConnected()) {
-// 			// With WebXR THREE applies headset pose to the object3D internally.
-// 			return;
-// 		}
-
-// 		this.updateMagicWindowOrientation();
-
-// 		//custom fix for twitching camera-focus-target a-frame component
-// 		if(this.data.orientation){
-// 			pitchObject.rotation.x = this.data.orientation.rotation.x;
-// 			yawObject.rotation.y = this.data.orientation.rotation.y;
-// 			this.data.orientation = null;
-// 		}
-
-// 		// On mobile, do camera rotation with touch events and sensors.
-// 		object3D.rotation.x = this.magicWindowDeltaEuler.x + pitchObject.rotation.x;
-// 		object3D.rotation.y = this.magicWindowDeltaEuler.y + yawObject.rotation.y;
-// 		object3D.rotation.z = this.magicWindowDeltaEuler.z;	
-// 	},
-
-// 	updateMagicWindowOrientation: function () {
-// 		var magicWindowAbsoluteEuler = this.magicWindowAbsoluteEuler;
-// 		var magicWindowDeltaEuler = this.magicWindowDeltaEuler;
-// 		// Calculate magic window HMD quaternion.
-// 		if (this.magicWindowControls && this.magicWindowControls.enabled) {
-// 			this.magicWindowControls.update();
-// 			magicWindowAbsoluteEuler.setFromQuaternion(this.magicWindowObject.quaternion, 'YXZ');
-// 			if (!this.previousMagicWindowYaw && magicWindowAbsoluteEuler.y !== 0) {
-// 				this.previousMagicWindowYaw = magicWindowAbsoluteEuler.y;
-// 			}
-// 			if (this.previousMagicWindowYaw) {
-// 				magicWindowDeltaEuler.x = magicWindowAbsoluteEuler.x;
-// 				magicWindowDeltaEuler.y += magicWindowAbsoluteEuler.y - this.previousMagicWindowYaw;
-// 				magicWindowDeltaEuler.z = magicWindowAbsoluteEuler.z;
-// 				this.previousMagicWindowYaw = magicWindowAbsoluteEuler.y;
-// 			}
-// 		}
-// 	},
-
-// 	/**
-// 	 * Translate mouse drag into rotation.
-// 	 *
-// 	 * Dragging up and down rotates the camera around the X-axis (yaw).
-// 	 * Dragging left and right rotates the camera around the Y-axis (pitch).
-// 	 */
-// 	onMouseMove: function (evt) {
-// 		var direction;
-// 		var movementX;
-// 		var movementY;
-// 		var pitchObject = this.pitchObject;
-// 		var previousMouseEvent = this.previousMouseEvent;
-// 		var yawObject = this.yawObject;
-
-// 		// Not dragging or not enabled.
-// 		if (!this.data.enabled || (!this.mouseDown && !this.pointerLocked)) { return; }
-
-// 		// Calculate delta.
-// 		if (this.pointerLocked) {
-// 			movementX = evt.movementX || evt.mozMovementX || 0;
-// 			movementY = evt.movementY || evt.mozMovementY || 0;
-// 		} else {
-// 			movementX = evt.screenX - previousMouseEvent.screenX;
-// 			movementY = evt.screenY - previousMouseEvent.screenY;
-// 		}
-// 		this.previousMouseEvent.screenX = evt.screenX;
-// 		this.previousMouseEvent.screenY = evt.screenY;
-
-// 		// Calculate rotation.
-// 		direction = this.data.reverseMouseDrag ? 1 : -1;
-// 		yawObject.rotation.y += movementX * 0.002 * direction;
-// 		pitchObject.rotation.x += movementY * 0.002 * direction;
-// 		pitchObject.rotation.x = Math.max(-PI_2, Math.min(PI_2, pitchObject.rotation.x));
-// 	},
-
-// 	/**
-// 	 * Register mouse down to detect mouse drag.
-// 	 */
-// 	onMouseDown: function (evt) {
-// 		var sceneEl = this.el.sceneEl;
-// 		if (!this.data.enabled || !this.data.mouseEnabled || ((sceneEl.is('vr-mode') || sceneEl.is('ar-mode')) && sceneEl.checkHeadsetConnected())) { return; }
-// 		// Handle only primary button.
-// 		if (evt.button !== 0) { return; }
-
-// 		if(evt.stopPropagation) evt.stopPropagation();
-// 		if(evt.preventDefault) evt.preventDefault();
-// 		evt.cancelBubble=true;
-// 		evt.returnValue=false;
-
-// 		var canvasEl = sceneEl && sceneEl.canvas;
-
-// 		this.mouseDown = true;
-// 		this.previousMouseEvent.screenX = evt.screenX;
-// 		this.previousMouseEvent.screenY = evt.screenY;
-// 		this.showGrabbingCursor();
-
-// 		if (this.data.pointerLockEnabled && !this.pointerLocked) {
-// 			if (canvasEl.requestPointerLock) {
-// 				canvasEl.requestPointerLock();
-// 			} else if (canvasEl.mozRequestPointerLock) {
-// 				canvasEl.mozRequestPointerLock();
-// 			}
-// 		}
-// 	},
-
-// 	/**
-// 	 * Shows grabbing cursor on scene
-// 	 */
-// 	showGrabbingCursor: function () {
-// 		this.el.sceneEl.canvas.style.cursor = 'grabbing';
-// 	},
-
-// 	/**
-// 	 * Hides grabbing cursor on scene
-// 	 */
-// 	hideGrabbingCursor: function () {
-// 		this.el.sceneEl.canvas.style.cursor = '';
-// 	},
-
-// 	/**
-// 	 * Register mouse up to detect release of mouse drag.
-// 	 */
-// 	onMouseUp: function () {
-// 		this.mouseDown = false;
-// 		this.hideGrabbingCursor();
-// 	},
-
-// 	/**
-// 	 * Register touch down to detect touch drag.
-// 	 */
-// 	onTouchStart: function (evt) {
-// 		if (evt.touches.length !== 1 ||
-// 				!this.data.touchEnabled ||
-// 				this.el.sceneEl.is('vr-mode') ||
-// 				this.el.sceneEl.is('ar-mode')) { return; }
-// 		this.touchStart = {
-// 			x: evt.touches[0].pageX,
-// 			y: evt.touches[0].pageY
-// 		};
-// 		this.touchStarted = true;
-// 	},
-
-// 	/**
-// 	 * Translate touch move to Y-axis rotation.
-// 	 */
-// 	onTouchMove: function (evt) {
-// 		var direction;
-// 		var canvas = this.el.sceneEl.canvas;
-// 		var deltaY;
-// 		var yawObject = this.yawObject;
-
-// 		if (!this.touchStarted || !this.data.touchEnabled) { return; }
-
-// 		deltaY = 2 * Math.PI * (evt.touches[0].pageX - this.touchStart.x) / canvas.clientWidth;
-
-// 		direction = this.data.reverseTouchDrag ? 1 : -1;
-// 		// Limit touch orientation to to yaw (y axis).
-// 		yawObject.rotation.y -= deltaY * 0.5 * direction;
-// 		this.touchStart = {
-// 			x: evt.touches[0].pageX,
-// 			y: evt.touches[0].pageY
-// 		};
-// 	},
-
-// 	/**
-// 	 * Register touch end to detect release of touch drag.
-// 	 */
-// 	onTouchEnd: function () {
-// 		this.touchStarted = false;
-// 	},
-
-// 	/**
-// 	 * Save pose.
-// 	 */
-// 	onEnterVR: function () {
-// 		var sceneEl = this.el.sceneEl;
-// 		if (!sceneEl.checkHeadsetConnected()) { return; }
-// 		this.saveCameraPose();
-// 		this.el.object3D.position.set(0, 0, 0);
-// 		this.el.object3D.rotation.set(0, 0, 0);
-// 		if (sceneEl.hasWebXR) {
-// 			this.el.object3D.matrixAutoUpdate = false;
-// 			this.el.object3D.updateMatrix();
-// 		}
-// 	},
-
-// 	/**
-// 	 * Restore the pose.
-// 	 */
-// 	onExitVR: function () {
-// 		if (!this.el.sceneEl.checkHeadsetConnected()) { return; }
-// 		this.restoreCameraPose();
-// 		this.previousHMDPosition.set(0, 0, 0);
-// 		this.el.object3D.matrixAutoUpdate = true;
-// 	},
-
-// 	/**
-// 	 * Update Pointer Lock state.
-// 	 */
-// 	onPointerLockChange: function () {
-// 		this.pointerLocked = !!(document.pointerLockElement || document.mozPointerLockElement);
-// 	},
-
-// 	/**
-// 	 * Recover from Pointer Lock error.
-// 	 */
-// 	onPointerLockError: function () {
-// 		this.pointerLocked = false;
-// 	},
-
-// 	// Exits pointer-locked mode.
-// 	exitPointerLock: function () {
-// 		document.exitPointerLock();
-// 		this.pointerLocked = false;
-// 	},
-
-// 	/**
-// 	 * Toggle the feature of showing/hiding the grab cursor.
-// 	 */
-// 	updateGrabCursor: function (enabled) {
-// 		var sceneEl = this.el.sceneEl;
-
-// 		function enableGrabCursor () { sceneEl.canvas.classList.add('a-grab-cursor'); }
-// 		function disableGrabCursor () { sceneEl.canvas.classList.remove('a-grab-cursor'); }
-
-// 		if (!sceneEl.canvas) {
-// 			if (enabled) {
-// 				sceneEl.addEventListener('render-target-loaded', enableGrabCursor);
-// 			} else {
-// 				sceneEl.addEventListener('render-target-loaded', disableGrabCursor);
-// 			}
-// 			return;
-// 		}
-
-// 		if (enabled) {
-// 			enableGrabCursor();
-// 			return;
-// 		}
-// 		disableGrabCursor();
-// 	},
-
-// 	/**
-// 	 * Save camera pose before entering VR to restore later if exiting.
-// 	 */
-// 	saveCameraPose: function () {
-// 		this.savedPose.position.copy(this.el.object3D.position);
-// 		this.savedPose.rotation.copy(this.el.object3D.rotation);
-		
-// 		this.hasSavedPose = true;
-// 	},
-
-// 	/**
-// 	 * Reset camera pose to before entering VR.
-// 	 */
-// 	restoreCameraPose: function () {
-// 		if (!this.hasSavedPose) { return; }
-
-// 		// Reset camera orientation.
-// 		this.el.object3D.position.copy(this.savedPose.position);
-// 		this.el.object3D.rotation.copy(this.savedPose.rotation);
-		
-// 		this.hasSavedPose = false;
-// 	}
-// });
-// //END custom look-controls
-
-

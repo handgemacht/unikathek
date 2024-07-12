@@ -2163,7 +2163,6 @@ const app = {
 				document.querySelector('a-camera').setAttribute('orbit-controls', {
 					enabled: true, 
 					target: '#orbit-target', 
-					distance: 50, 
 					desiredDistance: 300, 
 					autoRotate: true,
 					pitchCamera: true, 
@@ -2180,7 +2179,7 @@ const app = {
 			this.collectionViewerEl = collectionViewerElement;
 			document.body.appendChild(collectionViewerElement);
 			collectionViewerElement.setAttribute('gltf-model', 'dracoDecoderPath: ./draco/');
-			collectionViewerElement.setAttribute('load-json-models', '');
+			collectionViewerElement.setAttribute('load-json-models', 'scaleFactor: 0.05; normalization: 1');
 			collectionViewerElement.setAttribute('xr-mode-ui', 'enabled: false');
 			collectionViewerElement.setAttribute('device-orientation-permission-ui', 'enabled: false');
 			collectionViewerElement.setAttribute('light', 'defaultLightsEnabled: false');
@@ -2189,11 +2188,11 @@ const app = {
 			const cursorEntity = document.createElement('a-entity');
 			collectionViewerElement.appendChild(cursorEntity);
 			cursorEntity.setAttribute('cursor', 'rayOrigin: mouse; mouseCursorStylesEnabled: true;');
-			cursorEntity.setAttribute('raycaster', 'objects: [forcegraph];');
+			cursorEntity.setAttribute('raycaster', 'objects: #forcegraph;');
 
 			const camera = document.createElement('a-camera');
 			collectionViewerElement.appendChild(camera);
-			camera.setAttribute('orbit-controls', 'enabled: true, target: #orbit-target, autoRotate: true');
+			camera.setAttribute('orbit-controls', 'enabled: true; target: #orbit-target; autoRotate: true');
 			camera.setAttribute('wasd-controls', 'enabled: false');
 
 			const ambientLightEntity = document.createElement('a-entity');
