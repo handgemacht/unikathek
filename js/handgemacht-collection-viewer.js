@@ -28,6 +28,7 @@ AFRAME.registerComponent('load-json-models', {
 			this.linkMaterialSet = false;
 			this.scaleFactor = this.data.scaleFactor;
 			this.normalization = this.data.normalization;
+			this.cameraPos = new THREE.Vector3();
 
 			this.setEventlisteners();
 			this.loadJSONModels();
@@ -36,6 +37,7 @@ AFRAME.registerComponent('load-json-models', {
 		},
 
 		update: function () {
+			this.fgComp = document.querySelector('#forcegraph').getAttribute('forcegraph');
 			this.scaleFactor = this.data.scaleFactor;
 			this.normalization = this.data.normalization;
 			app.devMode && console.log('dev --- scaleFactor: ', this.scaleFactor);
@@ -45,7 +47,16 @@ AFRAME.registerComponent('load-json-models', {
 			}
 		},
 
-		tick: function () {},
+		tick: function () {
+			if(this.nodeModelSet && this.fgComp){
+				for(let node of this.fgComp.nodes){
+					if(node.type === 'node-category' && node.__threeObj) {
+						this.el.sceneEl.camera.getWorldPosition(this.cameraPos);
+						node.__threeObj.lookAt(this.cameraPos);
+					}
+				}
+			}
+		},
 
 		remove: function () {},
 
@@ -113,11 +124,17 @@ AFRAME.registerComponent('load-json-models', {
 		},
 
 		createCategoryAndTagModels: function() {
+			this.imgBook = document.createElement('img');
+			this.imgBook.id = 'book';
+			this.imgBook.crossOrigin = 'anonymous';
+			this.imgBook.src = 'assets/hand.gemacht WebApp icon category kohlegrau.svg';
+			this.el.sceneEl.querySelector('a-assets').appendChild(this.imgBook);
+			
 			//create category model 
 			this.categoryModelEl = document.createElement('a-entity');
 			this.categoryModelEl.setAttribute('id', 'category-model');
-			this.categoryModelEl.setAttribute('geometry', 'primitive: sphere; radius: 5');
-			this.categoryModelEl.setAttribute('material', 'color: #46AAC8; shader: flat');
+			this.categoryModelEl.setAttribute('geometry', 'primitive: circle; radius: 5');
+			this.categoryModelEl.setAttribute('material', 'color: #46AAC8; src: #book; transparent: true, opacity: 1');
 			this.categoryModelEl.setAttribute('visible', false);
 			this.el.sceneEl.querySelector('a-assets').appendChild(this.categoryModelEl);
 
@@ -323,7 +340,9 @@ AFRAME.registerComponent('load-json-models', {
 
 		assignModelsToNodes: function () {
 			const scene = document.querySelector('a-scene').object3D;
-			const fgComp = document.querySelector('#forcegraph').getAttribute('forcegraph');
+			if(!this.fgComp.nodes){ return; }
+			const fgComp = this.fgComp;
+			this.categoryArray = [];
 
 			const categoryModel = this.categoryModelEl.object3D;
 
@@ -356,7 +375,8 @@ AFRAME.registerComponent('load-json-models', {
 
 		assignMaterialToLinks: function () {
 			let scene = document.querySelector('a-scene').object3D;
-			let fgComp = document.querySelector('#forcegraph').getAttribute('forcegraph');
+			if(!this.fgComp.links){ return; }
+			const fgComp = this.fgComp;
 
 			let categoryMaterial = this.linkCategoryModelEl.object3D.children[0].material;
 			let tagMaterial = this.linkTagModelEl.object3D.children[0].material;
@@ -380,7 +400,8 @@ AFRAME.registerComponent('load-json-models', {
 		},
 
 		scaleLinks(factor) {
-			let fgComp = document.querySelector('#forcegraph').getAttribute('forcegraph');
+			if(!this.fgComp.links){ return; }
+			const fgComp = this.fgComp;
 
 			for(let link of fgComp.links){
 				if(typeof link.__lineObj !== 'undefined'){
@@ -411,7 +432,8 @@ AFRAME.registerComponent('load-json-models', {
 				return (number - inputMinRange) / (inputMaxRange - inputMinRange) * (outputMaxRange - outputMinRange) + outputMinRange;
 			}
 
-			const fgComp = document.querySelector('#forcegraph').getAttribute('forcegraph');
+			if(!this.fgComp.nodes){ return; }
+			const fgComp = this.fgComp;
 
 			let sizeLog = {
 				mean: 0,
@@ -454,7 +476,7 @@ AFRAME.registerComponent('load-json-models', {
 				const sizeFactor = 1 + mapToRange(sizeDeviation, [sizeLog.min, sizeLog.max], [0, 1]); // range from 0 to 2 with 1 as median
 				const normFactor = normalization * sizeFactor;
 				const normalizedScale = scaleFactor * ((1 + normFactor) - normalization);
-				app.devMode && console.log(`dev --- normalizeScale node: ${node.name} > \nnormalization: ${normalization}, \nsizeFactor: ${sizeFactor}, \nnormFactor: ${normFactor}, \nscaleFactor: ${scaleFactor}, \nnormalizedScale: ${normalizedScale}`);
+				//app.devMode && console.log(`dev --- normalizeScale node: ${node.name} > \nnormalization: ${normalization}, \nsizeFactor: ${sizeFactor}, \nnormFactor: ${normFactor}, \nscaleFactor: ${scaleFactor}, \nnormalizedScale: ${normalizedScale}`);
 				node.model.scale.set(normalizedScale, normalizedScale, normalizedScale);
 			}
 
