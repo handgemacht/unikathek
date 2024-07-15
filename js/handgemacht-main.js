@@ -68,8 +68,129 @@ const app = {
 	devMode: false,
 	viewerMode: false,
 
+	filepaths: {
+		files: './files/',
+		assets: './assets/',
+		draco: './draco/'
+	},
+
+	assets(filepath) {
+		const assets = {
+			logo: {
+				pearlwhite: filepath + 'hand.gemacht logo perlweiss.svg',
+				coalgrey: filepath + 'hand.gemacht logo kohlegrau.svg'
+			},
+
+			icon: {
+			'arrow up': {
+				pearlwhite: filepath + 'hand.gemacht WebApp icon arrow up pearlwhite.svg',
+				coalgrey: filepath + 'hand.gemacht WebApp icon arrow up coalgrey.svg' 
+			},
+			'arrow right': {
+				pearlwhite: filepath + 'hand.gemacht WebApp icon arrow right pearlwhite.svg',
+				coalgrey: filepath + 'hand.gemacht WebApp icon arrow right coalgrey.svg' 
+			},
+			'arrow down': {
+				pearlwhite: filepath + 'hand.gemacht WebApp icon arrow down pearlwhite.svg',
+				coalgrey: filepath + 'hand.gemacht WebApp icon arrow down coalgrey.svg' 
+			},
+			'arrow left': {
+				pearlwhite: filepath + 'hand.gemacht WebApp icon arrow left pearlwhite.svg',
+				coalgrey: filepath + 'hand.gemacht WebApp icon arrow left coalgrey.svg' 
+			},
+			'category': {
+				pearlwhite: filepath + 'hand.gemacht WebApp icon category pearlwhite.svg',
+				coalgrey: filepath + 'hand.gemacht WebApp icon category coalgrey.svg' 
+			},
+			'context': {
+				pearlwhite: filepath + 'hand.gemacht WebApp icon context pearlwhite.svg',
+				coalgrey: filepath + 'hand.gemacht WebApp icon context coalgrey.svg' 
+			},
+			'filter': {
+				pearlwhite: filepath + 'hand.gemacht WebApp icon filter pearlwhite.svg',
+				coalgrey: filepath + 'hand.gemacht WebApp icon filter coalgrey.svg' 
+			},
+			'info': {
+				pearlwhite: filepath + 'hand.gemacht WebApp icon info pearlwhite.svg',
+				coalgrey: filepath + 'hand.gemacht WebApp icon info coalgrey.svg' 
+			},
+			'listen': {
+				pearlwhite: filepath + 'hand.gemacht WebApp icon listen pearlwhite.svg',
+				coalgrey: filepath + 'hand.gemacht WebApp icon listen coalgrey.svg' 
+			},
+			'measurement': {
+				pearlwhite: filepath + 'hand.gemacht WebApp icon measurement pearlwhite.svg',
+				coalgrey: filepath + 'hand.gemacht WebApp icon measurement coalgrey.svg' 
+			},
+			'menu': {
+				pearlwhite: filepath + 'hand.gemacht WebApp icon menu pearlwhite.svg',
+				coalgrey: filepath + 'hand.gemacht WebApp icon menu coalgrey.svg' 
+			},
+			'move': {
+				pearlwhite: filepath + 'hand.gemacht WebApp icon move pearlwhite.svg',
+				coalgrey: filepath + 'hand.gemacht WebApp icon move coalgrey.svg' 
+			},
+			'read': {
+				pearlwhite: filepath + 'hand.gemacht WebApp icon read pearlwhite.svg',
+				coalgrey: filepath + 'hand.gemacht WebApp icon read coalgrey.svg' 
+			},
+			'reset view': {
+				pearlwhite: filepath + 'hand.gemacht WebApp icon reset view pearlwhite.svg',
+				coalgrey: filepath + 'hand.gemacht WebApp icon reset view coalgrey.svg' 
+			},
+			'search': {
+				pearlwhite: filepath + 'hand.gemacht WebApp icon search pearlwhite.svg',
+				coalgrey: filepath + 'hand.gemacht WebApp icon search coalgrey.svg' 
+			},
+			'watch': {
+				pearlwhite: filepath + 'hand.gemacht WebApp icon watch pearlwhite.svg',
+				coalgrey: filepath + 'hand.gemacht WebApp icon watch coalgrey.svg' 
+			},
+			small: {
+				'close': {
+					pearlwhite: filepath + 'hand.gemacht WebApp icon small close pearlwhite.svg',
+					coalgrey: filepath + 'hand.gemacht WebApp icon small close coalgrey.svg' 
+				},
+				'pause': {
+					pearlwhite: filepath + 'hand.gemacht WebApp icon small pause pearlwhite.svg',
+					coalgrey: filepath + 'hand.gemacht WebApp icon small pause coalgrey.svg' 
+				},
+				'play': {
+					pearlwhite: filepath + 'hand.gemacht WebApp icon small play pearlwhite.svg',
+					coalgrey: filepath + 'hand.gemacht WebApp icon small play coalgrey.svg' 
+				},
+			}
+			},
+
+			cv: {
+				marker: {
+					'category': filepath + 'hand.gemacht WebApp cv marker category.svg'
+				}
+			},
+
+			ar: {
+				marker: {
+					'animation': filepath + 'hand.gemacht WebApp ar marker animation.svg',
+					'book': filepath + 'hand.gemacht WebApp ar marker book.svg',
+					'drag': filepath + 'hand.gemacht WebApp ar marker drag.svg',
+					'drop': filepath + 'hand.gemacht WebApp ar marker drop.svg',
+					'quest': filepath + 'hand.gemacht WebApp ar marker quest.svg',
+					'quiz': filepath + 'hand.gemacht WebApp ar marker quiz.svg',
+					'book': filepath + 'hand.gemacht WebApp ar marker book.svg',
+				},
+				'rotate arrows': 'hand.gemacht WebApp ar rotate arrows.svg'
+			}, 
+
+			patronage: filepath + 'stmfh foerderung.png'
+		}
+
+		return assets;
+	},
+
 	init() {
 		document.body.innerHTML = '';
+
+		this.assets = this.assets(this.filepaths.assets);
 
 		this.devMode = this.getParamsModeFromURL('dev');
 		this.showStats = this.getParamsModeFromURL('stats');
@@ -105,7 +226,7 @@ const app = {
 
 		if (this.viewerMode === 'cv') {
 			this.gui.title.init();
-			this.gui.loadingScreen.content = 'loading collection';
+			this.gui.loadingScreen.content = 'loading collection viewer';
 			this.gui.loadingScreen.showLoadingScreen();
 			this.collectionViewer.init();
 		}
@@ -123,7 +244,7 @@ const app = {
 			if (this.viewerMode === 'ar' && isSupported) {
 			//start ARViewer
 			this.arViewer.init();
-			this.gui.loadingScreen.content = 'loading Entdeckermodus';
+			this.gui.loadingScreen.content = 'loading augmented reality';
 			this.gui.loadingScreen.showLoadingScreen();
 			}else{
 				this.devMode && console.log("dev --- WebXR AR is not supported on this browser");
@@ -315,7 +436,7 @@ const app = {
 				this.messageCloseSymbol = guiMessageCloseSymbol;
 				guiMessageCloseContainer.appendChild(guiMessageCloseSymbol);
 				guiMessageCloseSymbol.className = 'gui-message-close-symbol';
-				guiMessageCloseSymbol.src = 'assets/hand.gemacht WebApp close perlweiss.svg';
+				guiMessageCloseSymbol.src = app.assets.icon.small['close'].pearlwhite;
 				guiMessageCloseSymbol.alt = 'Schließen-Icon';
 				guiMessageCloseSymbol.width = 100;
 				guiMessageCloseSymbol.height = 100;
@@ -470,7 +591,7 @@ const app = {
 
 				const scoreImg = document.createElement('img');
 				scoreContainer.appendChild(scoreImg);
-				scoreImg.src = 'assets/hand.gemacht WebApp ar marker book.svg';
+				scoreImg.src = app.assets.ar.marker['book']; 
 				scoreImg.alt = 'Buch Score';
 
 				const scoreSpan = document.createElement('span');
@@ -488,7 +609,7 @@ const app = {
 				closeContainer.className = 'annotation-close-container';
 				var closeSymbol = document.createElement('img');
 				closeContainer.appendChild(closeSymbol);
-				closeSymbol.src = 'assets/hand.gemacht WebApp close kohlegrau.svg';
+				closeSymbol.src = app.assets.icon.small['close'].coalgrey;
 				closeSymbol.alt = 'Schließen-Icon';
 				closeSymbol.className = 'annotation-close-symbol';
 				closeSymbol.width = '24';
@@ -500,7 +621,7 @@ const app = {
 				helpContainer.className = 'help-container hide';
 				var helpSymbol = document.createElement('img');
 				helpContainer.appendChild(helpSymbol);
-				helpSymbol.src = 'assets/hand.gemacht WebApp ar marker quiz.svg';
+				helpSymbol.src = app.assets.ar.marker['quiz'];
 				helpSymbol.alt = 'Help-Icon';
 				helpSymbol.className = 'help-symbol';
 
@@ -648,15 +769,15 @@ const app = {
 				this.button2.icon && this.messageButton2IconEl.classList.remove('hide');
 
 				if(this.button1.icon && (this.button1.color === 'coalgrey' || this.button1.color === 'smokegrey' || this.button1.color === 'skyblue' || this.button1.color === 'terracotta')){
-					this.messageButton1IconEl.src = 'assets/hand.gemacht WebApp ' + this.button1.icon + ' perlweiss.svg';
+					this.messageButton1IconEl.src = app.assets.icon[this.button1.icon].pearlwhite;
 				}else if(this.button1.icon){
-					this.messageButton1IconEl.src = 'assets/hand.gemacht WebApp ' + this.button1.icon + ' kohlegrau.svg';
+					this.messageButton1IconEl.src = app.assets.icon[this.button1.icon].coalgrey;
 				}
 
 				if(this.button2.icon && (this.button2.color === 'coalgrey' || this.button2.color === 'smokegrey' || this.button2.color === 'skyblue' || this.button2.color === 'terracotta')){
-					this.messageButton2IconEl.src = 'assets/hand.gemacht WebApp ' + this.button2.icon + ' perlweiss.svg';
+					this.messageButton1IconEl.src = app.assets.icon[this.button2.icon].pearlwhite;
 				}else if(this.button2.icon){
-					this.messageButton2IconEl.src = 'assets/hand.gemacht WebApp ' + this.button2.icon + ' kohlegrau.svg';
+					this.messageButton1IconEl.src = app.assets.icon[this.button2.icon].coalgrey;
 				}
 
 
@@ -665,10 +786,10 @@ const app = {
 				this.color && this.messageEl.classList.add(this.color);
 
 				if(this.color === 'pearlwhite'){
-					this.messageCloseSymbol.src = 'assets/hand.gemacht WebApp close kohlegrau.svg';
+					this.messageCloseSymbol.src = app.assets.icon.small['close'].coalgrey;
 					this.color && this.messageTypeEl.classList.add(message.shadow);
 				}else{
-					this.messageCloseSymbol.src = 'assets/hand.gemacht WebApp close perlweiss.svg';
+					this.messageCloseSymbol.src = app.assets.icon.small['close'].pearlwhite;
 					this.color && this.messageTypeEl.classList.add(this.color);
 				}
 
@@ -830,7 +951,7 @@ const app = {
 				this.burgerSymbolEl = burgerSymbol;
 				burgerContainer.appendChild(burgerSymbol);
 				burgerSymbol.className = 'gui-menu-icon-symbol';
-				burgerSymbol.src = 'assets/hand.gemacht WebApp menu kohlegrau.svg';
+				burgerSymbol.src = app.assets.icon['menu'].coalgrey;
 				burgerSymbol.alt = 'Menu-Icon';
 				burgerSymbol.width = 100;
 				burgerSymbol.height = 100;
@@ -848,7 +969,7 @@ const app = {
 				const closeSymbol = document.createElement('img');
 				closeContainer.appendChild(closeSymbol);
 				closeSymbol.className = 'gui-menu-close-symbol';
-				closeSymbol.src = 'assets/hand.gemacht WebApp close perlweiss.svg';
+				closeSymbol.src = app.assets.icon.small['close'].pearlwhite;
 				closeSymbol.alt = 'Schließen-Icon';
 				closeSymbol.width = 100;
 				closeSymbol.height = 100;
@@ -860,7 +981,7 @@ const app = {
 				const logoImage = document.createElement('img');
 				logoContainer.appendChild(logoImage);
 				logoImage.className = 'logo';
-				logoImage.src = 'assets/hand.gemacht logo perlweiss.svg';
+				logoImage.src = app.assets.logo.pearlwhite;
 				logoImage.alt = 'hand.gemacht Logo';
 				logoImage.width = 100;
 				logoImage.height = 100;
@@ -921,7 +1042,7 @@ const app = {
 				const patronageImage = document.createElement('img');
 				patronage.appendChild(patronageImage);
 				patronageImage.className = 'logo';
-				patronageImage.src = 'assets/stmfh foerderung.png';
+				patronageImage.src = app.assets.patronage;
 				patronageImage.alt = 'Bayerisches Staatsministerium der Finanzen und für Heimat als Förderer Logo';
 				patronageImage.width = 270;
 				patronageImage.height = 97;
@@ -1095,8 +1216,6 @@ const app = {
 
 					fadeBar.className = 'gui-toolbar-tab-content-fade-bar';	
 
-					app.devMode && console.log('dev --- tabColors: ', typeof colors);		
-
 					toolbarTab.classList.add(colors.tabText);
 					toolbarTab.classList.add(colors.tabBackground);
 					colors.tabShadow && toolbarTab.classList.add(colors.tabShadow);
@@ -1144,9 +1263,7 @@ const app = {
 					element.classList.add(setup.colors.button);
 					let iconElement = element.children[0];
 
-					if(setup.colors.buttonIcon === 'coalgrey') {setup.colors.buttonIcon = 'kohlegrau'};
-					if(setup.colors.buttonIcon === 'pearlwhite') {setup.colors.buttonIcon = 'perlweiss'};
-					iconElement.src = 'assets/hand.gemacht WebApp button ' + setup.func + ' ' + setup.colors.buttonIcon + '.svg';
+					iconElement.src = app.assets.icon[setup.func][setup.colors.buttonIcon];
 					
 					element.classList.remove('hide');
 					iconElement.addEventListener('click', app.gui.toolbar.buttonClickHandler);				
@@ -1371,9 +1488,8 @@ const app = {
 				tooltipContent.className = 'cv-tooltip-content';
 			}, 
 
-			showTooltip(type, content, showArrow = false) {
+			showTooltip(type, content) {
 				let typeText = '';
-				app.devMode && console.log('dev --- tooltip: ', content)
 				if(type === 'node-object'){
 					typeText = 'Objekt'
 					this.tooltipTypeEl.classList.add(app.collectionViewer.elementColor.object);
@@ -1425,14 +1541,14 @@ const app = {
 						var y = !isTouchDevice() ? e.pageY : e.touches[0].pageY;
 					} catch (e) {}
 			
-					this.tooltipEl.style.left = x + 25 + "px";
-					this.tooltipEl.style.top = y + 25 + "px";
+					this.tooltipEl.style.left = x + 25 + 'px';
+					this.tooltipEl.style.top = y + 25 + 'px';
 				};
 			
-				document.addEventListener("mousemove", (e) => {
+				document.addEventListener('mousemove', (e) => {
 				  move(e);
 				});
-				document.addEventListener("touchmove", (e) => {
+				document.addEventListener('touchmove', (e) => {
 				  move(e);
 				});
 
@@ -1440,7 +1556,7 @@ const app = {
 
 				fgData ? type = fgData.type : type = 'none';
 
-				if(type === 'none' || !fgData.gltf){
+				if(type === 'none'){
 					return;
 				}
 
@@ -1449,12 +1565,14 @@ const app = {
 						return;
 					}
 				}else if(fgData.type === 'node-object' || fgData.type === 'node-category'){
-					if (fgData.gltf.material.visible === false) {
+					if (fgData.model.material.visible === false) {
 						return;
 					}
 				}
 
-				!isTouchDevice() && this.showTooltip(fgData.type, fgData.name, false);
+				if(isTouchDevice()) { return; }
+
+				this.showTooltip(fgData.type, fgData.name);
 			} 
 		},
 
@@ -1463,34 +1581,8 @@ const app = {
 			pillArray: [],
 
 			init() {
-				this.createElements();
 				this.setEventListener();
 			},
-
-			createElements() {
-				const highlight = document.createElement('div');
-				this.highlightEl = highlight;
-				document.body.appendChild(highlight);
-				highlight.className = 'cv-highlight hide';
-	
-				const highlightType = document.createElement('div');
-				this.highlightTypeEl = highlightType;
-				highlight.appendChild(highlightType);
-				highlightType.className = 'cv-highlight-type';
-	
-				const highlightContent = document.createElement('div');
-				this.highlightContentEl = highlightContent;
-				highlight.appendChild(highlightContent);
-				highlightContent.className = 'cv-highlight-content';
-	
-				const highlightArrow = document.createElement('img');
-				this.highlightArrowEl = highlightArrow;
-				highlightArrow.className = 'cv-highlight-arrow';
-				highlightArrow.src = 'assets/hand.gemacht WebApp play perlweiss.svg';
-				highlightArrow.alt = 'Pfeil-Icon';
-				highlightArrow.width = 100;
-				highlightArrow.height = 100;
-			}, 
 
 			setEventListener(){
 				if(app.gui.message.messageCloseEl) {
@@ -1500,52 +1592,6 @@ const app = {
 				}
 			},
 
-			showHighlight(type, content, showArrow = false) {
-				this.hideHighlight()
-				let typeText = '';
-
-				if(type === 'node-object'){
-					typeText = 'Objekt'
-					this.highlightTypeEl.classList.add(app.collectionViewer.elementColor.object);
-					this.highlightContentEl.classList.add(app.collectionViewer.elementColor.object);
-				}
-				if(type === 'node-category'){
-					typeText = 'Kategorie'
-					this.highlightTypeEl.classList.add(app.collectionViewer.elementColor.category);
-					this.highlightContentEl.classList.add(app.collectionViewer.elementColor.category);
-				}
-				if(type === 'link-tag'){
-					typeText = 'Link'
-					this.highlightTypeEl.classList.add(app.collectionViewer.elementColor.tag);
-					this.highlightContentEl.classList.add(app.collectionViewer.elementColor.tag);
-				}
-				if(type === 'link-category'){
-					typeText = 'Link'
-					this.highlightTypeEl.classList.add(app.collectionViewer.elementColor.category);
-					this.highlightContentEl.classList.add(app.collectionViewer.elementColor.category);
-				}
-				this.highlightTypeEl.innerHTML = '';
-				this.highlightTypeEl.appendChild(document.createTextNode(typeText));
-				this.highlightContentEl.innerHTML = '';
-				this.highlightContentEl.appendChild(document.createTextNode(content));
-				if(showArrow){
-					this.highlightContentEl.appendChild(this.highlightArrowEl);
-				};
-				this.highlightEl.classList.remove('hide');
-			},
-
-			hideHighlight() {
-				if(this.highlightEl.classList.contains('hide')) {
-					return;
-				}else {
-					this.highlightEl.classList.add('hide');
-					this.highlightTypeEl.innerHTML = '';
-					this.highlightTypeEl.className = 'cv-highlight-type';
-					this.highlightContentEl.innerHTML = '';
-					this.highlightContentEl.className = 'cv-highlight-content';
-				}				
-			}, 
-
 			onclickHandler(fgData) {
 				let type = '';
 				fgData ? type = fgData.type : type = 'none';
@@ -1553,14 +1599,7 @@ const app = {
 				if(type !== 'none'){
 					app.gui.message.hideMessage();
 					app.collectionViewer.highlight.generateMessage(fgData);
-				}else{
-					this.hideHighlight();;
 				}
-
-				this.highlightArrowEl.addEventListener('click', (e) => {
-					this.hideHighlight();
-					app.collectionViewer.highlight.generateMessage(fgData);
-				});
 			}, 
 
 			generateMessage(fgData) {
@@ -1752,7 +1791,7 @@ const app = {
 				this.createElements();
 
 				document.addEventListener('proxyfgData-update', (event) => {
-					app.devMode && console.log('dev --- cv > search > proxyfgData: ', app.collectionViewer.proxyfgData.data);
+					//app.devMode && console.log('dev --- cv > search > proxyfgData: ', app.collectionViewer.proxyfgData.data);
 					let fgData = app.collectionViewer.proxyfgData.data.nodes;
 					for( let index in fgData){
 						let object = fgData[index];
@@ -1760,7 +1799,7 @@ const app = {
 							this.nodeArray.push(object.name);
 						}
 					}
-					app.devMode && console.log('dev --- cv > search > nodeArray: ', this.nodeArray);
+					//app.devMode && console.log('dev --- cv > search > nodeArray: ', this.nodeArray);
 					this.autocomplete(this.inputEl, this.nodeArray);
 				});
 			}, 
@@ -1912,8 +1951,6 @@ const app = {
 				let fgNodes = fgComponent.data.nodes;
 				let node = null;
 
-				app.devMode && console.log('dev --- fgComponent: ', fgComponent);
-
 				for(let n of fgNodes) {
 					if(n.name === name){
 						node = n;
@@ -1966,7 +2003,7 @@ const app = {
 				this.createElements();
 
 				document.addEventListener('proxyfgData-update', (event) => {
-					app.devMode && console.log('dev --- cv > filter > proxyfgData-update: ', app.collectionViewer.proxyfgData.data);
+					//app.devMode && console.log('dev --- cv > filter > proxyfgData-update: ', app.collectionViewer.proxyfgData.data);
 					this.generateCheckBoxList('#cv-filter-category-list', app.collectionViewer.proxyfgData.data.categorylist, app.collectionViewer.elementColor.category);
 					this.generateCheckBoxList('#cv-filter-tag-list', app.collectionViewer.proxyfgData.data.taglist, app.collectionViewer.elementColor.tag);
 				});
@@ -2114,7 +2151,7 @@ const app = {
 				app.collectionViewer.filter.filteredData.categories = [];
 				app.collectionViewer.filter.filteredData.tags = [];
 
-				app.devMode && console.log('dev --- cv > filter > updateForcegraph > loadJSONModelsComponent', loadJSONModelsComponent);
+				//app.devMode && console.log('dev --- cv > filter > updateForcegraph > loadJSONModelsComponent', loadJSONModelsComponent);
 
 				for(let element of categoryListElement.children) {
 					let active = (element.getAttribute('data-active') === 'true');
@@ -2159,7 +2196,6 @@ const app = {
 
 			resetCameraView() {
 				document.querySelector('#forcegraph').setAttribute('highlight', {source: ''});
-				app.collectionViewer.highlight.hideHighlight();
 				document.querySelector('a-camera').setAttribute('orbit-controls', {
 					enabled: true, 
 					target: '#orbit-target', 
@@ -2222,7 +2258,7 @@ const app = {
 		this.goodbyeMessage = "<h3>Entdecker-Modus verlassen</h3> <p>Was möchtest du tun?</p>";
 		this.goodbyeMessageButton1 = "Entdeckermodus erneut starten";
 		this.goodbyeMessageButton2 = "Zum Modelviewer zurückkehren";
-		this.startPlacing = '<img src="assets/hand.gemacht WebApp icon move perlweiss.svg" alt="Platzierungs-Icon" height="50px" /> <p>Um das Objekt zu platzieren, suche eine freie Boden- oder Tischfläche. Das Objekt soll dort in realer Größe platziert werden.</p>';
+		this.startPlacing = '<img src="' + app.assets.icon['move'].pearlwhite + '" alt="Platzierungs-Icon" height="50px" /> <p>Um das Objekt zu platzieren, suche eine freie Boden- oder Tischfläche. Das Objekt soll dort in realer Größe platziert werden.</p>';
 		this.leaveAR = '<p>Entdecker-Modus wirklich verlassen?</p>';
 		this.startPlacingButton = 'Platzierung starten!';
 
@@ -2306,43 +2342,43 @@ const app = {
 			assets.appendChild(imgPlacer);
 			imgPlacer.id = 'placer';
 			imgPlacer.crossOrigin = 'anonymous';
-			imgPlacer.src = 'assets/hand.gemacht WebApp ar marker drop.svg';
+			imgPlacer.src = app.assets.ar.marker['drop'];
 
 			const imgDrag = document.createElement('img');
 			assets.appendChild(imgDrag);
 			imgDrag.id = 'dragIcon';
 			imgDrag.crossOrigin = 'anonymous';
-			imgDrag.src = 'assets/hand.gemacht WebApp ar marker drag.svg';
+			imgDrag.src = app.assets.ar.marker['drag'];
 
 			const imgArrow = document.createElement('img');
 			assets.appendChild(imgArrow);
 			imgArrow.id = 'arrow';
 			imgArrow.crossOrigin = 'anonymous';
-			imgArrow.src = 'assets/hand.gemacht WebApp ar rotate arrows rotate.svg';
+			imgArrow.src = app.assets.ar['rotate arrows'];
 
 			const imgBook = document.createElement('img');
 			assets.appendChild(imgBook);
 			imgBook.id = 'book';
 			imgBook.crossOrigin = 'anonymous';
-			imgBook.src = 'assets/hand.gemacht WebApp ar marker book.svg'
+			imgBook.src = app.assets.ar.marker['book'];
 
 			const imgPlay = document.createElement('img');
 			assets.appendChild(imgPlay);
 			imgPlay.id = 'playAnim';
 			imgPlay.crossOrigin = 'anonymous';
-			imgPlay.src = "assets/hand.gemacht WebApp ar marker animation.svg"
+			imgPlay.src = app.assets.ar.marker['animation'];
 
 			const imgExcl = document.createElement('img');
 			assets.appendChild(imgExcl);
 			imgExcl.id = 'exclamation';
 			imgExcl.crossOrigin = 'anonymous';
-			imgExcl.src = "assets/hand.gemacht WebApp ar marker quest.svg"
+			imgExcl.src = app.assets.ar.marker['quest'];
 
 			const imgQuiz = document.createElement('img');
 			assets.appendChild(imgQuiz);
 			imgQuiz.id = 'question';
 			imgQuiz.crossOrigin = 'anonymous';
-			imgQuiz.src = "assets/hand.gemacht WebApp ar marker quiz.svg"
+			imgQuiz.src = app.assets.ar.marker['quiz'];
 
 			const ambientLightEntity = document.createElement('a-entity');
 			arViewerElement.appendChild(ambientLightEntity);
