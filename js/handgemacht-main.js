@@ -86,7 +86,7 @@ const app = {
 
 			loading: {
 				alt: 'hand.gemacht Ladeanimation',
-				src: filepath + 'hand.gemacht loading .svg'
+				src: filepath + 'hand.gemacht loading.svg'
 			},
 
 			icon: {
@@ -310,10 +310,9 @@ const app = {
 
 		if(isMobile) {
 			this.devMode && console.log('dev --- mobileAndTabletCheck: ', isMobile);
-			//screen.orientation.lock('portrait');
 		}
 
-		screen.orientation.addEventListener('change', this.handleScreenOrientation);
+		window.addEventListener('orientationchange', this.handleScreenOrientation);
 
 		this.gui.init();		
 
@@ -2137,7 +2136,7 @@ const app = {
 
 				const categoryListButtonIcon = document.createElement('div');
 				categoryListButton.appendChild(categoryListButtonIcon);
-				categoryListButtonIcon.className = 'icon skyblue';
+				categoryListButtonIcon.className = 'icon ' + app.collectionViewer.elementColor.category;
 
 				const categoryIcon = document.createElement('img');
 				categoryListButtonIcon.appendChild(categoryIcon);
@@ -2174,7 +2173,7 @@ const app = {
 
 				const tagListButtonIcon = document.createElement('div');
 				tagListButton.appendChild(tagListButtonIcon);
-				tagListButtonIcon.className = 'icon duckyellow';
+				tagListButtonIcon.className = 'icon ' + app.collectionViewer.elementColor.tag;
 
 				const tagIcon = document.createElement('img');
 				tagListButtonIcon.appendChild(tagIcon);
