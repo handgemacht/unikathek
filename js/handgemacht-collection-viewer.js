@@ -127,7 +127,7 @@ AFRAME.registerComponent('load-json-models', {
 			this.imgBook = document.createElement('img');
 			this.imgBook.id = 'book';
 			this.imgBook.crossOrigin = 'anonymous';
-			this.imgBook.src = 'assets/hand.gemacht WebApp icon category kohlegrau.svg';
+			this.imgBook.src = 'assets/hand.gemacht WebApp icon category coalgrey.svg';
 			this.el.sceneEl.querySelector('a-assets').appendChild(this.imgBook);
 			
 			//create category model 

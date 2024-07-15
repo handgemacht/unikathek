@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="content" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 47.72">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: linen;
+      }
+
+      .cls-1, .cls-2 {
+        stroke-width: 0px;
+      }
+
+      .cls-2 {
+        fill: #46aac8;
+      }
+    </style>
+  </defs>
+  <rect class="cls-2" width="48" height="47.72"/>
+  <g>
+    <rect class="cls-1" x="27.43" y="27.83" width="10.54" height="10.54"/>
+    <path class="cls-1" d="M14.66,34.87c0,1.93,1.57,3.5,3.5,3.5h7.04v-10.54h-10.54v7.04Z"/>
+    <path class="cls-1" d="M9.54,26.36h11.16c2.76,0,5-2.24,5-5v-11.16H9.54v16.16ZM13.54,14.2h8.16v7.16c0,.55-.45,1-1,1h-7.16v-8.16Z"/>
+    <path class="cls-1" d="M34.47,15.32h-7.04v10.54h10.54v-7.04c0-1.93-1.57-3.5-3.5-3.5Z"/>
+  </g>
+</svg>
