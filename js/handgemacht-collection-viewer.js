@@ -71,7 +71,6 @@ AFRAME.registerComponent('load-json-models', {
 			this.el.sceneEl.addEventListener('filter-updated', (e) => {
 				comp.assignModelsToNodes();	
 				comp.assignMaterialToLinks();
-				comp.scaleLinks(0.7);
 				comp.normalizeScale(this.scaleFactor, this.normalization);
 			});
 
@@ -127,14 +126,14 @@ AFRAME.registerComponent('load-json-models', {
 			this.imgCategory = document.createElement('img');
 			this.imgCategory.id = 'icon-category';
 			this.imgCategory.crossOrigin = 'anonymous';
-			this.imgCategory.src = app.assets.cv.marker['category'];
+			this.imgCategory.src = app.assets.cv.marker['category'].src;
 			this.el.sceneEl.querySelector('a-assets').appendChild(this.imgCategory);
 			
 			//create category model 
 			this.categoryModelEl = document.createElement('a-entity');
 			this.categoryModelEl.setAttribute('id', 'category-model');
 			this.categoryModelEl.setAttribute('geometry', 'primitive: circle; radius: 5');
-			this.categoryModelEl.setAttribute('material', 'src: #icon-category; transparent: true, opacity: 1');
+			this.categoryModelEl.setAttribute('material', 'src: #icon-category');
 			this.categoryModelEl.setAttribute('visible', false);
 			this.el.sceneEl.querySelector('a-assets').appendChild(this.categoryModelEl);
 
@@ -198,7 +197,7 @@ AFRAME.registerComponent('load-json-models', {
 				newNode.name = object.name;
 				newNode.type = 'node-object';
 				newNode.tags = object.tags.filter(filterEmptyTag);
-				newNode.size = 1;
+				newNode.size = 0;
 				newNode.model = ''
 				fgData.nodes.push(newNode);
 			}
@@ -317,6 +316,9 @@ AFRAME.registerComponent('load-json-models', {
 				linkThreeObjectExtend: false,
 				nodeRelSize: 1,
 				nodeVal: node => { return node.size },
+				nodeThreeObject: node => {
+					node.material.visible = false;
+				},
 				nodeThreeObjectExtend: node => {
 					if(node.type === 'node-category') { return true; }
 					return false;
@@ -404,18 +406,6 @@ AFRAME.registerComponent('load-json-models', {
 			this.linkMaterialSet = true;
 		},
 
-		scaleLinks(factor) {
-			if(!this.fgComp.links){ return; }
-			const fgComp = this.fgComp;
-
-			for(let link of fgComp.links){
-				if(typeof link.__lineObj !== 'undefined'){
-					app.devMode && console.log(`dev --- link scaled: `, link)
-					link.__lineObj.scale.set(factor, factor, factor);
-				}
-			}
-		},
-
 		normalizeScale: function(scaleFactor, normalization) {
 			if(typeof scaleFactor !== 'number'){
 				app.devMode && console.log('dev --- normalizeScale error! > scaleFactor is not a Number! Setting factor to 1. Old value: ', scaleFactor);
@@ -451,10 +441,12 @@ AFRAME.registerComponent('load-json-models', {
 			//find mean, max and min sizes of every non category model bounding box
 			for(let node of fgComp.nodes){
 				if(node.type === 'node-category') { continue; };
+
 				node.model.scale.set(1, 1, 1);
 				node.boundingBox = new THREE.Box3();
 				node.boundingBox.size = new THREE.Vector3();
 				node.boundingBox.setFromObject(node.model).getSize(node.boundingBox.size);
+
 				//find highest value of x, y, z in bounding box of object
 				node.boundingBox.size.max = node.boundingBox.size.x;
 				node.boundingBox.size.y > node.boundingBox.size.max ? node.boundingBox.size.max = node.boundingBox.size.y : '';
@@ -474,7 +466,7 @@ AFRAME.registerComponent('load-json-models', {
 			//calculate normalized scale for every node and set node size
 			for(let node of fgComp.nodes){
 				if(node.type === 'node-category') { 
-					node.size = sizeLog.mean * scaleFactor;
+					node.size = sizeLog.mean * 10 * scaleFactor;
 					continue;
 				};
 				const sizeDeviation = sizeLog.mean - node.boundingBox.size.max;
@@ -578,7 +570,7 @@ AFRAME.registerComponent('highlight', {
 	schema: {
 		source: {default: ''}, 
 		highestDistance: { default: 0 }, 
-		noUpdate: { default: false }
+		noUpdate: { default: null }
 	}, 
 
 	init: function () {
@@ -592,11 +584,12 @@ AFRAME.registerComponent('highlight', {
 
 		let newDistance = 0;
 		let newDesiredCameraTilt = -5;
+		let newDesiredDistance = 0
 
 		if(this.data.noUpdate){
-			this.data.noUpdate = false;
 			return;
 		};
+		this.data.noUpdate = null;
 
 		if(!source) {
 			this.resetHighlight();
@@ -615,9 +608,31 @@ AFRAME.registerComponent('highlight', {
 			newDesiredCameraTilt = -12;
 		}
 
-		let newDesiredDistance = this.data.highestDistance * 1.5;
+		if(screen.orientation.type === 'landscape-primary') {
+			newDesiredDistance = this.data.highestDistance * (3 * (this.data.highestDistance / window.innerWidth)) + this.data.highestDistance;
+		}else{
+			newDesiredDistance = this.data.highestDistance * (6 * (this.data.highestDistance / window.innerWidth)) + this.data.highestDistance;
+		}
 
-		this.cameraEl.setAttribute('orbit-controls', { autoRotate: false, distance: newDistance, desiredDistance: newDesiredDistance, pitchCamera: true, desiredCameraPitch: 0,desiredCameraTilt: newDesiredCameraTilt, forceUpdate: true });
+		const distanceLog = {
+			newDistance: newDistance,
+			newDesiredDistance: newDesiredDistance,
+			highestDistance: this.data.highestDistance,
+			screenOrientation: screen.orientation.type, 
+			windowInnerWidth: window.innerWidth
+		}
+
+		//app.devMode && console.log('dev -- camera-focus-target > distanceLog: ', distanceLog)
+
+		this.cameraEl.setAttribute('orbit-controls', { 
+			autoRotate: false, 
+			distance: newDistance, 
+			desiredDistance: newDesiredDistance, 
+			pitchCamera: true, 
+			desiredCameraPitch: 0, 
+			desiredCameraTilt: newDesiredCameraTilt, 
+			forceUpdate: true 
+		});
 
 		this.data.highestDistance = 0;
 	},
@@ -661,7 +676,6 @@ AFRAME.registerComponent('highlight', {
 					thisLink.material.opacity = 1;
 					thisLink.material.visible = true;
 				}else{
-					thisLink.material.opacity = 0;
 					thisLink.material.visible = false;
 				}
 			}
@@ -674,7 +688,6 @@ AFRAME.registerComponent('highlight', {
 					thisNode.model.material.opacity = 1;
 					thisNode.model.material.visible = true;
 				}else{
-					thisNode.model.material.opacity = 0;
 					thisNode.model.material.visible = false;
 				}
 			}
@@ -697,7 +710,6 @@ AFRAME.registerComponent('highlight', {
 					modelArray.push(thisLink.source.id);
 					modelArray.push(thisLink.target.id);
 				}else{
-					thisLink.material.opacity = 0;
 					thisLink.material.visible = false;
 				}
 			}
@@ -714,7 +726,6 @@ AFRAME.registerComponent('highlight', {
 					thisNode.model.material.visible = true;
 					this.setHighestDistance(distance);
 				}else{
-					thisNode.model.material.opacity = 0;
 					thisNode.model.material.visible = false;
 				}
 			}
@@ -880,34 +891,13 @@ AFRAME.registerComponent('orbit-controls', {
 	tick: function (t) {
 		if(this.data.enabled){
 
-			if(this.hasUserInput) { this.data.autoRotate = false; }
-	
 			this.data.forceUpdate && this.update();
 			this.data.forceUpdate = false;
 
-			if(this.distance > this.desiredDistance) {
-				let distFactor = (this.distance - this.desiredDistance)/50;
-				this.distance -= 1 + distFactor;
-			}
-	
-			if(this.distance < this.desiredDistance) {
-				let distFactor = (this.desiredDistance - this.distance)/50;
-				this.distance += 1 + distFactor;
-			}
-	
 			//this.controls.update();
 			this.updateOrientation();
 			this.updatePosition();
-	
-			if(this.data.cameraTilt > this.data.desiredCameraTilt) {
-				this.data.cameraTilt -= 0.3;
-			}
-	
-			if(this.data.cameraTilt < this.data.desiredCameraTilt) {
-				this.data.cameraTilt += 0.3;
-			}
-	
-			this.el.object3D.rotation.x += (this.data.cameraTilt * 0.01745);
+			this.updateCameraTilt();
 		}
 	},
 
@@ -1071,6 +1061,16 @@ AFRAME.registerComponent('orbit-controls', {
 				y: this.target3D.position.y,
 				z: this.target3D.position.z
 			});
+
+			if(this.distance > this.desiredDistance) {
+				let distFactor = (this.distance - this.desiredDistance)/50;
+				this.distance -= 1 + distFactor;
+			}
+			
+			if(this.distance < this.desiredDistance) {
+				let distFactor = (this.desiredDistance - this.distance)/50;
+				this.distance += 1 + distFactor;
+			}
 	
 			if(this.distance < this.data.minDistance) { 
 				this.distance = this.data.minDistance;
@@ -1091,6 +1091,18 @@ AFRAME.registerComponent('orbit-controls', {
 			});
 		};
 	})(),
+
+	updateCameraTilt: function () {
+		if(this.data.cameraTilt > this.data.desiredCameraTilt) {
+			this.data.cameraTilt -= 0.3;
+		}
+		
+		if(this.data.cameraTilt < this.data.desiredCameraTilt) {
+			this.data.cameraTilt += 0.3;
+		}
+		
+		this.el.object3D.rotation.x += (this.data.cameraTilt * 0.01745);
+	},
 
 	calculateDeltaPosition: function () {
 		var dolly = this.dolly;
@@ -1160,6 +1172,9 @@ AFRAME.registerComponent('orbit-controls', {
 	onMouseDown: function (event) {
 		this.mouseDown = true;
 		this.previousMouseEvent = event;
+
+		// Stop Auto Rotation
+		this.data.autoRotate = false;
 	},
 
 	releaseMouse: function () {
@@ -1202,6 +1217,9 @@ AFRAME.registerComponent('orbit-controls', {
 	
 		// Stop Zoom
 		this.desiredDistance = this.distance;
+
+		// Stop Auto Rotation
+		this.data.autoRotate = false;
 
 		if(!this.hasUserInput) {
 			setTimeout(() => {

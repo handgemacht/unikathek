@@ -77,111 +77,213 @@ const app = {
 	assets(filepath) {
 		const assets = {
 			logo: {
-				pearlwhite: filepath + 'hand.gemacht logo perlweiss.svg',
-				coalgrey: filepath + 'hand.gemacht logo kohlegrau.svg'
+				alt: 'hand.gemacht Logo',
+				src: {
+					pearlwhite: filepath + 'hand.gemacht logo perlweiss.svg',
+					coalgrey: filepath + 'hand.gemacht logo kohlegrau.svg'
+				}
+			},
+
+			loading: {
+				alt: 'hand.gemacht Ladeanimation',
+				src: filepath + 'hand.gemacht loading .svg'
 			},
 
 			icon: {
 			'arrow up': {
-				pearlwhite: filepath + 'hand.gemacht WebApp icon arrow up pearlwhite.svg',
-				coalgrey: filepath + 'hand.gemacht WebApp icon arrow up coalgrey.svg' 
+				alt: 'alttextxy',
+				src: {
+					pearlwhite: filepath + 'hand.gemacht WebApp icon arrow up pearlwhite.svg',
+					coalgrey: filepath + 'hand.gemacht WebApp icon arrow up coalgrey.svg' 
+				}
 			},
 			'arrow right': {
-				pearlwhite: filepath + 'hand.gemacht WebApp icon arrow right pearlwhite.svg',
-				coalgrey: filepath + 'hand.gemacht WebApp icon arrow right coalgrey.svg' 
+				alt: 'alttextxy',
+				src: {
+					pearlwhite: filepath + 'hand.gemacht WebApp icon arrow right pearlwhite.svg',
+					coalgrey: filepath + 'hand.gemacht WebApp icon arrow right coalgrey.svg' 
+				}
 			},
 			'arrow down': {
-				pearlwhite: filepath + 'hand.gemacht WebApp icon arrow down pearlwhite.svg',
-				coalgrey: filepath + 'hand.gemacht WebApp icon arrow down coalgrey.svg' 
+				alt: 'alttextxy',
+				src: {
+					pearlwhite: filepath + 'hand.gemacht WebApp icon arrow down pearlwhite.svg',
+					coalgrey: filepath + 'hand.gemacht WebApp icon arrow down coalgrey.svg' 
+				}
 			},
 			'arrow left': {
-				pearlwhite: filepath + 'hand.gemacht WebApp icon arrow left pearlwhite.svg',
-				coalgrey: filepath + 'hand.gemacht WebApp icon arrow left coalgrey.svg' 
+				alt: 'alttextxy',
+				src: {
+					pearlwhite: filepath + 'hand.gemacht WebApp icon arrow left pearlwhite.svg',
+					coalgrey: filepath + 'hand.gemacht WebApp icon arrow left coalgrey.svg' 
+				}
 			},
 			'category': {
-				pearlwhite: filepath + 'hand.gemacht WebApp icon category pearlwhite.svg',
-				coalgrey: filepath + 'hand.gemacht WebApp icon category coalgrey.svg' 
+				alt: 'alttextxy',
+				src: {
+					pearlwhite: filepath + 'hand.gemacht WebApp icon category pearlwhite.svg',
+					coalgrey: filepath + 'hand.gemacht WebApp icon category coalgrey.svg' 
+				}
 			},
 			'context': {
-				pearlwhite: filepath + 'hand.gemacht WebApp icon context pearlwhite.svg',
-				coalgrey: filepath + 'hand.gemacht WebApp icon context coalgrey.svg' 
+				alt: 'alttextxy',
+				src: {
+					pearlwhite: filepath + 'hand.gemacht WebApp icon context pearlwhite.svg',
+					coalgrey: filepath + 'hand.gemacht WebApp icon context coalgrey.svg' 
+				}
 			},
 			'filter': {
-				pearlwhite: filepath + 'hand.gemacht WebApp icon filter pearlwhite.svg',
-				coalgrey: filepath + 'hand.gemacht WebApp icon filter coalgrey.svg' 
+				alt: 'alttextxy',
+				src: {
+					pearlwhite: filepath + 'hand.gemacht WebApp icon filter pearlwhite.svg',
+					coalgrey: filepath + 'hand.gemacht WebApp icon filter coalgrey.svg' 
+				}
 			},
 			'info': {
-				pearlwhite: filepath + 'hand.gemacht WebApp icon info pearlwhite.svg',
-				coalgrey: filepath + 'hand.gemacht WebApp icon info coalgrey.svg' 
+				alt: 'alttextxy',
+				src: {
+					pearlwhite: filepath + 'hand.gemacht WebApp icon info pearlwhite.svg',
+					coalgrey: filepath + 'hand.gemacht WebApp icon info coalgrey.svg' 
+				}
 			},
 			'listen': {
-				pearlwhite: filepath + 'hand.gemacht WebApp icon listen pearlwhite.svg',
-				coalgrey: filepath + 'hand.gemacht WebApp icon listen coalgrey.svg' 
+				alt: 'alttextxy',
+				src: {
+					pearlwhite: filepath + 'hand.gemacht WebApp icon listen pearlwhite.svg',
+					coalgrey: filepath + 'hand.gemacht WebApp icon listen coalgrey.svg' 
+				}
 			},
 			'measurement': {
-				pearlwhite: filepath + 'hand.gemacht WebApp icon measurement pearlwhite.svg',
-				coalgrey: filepath + 'hand.gemacht WebApp icon measurement coalgrey.svg' 
+				alt: 'alttextxy',
+				src: {
+					pearlwhite: filepath + 'hand.gemacht WebApp icon measurement pearlwhite.svg',
+					coalgrey: filepath + 'hand.gemacht WebApp icon measurement coalgrey.svg' 
+				}
 			},
 			'menu': {
-				pearlwhite: filepath + 'hand.gemacht WebApp icon menu pearlwhite.svg',
-				coalgrey: filepath + 'hand.gemacht WebApp icon menu coalgrey.svg' 
+				alt: 'alttextxy',
+				src: {
+					pearlwhite: filepath + 'hand.gemacht WebApp icon menu pearlwhite.svg',
+					coalgrey: filepath + 'hand.gemacht WebApp icon menu coalgrey.svg' 
+				}
 			},
 			'move': {
-				pearlwhite: filepath + 'hand.gemacht WebApp icon move pearlwhite.svg',
-				coalgrey: filepath + 'hand.gemacht WebApp icon move coalgrey.svg' 
+				alt: 'alttextxy',
+				src: {
+					pearlwhite: filepath + 'hand.gemacht WebApp icon move pearlwhite.svg',
+					coalgrey: filepath + 'hand.gemacht WebApp icon move coalgrey.svg' 
+				}
 			},
 			'read': {
-				pearlwhite: filepath + 'hand.gemacht WebApp icon read pearlwhite.svg',
-				coalgrey: filepath + 'hand.gemacht WebApp icon read coalgrey.svg' 
+				alt: 'alttextxy',
+				src: {
+					pearlwhite: filepath + 'hand.gemacht WebApp icon read pearlwhite.svg',
+					coalgrey: filepath + 'hand.gemacht WebApp icon read coalgrey.svg' 
+				}
 			},
 			'reset view': {
-				pearlwhite: filepath + 'hand.gemacht WebApp icon reset view pearlwhite.svg',
-				coalgrey: filepath + 'hand.gemacht WebApp icon reset view coalgrey.svg' 
+				alt: 'alttextxy',
+				src: {
+					pearlwhite: filepath + 'hand.gemacht WebApp icon reset view pearlwhite.svg',
+					coalgrey: filepath + 'hand.gemacht WebApp icon reset view coalgrey.svg' 
+				}
 			},
 			'search': {
-				pearlwhite: filepath + 'hand.gemacht WebApp icon search pearlwhite.svg',
-				coalgrey: filepath + 'hand.gemacht WebApp icon search coalgrey.svg' 
+				alt: 'alttextxy',
+				src: {
+					pearlwhite: filepath + 'hand.gemacht WebApp icon search pearlwhite.svg',
+					coalgrey: filepath + 'hand.gemacht WebApp icon search coalgrey.svg' 
+				}
+			},
+			'tag': {
+				alt: 'alttextxy',
+				src: {
+					pearlwhite: filepath + 'hand.gemacht WebApp icon tag pearlwhite.svg',
+					coalgrey: filepath + 'hand.gemacht WebApp icon tag coalgrey.svg' 
+				}
 			},
 			'watch': {
-				pearlwhite: filepath + 'hand.gemacht WebApp icon watch pearlwhite.svg',
-				coalgrey: filepath + 'hand.gemacht WebApp icon watch coalgrey.svg' 
+				alt: 'alttextxy',
+				src: {
+					pearlwhite: filepath + 'hand.gemacht WebApp icon watch pearlwhite.svg',
+					coalgrey: filepath + 'hand.gemacht WebApp icon watch coalgrey.svg' 
+				}
 			},
 			small: {
 				'close': {
-					pearlwhite: filepath + 'hand.gemacht WebApp icon small close pearlwhite.svg',
-					coalgrey: filepath + 'hand.gemacht WebApp icon small close coalgrey.svg' 
+					alt: 'alttextxy',
+					src: {
+							pearlwhite: filepath + 'hand.gemacht WebApp icon small close pearlwhite.svg',
+						coalgrey: filepath + 'hand.gemacht WebApp icon small close coalgrey.svg' 
+					}
 				},
 				'pause': {
-					pearlwhite: filepath + 'hand.gemacht WebApp icon small pause pearlwhite.svg',
-					coalgrey: filepath + 'hand.gemacht WebApp icon small pause coalgrey.svg' 
+					alt: 'alttextxy',
+					src: {
+							pearlwhite: filepath + 'hand.gemacht WebApp icon small pause pearlwhite.svg',
+						coalgrey: filepath + 'hand.gemacht WebApp icon small pause coalgrey.svg' 
+					}
 				},
 				'play': {
-					pearlwhite: filepath + 'hand.gemacht WebApp icon small play pearlwhite.svg',
-					coalgrey: filepath + 'hand.gemacht WebApp icon small play coalgrey.svg' 
+					alt: 'alttextxy',
+					src: {
+							pearlwhite: filepath + 'hand.gemacht WebApp icon small play pearlwhite.svg',
+						coalgrey: filepath + 'hand.gemacht WebApp icon small play coalgrey.svg' 
+					}
 				},
 			}
 			},
 
 			cv: {
 				marker: {
-					'category': filepath + 'hand.gemacht WebApp cv marker category.svg'
+					'category': {
+						alt: 'alttextxy',
+						src: filepath + 'hand.gemacht WebApp cv marker category.svg'
+					}
 				}
 			},
 
 			ar: {
 				marker: {
-					'animation': filepath + 'hand.gemacht WebApp ar marker animation.svg',
-					'book': filepath + 'hand.gemacht WebApp ar marker book.svg',
-					'drag': filepath + 'hand.gemacht WebApp ar marker drag.svg',
-					'drop': filepath + 'hand.gemacht WebApp ar marker drop.svg',
-					'quest': filepath + 'hand.gemacht WebApp ar marker quest.svg',
-					'quiz': filepath + 'hand.gemacht WebApp ar marker quiz.svg',
-					'book': filepath + 'hand.gemacht WebApp ar marker book.svg',
+					'animation': {
+						alt: 'alttextxy',
+						src: filepath + 'hand.gemacht WebApp ar marker animation.svg'
+					},
+					'book': {
+						alt: 'alttextxy',
+						src: filepath + 'hand.gemacht WebApp ar marker book.svg'
+					},
+					'drag': {
+						alt: 'alttextxy',
+						src: filepath + 'hand.gemacht WebApp ar marker drag.svg'
+					},
+					'drop': {
+						alt: 'alttextxy',
+						src: filepath + 'hand.gemacht WebApp ar marker drop.svg'
+					},
+					'quest': {
+						alt: 'alttextxy',
+						src: filepath + 'hand.gemacht WebApp ar marker quest.svg'
+					},
+					'quiz': {
+						alt: 'alttextxy',
+						src: filepath + 'hand.gemacht WebApp ar marker quiz.svg'
+					},
+					'book': {
+						alt: 'alttextxy',
+						src: filepath + 'hand.gemacht WebApp ar marker book.svg'
+					},
 				},
-				'rotate arrows': 'hand.gemacht WebApp ar rotate arrows.svg'
+				'rotate arrows': {
+					alt: 'alttextxy',
+					src: filepath + 'hand.gemacht WebApp ar rotate arrows.svg'
+				}
 			}, 
 
-			patronage: filepath + 'stmfh foerderung.png'
+			patronage: {
+				alt: 'Bayerisches Staatsministerium der Finanzen und für Heimat als Förderer Logo',
+				src: filepath + 'stmfh foerderung.png'
+			}
 		}
 
 		return assets;
@@ -210,7 +312,9 @@ const app = {
 			this.devMode && console.log('dev --- mobileAndTabletCheck: ', isMobile);
 			//screen.orientation.lock('portrait');
 		}
-		
+
+		screen.orientation.addEventListener('change', this.handleScreenOrientation);
+
 		this.gui.init();		
 
 		if(this.error) {
@@ -291,8 +395,6 @@ const app = {
 		},
 
 		logo: {
-			src: 'assets/hand.gemacht logo kohlegrau.svg',
-			alt: 'hand.gemacht Logo',
 
 			init() {
 				this.createElements();
@@ -306,8 +408,8 @@ const app = {
 				const guiLogoImage = document.createElement('img');
 				guiLogo.appendChild(guiLogoImage);
 				guiLogoImage.className = 'logo';
-				guiLogoImage.src = this.src;
-				guiLogoImage.alt = this.alt;
+				guiLogoImage.src = app.assets.logo.src.coalgrey;
+				guiLogoImage.alt = app.assets.logo.alt;
 				guiLogoImage.width = 100;
 				guiLogoImage.height = 100;
 			}
@@ -350,8 +452,8 @@ const app = {
 				guiLoadingContainer.appendChild(guiLoadingAnimation);
 				guiLoadingAnimation.className = 'gui-loading-animation';
 				guiLoadingAnimation.type = 'image/svg+xml';
-				guiLoadingAnimation.data = 'assets/hand.gemacht loading.svg';
-				guiLoadingAnimation.alt = 'hand.gemacht Lade-Animation';
+				guiLoadingAnimation.data = app.assets.loading.src;
+				guiLoadingAnimation.alt = app.assets.loading.alt;
 				guiLoadingAnimation.width = 100;
 				guiLoadingAnimation.height = 100;
 		
@@ -436,8 +538,8 @@ const app = {
 				this.messageCloseSymbol = guiMessageCloseSymbol;
 				guiMessageCloseContainer.appendChild(guiMessageCloseSymbol);
 				guiMessageCloseSymbol.className = 'gui-message-close-symbol';
-				guiMessageCloseSymbol.src = app.assets.icon.small['close'].pearlwhite;
-				guiMessageCloseSymbol.alt = 'Schließen-Icon';
+				guiMessageCloseSymbol.src = app.assets.icon.small['close'].src.pearlwhite;
+				guiMessageCloseSymbol.alt = app.assets.icon.small['close'].alt;
 				guiMessageCloseSymbol.width = 100;
 				guiMessageCloseSymbol.height = 100;
 
@@ -591,8 +693,8 @@ const app = {
 
 				const scoreImg = document.createElement('img');
 				scoreContainer.appendChild(scoreImg);
-				scoreImg.src = app.assets.ar.marker['book']; 
-				scoreImg.alt = 'Buch Score';
+				scoreImg.src = app.assets.ar.marker['book'].src; 
+				scoreImg.alt = app.assets.ar.marker['book'].alt;
 
 				const scoreSpan = document.createElement('span');
 				scoreContainer.appendChild(scoreSpan);
@@ -609,8 +711,8 @@ const app = {
 				closeContainer.className = 'annotation-close-container';
 				var closeSymbol = document.createElement('img');
 				closeContainer.appendChild(closeSymbol);
-				closeSymbol.src = app.assets.icon.small['close'].coalgrey;
-				closeSymbol.alt = 'Schließen-Icon';
+				closeSymbol.src = app.assets.icon.small['close'].src.coalgrey;
+				closeSymbol.alt = app.assets.icon.small['close'].alt;
 				closeSymbol.className = 'annotation-close-symbol';
 				closeSymbol.width = '24';
 				closeSymbol.height = '24';
@@ -621,8 +723,8 @@ const app = {
 				helpContainer.className = 'help-container hide';
 				var helpSymbol = document.createElement('img');
 				helpContainer.appendChild(helpSymbol);
-				helpSymbol.src = app.assets.ar.marker['quiz'];
-				helpSymbol.alt = 'Help-Icon';
+				helpSymbol.src = app.assets.ar.marker['quiz'].src;
+				helpSymbol.alt = app.assets.ar.marker['quiz'].alt;
 				helpSymbol.className = 'help-symbol';
 
 				//close popup
@@ -769,15 +871,15 @@ const app = {
 				this.button2.icon && this.messageButton2IconEl.classList.remove('hide');
 
 				if(this.button1.icon && (this.button1.color === 'coalgrey' || this.button1.color === 'smokegrey' || this.button1.color === 'skyblue' || this.button1.color === 'terracotta')){
-					this.messageButton1IconEl.src = app.assets.icon[this.button1.icon].pearlwhite;
+					this.messageButton1IconEl.src = app.assets.icon[this.button1.icon].src.pearlwhite;
 				}else if(this.button1.icon){
-					this.messageButton1IconEl.src = app.assets.icon[this.button1.icon].coalgrey;
+					this.messageButton1IconEl.src = app.assets.icon[this.button1.icon].src.coalgrey;
 				}
 
 				if(this.button2.icon && (this.button2.color === 'coalgrey' || this.button2.color === 'smokegrey' || this.button2.color === 'skyblue' || this.button2.color === 'terracotta')){
-					this.messageButton1IconEl.src = app.assets.icon[this.button2.icon].pearlwhite;
+					this.messageButton1IconEl.src = app.assets.icon[this.button2.icon].src.pearlwhite;
 				}else if(this.button2.icon){
-					this.messageButton1IconEl.src = app.assets.icon[this.button2.icon].coalgrey;
+					this.messageButton1IconEl.src = app.assets.icon[this.button2.icon].src.coalgrey;
 				}
 
 
@@ -786,10 +888,10 @@ const app = {
 				this.color && this.messageEl.classList.add(this.color);
 
 				if(this.color === 'pearlwhite'){
-					this.messageCloseSymbol.src = app.assets.icon.small['close'].coalgrey;
+					this.messageCloseSymbol.src = app.assets.icon.small['close'].src.coalgrey;
 					this.color && this.messageTypeEl.classList.add(message.shadow);
 				}else{
-					this.messageCloseSymbol.src = app.assets.icon.small['close'].pearlwhite;
+					this.messageCloseSymbol.src = app.assets.icon.small['close'].src.pearlwhite;
 					this.color && this.messageTypeEl.classList.add(this.color);
 				}
 
@@ -951,8 +1053,8 @@ const app = {
 				this.burgerSymbolEl = burgerSymbol;
 				burgerContainer.appendChild(burgerSymbol);
 				burgerSymbol.className = 'gui-menu-icon-symbol';
-				burgerSymbol.src = app.assets.icon['menu'].coalgrey;
-				burgerSymbol.alt = 'Menu-Icon';
+				burgerSymbol.src = app.assets.icon['menu'].src.coalgrey;
+				burgerSymbol.alt = app.assets.icon['menu'].alt;
 				burgerSymbol.width = 100;
 				burgerSymbol.height = 100;
 	
@@ -969,8 +1071,8 @@ const app = {
 				const closeSymbol = document.createElement('img');
 				closeContainer.appendChild(closeSymbol);
 				closeSymbol.className = 'gui-menu-close-symbol';
-				closeSymbol.src = app.assets.icon.small['close'].pearlwhite;
-				closeSymbol.alt = 'Schließen-Icon';
+				closeSymbol.src = app.assets.icon.small['close'].src.pearlwhite;
+				closeSymbol.alt = app.assets.icon.small['close'].alt;
 				closeSymbol.width = 100;
 				closeSymbol.height = 100;
 	
@@ -981,8 +1083,8 @@ const app = {
 				const logoImage = document.createElement('img');
 				logoContainer.appendChild(logoImage);
 				logoImage.className = 'logo';
-				logoImage.src = app.assets.logo.pearlwhite;
-				logoImage.alt = 'hand.gemacht Logo';
+				logoImage.src = app.assets.logo.src.pearlwhite;
+				logoImage.alt = app.assets.logo.alt;
 				logoImage.width = 100;
 				logoImage.height = 100;
 	
@@ -1042,8 +1144,8 @@ const app = {
 				const patronageImage = document.createElement('img');
 				patronage.appendChild(patronageImage);
 				patronageImage.className = 'logo';
-				patronageImage.src = app.assets.patronage;
-				patronageImage.alt = 'Bayerisches Staatsministerium der Finanzen und für Heimat als Förderer Logo';
+				patronageImage.src = app.assets.patronage.src;
+				patronageImage.alt = app.assets.patronage.alt;
 				patronageImage.width = 270;
 				patronageImage.height = 97;
 			},
@@ -1263,7 +1365,7 @@ const app = {
 					element.classList.add(setup.colors.button);
 					let iconElement = element.children[0];
 
-					iconElement.src = app.assets.icon[setup.func][setup.colors.buttonIcon];
+					iconElement.src = app.assets.icon[setup.func].src[setup.colors.buttonIcon];
 					
 					element.classList.remove('hide');
 					iconElement.addEventListener('click', app.gui.toolbar.buttonClickHandler);				
@@ -1986,7 +2088,7 @@ const app = {
 
 			texts: {
 				title: 'Filter',
-				intro: 'Aktiviere oder deaktiviere Kategorien und Tags um deine Ergebnisse zu filtern.',
+				intro: 'Aktiviere oder deaktiviere Kategorien und Tags um deine Ergebnisse anzupassen.',
 				categoriesButton: 'Kategorien',
 				tagsButton: 'Tags',
 				selectAllButton: 'Alle aus-/abwählen'
@@ -2032,6 +2134,18 @@ const app = {
 				const categoryListButton = document.createElement('button');
 				categoryListContainer.appendChild(categoryListButton);
 				categoryListButton.className = 'cv-filter-button collapsible-button ' + this.buttonSetup.colors.tabText;
+
+				const categoryListButtonIcon = document.createElement('div');
+				categoryListButton.appendChild(categoryListButtonIcon);
+				categoryListButtonIcon.className = 'icon skyblue';
+
+				const categoryIcon = document.createElement('img');
+				categoryListButtonIcon.appendChild(categoryIcon);
+				categoryIcon.src = app.assets.icon['category'].src.pearlwhite;
+				categoryIcon.alt = app. assets.icon['category'].alt;
+				categoryIcon.width = 100;
+				categoryIcon.height = 100;
+
 				categoryListButton.appendChild(document.createTextNode(this.texts.categoriesButton));
 
 				const categoryListButtonArrow = document.createElement('div');
@@ -2057,6 +2171,18 @@ const app = {
 				const tagListButton = document.createElement('button');
 				tagListContainer.appendChild(tagListButton);
 				tagListButton.className = 'cv-filter-button collapsible-button ' + this.buttonSetup.colors.tabText;
+
+				const tagListButtonIcon = document.createElement('div');
+				tagListButton.appendChild(tagListButtonIcon);
+				tagListButtonIcon.className = 'icon duckyellow';
+
+				const tagIcon = document.createElement('img');
+				tagListButtonIcon.appendChild(tagIcon);
+				tagIcon.src = app.assets.icon['tag'].src.coalgrey;
+				tagIcon.alt = app. assets.icon['tag'].alt;
+				tagIcon.width = 100;
+				tagIcon.height = 100;
+
 				tagListButton.appendChild(document.createTextNode(this.texts.tagsButton));
 
 				const tagListButtonArrow = document.createElement('div');
@@ -2215,7 +2341,7 @@ const app = {
 			this.collectionViewerEl = collectionViewerElement;
 			document.body.appendChild(collectionViewerElement);
 			collectionViewerElement.setAttribute('gltf-model', 'dracoDecoderPath: ./draco/');
-			collectionViewerElement.setAttribute('load-json-models', 'scaleFactor: 0.05; normalization: 1');
+			collectionViewerElement.setAttribute('load-json-models', 'scaleFactor: 0.05; normalization: 0.6');
 			collectionViewerElement.setAttribute('xr-mode-ui', 'enabled: false');
 			collectionViewerElement.setAttribute('device-orientation-permission-ui', 'enabled: false');
 			collectionViewerElement.setAttribute('light', 'defaultLightsEnabled: false');
@@ -2258,7 +2384,7 @@ const app = {
 		this.goodbyeMessage = "<h3>Entdecker-Modus verlassen</h3> <p>Was möchtest du tun?</p>";
 		this.goodbyeMessageButton1 = "Entdeckermodus erneut starten";
 		this.goodbyeMessageButton2 = "Zum Modelviewer zurückkehren";
-		this.startPlacing = '<img src="' + app.assets.icon['move'].pearlwhite + '" alt="Platzierungs-Icon" height="50px" /> <p>Um das Objekt zu platzieren, suche eine freie Boden- oder Tischfläche. Das Objekt soll dort in realer Größe platziert werden.</p>';
+		this.startPlacing = '<img src="' + app.assets.icon['move'].src.pearlwhite + '" alt="' + app.assets.icon['move'].alt + '" height="50px" /> <p>Um das Objekt zu platzieren, suche eine freie Boden- oder Tischfläche. Das Objekt soll dort in realer Größe platziert werden.</p>';
 		this.leaveAR = '<p>Entdecker-Modus wirklich verlassen?</p>';
 		this.startPlacingButton = 'Platzierung starten!';
 
@@ -2342,43 +2468,43 @@ const app = {
 			assets.appendChild(imgPlacer);
 			imgPlacer.id = 'placer';
 			imgPlacer.crossOrigin = 'anonymous';
-			imgPlacer.src = app.assets.ar.marker['drop'];
+			imgPlacer.src = app.assets.ar.marker['drop'].src;
 
 			const imgDrag = document.createElement('img');
 			assets.appendChild(imgDrag);
 			imgDrag.id = 'dragIcon';
 			imgDrag.crossOrigin = 'anonymous';
-			imgDrag.src = app.assets.ar.marker['drag'];
+			imgDrag.src = app.assets.ar.marker['drag'].src;
 
 			const imgArrow = document.createElement('img');
 			assets.appendChild(imgArrow);
 			imgArrow.id = 'arrow';
 			imgArrow.crossOrigin = 'anonymous';
-			imgArrow.src = app.assets.ar['rotate arrows'];
+			imgArrow.src = app.assets.ar['rotate arrows'].src;
 
 			const imgBook = document.createElement('img');
 			assets.appendChild(imgBook);
 			imgBook.id = 'book';
 			imgBook.crossOrigin = 'anonymous';
-			imgBook.src = app.assets.ar.marker['book'];
+			imgBook.src = app.assets.ar.marker['book'].src;
 
 			const imgPlay = document.createElement('img');
 			assets.appendChild(imgPlay);
 			imgPlay.id = 'playAnim';
 			imgPlay.crossOrigin = 'anonymous';
-			imgPlay.src = app.assets.ar.marker['animation'];
+			imgPlay.src = app.assets.ar.marker['animation'].src;
 
 			const imgExcl = document.createElement('img');
 			assets.appendChild(imgExcl);
 			imgExcl.id = 'exclamation';
 			imgExcl.crossOrigin = 'anonymous';
-			imgExcl.src = app.assets.ar.marker['quest'];
+			imgExcl.src = app.assets.ar.marker['quest'].src;
 
 			const imgQuiz = document.createElement('img');
 			assets.appendChild(imgQuiz);
 			imgQuiz.id = 'question';
 			imgQuiz.crossOrigin = 'anonymous';
-			imgQuiz.src = app.assets.ar.marker['quiz'];
+			imgQuiz.src = app.assets.ar.marker['quiz'].src;
 
 			const ambientLightEntity = document.createElement('a-entity');
 			arViewerElement.appendChild(ambientLightEntity);
@@ -2465,6 +2591,12 @@ const app = {
 		}
 
 	}, //arViewer
+
+	handleScreenOrientation(e) {
+		const forcegraph = document.querySelector('#forcegraph');
+		if(!forcegraph) { return; };
+		forcegraph.setAttribute('highlight', {noUpdate: false});
+	},
 
 	getViewerModeFromURL() {
 		const queryString = window.location.search;
