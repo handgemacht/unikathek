@@ -31,9 +31,11 @@ AFRAME.registerComponent('load-json-models', {
 			this.cameraPos = new THREE.Vector3();
 
 			this.setEventlisteners();
-			this.loadJSONModels();
 			this.createCategoryAndTagModels();
 			this.createForceGraph();
+			this.loadJSONModels();
+			
+			
 		},
 
 		update: function () {
@@ -72,10 +74,13 @@ AFRAME.registerComponent('load-json-models', {
 				comp.assignModelsToNodes();	
 				comp.assignMaterialToLinks();
 				comp.normalizeScale(this.scaleFactor, this.normalization);
+				document.querySelector('#forcegraph').setAttribute('highlight', {noUpdate: false});
+				app.gui.loadingScreen.hideLoadingScreen();
 			});
 
 			//listen for JSON-models-loaded event
 			this.el.sceneEl.addEventListener('JSON-models-loaded', (e) => {
+				
 				if(comp.json) {
 					//prepare JSON data for forcegraph
 					comp.fgData = comp.getDataFromJSON(comp.json);
@@ -84,8 +89,39 @@ AFRAME.registerComponent('load-json-models', {
 					//filter forcegraph data for default view
 					comp.filterFgData(comp.fgData, comp.fgData.taglist, comp.fgData.categorylist); //default: all tags, all categories
 				}
-				app.gui.loadingScreen.hideLoadingScreen();
 			}, {once: true});
+		},
+
+		createCategoryAndTagModels: function() {
+			this.imgCategory = document.createElement('img');
+			this.imgCategory.id = 'icon-category';
+			this.imgCategory.crossOrigin = 'anonymous';
+			this.imgCategory.src = app.assets.cv.marker['category'].src;
+			this.el.sceneEl.querySelector('a-assets').appendChild(this.imgCategory);
+			
+			//create category model 
+			this.categoryModelEl = document.createElement('a-entity');
+			this.categoryModelEl.setAttribute('id', 'category-model');
+			this.categoryModelEl.setAttribute('geometry', 'primitive: circle; radius: 5');
+			this.categoryModelEl.setAttribute('material', 'src: #icon-category');
+			this.categoryModelEl.setAttribute('visible', false);
+			this.el.sceneEl.querySelector('a-assets').appendChild(this.categoryModelEl);
+
+			//create link category model 
+			this.linkCategoryModelEl = document.createElement('a-entity');
+			this.linkCategoryModelEl.setAttribute('id', 'link-category-model');
+			this.linkCategoryModelEl.setAttribute('geometry', 'primitive: sphere; radius: 1');			
+			this.linkCategoryModelEl.setAttribute('material', 'color: #46AAC8; shader: flat; opacity: 0.4, transparent: true');
+			this.linkCategoryModelEl.setAttribute('visible', false);
+			this.el.sceneEl.querySelector('a-assets').appendChild(this.linkCategoryModelEl);
+
+			//create link tag model 
+			this.linkTagModelEl = document.createElement('a-entity');
+			this.linkTagModelEl.setAttribute('id', 'link-tag-model');
+			this.linkTagModelEl.setAttribute('geometry', 'primitive: sphere; radius: 1');			
+			this.linkTagModelEl.setAttribute('material', 'color: #FFC800; shader: flat; opacity: 0.4, transparent: true');
+			this.linkTagModelEl.setAttribute('visible', false);
+			this.el.sceneEl.querySelector('a-assets').appendChild(this.linkTagModelEl);
 		},
 
 		loadJSONModels: function () {
@@ -120,38 +156,6 @@ AFRAME.registerComponent('load-json-models', {
 						document.querySelector('a-scene').dispatchEvent(event);
 					};
 				});
-		},
-
-		createCategoryAndTagModels: function() {
-			this.imgCategory = document.createElement('img');
-			this.imgCategory.id = 'icon-category';
-			this.imgCategory.crossOrigin = 'anonymous';
-			this.imgCategory.src = app.assets.cv.marker['category'].src;
-			this.el.sceneEl.querySelector('a-assets').appendChild(this.imgCategory);
-			
-			//create category model 
-			this.categoryModelEl = document.createElement('a-entity');
-			this.categoryModelEl.setAttribute('id', 'category-model');
-			this.categoryModelEl.setAttribute('geometry', 'primitive: circle; radius: 5');
-			this.categoryModelEl.setAttribute('material', 'src: #icon-category');
-			this.categoryModelEl.setAttribute('visible', false);
-			this.el.sceneEl.querySelector('a-assets').appendChild(this.categoryModelEl);
-
-			//create link category model 
-			this.linkCategoryModelEl = document.createElement('a-entity');
-			this.linkCategoryModelEl.setAttribute('id', 'link-category-model');
-			this.linkCategoryModelEl.setAttribute('geometry', 'primitive: sphere; radius: 1');			
-			this.linkCategoryModelEl.setAttribute('material', 'color: #46AAC8; shader: flat; opacity: 0.4, transparent: true');
-			this.linkCategoryModelEl.setAttribute('visible', false);
-			this.el.sceneEl.querySelector('a-assets').appendChild(this.linkCategoryModelEl);
-
-			//create link tag model 
-			this.linkTagModelEl = document.createElement('a-entity');
-			this.linkTagModelEl.setAttribute('id', 'link-tag-model');
-			this.linkTagModelEl.setAttribute('geometry', 'primitive: sphere; radius: 1');			
-			this.linkTagModelEl.setAttribute('material', 'color: #FFC800; shader: flat; opacity: 0.4, transparent: true');
-			this.linkTagModelEl.setAttribute('visible', false);
-			this.el.sceneEl.querySelector('a-assets').appendChild(this.linkTagModelEl);
 		},
 
 		getDataFromJSON: function (json) {
@@ -340,7 +344,7 @@ AFRAME.registerComponent('load-json-models', {
 					if(document.querySelector('a-camera').components['orbit-controls'].hasUserInput) {return;}
 					document.querySelector('a-camera').setAttribute('camera-focus-target', {target: node, duration: 1200});
 					app.collectionViewer.highlight.onclickHandler(node);
-					document.querySelector('#forcegraph').setAttribute('highlight', {source: node});
+					forcegraphEntity.setAttribute('highlight', {source: node});
 				}
 			});
 		},
@@ -568,7 +572,7 @@ AFRAME.registerComponent('camera-focus-target', {
 AFRAME.registerComponent('highlight', {
 
 	schema: {
-		source: {default: ''}, 
+		source: { default: '' }, 
 		highestDistance: { default: 0 }, 
 		noUpdate: { default: null }
 	}, 
@@ -576,53 +580,63 @@ AFRAME.registerComponent('highlight', {
 	init: function () {
 		this.cameraEl = document.querySelector('a-camera');
 		this.camera = document.querySelector('a-camera').object3D;
+		this.data.highestDistance = {
+			max: 110,
+			value: 0
+		}
 	},
 
 	update: function () {
 		let source = this.data.source;
 		this.fgComp = this.el.components.forcegraph.data;
 
-		let newDistance = 0;
-		let newDesiredCameraTilt = -5;
-		let newDesiredDistance = 0
-
 		if(this.data.noUpdate){
 			return;
 		};
 		this.data.noUpdate = null;
 
+		let newDistance = 0;
+		let newDesiredCameraTilt = 0;
+		let newDesiredDistance = 0
+		let newTarget = '';
+		let newHighestDistance = 0;
+
 		if(!source) {
 			this.resetHighlight();
-			newDistance = this.camera.position.distanceTo(document.querySelector('#forcegraph').object3D.position);
+			newTarget = document.querySelector('#forcegraph').object3D.position;
+			newHighestDistance = this.data.highestDistance.max;
+			app.devMode && console.log('dev --- fucking distance: ', this.data.highestDistance.max)
+			newDesiredCameraTilt = -5;
 		}
 
 		if(source.type === 'node-object' || source.type === 'node-category') {
 			this.highlightModel(source);
-			newDistance = this.camera.position.distanceTo(this.data.source.__threeObj.position);
+			newTarget = this.data.source.__threeObj.position;
+			newHighestDistance = this.data.highestDistance.value;
 			newDesiredCameraTilt = -12;
 		}
 
 		if(source.type === 'link-tag' || source.type === 'link-category') {
-			this.highlightLinks(source);
-			newDistance = this.camera.position.distanceTo(this.data.source.__curve.v1);
-			newDesiredCameraTilt = -12;
+			return;
 		}
 
+		newDistance = this.camera.position.distanceTo(newTarget);
+
 		if(screen.orientation.type === 'landscape-primary') {
-			newDesiredDistance = this.data.highestDistance * (3 * (this.data.highestDistance / window.innerWidth)) + this.data.highestDistance;
+			newDesiredDistance = newHighestDistance * (2 * (newHighestDistance / window.innerWidth)) + newHighestDistance;
 		}else{
-			newDesiredDistance = this.data.highestDistance * (6 * (this.data.highestDistance / window.innerWidth)) + this.data.highestDistance;
+			newDesiredDistance = newHighestDistance * (5 * (newHighestDistance / window.innerWidth)) + newHighestDistance;
 		}
 
 		const distanceLog = {
 			newDistance: newDistance,
 			newDesiredDistance: newDesiredDistance,
-			highestDistance: this.data.highestDistance,
+			highestDistance: newHighestDistance,
 			screenOrientation: screen.orientation.type, 
 			windowInnerWidth: window.innerWidth
 		}
 
-		//app.devMode && console.log('dev -- camera-focus-target > distanceLog: ', distanceLog)
+		app.devMode && console.log('dev -- camera-focus-target > distanceLog: ', distanceLog)
 
 		this.cameraEl.setAttribute('orbit-controls', { 
 			autoRotate: false, 
@@ -634,13 +648,12 @@ AFRAME.registerComponent('highlight', {
 			forceUpdate: true 
 		});
 
-		this.data.highestDistance = 0;
+		this.data.highestDistance.value = 0;
 	},
 
 	tick: function () {
 		if(this.data.source){
 
-			let canvas = document.querySelector('.a-canvas');
 			let targetPosition = new THREE.Vector3();
 
 			this.camera.children[0].updateMatrixWorld();
@@ -695,7 +708,6 @@ AFRAME.registerComponent('highlight', {
 	}, 
 
 	highlightModel: function (sourceNode) {
-
 		let fgComp = this.fgComp;
 		let distance = 0;
 
@@ -750,17 +762,19 @@ AFRAME.registerComponent('highlight', {
 			if (thisNode.id != '' && thisNode.model.material) {
 				thisNode.model.material.opacity = 1;
 				thisNode.model.material.visible = true;
-				let distance = document.querySelector('#forcegraph').object3D.position.distanceTo(thisNode.__threeObj.position);
+				let distance = this.data.highestDistance.max;
 				this.setHighestDistance(distance);
 			}
 		}
 		document.querySelector('a-camera').setAttribute('camera-focus-target', {target: '', duration: 1200});
 	}, 
 
-	setHighestDistance: function(distance) {
+	setHighestDistance: function(distance = this.data.highestDistance.max) {
+		if(typeof distance !== 'number') { return; }
 		//app.devMode && console.log('dev --- highlight > distance: ', distance);
-		if (this.data.highestDistance < distance) {
-			this.data.highestDistance = distance;
+		if (this.data.highestDistance.value < distance) {
+			this.data.highestDistance.value = distance;
+			this.data.highestDistance.max = distance;
 			//app.devMode && console.log('dev --- highlight > new highest distance set: ', distance);
 		}
 	}, 
