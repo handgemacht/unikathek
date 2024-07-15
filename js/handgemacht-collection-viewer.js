@@ -40,8 +40,8 @@ AFRAME.registerComponent('load-json-models', {
 			this.fgComp = document.querySelector('#forcegraph').getAttribute('forcegraph');
 			this.scaleFactor = this.data.scaleFactor;
 			this.normalization = this.data.normalization;
-			app.devMode && console.log('dev --- scaleFactor: ', this.scaleFactor);
-			app.devMode && console.log('dev --- normalization: ', this.normalization);
+			//app.devMode && console.log('dev --- scaleFactor: ', this.scaleFactor);
+			//app.devMode && console.log('dev --- normalization: ', this.normalization);
 			if(this.nodeModelSet){
 				this.normalizeScale(this.scaleFactor, this.normalization);
 			}
@@ -124,17 +124,17 @@ AFRAME.registerComponent('load-json-models', {
 		},
 
 		createCategoryAndTagModels: function() {
-			this.imgBook = document.createElement('img');
-			this.imgBook.id = 'book';
-			this.imgBook.crossOrigin = 'anonymous';
-			this.imgBook.src = 'assets/hand.gemacht WebApp icon category coalgrey.svg';
-			this.el.sceneEl.querySelector('a-assets').appendChild(this.imgBook);
+			this.imgCategory = document.createElement('img');
+			this.imgCategory.id = 'icon-category';
+			this.imgCategory.crossOrigin = 'anonymous';
+			this.imgCategory.src = app.assets.cv.marker['category'];
+			this.el.sceneEl.querySelector('a-assets').appendChild(this.imgCategory);
 			
 			//create category model 
 			this.categoryModelEl = document.createElement('a-entity');
 			this.categoryModelEl.setAttribute('id', 'category-model');
 			this.categoryModelEl.setAttribute('geometry', 'primitive: circle; radius: 5');
-			this.categoryModelEl.setAttribute('material', 'color: #46AAC8; src: #book; transparent: true, opacity: 1');
+			this.categoryModelEl.setAttribute('material', 'src: #icon-category; transparent: true, opacity: 1');
 			this.categoryModelEl.setAttribute('visible', false);
 			this.el.sceneEl.querySelector('a-assets').appendChild(this.categoryModelEl);
 
@@ -317,19 +317,24 @@ AFRAME.registerComponent('load-json-models', {
 				linkThreeObjectExtend: false,
 				nodeRelSize: 1,
 				nodeVal: node => { return node.size },
-				nodeThreeObjectExtend: false,
+				nodeThreeObjectExtend: node => {
+					if(node.type === 'node-category') { return true; }
+					return false;
+				},
 				nodeOpacity: 0,
 				onLinkHover: link => { 
 					app.collectionViewer.tooltip.mouseoverHandler(link);
+					//app.devMode && console.log('dev --- onLinkHover: ', link);
 				},
 				onLinkClick: link => { 
-					app.devMode && console.log('dev --- onLinkClick: ', link);
+					//app.devMode && console.log('dev --- onLinkClick: ', link);
 				},
 				onNodeHover: node => { 
 					app.collectionViewer.tooltip.mouseoverHandler(node);
+					//app.devMode && console.log('dev --- onNodeHover: ', node);
 				},
 				onNodeClick: node => { 
-					app.devMode && console.log('dev --- onNodeClick: ', node);
+					//app.devMode && console.log('dev --- onNodeClick: ', node);
 					if(document.querySelector('a-camera').components['orbit-controls'].hasUserInput) {return;}
 					document.querySelector('a-camera').setAttribute('camera-focus-target', {target: node, duration: 1200});
 					app.collectionViewer.highlight.onclickHandler(node);
@@ -506,7 +511,7 @@ AFRAME.registerComponent('camera-focus-target', {
 
 	update: function () {
 		this.moveOrbitTarget();
-		app.devMode && console.log('dev --- camera-focus-target: ', this.data.target);
+		//app.devMode && console.log('dev --- camera-focus-target: ', this.data.target);
 	},
 
 	tick: function () {},
@@ -637,14 +642,6 @@ AFRAME.registerComponent('highlight', {
 				targetPosition.setFromMatrixPosition(this.data.source.source.__threeObj.matrixWorld);
 				targetPosition.project(this.camera.children[0])
 			}
-
-			let targetScreenPosition = {
-				x: Math.round((0.5 + targetPosition.x / 2) * (canvas.width / window.devicePixelRatio)),
-				y: Math.round((0.5 - targetPosition.y / 2) * (canvas.height / window.devicePixelRatio))
-			}
-
-			app.collectionViewer.highlight.highlightEl.style.left = (targetScreenPosition.x - app.collectionViewer.highlight.highlightContentEl.clientWidth / 2) + "px";
-			app.collectionViewer.highlight.highlightEl.style.top = (targetScreenPosition.y + 50) + "px";
 		}
 	},
 
@@ -727,7 +724,7 @@ AFRAME.registerComponent('highlight', {
 	resetHighlight: function () {
 		let fgComp = this.fgComp;
 
-		app.devMode && console.log('dev --- resetHighlight');
+		//app.devMode && console.log('dev --- resetHighlight');
 
 		for(let link in fgComp.links){
 			let thisLink = fgComp.links[link];
@@ -882,6 +879,8 @@ AFRAME.registerComponent('orbit-controls', {
 
 	tick: function (t) {
 		if(this.data.enabled){
+
+			if(this.hasUserInput) { this.data.autoRotate = false; }
 	
 			this.data.forceUpdate && this.update();
 			this.data.forceUpdate = false;
