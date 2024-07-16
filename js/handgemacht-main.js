@@ -1717,7 +1717,7 @@ const app = {
 										+ 'class="pill shadow-' + app.collectionViewer.elementColor.category + ' text-coalgrey" '
 										+ 'data-model-id="' + fgData.id +'" '
 										+ 'data-color="' + app.collectionViewer.elementColor.category +'" '
-										+ 'data-name="' + fgData.categories[category] +'" '
+										+ 'data-name="' + fgData.categories[category].replace(/"/g, '&quot;') +'" '
 										+ 'data-type="category" data-active="false">' 
 										+ fgData.categories[category] 
 										+ '</div>';
@@ -1732,7 +1732,7 @@ const app = {
 										+ 'class="pill shadow-' + app.collectionViewer.elementColor.tag + ' text-coalgrey" '
 										+ 'data-model-id="' + fgData.id +'" '
 										+ 'data-color="' + app.collectionViewer.elementColor.tag +'" '
-										+ 'data-name="' + fgData.tags[tag] +'" '
+										+ 'data-name="' + fgData.tags[tag].replace(/"/g, '&quot;') +'" '
 										+ 'data-type="tag" data-active="false">' 
 										+ fgData.tags[tag] 
 										+ '</div>';
@@ -1743,6 +1743,7 @@ const app = {
 					let message = {
 						type: 'Objekt',
 						content: '<h3>' + fgData.name + '</h3>'
+								+ '<p>Hier steht später eine Objektbeschreibung</p>'
 								+ categoryList
 								+ tagList,
 						color: 'pearlwhite',
@@ -1758,31 +1759,37 @@ const app = {
 					})
 				}
 
+				app.devMode && console.log('dev --- proxyfgData: ', app.collectionViewer.proxyfgData)
+
 				if(type === 'node-category'){
-					let categoryList = fgData.categories.toString();
-					categoryList = categoryList.replace(/,/g, ", ");
+					let objectList = '<div class="categorys">';
+					for(let node of app.collectionViewer.proxyfgData.data.nodes) {
+						if(!node.categories.includes(fgData.name) || node.type === 'node-category'){ continue; }
+						let pillId = 'c-' + self.crypto.randomUUID();;
+						objectList += '<div id="' + pillId +'" '
+										+ 'class="pill shadow-' + app.collectionViewer.elementColor.object + ' text-coalgrey" '
+										+ 'data-model-id="' + node.id +'" '
+										+ 'data-color="' + app.collectionViewer.elementColor.object +'" '
+										+ 'data-name="' + node.name.replace(/"/g, '&quot;') +'" '
+										+ 'data-type="object" data-active="false">' 
+										+ node.name
+										+ '</div>';
+						this.pillArray.push('#'+pillId);
+					}
+
+					//let categoryList = fgData.categories.toString();
+					//categoryList = categoryList.replace(/,/g, ", ");
 	
-					let tagList = fgData.tags.toString();
-					tagList = tagList.replace(/,/g, ", ");
+					//let tagList = fgData.tags.toString();
+					//tagList = tagList.replace(/,/g, ", ");
 					
 					let message = {
 						type: 'Kategorie',
 						content: '<h3>' + fgData.name + '</h3>'
-								+ '<p>Hier steht später eine Kategoriebeschreibung</p>',
+								+ '<p>Hier steht später eine Kategoriebeschreibung</p>'
+								+ objectList,
 						color: 'pearlwhite',
 						shadow: app.collectionViewer.elementColor.category
-					}
-
-					app.gui.message.setMessage(message);
-				}
-
-				if(type === 'link-tag'){
-					let message = {
-						type: 'Tag',
-						content: '<h3>' + fgData.name + '</h3>'
-								+ '<p>Hier steht später eine Tagbeschreibung</p>',
-						color: 'coalgrey',
-						shadow: app.collectionViewer.elementColor.tag
 					}
 
 					app.gui.message.setMessage(message);

@@ -794,22 +794,19 @@ AFRAME.registerComponent('highlight', {
 
 		this.highlightLinks(pill);
 
-		if (type === 'category') {
-			for(let node in fgComp.nodes){
-				let thisNode = fgComp.nodes[node];
-				if (thisNode.type === 'node-category' && thisNode.name === pill.name) {
-					this.highlightModel(thisNode);
+		if (pill.type === 'category' || pill.type === 'object') {
+			for(let node of fgComp.nodes){
+				if ((node.type === 'node-category' || node.type === 'node-object') && node.name === pill.name) {
+					this.highlightModel(node);
 					return;
 				}
 			}
 		}
 
-		if (type === 'tag') {
-			let thisLink = null;
-			for(let link in fgComp.links){
-				let thisLink = fgComp.links[link];
-				if (thisLink.type === 'link-tag' && thisLink.name === name) {
-					this.highlightLinks(thisLink);
+		if (pill.type === 'tag') {
+			for(let link of fgComp.links){
+				if (link.type === 'link-tag' && link.name === name) {
+					this.highlightLinks(link);
 					return;
 				}
 			}
