@@ -1837,6 +1837,12 @@ img.help-symbol{
     width: calc(440px - 40px);
   }
 
+  div.gui-menu-container {
+    right: 20px;
+    width: calc(440px - 40px);
+    transform: none;
+  }
+
   div.gui-toolbar-container {
     width: calc(340px - 40px);
   }

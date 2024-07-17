@@ -605,7 +605,6 @@ AFRAME.registerComponent('highlight', {
 			this.resetHighlight();
 			newTarget = document.querySelector('#forcegraph').object3D.position;
 			newHighestDistance = this.data.highestDistance.max;
-			app.devMode && console.log('dev --- fucking distance: ', this.data.highestDistance.max)
 			newDesiredCameraTilt = -5;
 		}
 
@@ -960,12 +959,12 @@ AFRAME.registerComponent('orbit-controls', {
 		canvasEl.addEventListener('mousemove', this.onMouseMove, false);
 		canvasEl.addEventListener('mouseup', this.releaseMouse, false);
 		canvasEl.addEventListener('mouseout', this.releaseMouse, false);
-		canvasEl.addEventListener('mousewheel', this.onMouseWheel, false);
-		canvasEl.addEventListener('MozMousePixelScroll', this.onMouseWheel, false); // firefox
+		canvasEl.addEventListener('mousewheel', this.onMouseWheel, app.passiveSupported ? { passive: true } : false);
+		canvasEl.addEventListener('MozMousePixelScroll', this.onMouseWheel, app.passiveSupported ? { passive: true } : false); // firefox
 	
 		// Touch events
-		canvasEl.addEventListener('touchstart', this.onTouchStart);
-		canvasEl.addEventListener('touchmove', this.onTouchMove);
+		canvasEl.addEventListener('touchstart', this.onTouchStart, app.passiveSupported ? { passive: true } : false);
+		canvasEl.addEventListener('touchmove', this.onTouchMove, app.passiveSupported ? { passive: true } : false);
 		canvasEl.addEventListener('touchend', this.onTouchEnd);
 	
 		// Touch pinch events

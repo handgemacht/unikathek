@@ -7,50 +7,50 @@ let modelViewerHTML =
 '<!-- START MODEL VIEWER -->'
 + '<model-viewer id="main-viewer" loading="eager" ar ar-scale="fixed" xr-environment src="" shadow-intensity="1" camera-controls touch-action="pan-y" disable-tap camera-orbit="" min-camera-orbit="-Infinity 15deg 0.1m" max-camera-orbit="-Infinity 165ddeg 3.5m" camera-target="" field-of-view="" interpolation-decay="150" data-dimension="false">'
 + '<!-- START INTERFACE -->'
-+ '  <!-- left-side toolbar -->'
-+ '  <section class="toolbar">'
-+ '    <button id="context-story-button" class="tool active" data-tool-function="context-story" data-tool-active="true">'
-+ '     <img id="context-story-symbol" src="assets/hand.gemacht WebApp button context-story kohlegrau.svg" alt="Button Hintergrundgeschichte" class="tool-symbol" width="100px" height="100px">'
-+ '    </button>'
-+ '    <button id="hotspots-button" class="tool hide" data-tool-function="hotspots" data-tool-active="false">'
-+ '     <svg id="hide-hotspot-symbol" class="tool-symbol" xmlns="http://www.w3.org/2000/svg">'
-+ '       <circle cx="50%" cy="50%" r="50%" fill="#41403F"/>'
-+ '     </svg>'
-+ '    </button>'
-+ '    <button id="dimensions-button" class="tool hide" data-tool-function="dimensions" data-tool-active="false">'
-+ '     <svg id="dimmensions-symbol" class="tool-symbol" xmlns="http://www.w3.org/2000/svg">'
-+ '       <circle cx="50%" cy="50%" r="50%" fill="#41403F"/>'
-+ '     </svg>'
-+ '    </button>'
-+ '    <button id="ar-button" class="tool" data-tool-function="ar" data-tool-active="false">'
-+ '      <img id="ar-symbol" src="assets/hand.gemacht WebApp button ar kohlegrau.svg" alt="Button Augmented Reality" class="tool-symbol" width="100px" height="100px">'
-+ '    </button>'
-+ '  </section>'
-+ '  <!-- remove default ar button -->'
-+ '  <button class="hide" slot="ar-button"></button>'
-+ '  <!-- removes default progress bar -->'
-+ '  <div class="hide" slot="progress-bar"></div>'
-+ '  <!-- END INTERFACE -->'
-+ '  <!-- START DIMENSIONS -->'
-+ '  <button disabled aria-hidden="true" slot="hotspot-dot+X-Y+Z" class="dot" data-position="1 -1 1" data-normal="1 0 0"></button>'
-+ '  <button disabled aria-hidden="true" slot="hotspot-dim+X-Y" class="dim" data-position="1 -1 0" data-normal="1 0 0"></button>'
-+ '  <button disabled aria-hidden="true" slot="hotspot-dot+X-Y-Z" class="dot" data-position="1 -1 -1" data-normal="1 0 0"></button>'
-+ '  <button disabled aria-hidden="true" slot="hotspot-dim+X-Z" class="dim" data-position="1 0 -1" data-normal="1 0 0"></button>'
-+ '  <button disabled aria-hidden="true" slot="hotspot-dot+X+Y-Z" class="dot" data-position="1 1 -1" data-normal="0 1 0"></button>'
-+ '  <button disabled aria-hidden="true" slot="hotspot-dim+Y-Z" class="dim" data-position="0 -1 -1" data-normal="0 1 0"></button>'
-+ '  <button disabled aria-hidden="true" slot="hotspot-dot-X+Y-Z" class="dot" data-position="-1 1 -1" data-normal="0 1 0"></button>'
-+ '  <button disabled aria-hidden="true" slot="hotspot-dim-X-Z" class="dim" data-position="-1 0 -1" data-normal="-1 0 0"></button>'
-+ '  <button disabled aria-hidden="true" slot="hotspot-dot-X-Y-Z" class="dot" data-position="-1 -1 -1" data-normal="-1 0 0"></button>'
-+ '  <button disabled aria-hidden="true" slot="hotspot-dim-X-Y" class="dim" data-position="-1 -1 0" data-normal="-1 0 0"></button>'
-+ '  <button disabled aria-hidden="true" slot="hotspot-dot-X-Y+Z" class="dot" data-position="-1 -1 1" data-normal="-1 0 0"></button>'
-+ '  <svg id="dimLines" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" class="dimensionLineContainer">'
-+ '    <line class="dimensionLine"></line>'
-+ '    <line class="dimensionLine"></line>'
-+ '    <line class="dimensionLine"></line>'
-+ '    <line class="dimensionLine"></line>'
-+ '    <line class="dimensionLine"></line>'
-+ '  </svg>'
-+ '  <!-- END DIMENSIONS -->'
++ '	<!-- left-side toolbar -->'
++ '	<section class="toolbar">'
++ '		<button id="context-story-button" class="tool active" data-tool-function="context-story" data-tool-active="true">'
++ '		 <img id="context-story-symbol" src="assets/hand.gemacht WebApp button context-story kohlegrau.svg" alt="Button Hintergrundgeschichte" class="tool-symbol" width="100px" height="100px">'
++ '		</button>'
++ '		<button id="hotspots-button" class="tool hide" data-tool-function="hotspots" data-tool-active="false">'
++ '		 <svg id="hide-hotspot-symbol" class="tool-symbol" xmlns="http://www.w3.org/2000/svg">'
++ '			 <circle cx="50%" cy="50%" r="50%" fill="#41403F"/>'
++ '		 </svg>'
++ '		</button>'
++ '		<button id="dimensions-button" class="tool hide" data-tool-function="dimensions" data-tool-active="false">'
++ '		 <svg id="dimmensions-symbol" class="tool-symbol" xmlns="http://www.w3.org/2000/svg">'
++ '			 <circle cx="50%" cy="50%" r="50%" fill="#41403F"/>'
++ '		 </svg>'
++ '		</button>'
++ '		<button id="ar-button" class="tool" data-tool-function="ar" data-tool-active="false">'
++ '			<img id="ar-symbol" src="assets/hand.gemacht WebApp button ar kohlegrau.svg" alt="Button Augmented Reality" class="tool-symbol" width="100px" height="100px">'
++ '		</button>'
++ '	</section>'
++ '	<!-- remove default ar button -->'
++ '	<button class="hide" slot="ar-button"></button>'
++ '	<!-- removes default progress bar -->'
++ '	<div class="hide" slot="progress-bar"></div>'
++ '	<!-- END INTERFACE -->'
++ '	<!-- START DIMENSIONS -->'
++ '	<button disabled aria-hidden="true" slot="hotspot-dot+X-Y+Z" class="dot" data-position="1 -1 1" data-normal="1 0 0"></button>'
++ '	<button disabled aria-hidden="true" slot="hotspot-dim+X-Y" class="dim" data-position="1 -1 0" data-normal="1 0 0"></button>'
++ '	<button disabled aria-hidden="true" slot="hotspot-dot+X-Y-Z" class="dot" data-position="1 -1 -1" data-normal="1 0 0"></button>'
++ '	<button disabled aria-hidden="true" slot="hotspot-dim+X-Z" class="dim" data-position="1 0 -1" data-normal="1 0 0"></button>'
++ '	<button disabled aria-hidden="true" slot="hotspot-dot+X+Y-Z" class="dot" data-position="1 1 -1" data-normal="0 1 0"></button>'
++ '	<button disabled aria-hidden="true" slot="hotspot-dim+Y-Z" class="dim" data-position="0 -1 -1" data-normal="0 1 0"></button>'
++ '	<button disabled aria-hidden="true" slot="hotspot-dot-X+Y-Z" class="dot" data-position="-1 1 -1" data-normal="0 1 0"></button>'
++ '	<button disabled aria-hidden="true" slot="hotspot-dim-X-Z" class="dim" data-position="-1 0 -1" data-normal="-1 0 0"></button>'
++ '	<button disabled aria-hidden="true" slot="hotspot-dot-X-Y-Z" class="dot" data-position="-1 -1 -1" data-normal="-1 0 0"></button>'
++ '	<button disabled aria-hidden="true" slot="hotspot-dim-X-Y" class="dim" data-position="-1 -1 0" data-normal="-1 0 0"></button>'
++ '	<button disabled aria-hidden="true" slot="hotspot-dot-X-Y+Z" class="dot" data-position="-1 -1 1" data-normal="-1 0 0"></button>'
++ '	<svg id="dimLines" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" class="dimensionLineContainer">'
++ '		<line class="dimensionLine"></line>'
++ '		<line class="dimensionLine"></line>'
++ '		<line class="dimensionLine"></line>'
++ '		<line class="dimensionLine"></line>'
++ '		<line class="dimensionLine"></line>'
++ '	</svg>'
++ '	<!-- END DIMENSIONS -->'
 + '</model-viewer>'
 + '<!-- START MODEL VIEWER ANNOTATIONS -->'
 + '<div id="annotation-container" class="annotation-container"></div>'
@@ -64,7 +64,7 @@ let modelViewerHTML =
 //START app 
 const app = {
 	title: 'appTitle',
-	version: 'alpha 1.0 24/07/01',
+	version: 'alpha 1.1 24/07/17',
 	devMode: false,
 	viewerMode: false,
 
@@ -85,159 +85,160 @@ const app = {
 			},
 
 			loading: {
-				alt: 'hand.gemacht Ladeanimation',
+				alt: 'Lade-Animation',
 				src: filepath + 'hand.gemacht loading.svg'
 			},
 
 			icon: {
-			'arrow up': {
-				alt: 'alttextxy',
-				src: {
-					pearlwhite: filepath + 'hand.gemacht WebApp icon arrow up pearlwhite.svg',
-					coalgrey: filepath + 'hand.gemacht WebApp icon arrow up coalgrey.svg' 
-				}
-			},
-			'arrow right': {
-				alt: 'alttextxy',
-				src: {
-					pearlwhite: filepath + 'hand.gemacht WebApp icon arrow right pearlwhite.svg',
-					coalgrey: filepath + 'hand.gemacht WebApp icon arrow right coalgrey.svg' 
-				}
-			},
-			'arrow down': {
-				alt: 'alttextxy',
-				src: {
-					pearlwhite: filepath + 'hand.gemacht WebApp icon arrow down pearlwhite.svg',
-					coalgrey: filepath + 'hand.gemacht WebApp icon arrow down coalgrey.svg' 
-				}
-			},
-			'arrow left': {
-				alt: 'alttextxy',
-				src: {
-					pearlwhite: filepath + 'hand.gemacht WebApp icon arrow left pearlwhite.svg',
-					coalgrey: filepath + 'hand.gemacht WebApp icon arrow left coalgrey.svg' 
-				}
-			},
-			'category': {
-				alt: 'alttextxy',
-				src: {
-					pearlwhite: filepath + 'hand.gemacht WebApp icon category pearlwhite.svg',
-					coalgrey: filepath + 'hand.gemacht WebApp icon category coalgrey.svg' 
-				}
-			},
-			'context': {
-				alt: 'alttextxy',
-				src: {
-					pearlwhite: filepath + 'hand.gemacht WebApp icon context pearlwhite.svg',
-					coalgrey: filepath + 'hand.gemacht WebApp icon context coalgrey.svg' 
-				}
-			},
-			'filter': {
-				alt: 'alttextxy',
-				src: {
-					pearlwhite: filepath + 'hand.gemacht WebApp icon filter pearlwhite.svg',
-					coalgrey: filepath + 'hand.gemacht WebApp icon filter coalgrey.svg' 
-				}
-			},
-			'info': {
-				alt: 'alttextxy',
-				src: {
-					pearlwhite: filepath + 'hand.gemacht WebApp icon info pearlwhite.svg',
-					coalgrey: filepath + 'hand.gemacht WebApp icon info coalgrey.svg' 
-				}
-			},
-			'listen': {
-				alt: 'alttextxy',
-				src: {
-					pearlwhite: filepath + 'hand.gemacht WebApp icon listen pearlwhite.svg',
-					coalgrey: filepath + 'hand.gemacht WebApp icon listen coalgrey.svg' 
-				}
-			},
-			'measurement': {
-				alt: 'alttextxy',
-				src: {
-					pearlwhite: filepath + 'hand.gemacht WebApp icon measurement pearlwhite.svg',
-					coalgrey: filepath + 'hand.gemacht WebApp icon measurement coalgrey.svg' 
-				}
-			},
-			'menu': {
-				alt: 'alttextxy',
-				src: {
-					pearlwhite: filepath + 'hand.gemacht WebApp icon menu pearlwhite.svg',
-					coalgrey: filepath + 'hand.gemacht WebApp icon menu coalgrey.svg' 
-				}
-			},
-			'move': {
-				alt: 'alttextxy',
-				src: {
-					pearlwhite: filepath + 'hand.gemacht WebApp icon move pearlwhite.svg',
-					coalgrey: filepath + 'hand.gemacht WebApp icon move coalgrey.svg' 
-				}
-			},
-			'read': {
-				alt: 'alttextxy',
-				src: {
-					pearlwhite: filepath + 'hand.gemacht WebApp icon read pearlwhite.svg',
-					coalgrey: filepath + 'hand.gemacht WebApp icon read coalgrey.svg' 
-				}
-			},
-			'reset view': {
-				alt: 'alttextxy',
-				src: {
-					pearlwhite: filepath + 'hand.gemacht WebApp icon reset view pearlwhite.svg',
-					coalgrey: filepath + 'hand.gemacht WebApp icon reset view coalgrey.svg' 
-				}
-			},
-			'search': {
-				alt: 'alttextxy',
-				src: {
-					pearlwhite: filepath + 'hand.gemacht WebApp icon search pearlwhite.svg',
-					coalgrey: filepath + 'hand.gemacht WebApp icon search coalgrey.svg' 
-				}
-			},
-			'tag': {
-				alt: 'alttextxy',
-				src: {
-					pearlwhite: filepath + 'hand.gemacht WebApp icon tag pearlwhite.svg',
-					coalgrey: filepath + 'hand.gemacht WebApp icon tag coalgrey.svg' 
-				}
-			},
-			'watch': {
-				alt: 'alttextxy',
-				src: {
-					pearlwhite: filepath + 'hand.gemacht WebApp icon watch pearlwhite.svg',
-					coalgrey: filepath + 'hand.gemacht WebApp icon watch coalgrey.svg' 
-				}
-			},
-			small: {
-				'close': {
-					alt: 'alttextxy',
+				'arrow up': {
+					alt: 'Pfeil nach oben',
 					src: {
-							pearlwhite: filepath + 'hand.gemacht WebApp icon small close pearlwhite.svg',
-						coalgrey: filepath + 'hand.gemacht WebApp icon small close coalgrey.svg' 
+						pearlwhite: filepath + 'hand.gemacht WebApp icon arrow up pearlwhite.svg',
+						coalgrey: filepath + 'hand.gemacht WebApp icon arrow up coalgrey.svg' 
 					}
 				},
-				'pause': {
-					alt: 'alttextxy',
+				'arrow right': {
+					alt: 'Pfeil nach rechts',
 					src: {
-							pearlwhite: filepath + 'hand.gemacht WebApp icon small pause pearlwhite.svg',
-						coalgrey: filepath + 'hand.gemacht WebApp icon small pause coalgrey.svg' 
+						pearlwhite: filepath + 'hand.gemacht WebApp icon arrow right pearlwhite.svg',
+						coalgrey: filepath + 'hand.gemacht WebApp icon arrow right coalgrey.svg' 
 					}
 				},
-				'play': {
-					alt: 'alttextxy',
+				'arrow down': {
+					alt: 'Pfeil nach unten',
 					src: {
-							pearlwhite: filepath + 'hand.gemacht WebApp icon small play pearlwhite.svg',
-						coalgrey: filepath + 'hand.gemacht WebApp icon small play coalgrey.svg' 
+						pearlwhite: filepath + 'hand.gemacht WebApp icon arrow down pearlwhite.svg',
+						coalgrey: filepath + 'hand.gemacht WebApp icon arrow down coalgrey.svg' 
 					}
 				},
-			}
+				'arrow left': {
+					alt: 'Pfeil nach links',
+					src: {
+						pearlwhite: filepath + 'hand.gemacht WebApp icon arrow left pearlwhite.svg',
+						coalgrey: filepath + 'hand.gemacht WebApp icon arrow left coalgrey.svg' 
+					}
+				},
+				'category': {
+					alt: 'Kategorie-Symbol',
+					src: {
+						pearlwhite: filepath + 'hand.gemacht WebApp icon category pearlwhite.svg',
+						coalgrey: filepath + 'hand.gemacht WebApp icon category coalgrey.svg' 
+					}
+				},
+				'context': {
+					alt: 'Geschichte-Symbol',
+					src: {
+						pearlwhite: filepath + 'hand.gemacht WebApp icon context pearlwhite.svg',
+						coalgrey: filepath + 'hand.gemacht WebApp icon context coalgrey.svg' 
+					}
+				},
+				'filter': {
+					alt: 'Filter-Symbol',
+					src: {
+						pearlwhite: filepath + 'hand.gemacht WebApp icon filter pearlwhite.svg',
+						coalgrey: filepath + 'hand.gemacht WebApp icon filter coalgrey.svg' 
+					}
+				},
+				'info': {
+					alt: 'Informations-Symbol',
+					src: {
+						pearlwhite: filepath + 'hand.gemacht WebApp icon info pearlwhite.svg',
+						coalgrey: filepath + 'hand.gemacht WebApp icon info coalgrey.svg' 
+					}
+				},
+				'listen': {
+					alt: 'Anhören-Symbol',
+					src: {
+						pearlwhite: filepath + 'hand.gemacht WebApp icon listen pearlwhite.svg',
+						coalgrey: filepath + 'hand.gemacht WebApp icon listen coalgrey.svg' 
+					}
+				},
+				'measurement': {
+					alt: 'Maß-Symbol',
+					src: {
+						pearlwhite: filepath + 'hand.gemacht WebApp icon measurement pearlwhite.svg',
+						coalgrey: filepath + 'hand.gemacht WebApp icon measurement coalgrey.svg' 
+					}
+				},
+				'menu': {
+					alt: 'Menü-Symbol',
+					src: {
+						pearlwhite: filepath + 'hand.gemacht WebApp icon menu pearlwhite.svg',
+						coalgrey: filepath + 'hand.gemacht WebApp icon menu coalgrey.svg' 
+					}
+				},
+				'move': {
+					alt: 'Bewegungs-Symbol',
+					src: {
+						pearlwhite: filepath + 'hand.gemacht WebApp icon move pearlwhite.svg',
+						coalgrey: filepath + 'hand.gemacht WebApp icon move coalgrey.svg' 
+					}
+				},
+				'read': {
+					alt: 'Lesen-Symbol',
+					src: {
+						pearlwhite: filepath + 'hand.gemacht WebApp icon read pearlwhite.svg',
+						coalgrey: filepath + 'hand.gemacht WebApp icon read coalgrey.svg' 
+					}
+				},
+				'reset view': {
+					alt: 'Ansicht-Rücksetzen-Symbol',
+					src: {
+						pearlwhite: filepath + 'hand.gemacht WebApp icon reset view pearlwhite.svg',
+						coalgrey: filepath + 'hand.gemacht WebApp icon reset view coalgrey.svg' 
+					}
+				},
+				'search': {
+					alt: 'Suche-Symbol',
+					src: {
+						pearlwhite: filepath + 'hand.gemacht WebApp icon search pearlwhite.svg',
+						coalgrey: filepath + 'hand.gemacht WebApp icon search coalgrey.svg' 
+					}
+				},
+				'tag': {
+					alt: 'Tag-Symbol',
+					src: {
+						pearlwhite: filepath + 'hand.gemacht WebApp icon tag pearlwhite.svg',
+						coalgrey: filepath + 'hand.gemacht WebApp icon tag coalgrey.svg' 
+					}
+				},
+				'watch': {
+					alt: 'Ansehen-Symbol',
+					src: {
+						pearlwhite: filepath + 'hand.gemacht WebApp icon watch pearlwhite.svg',
+						coalgrey: filepath + 'hand.gemacht WebApp icon watch coalgrey.svg' 
+					}
+				},
+
+				small: {
+					'close': {
+						alt: 'Schließen-Symbol',
+						src: {
+								pearlwhite: filepath + 'hand.gemacht WebApp icon small close pearlwhite.svg',
+							coalgrey: filepath + 'hand.gemacht WebApp icon small close coalgrey.svg' 
+						}
+					},
+					'pause': {
+						alt: 'Pause-Symbol',
+						src: {
+								pearlwhite: filepath + 'hand.gemacht WebApp icon small pause pearlwhite.svg',
+							coalgrey: filepath + 'hand.gemacht WebApp icon small pause coalgrey.svg' 
+						}
+					},
+					'play': {
+						alt: 'Abspielen-Symbol',
+						src: {
+								pearlwhite: filepath + 'hand.gemacht WebApp icon small play pearlwhite.svg',
+							coalgrey: filepath + 'hand.gemacht WebApp icon small play coalgrey.svg' 
+						}
+					},
+				}
 			},
 
 			cv: {
 				marker: {
 					'category': {
-						alt: 'alttextxy',
+						alt: 'Kategorie-Marker',
 						src: filepath + 'hand.gemacht WebApp cv marker category.svg'
 					}
 				}
@@ -246,43 +247,39 @@ const app = {
 			ar: {
 				marker: {
 					'animation': {
-						alt: 'alttextxy',
+						alt: 'Animation-Marker',
 						src: filepath + 'hand.gemacht WebApp ar marker animation.svg'
 					},
 					'book': {
-						alt: 'alttextxy',
+						alt: 'Buch-Marker',
 						src: filepath + 'hand.gemacht WebApp ar marker book.svg'
 					},
 					'drag': {
-						alt: 'alttextxy',
+						alt: 'Ziehen-Marker',
 						src: filepath + 'hand.gemacht WebApp ar marker drag.svg'
 					},
 					'drop': {
-						alt: 'alttextxy',
+						alt: 'Platzieren-Marker',
 						src: filepath + 'hand.gemacht WebApp ar marker drop.svg'
 					},
 					'quest': {
-						alt: 'alttextxy',
+						alt: 'Aufgabe-Marker',
 						src: filepath + 'hand.gemacht WebApp ar marker quest.svg'
 					},
 					'quiz': {
-						alt: 'alttextxy',
+						alt: 'Quiz-Marker',
 						src: filepath + 'hand.gemacht WebApp ar marker quiz.svg'
-					},
-					'book': {
-						alt: 'alttextxy',
-						src: filepath + 'hand.gemacht WebApp ar marker book.svg'
-					},
+					}
 				},
 				'rotate arrows': {
-					alt: 'alttextxy',
+					alt: 'Drehen-Marker',
 					src: filepath + 'hand.gemacht WebApp ar rotate arrows.svg'
 				}
 			}, 
 
 			patronage: {
 				alt: 'Bayerisches Staatsministerium der Finanzen und für Heimat als Förderer Logo',
-				src: filepath + 'stmfh foerderung.png'
+				src: filepath + 'stmfh foerderung.webp'
 			}
 		}
 
@@ -314,6 +311,28 @@ const app = {
 
 		window.addEventListener('orientationchange', this.handleScreenOrientation);
 
+
+		// check for passive flag support
+		this.passiveSupported = false;
+
+		try {
+			const options = {
+				get passive() {
+					// This function will be called when the browser
+					// attempts to access the passive property.
+					this.passiveSupported = true;
+					app.devMode && console.log('dev --- passiveSupport: ',this.passiveSupported)
+					return false;
+				},
+			};
+
+			window.addEventListener("test", null, options);
+			window.removeEventListener("test", null, options);
+		} catch (err) {
+			this.passiveSupported = false;
+		}
+
+
 		this.gui.init();		
 
 		if(this.error) {
@@ -324,7 +343,7 @@ const app = {
 			//redirect to collection viewer if no viewerMode is set in URL
 			let url='?m=cv';
 			this.devMode ? url+='&dev=true' : '';
-  			window.location.href = url;
+				window.location.href = url;
 		}
 
 		if (this.viewerMode === 'cv') {
@@ -411,6 +430,7 @@ const app = {
 				guiLogoImage.alt = app.assets.logo.alt;
 				guiLogoImage.width = 100;
 				guiLogoImage.height = 100;
+				guiLogoImage.setAttribute('loading', 'lazy');
 			}
 		},
 
@@ -475,18 +495,18 @@ const app = {
 
 			hideLoadingScreen(timeout = 0) {
 				setTimeout(() => {
-				  this.loadingScreenEl.classList.add('transparent');
-				  this.content = 'loading ...';
+					this.loadingScreenEl.classList.add('transparent');
+					this.content = 'loading ...';
 
-				  if(app.gui.title.titleEl){
-				  	app.gui.title.titleEl.classList.remove('text-pearlwhite');
-				  }
+					if(app.gui.title.titleEl){
+						app.gui.title.titleEl.classList.remove('text-pearlwhite');
+					}
 
-				  this.loadingContainerEl.classList.add('hide');
+					this.loadingContainerEl.classList.add('hide');
 
-				  setTimeout(() => {
-				  	this.loadingScreenEl.classList.add('hide');
-				  }, 1500)
+					setTimeout(() => {
+						this.loadingScreenEl.classList.add('hide');
+					}, 1500)
 
 				}, timeout);
 			}
@@ -541,6 +561,7 @@ const app = {
 				guiMessageCloseSymbol.alt = app.assets.icon.small['close'].alt;
 				guiMessageCloseSymbol.width = 100;
 				guiMessageCloseSymbol.height = 100;
+				guiMessageCloseSymbol.setAttribute('loading', 'lazy');
 
 				const guiMessageContentContainer = document.createElement('div');
 				this.messageContentContainerEl = guiMessageContentContainer;
@@ -575,6 +596,7 @@ const app = {
 				guiMessageButtonIcon.alt = 'Button-Icon';
 				guiMessageButtonIcon.width = 100;
 				guiMessageButtonIcon.height = 100;
+				guiMessageButtonIcon.setAttribute('loading', 'lazy');
 
 				const guiMessageButton2 = document.createElement('button');
 				this.messageButton2El = guiMessageButton2;
@@ -593,6 +615,7 @@ const app = {
 				guiMessageButton2Icon.alt = 'Button-Icon';
 				guiMessageButton2Icon.width = 100;
 				guiMessageButton2Icon.height = 100;
+				guiMessageButton2Icon.setAttribute('loading', 'lazy');
 			}, 
 
 			createElementsAR() {
@@ -694,6 +717,7 @@ const app = {
 				scoreContainer.appendChild(scoreImg);
 				scoreImg.src = app.assets.ar.marker['book'].src; 
 				scoreImg.alt = app.assets.ar.marker['book'].alt;
+				scoreImg.setAttribute('loading', 'lazy');
 
 				const scoreSpan = document.createElement('span');
 				scoreContainer.appendChild(scoreSpan);
@@ -715,6 +739,7 @@ const app = {
 				closeSymbol.className = 'annotation-close-symbol';
 				closeSymbol.width = '24';
 				closeSymbol.height = '24';
+				closeSymbol.setAttribute('loading', 'lazy');
 
 				const helpContainer = document.createElement('div');
 				guiArOverlay.appendChild(helpContainer);
@@ -725,6 +750,7 @@ const app = {
 				helpSymbol.src = app.assets.ar.marker['quiz'].src;
 				helpSymbol.alt = app.assets.ar.marker['quiz'].alt;
 				helpSymbol.className = 'help-symbol';
+				helpSymbol.setAttribute('loading', 'lazy');
 
 				//close popup
 				const guiCloseContainer = document.createElement('div');
@@ -1017,6 +1043,7 @@ const app = {
 				guiFullScreenImage.alt = this.alt;
 				guiFullScreenImage.width = 100;
 				guiFullScreenImage.height = 100;
+				guiFullScreenImage.setAttribute('loading', 'lazy');
 			}, 
 
 			showFullScreen() {
@@ -1056,6 +1083,7 @@ const app = {
 				burgerSymbol.alt = app.assets.icon['menu'].alt;
 				burgerSymbol.width = 100;
 				burgerSymbol.height = 100;
+				burgerSymbol.setAttribute('loading', 'lazy');
 	
 				const container = document.createElement('div');
 				this.containerEl = container;
@@ -1074,6 +1102,7 @@ const app = {
 				closeSymbol.alt = app.assets.icon.small['close'].alt;
 				closeSymbol.width = 100;
 				closeSymbol.height = 100;
+				closeSymbol.setAttribute('loading', 'lazy');
 	
 				const logoContainer = document.createElement('div');
 				container.appendChild(logoContainer);
@@ -1086,6 +1115,7 @@ const app = {
 				logoImage.alt = app.assets.logo.alt;
 				logoImage.width = 100;
 				logoImage.height = 100;
+				logoImage.setAttribute('loading', 'lazy');
 	
 				const title = document.createElement('div');
 				container.appendChild(title);
@@ -1147,6 +1177,7 @@ const app = {
 				patronageImage.alt = app.assets.patronage.alt;
 				patronageImage.width = 270;
 				patronageImage.height = 97;
+				patronageImage.setAttribute('loading', 'lazy');
 			},
 	
 			setEventListener() {
@@ -1232,53 +1263,65 @@ const app = {
 				this.toolbarButton1El = toolbarButton1;
 				toolbar.appendChild(toolbarButton1);
 				toolbarButton1.setAttribute('id', 'toolbar-button-1');
+				toolbarButton1.setAttribute('aria-label', 'Button');
 				toolbarButton1.className = 'gui-toolbar-button hide';
 
 				const toolbarButton1Icon = document.createElement('img');
 				this.toolbarButton1IconEl = toolbarButton1Icon;
 				toolbarButton1.appendChild(toolbarButton1Icon);
 				toolbarButton1Icon.className = 'gui-toolbar-button-icon';
+				toolbarButton1Icon.alt = 'Button-Icon';
 				toolbarButton1Icon.width = 100;
 				toolbarButton1Icon.height = 100;
+				toolbarButton1Icon.setAttribute('loading', 'lazy');
 
 				const toolbarButton2 = document.createElement('button');
 				this.toolbarButton2El = toolbarButton2;
 				toolbar.appendChild(toolbarButton2);
 				toolbarButton2.setAttribute('id', 'toolbar-button-2');
+				toolbarButton2.setAttribute('aria-label', 'Button');
 				toolbarButton2.className = 'gui-toolbar-button hide';
 
 				const toolbarButton2Icon = document.createElement('img');
 				this.toolbarButton2IconEl = toolbarButton2Icon;
 				toolbarButton2.appendChild(toolbarButton2Icon);
 				toolbarButton2Icon.className = 'gui-toolbar-button-icon';
+				toolbarButton2Icon.alt = 'Button-Icon';
 				toolbarButton2Icon.width = 100;
 				toolbarButton2Icon.height = 100;
+				toolbarButton2Icon.setAttribute('loading', 'lazy');
 
 				const toolbarButton3 = document.createElement('button');
 				this.toolbarButton3El = toolbarButton3;
 				toolbar.appendChild(toolbarButton3);
 				toolbarButton3.setAttribute('id', 'toolbar-button-3');
+				toolbarButton3.setAttribute('aria-label', 'Button');
 				toolbarButton3.className = 'gui-toolbar-button hide';
 
 				const toolbarButton3Icon = document.createElement('img');
 				this.toolbarButton3IconEl = toolbarButton3Icon;
 				toolbarButton3.appendChild(toolbarButton3Icon);
 				toolbarButton3Icon.className = 'gui-toolbar-button-icon';
+				toolbarButton3Icon.alt = 'Button-Icon';
 				toolbarButton3Icon.width = 100;
 				toolbarButton3Icon.height = 100;
+				toolbarButton3Icon.setAttribute('loading', 'lazy');
 
 				const toolbarButton4 = document.createElement('button');
 				this.toolbarButton4El = toolbarButton4;
 				toolbar.appendChild(toolbarButton4);
 				toolbarButton4.setAttribute('id', 'toolbar-button-4');
+				toolbarButton4.setAttribute('aria-label', 'Button');
 				toolbarButton4.className = 'gui-toolbar-button hide';
 
 				const toolbarButton4Icon = document.createElement('img');
 				this.toolbarButton4IconEl = toolbarButton4Icon;
 				toolbarButton4.appendChild(toolbarButton4Icon);
 				toolbarButton4Icon.className = 'gui-toolbar-button-icon';
+				toolbarButton4Icon.alt = 'Button-Icon';
 				toolbarButton4Icon.width = 100;
 				toolbarButton4Icon.height = 100;
+				toolbarButton4Icon.setAttribute('loading', 'lazy');
 			}, 
 
 			setToolbar(color = 'pearlwhite', shadowColor = 'shadow-smokegrey') {
@@ -1361,10 +1404,12 @@ const app = {
 					element.setAttribute('data-action', setup.action.type);
 					element.setAttribute('data-selector', setup.action.selector);
 					element.setAttribute('data-active', false);
+					element.setAttribute('aria-label', setup.name)
 					element.classList.add(setup.colors.button);
 					let iconElement = element.children[0];
 
 					iconElement.src = app.assets.icon[setup.func].src[setup.colors.buttonIcon];
+					iconElement.alt = app.assets.icon[setup.func].alt;
 					
 					element.classList.remove('hide');
 					iconElement.addEventListener('click', app.gui.toolbar.buttonClickHandler);				
@@ -1458,7 +1503,7 @@ const app = {
 					button.classList.add('feedback');
 					//remove button class action after 100ms
 					setTimeout(() => {
-					  button.classList.remove('feedback');
+						button.classList.remove('feedback');
 					}, 200);
 				}	
 			},
@@ -1647,10 +1692,10 @@ const app = {
 				};
 			
 				document.addEventListener('mousemove', (e) => {
-				  move(e);
+					move(e);
 				});
 				document.addEventListener('touchmove', (e) => {
-				  move(e);
+					move(e);
 				});
 
 				let type = '';
@@ -1844,6 +1889,7 @@ const app = {
 
 			buttonSetup: {
 				id: '#toolbar-button-1',
+				name: 'Informationen',
 				colors: {
 					button: 'skyblue',
 					buttonIcon: 'pearlwhite', 
@@ -1873,6 +1919,7 @@ const app = {
 
 			buttonSetup: {
 				id: '#toolbar-button-2',
+				name: 'Suche',
 				colors: {
 					button: 'terracotta',
 					buttonText: 'text-pearlwhite',
@@ -2008,8 +2055,8 @@ const app = {
 						/*If the ENTER key is pressed, prevent the form from being submitted,*/
 						e.preventDefault();
 						if (currentFocus > -1) {
-						  /*and simulate a click on the "active" item:*/
-						  if (x) x[currentFocus].click();
+							/*and simulate a click on the "active" item:*/
+							if (x) x[currentFocus].click();
 						}
 					}
 					function addActive(x) {
@@ -2077,6 +2124,7 @@ const app = {
 
 			buttonSetup: {
 				id: '#toolbar-button-3',
+				name: 'Filter',
 				colors: {
 					button: 'duckyellow',
 					buttonIcon: 'coalgrey', 
@@ -2151,6 +2199,7 @@ const app = {
 				categoryIcon.alt = app. assets.icon['category'].alt;
 				categoryIcon.width = 100;
 				categoryIcon.height = 100;
+				categoryIcon.setAttribute('loading', 'lazy');
 
 				categoryListButton.appendChild(document.createTextNode(this.texts.categoriesButton));
 
@@ -2188,6 +2237,7 @@ const app = {
 				tagIcon.alt = app. assets.icon['tag'].alt;
 				tagIcon.width = 100;
 				tagIcon.height = 100;
+				tagIcon.setAttribute('loading', 'lazy');
 
 				tagListButton.appendChild(document.createTextNode(this.texts.tagsButton));
 
@@ -2307,6 +2357,7 @@ const app = {
 
 			buttonSetup: {
 				id: '#toolbar-button-4',
+				name: 'Ansicht Zurücksetzen',
 				colors: {
 					button: 'coalgrey',
 					buttonIcon: 'pearlwhite', 
@@ -2390,7 +2441,7 @@ const app = {
 		this.goodbyeMessage = "<h3>Entdecker-Modus verlassen</h3> <p>Was möchtest du tun?</p>";
 		this.goodbyeMessageButton1 = "Entdeckermodus erneut starten";
 		this.goodbyeMessageButton2 = "Zum Modelviewer zurückkehren";
-		this.startPlacing = '<img src="' + app.assets.icon['move'].src.pearlwhite + '" alt="' + app.assets.icon['move'].alt + '" height="50px" /> <p>Um das Objekt zu platzieren, suche eine freie Boden- oder Tischfläche. Das Objekt soll dort in realer Größe platziert werden.</p>';
+		this.startPlacing = '<img src="' + app.assets.icon['move'].src.pearlwhite + '" alt="' + app.assets.icon['move'].alt + '" height="50px" loading="lazy" /> <p>Um das Objekt zu platzieren, suche eine freie Boden- oder Tischfläche. Das Objekt soll dort in realer Größe platziert werden.</p>';
 		this.leaveAR = '<p>Entdecker-Modus wirklich verlassen?</p>';
 		this.startPlacingButton = 'Platzierung starten!';
 
@@ -2401,7 +2452,7 @@ const app = {
 			"Punkte gefunden",
 			"Fragen beantwortet",
 			"Animationen gestartet",
-		  ];
+			];
 		this.solveMissions = '<h3>Schließe alle Missionen ab!</h3>';
 		this.solveAllMissions = '<h3>Herzlichen Glückwunsch du hast alle Missionen erfüllt!</h3>';
 
@@ -2415,14 +2466,14 @@ const app = {
 			"Bewege die Kamera entlang einer Fläche",
 			"Bewege das Objekt, indem du die Kamera bewegst. Wenn du zufrieden bist , klicke auf den Button.",
 			"Du solltest jetzt das gesamte Objekt direkt vor dir sehen. Ist es korrekt platziert?",
-		  ];
+			];
 
 		this.dragDropHead = 'Drag & Drop';
 		this.falseMessages = [
 			"Ups! Das gehört hier nicht hin. Versuch's mal woanders!",
 			"Hoppla! Das passt hier leider nicht. Ab zur richtigen Stelle",
 			"Oh nein! Das fühlt sich hier nicht wohl. Versuch’s mal an einem anderen Ort!",
-		  ];
+			];
 
 		this.pointHead = "Punkt gefunden";
 		this.quizHead = "Quiz";
@@ -2455,7 +2506,7 @@ const app = {
 			arViewerElement.setAttribute('gltf-model', 'dracoDecoderPath: ./draco/');
 			arViewerElement.setAttribute('xr-mode-ui', 'enabled:false');
 			arViewerElement.setAttribute('light', 'defaultLightsEnabled: false');
-			arViewerElement.setAttribute('webxr', 'requiredFeatures:  hit-test, dom-overlay, anchors; overlayElement: .gui-message-box; referenceSpaceType:local;');
+			arViewerElement.setAttribute('webxr', 'requiredFeatures:	hit-test, dom-overlay, anchors; overlayElement: .gui-message-box; referenceSpaceType:local;');
 			arViewerElement.setAttribute('controller', '');
 			arViewerElement.setAttribute('renderer', 'stencil:true;');
 			arViewerElement.setAttribute('tools', 'enabled:false;')
@@ -2469,48 +2520,56 @@ const app = {
 			imgSprite.crossOrigin = 'anonymous';
 			// TODO our own sprite
 			imgSprite.src = 'https://cdn.glitch.global/421736eb-f719-4a40-8df3-054eca30d277/spark.png?v=1715082340035';
+			imgSprite.setAttribute('loading', 'lazy');
 
 			const imgPlacer = document.createElement('img');
 			assets.appendChild(imgPlacer);
 			imgPlacer.id = 'placer';
 			imgPlacer.crossOrigin = 'anonymous';
 			imgPlacer.src = app.assets.ar.marker['drop'].src;
+			imgPlacer.setAttribute('loading', 'lazy');
 
 			const imgDrag = document.createElement('img');
 			assets.appendChild(imgDrag);
 			imgDrag.id = 'dragIcon';
 			imgDrag.crossOrigin = 'anonymous';
 			imgDrag.src = app.assets.ar.marker['drag'].src;
+			imgDrag.setAttribute('loading', 'lazy');
 
 			const imgArrow = document.createElement('img');
 			assets.appendChild(imgArrow);
 			imgArrow.id = 'arrow';
 			imgArrow.crossOrigin = 'anonymous';
 			imgArrow.src = app.assets.ar['rotate arrows'].src;
+			imgArrow.setAttribute('loading', 'lazy');
 
 			const imgBook = document.createElement('img');
 			assets.appendChild(imgBook);
 			imgBook.id = 'book';
 			imgBook.crossOrigin = 'anonymous';
 			imgBook.src = app.assets.ar.marker['book'].src;
+			imgBook.setAttribute('loading', 'lazy');
 
 			const imgPlay = document.createElement('img');
 			assets.appendChild(imgPlay);
 			imgPlay.id = 'playAnim';
 			imgPlay.crossOrigin = 'anonymous';
 			imgPlay.src = app.assets.ar.marker['animation'].src;
+			imgPlay.setAttribute('loading', 'lazy');
 
 			const imgExcl = document.createElement('img');
 			assets.appendChild(imgExcl);
 			imgExcl.id = 'exclamation';
 			imgExcl.crossOrigin = 'anonymous';
 			imgExcl.src = app.assets.ar.marker['quest'].src;
+			imgExcl.setAttribute('loading', 'lazy');
 
 			const imgQuiz = document.createElement('img');
 			assets.appendChild(imgQuiz);
 			imgQuiz.id = 'question';
 			imgQuiz.crossOrigin = 'anonymous';
 			imgQuiz.src = app.assets.ar.marker['quiz'].src;
+			imgQuiz.setAttribute('loading', 'lazy');
 
 			const ambientLightEntity = document.createElement('a-entity');
 			arViewerElement.appendChild(ambientLightEntity);
