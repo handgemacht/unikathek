@@ -34,8 +34,6 @@ AFRAME.registerComponent('load-json-models', {
 			this.createCategoryAndTagModels();
 			this.createForceGraph();
 			this.loadJSONModels();
-			
-			
 		},
 
 		update: function () {
@@ -201,7 +199,7 @@ AFRAME.registerComponent('load-json-models', {
 				newNode.name = object.name;
 				newNode.type = 'node-object';
 				newNode.tags = object.tags.filter(filterEmptyTag);
-				newNode.size = 0;
+				newNode.size = 100;
 				newNode.model = ''
 				fgData.nodes.push(newNode);
 			}
@@ -323,10 +321,7 @@ AFRAME.registerComponent('load-json-models', {
 				nodeThreeObject: node => {
 					node.material.visible = false;
 				},
-				nodeThreeObjectExtend: node => {
-					if(node.type === 'node-category') { return true; }
-					return false;
-				},
+				nodeThreeObjectExtend: true,
 				nodeOpacity: 0,
 				onLinkHover: link => { 
 					app.collectionViewer.tooltip.mouseoverHandler(link);
@@ -681,26 +676,24 @@ AFRAME.registerComponent('highlight', {
 	highlightLinks: function (sourceLink) {
 		let fgComp = this.fgComp;
 
-		for(let link in fgComp.links){
-			let thisLink = fgComp.links[link];
-			if (thisLink.material) {
-				if(thisLink.name === sourceLink.name){
-					thisLink.material.opacity = 1;
-					thisLink.material.visible = true;
+		for(let link of fgComp.links){
+			if (link.material) {
+				if(link.name === sourceLink.name){
+					link.material.opacity = 1;
+					link.material.visible = true;
 				}else{
-					thisLink.material.visible = false;
+					link.material.visible = false;
 				}
 			}
 		}
 
-		for(let node in fgComp.nodes){
-			let thisNode = fgComp.nodes[node];
-			if (thisNode.id != '' && thisNode.model.material) {
-				if(thisNode.tags.includes(sourceLink.name)){
-					thisNode.model.material.opacity = 1;
-					thisNode.model.material.visible = true;
+		for(let node of fgComp.nodes){
+			if (node.id != '' && node.model.material) {
+				if(node.tags.includes(sourceLink.name)){
+					node.model.material.opacity = 1;
+					node.model.material.visible = true;
 				}else{
-					thisNode.model.material.visible = false;
+					node.model.material.visible = false;
 				}
 			}
 		}
@@ -712,32 +705,36 @@ AFRAME.registerComponent('highlight', {
 
 		let modelArray = [];
 
-		for(let link in fgComp.links){
-			let thisLink = fgComp.links[link];
-			if (thisLink.material) {
-				if(thisLink.source.id === sourceNode.id || thisLink.target.id === sourceNode.id){
-					thisLink.material.opacity = 1;
-					thisLink.material.visible = true;
-					modelArray.push(thisLink.source.id);
-					modelArray.push(thisLink.target.id);
+		for(let link of fgComp.links){
+			if (link.material) {
+				if(link.source.id === sourceNode.id || link.target.id === sourceNode.id){
+					link.material.opacity = 1;
+					link.material.visible = true;
+					modelArray.push(link.source.id);
+					modelArray.push(link.target.id);
 				}else{
-					thisLink.material.visible = false;
+					link.material.visible = false;
 				}
 			}
 		}
 
-		for(let node in fgComp.nodes){
-			let thisNode = fgComp.nodes[node];
-			if (thisNode.id != '' && thisNode.model.material) {
+		for(let node of fgComp.nodes){
+			if (node.id != '' && node.model.material) {
 				if(typeof sourceNode.__threeObj !== 'undefined'){
-					distance = thisNode.__threeObj.position.distanceTo(sourceNode.__threeObj.position);
+					distance = node.__threeObj.position.distanceTo(sourceNode.__threeObj.position);
 				}
-				if(modelArray.includes(thisNode.id)){
-					thisNode.model.material.opacity = 1;
-					thisNode.model.material.visible = true;
+				if(modelArray.includes(node.id)){
+					node.model.material.opacity = 1;
+					node.model.material.visible = true;
 					this.setHighestDistance(distance);
+					if(typeof node.__threeObj !== 'undefined'){
+						node.__threeObj.material.visible = true;
+					}
 				}else{
-					thisNode.model.material.visible = false;
+					node.model.material.visible = false;
+					if(typeof node.__threeObj !== 'undefined'){
+						node.__threeObj.material.visible = false;
+					}
 				}
 			}
 		}
@@ -748,21 +745,22 @@ AFRAME.registerComponent('highlight', {
 
 		//app.devMode && console.log('dev --- resetHighlight');
 
-		for(let link in fgComp.links){
-			let thisLink = fgComp.links[link];
-			if(thisLink.material){
-				thisLink.material.opacity = 0.4;
-				thisLink.material.visible = true;
+		for(let link of fgComp.links){
+			if(link.material){
+				link.material.opacity = 0.4;
+				link.material.visible = true;
 			}
 		}
 
-		for(let node in fgComp.nodes){
-			let thisNode = fgComp.nodes[node];
-			if (thisNode.id != '' && thisNode.model.material) {
-				thisNode.model.material.opacity = 1;
-				thisNode.model.material.visible = true;
+		for(let node of fgComp.nodes){
+			if (node.id != '' && node.model.material) {
+				node.model.material.opacity = 1;
+				node.model.material.visible = true;
 				let distance = this.data.highestDistance.max;
 				this.setHighestDistance(distance);
+				if(typeof node.__threeObj !== 'undefined'){
+					node.__threeObj.material.visible = true;
+				}
 			}
 		}
 		document.querySelector('a-camera').setAttribute('camera-focus-target', {target: '', duration: 1200});
@@ -1176,7 +1174,7 @@ AFRAME.registerComponent('orbit-controls', {
 	
 		yawObject.rotation.y -= movementX * 0.002;
 		pitchObject.rotation.x -= movementY * 0.002;
-		pitchObject.rotation.x = Math.max(-PI_2/4, Math.min(PI_2, pitchObject.rotation.x));
+		pitchObject.rotation.x = Math.max(-PI_2/2, Math.min(PI_2/2, pitchObject.rotation.x));
 	},
 
 	onMouseDown: function (event) {
@@ -1254,7 +1252,7 @@ AFRAME.registerComponent('orbit-controls', {
 
 		// Limits touch orientation to pitch (x axis)
 		pitchObject.rotation.x -= deltaX * 0.5;
-		pitchObject.rotation.x = Math.max(-PI_2, Math.min(PI_2, pitchObject.rotation.x));
+		pitchObject.rotation.x = Math.max(-PI_2/2, Math.min(PI_2/2, pitchObject.rotation.x));
 	
 		this.touchStart = {
 			x: e.touches[0].pageX,

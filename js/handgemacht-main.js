@@ -1062,7 +1062,7 @@ const app = {
 		},
 	
 		menu: {
-			content: 'Mehr über uns erfährst du hier:',
+			text: 'Mehr über uns erfährst du hier:',
 	
 			init(){
 				this.createElements();
@@ -1089,7 +1089,7 @@ const app = {
 				this.containerEl = container;
 				document.body.appendChild(container);
 				container.className = 'gui-menu-container hide';
-	
+
 				const closeContainer = document.createElement('div');
 				this.closeEl = closeContainer;
 				container.appendChild(closeContainer);
@@ -1103,9 +1103,14 @@ const app = {
 				closeSymbol.width = 100;
 				closeSymbol.height = 100;
 				closeSymbol.setAttribute('loading', 'lazy');
+
+				const content = document.createElement('div');
+				this.contentEl = content;
+				container.appendChild(content);
+				content.className = 'gui-menu-content';
 	
 				const logoContainer = document.createElement('div');
-				container.appendChild(logoContainer);
+				content.appendChild(logoContainer);
 				logoContainer.className = 'gui-menu-logo';
 	
 				const logoImage = document.createElement('img');
@@ -1118,17 +1123,17 @@ const app = {
 				logoImage.setAttribute('loading', 'lazy');
 	
 				const title = document.createElement('div');
-				container.appendChild(title);
+				content.appendChild(title);
 				title.className = 'gui-menu-title';
 				title.appendChild(document.createTextNode(app.title));
 	
-				const content = document.createElement('div');
-				container.appendChild(content);
-				content.className = 'gui-menu-text';
-				content.appendChild(document.createTextNode(this.content));
+				const text = document.createElement('div');
+				content.appendChild(text);
+				text.className = 'gui-menu-text';
+				text.appendChild(document.createTextNode(this.text));
 	
 				const buttons = document.createElement('div');
-				container.appendChild(buttons);
+				content.appendChild(buttons);
 				buttons.className = 'gui-menu-buttons';
 	
 				const buttonsLinkProject = document.createElement('a');
@@ -1148,7 +1153,7 @@ const app = {
 				patronageButton.appendChild(document.createTextNode('Die Förderung'));
 	
 				const links = document.createElement('div');
-				container.appendChild(links);
+				content.appendChild(links);
 				links.className = 'gui-menu-links';
 
 				const linksLinkContact = document.createElement('a');
@@ -1162,7 +1167,7 @@ const app = {
 				linksLinkImprint.appendChild(document.createTextNode('Impressum'));
 	
 				const version = document.createElement('div');
-				container.appendChild(version);
+				content.appendChild(version);
 				version.className = 'gui-menu-version';
 				version.appendChild(document.createTextNode(app.version));
 	

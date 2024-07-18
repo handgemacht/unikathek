@@ -627,10 +627,15 @@ img.gui-message-close-symbol {
 div.gui-message-content-container {
   position: relative;
   margin-right: 5px;
-  padding: 3px 20px 40px 12px;
+  padding: 3px 20px 60px 12px;
   height: 100%;
   overflow: hidden;
   overflow-y: scroll;
+}
+
+div.gui-message-content-container::-webkit-scrollbar-button:end:decrement {
+  height: 45px;
+  display: block;
 }
 
 div.gui-message-content {
@@ -811,6 +816,12 @@ img.gui-menu-close-symbol {
   float: right;
   width: 16px;
   height: 16px;
+}
+
+div.gui-menu-content {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
 div.gui-menu-logo {
@@ -1839,7 +1850,8 @@ img.help-symbol{
 
   div.gui-menu-container {
     right: 20px;
-    width: calc(440px - 40px);
+    width: calc(340px - 40px);
+    max-height: 660px;
     transform: none;
   }
 
