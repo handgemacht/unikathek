@@ -2,7 +2,6 @@
 import { app } from './handgemacht-main.js';
 
 //START Global Variables
-const dirPath_Files = './files/';
 const dirPath_CollectionJSON = 'json/handgemacht-collection.json';
 
 var loader = new THREE.GLTFLoader();
@@ -40,8 +39,8 @@ AFRAME.registerComponent('load-json-models', {
 			this.fgComp = document.querySelector('#forcegraph').getAttribute('forcegraph');
 			this.scaleFactor = this.data.scaleFactor;
 			this.normalization = this.data.normalization;
-			//app.devMode && console.log('dev --- scaleFactor: ', this.scaleFactor);
-			//app.devMode && console.log('dev --- normalization: ', this.normalization);
+			//app.dev && console.log('dev --- scaleFactor: ', this.scaleFactor);
+			//app.dev && console.log('dev --- normalization: ', this.normalization);
 			if(this.nodeModelSet){
 				this.normalizeScale(this.scaleFactor, this.normalization);
 			}
@@ -124,7 +123,7 @@ AFRAME.registerComponent('load-json-models', {
 
 		loadJSONModels: function () {
 			const fgData = '';
-			const fileJSON = dirPath_Files + dirPath_CollectionJSON;
+			const fileJSON = app.filepaths.files + dirPath_CollectionJSON;
 
 			//fetch json data from file
 			const objectsJSON = fetch(fileJSON)
@@ -135,13 +134,13 @@ AFRAME.registerComponent('load-json-models', {
 					const scene = document.querySelector('a-scene').object3D;
 					for(let object of json.objects){
 						if(object.quality512){
-							loader.load(dirPath_Files + object.quality512, (gltf) => {
+							loader.load(app.filepaths.files + object.quality512, (gltf) => {
 								gltf.scene.name = object.primaryKey;
 								gltf.scene.altName = object.name;
 								gltf.scene.visible = false;
 								scene.add( gltf.scene );
 							}, (xhr) =>{ 
-								//app.devMode && console.log( ( 'dev --- load model: ' + object.name + ' - ' + xhr.loaded / xhr.total * 100 ) + '% loaded' );
+								//app.dev && console.log( ( 'dev --- load model: ' + object.name + ' - ' + xhr.loaded / xhr.total * 100 ) + '% loaded' );
 							}, (error) => {		
 								console.log( 'An error happened: ' + error );
 							});
@@ -262,8 +261,8 @@ AFRAME.registerComponent('load-json-models', {
 		filterFgData: function(fgData, tags = [], categories = []) {
 			let filteredFgData = { 'nodes': [], 'links': [] };
 
-			app.devMode && console.log('dev --- forcegraph filter Data tags: ', tags);
-			app.devMode && console.log('dev --- forcegraph filter Data categories: ', categories);
+			app.dev && console.log('dev --- forcegraph filter Data tags: ', tags);
+			app.dev && console.log('dev --- forcegraph filter Data categories: ', categories);
 
 			for( let link in fgData.links ){
 				let thisLink = fgData.links[link];
@@ -325,17 +324,17 @@ AFRAME.registerComponent('load-json-models', {
 				nodeOpacity: 0,
 				onLinkHover: link => { 
 					app.collectionViewer.tooltip.mouseoverHandler(link);
-					//app.devMode && console.log('dev --- onLinkHover: ', link);
+					//app.dev && console.log('dev --- onLinkHover: ', link);
 				},
 				onLinkClick: link => { 
-					//app.devMode && console.log('dev --- onLinkClick: ', link);
+					//app.dev && console.log('dev --- onLinkClick: ', link);
 				},
 				onNodeHover: node => { 
 					app.collectionViewer.tooltip.mouseoverHandler(node);
-					//app.devMode && console.log('dev --- onNodeHover: ', node);
+					//app.dev && console.log('dev --- onNodeHover: ', node);
 				},
 				onNodeClick: node => { 
-					//app.devMode && console.log('dev --- onNodeClick: ', node);
+					//app.dev && console.log('dev --- onNodeClick: ', node);
 					if(document.querySelector('a-camera').components['orbit-controls'].hasUserInput) {return;}
 					document.querySelector('a-camera').setAttribute('camera-focus-target', {target: node, duration: 1200});
 					app.collectionViewer.highlight.onclickHandler(node);
@@ -407,11 +406,11 @@ AFRAME.registerComponent('load-json-models', {
 
 		normalizeScale: function(scaleFactor, normalization) {
 			if(typeof scaleFactor !== 'number'){
-				app.devMode && console.log('dev --- normalizeScale error! > scaleFactor is not a Number! Setting factor to 1. Old value: ', scaleFactor);
+				app.dev && console.log('dev --- normalizeScale error! > scaleFactor is not a Number! Setting factor to 1. Old value: ', scaleFactor);
 				scaleFactor = 1;
 			}
 			if(typeof normalization !== 'number'){
-				app.devMode && console.log('dev --- normalizeScale error! > normalization is not a Number! Setting factor to 0. Old value: ', normalization);
+				app.dev && console.log('dev --- normalizeScale error! > normalization is not a Number! Setting factor to 0. Old value: ', normalization);
 				normalization = 0;
 			}
 
@@ -472,11 +471,11 @@ AFRAME.registerComponent('load-json-models', {
 				const sizeFactor = 1 + mapToRange(sizeDeviation, [sizeLog.min, sizeLog.max], [0, 1]); // range from 0 to 2 with 1 as median
 				const normFactor = normalization * sizeFactor;
 				const normalizedScale = scaleFactor * ((1 + normFactor) - normalization);
-				//app.devMode && console.log(`dev --- normalizeScale node: ${node.name} > \nnormalization: ${normalization}, \nsizeFactor: ${sizeFactor}, \nnormFactor: ${normFactor}, \nscaleFactor: ${scaleFactor}, \nnormalizedScale: ${normalizedScale}`);
+				//app.dev && console.log(`dev --- normalizeScale node: ${node.name} > \nnormalization: ${normalization}, \nsizeFactor: ${sizeFactor}, \nnormFactor: ${normFactor}, \nscaleFactor: ${scaleFactor}, \nnormalizedScale: ${normalizedScale}`);
 				node.model.scale.set(normalizedScale, normalizedScale, normalizedScale);
 			}
 
-			app.devMode && console.log(`dev --- normalizeScale > \nsizeLog: `, sizeLog);
+			app.dev && console.log(`dev --- normalizeScale > \nsizeLog: `, sizeLog);
 		}
 
 });
@@ -502,7 +501,7 @@ AFRAME.registerComponent('camera-focus-target', {
 
 	update: function () {
 		this.moveOrbitTarget();
-		//app.devMode && console.log('dev --- camera-focus-target: ', this.data.target);
+		//app.dev && console.log('dev --- camera-focus-target: ', this.data.target);
 	},
 
 	tick: function () {},
@@ -630,7 +629,7 @@ AFRAME.registerComponent('highlight', {
 			windowInnerWidth: window.innerWidth
 		}
 
-		app.devMode && console.log('dev -- camera-focus-target > distanceLog: ', distanceLog)
+		app.dev && console.log('dev -- camera-focus-target > distanceLog: ', distanceLog)
 
 		this.cameraEl.setAttribute('orbit-controls', { 
 			autoRotate: false, 
@@ -719,22 +718,16 @@ AFRAME.registerComponent('highlight', {
 		}
 
 		for(let node of fgComp.nodes){
-			if (node.id != '' && node.model.material) {
-				if(typeof sourceNode.__threeObj !== 'undefined'){
-					distance = node.__threeObj.position.distanceTo(sourceNode.__threeObj.position);
-				}
+			if (node.id != '' && node.model.material && typeof node.__threeObj !== 'undefined' && typeof sourceNode.__threeObj !== 'undefined') {
+				distance = node.__threeObj.position.distanceTo(sourceNode.__threeObj.position);
 				if(modelArray.includes(node.id)){
 					node.model.material.opacity = 1;
 					node.model.material.visible = true;
 					this.setHighestDistance(distance);
-					if(typeof node.__threeObj !== 'undefined'){
-						node.__threeObj.material.visible = true;
-					}
+					node.__threeObj.visible = true;
 				}else{
 					node.model.material.visible = false;
-					if(typeof node.__threeObj !== 'undefined'){
-						node.__threeObj.material.visible = false;
-					}
+					node.__threeObj.visible = false;
 				}
 			}
 		}
@@ -743,7 +736,7 @@ AFRAME.registerComponent('highlight', {
 	resetHighlight: function () {
 		let fgComp = this.fgComp;
 
-		//app.devMode && console.log('dev --- resetHighlight');
+		//app.dev && console.log('dev --- resetHighlight');
 
 		for(let link of fgComp.links){
 			if(link.material){
@@ -753,14 +746,12 @@ AFRAME.registerComponent('highlight', {
 		}
 
 		for(let node of fgComp.nodes){
-			if (node.id != '' && node.model.material) {
+			if (node.id != '' && node.model.material && typeof node.__threeObj !== 'undefined') {
 				node.model.material.opacity = 1;
 				node.model.material.visible = true;
 				let distance = this.data.highestDistance.max;
 				this.setHighestDistance(distance);
-				if(typeof node.__threeObj !== 'undefined'){
-					node.__threeObj.material.visible = true;
-				}
+				node.__threeObj.visible = true;
 			}
 		}
 		document.querySelector('a-camera').setAttribute('camera-focus-target', {target: '', duration: 1200});
@@ -768,11 +759,11 @@ AFRAME.registerComponent('highlight', {
 
 	setHighestDistance: function(distance = this.data.highestDistance.max) {
 		if(typeof distance !== 'number') { return; }
-		//app.devMode && console.log('dev --- highlight > distance: ', distance);
+		//app.dev && console.log('dev --- highlight > distance: ', distance);
 		if (this.data.highestDistance.value < distance) {
 			this.data.highestDistance.value = distance;
 			this.data.highestDistance.max = distance;
-			//app.devMode && console.log('dev --- highlight > new highest distance set: ', distance);
+			//app.dev && console.log('dev --- highlight > new highest distance set: ', distance);
 		}
 	}, 
 
@@ -867,7 +858,7 @@ AFRAME.registerComponent('orbit-controls', {
 			this.orbitTarget = this.orbitTargetEl.object3D;
 			this.el.sceneEl.appendChild(this.orbitTargetEl);
 			this.orbitTargetEl.setAttribute('id', 'orbit-target');
-			app.devMode && this.orbitTargetEl.setAttribute('geometry', 'primitive: sphere; radius: 1');
+			app.dev && this.orbitTargetEl.setAttribute('geometry', 'primitive: sphere; radius: 1');
 	
 			this.target3D = document.querySelector(this.data.target).object3D;
 		}

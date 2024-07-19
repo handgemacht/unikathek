@@ -65,8 +65,10 @@ let modelViewerHTML =
 const app = {
 	title: 'appTitle',
 	version: 'alpha 1.1 24/07/17',
-	devMode: false,
+	dev: false,
+	stats: false,
 	viewerMode: false,
+	viewerModes: [ 'cv', 'mv', 'ar'],
 
 	filepaths: {
 		files: './files/',
@@ -291,10 +293,7 @@ const app = {
 
 		this.assets = this.assets(this.filepaths.assets);
 
-		this.devMode = this.getParamsModeFromURL('dev');
-		this.showStats = this.getParamsModeFromURL('stats');
-		this.viewerMode = this.getViewerModeFromURL();
-		this.error = this.getErrorFromURL();
+		this.handleURLParameter();
 
 		// from: https://stackoverflow.com/questions/11381673/detecting-a-mobile-browser
 		window.mobileCheck = function() {
@@ -303,14 +302,13 @@ const app = {
 			return check;
 		};
 
-		let isMobile = window.mobileCheck();
+		this.isMobile = window.mobileCheck();
 
-		if(isMobile) {
-			this.devMode && console.log('dev --- mobileAndTabletCheck: ', isMobile);
+		if(this.isMobile) {
+			this.dev && console.log('dev --- mobileAndTabletCheck: ', isMobile);
 		}
 
 		window.addEventListener('orientationchange', this.handleScreenOrientation);
-
 
 		// check for passive flag support
 		this.passiveSupported = false;
@@ -321,7 +319,7 @@ const app = {
 					// This function will be called when the browser
 					// attempts to access the passive property.
 					this.passiveSupported = true;
-					app.devMode && console.log('dev --- passiveSupport: ',this.passiveSupported)
+					app.dev && console.log('dev --- passiveSupport: ',this.passiveSupported)
 					return false;
 				},
 			};
@@ -332,7 +330,6 @@ const app = {
 			this.passiveSupported = false;
 		}
 
-
 		this.gui.init();		
 
 		if(this.error) {
@@ -340,10 +337,11 @@ const app = {
 		}
 
 		if (!this.viewerMode) {
-			//redirect to collection viewer if no viewerMode is set in URL
-			let url='?m=cv';
-			this.devMode ? url+='&dev=true' : '';
-				window.location.href = url;
+			//redirect to collection viewer if no m is set in URL
+			let url='?m=cv&error=000';
+			this.dev ? url+='&dev=true' : '';
+			this.stats ? url+='&dev=stats' : '';
+			window.location.href = url;
 		}
 
 		if (this.viewerMode === 'cv') {
@@ -362,18 +360,18 @@ const app = {
 		//test if WebXR AR is supported
 		if(navigator.xr){
 			navigator.xr.isSessionSupported("immersive-ar").then((isSupported) => {
-			this.devMode && console.log("dev --- ar supported:", isSupported);
+			this.dev && console.log("dev --- ar supported:", isSupported);
 			if (this.viewerMode === 'ar' && isSupported) {
 			//start ARViewer
 			this.arViewer.init();
 			this.gui.loadingScreen.content = 'loading augmented reality';
 			this.gui.loadingScreen.showLoadingScreen();
 			}else{
-				this.devMode && console.log("dev --- WebXR AR is not supported on this browser");
+				this.dev && console.log("dev --- WebXR AR is not supported on this browser");
 			}
 			});
 		}else{
-			this.devMode && console.log("dev --- WebXR is not supported on this browser");
+			this.dev && console.log("dev --- WebXR is not supported on this browser");
 		}
 
 		this.gui.setupCollapsibles();
@@ -407,7 +405,7 @@ const app = {
 				const guiTitle = document.createElement('h1');
 				this.titleEl = guiTitle;
 				guiTitleContainer.appendChild(guiTitle);
-				guiTitle.className = 'gui-title';
+				guiTitle.className = 'title';
 				guiTitle.appendChild(document.createTextNode(app.title));
 			}
 		},
@@ -469,7 +467,7 @@ const app = {
 				const guiLoadingAnimation = document.createElement('object');
 				this.loadingAnimationEl = guiLoadingAnimation;
 				guiLoadingContainer.appendChild(guiLoadingAnimation);
-				guiLoadingAnimation.className = 'gui-loading-animation';
+				guiLoadingAnimation.className = 'animation';
 				guiLoadingAnimation.type = 'image/svg+xml';
 				guiLoadingAnimation.data = app.assets.loading.src;
 				guiLoadingAnimation.alt = app.assets.loading.alt;
@@ -479,7 +477,7 @@ const app = {
 				const guiLoadingText = document.createElement('div');
 				this.loadingTextEl = guiLoadingText;
 				guiLoadingContainer.appendChild(guiLoadingText);
-				guiLoadingText.className = 'gui-loading-text';
+				guiLoadingText.className = 'text';
 				guiLoadingText.appendChild(document.createTextNode(this.content));
 			}, 
 
@@ -513,12 +511,18 @@ const app = {
 		},
 
 		message: {
-			type: '',
-			content: 'default message',
+			type: {
+				value: '',
+			},
+			content: {
+				value: 'default message',
+			},
 			color: 'smokegrey',
 			shadow: null,
-			button1: {content: '', color:'smokegrey', shadow: 'coalgrey'},
-			button2: {content: '', color:'smokegrey', shadow: 'coalgrey'},
+			buttonSetup: [
+				{label: '', color:'smokegrey', shadow: 'coalgrey'},
+				{label: '', color:'smokegrey', shadow: 'coalgrey'}
+				],
 			showClose: true,
 
 			init() {
@@ -528,99 +532,90 @@ const app = {
 			}, 
 
 			createElements() {
-				const guiMessageBox = document.createElement('div');
-				this.messageBoxEl = guiMessageBox;
-				document.body.appendChild(guiMessageBox);
-				guiMessageBox.className = 'gui-message-box';
+				this.boxEl = document.createElement('div');
+				document.body.appendChild(this.boxEl);
+				this.boxEl.className = 'gui-message-box';
 
-				const guiMessageContainer = document.createElement('div');
-				this.messageContainerEl = guiMessageContainer;
-				guiMessageBox.appendChild(guiMessageContainer);
-				guiMessageContainer.className = 'gui-message-container hide';
+				this.containerEl = document.createElement('div');
+				this.boxEl.appendChild(this.containerEl);
+				this.containerEl.className = 'gui-message-container hide';
 
-				const guiMessage = document.createElement('div');
-				this.messageEl = guiMessage;
-				guiMessageContainer.appendChild(guiMessage);
-				guiMessage.className = 'gui-message';
+				this.element = document.createElement('div');
+				this.containerEl.appendChild(this.element);
+				this.element.className = 'gui-message';
 
-				const guiMessageType = document.createElement('div');
-				this.messageTypeEl = guiMessageType;
-				guiMessageContainer.appendChild(guiMessageType);
-				guiMessageType.className = 'gui-message-type hide';
+				this.type.element = document.createElement('div');
+				this.containerEl.appendChild(this.type.element);
+				this.type.element.className = 'type hide';
 
-				const guiMessageCloseContainer = document.createElement('div');
-				this.messageCloseEl = guiMessageCloseContainer;
-				guiMessage.appendChild(guiMessageCloseContainer);
-				guiMessageCloseContainer.className = 'gui-message-close';
+				this.closeEl = document.createElement('div');
+				this.element.appendChild(this.closeEl);
+				this.closeEl.className = 'close';
 	
-				const guiMessageCloseSymbol = document.createElement('img');
-				this.messageCloseSymbol = guiMessageCloseSymbol;
-				guiMessageCloseContainer.appendChild(guiMessageCloseSymbol);
-				guiMessageCloseSymbol.className = 'gui-message-close-symbol';
-				guiMessageCloseSymbol.src = app.assets.icon.small['close'].src.pearlwhite;
-				guiMessageCloseSymbol.alt = app.assets.icon.small['close'].alt;
-				guiMessageCloseSymbol.width = 100;
-				guiMessageCloseSymbol.height = 100;
-				guiMessageCloseSymbol.setAttribute('loading', 'lazy');
+				this.closeEl.icon = document.createElement('img');
+				this.closeEl.appendChild(this.closeEl.icon);
+				this.closeEl.icon.className = 'close-icon';
+				this.closeEl.icon.src = app.assets.icon.small['close'].src.pearlwhite;
+				this.closeEl.icon.alt = app.assets.icon.small['close'].alt;
+				this.closeEl.icon.width = 100;
+				this.closeEl.icon.height = 100;
+				this.closeEl.icon.setAttribute('loading', 'lazy');
 
-				const guiMessageContentContainer = document.createElement('div');
-				this.messageContentContainerEl = guiMessageContentContainer;
-				guiMessage.appendChild(guiMessageContentContainer);
-				guiMessageContentContainer.className = 'gui-message-content-container';
+				this.content.containerEl = document.createElement('div');
+				this.element.appendChild(this.content.containerEl);
+				this.content.containerEl.className = 'content-container';
 
-				const guiMessageContent = document.createElement('div');
-				this.messageContentEl = guiMessageContent;
-				guiMessageContentContainer.appendChild(guiMessageContent);
-				guiMessageContent.className = 'gui-message-content';
-				guiMessageContent.appendChild(document.createTextNode(this.content));
+				this.content.element = document.createElement('div');
+				this.content.containerEl.appendChild(this.content.element);
+				this.content.element.className = 'content';
+				this.content.element.appendChild(document.createTextNode(this.content));
 
-				const guiMessageButtonContainer = document.createElement('div');
-				this.messageButtonContainerEl = guiMessageButtonContainer;
-				guiMessage.appendChild(guiMessageButtonContainer);
-				guiMessageButtonContainer.className = 'gui-message-button-container';
+				this.buttons = {};
 
-				const guiMessageButton = document.createElement('button');
-				this.messageButton1El = guiMessageButton;
-				guiMessageButtonContainer.appendChild(guiMessageButton);
-				guiMessageButton.className = 'gui-message-button hide';
+				this.buttons.containerEl = document.createElement('div');
+				this.element.appendChild(this.buttons.containerEl);
+				this.buttons.containerEl.className = 'button-container';
 
-				const guiMessageButtonText = document.createElement('div');
-				this.messageButton1TextEl = guiMessageButtonText;
-				guiMessageButton.appendChild(guiMessageButtonText);
-				guiMessageButtonText.appendChild(document.createTextNode(this.buttonText));
+				this.buttons.button = [{},{}];
 
-				const guiMessageButtonIcon = document.createElement('img');
-				this.messageButton1IconEl = guiMessageButtonIcon;
-				guiMessageButton.appendChild(guiMessageButtonIcon);
-				guiMessageButtonIcon.className = 'gui-message-button-icon hide';
-				guiMessageButtonIcon.alt = 'Button-Icon';
-				guiMessageButtonIcon.width = 100;
-				guiMessageButtonIcon.height = 100;
-				guiMessageButtonIcon.setAttribute('loading', 'lazy');
+				this.buttons.button[0].element = document.createElement('button');
+				this.buttons.containerEl.appendChild(this.buttons.button[0].element);
+				this.buttons.button[0].element.className = 'button hide';
 
-				const guiMessageButton2 = document.createElement('button');
-				this.messageButton2El = guiMessageButton2;
-				guiMessageButtonContainer.appendChild(guiMessageButton2);
-				guiMessageButton2.className = 'gui-message-button hide';
+				this.buttons.button[0].labelEl = document.createElement('div');
+				this.buttons.button[0].element.appendChild(this.buttons.button[0].labelEl);
+				this.buttons.button[0].labelEl.className = 'label';
+				this.buttons.button[0].labelEl.appendChild(document.createTextNode(this.buttonSetup[0].label));
 
-				const guiMessageButton2Text = document.createElement('div');
-				this.messageButton2TextEl = guiMessageButton2Text;
-				guiMessageButton2.appendChild(guiMessageButton2Text);
-				guiMessageButton2Text.appendChild(document.createTextNode(this.button2Text));
+				this.buttons.button[0].iconEl = document.createElement('img');
+				this.buttons.button[0].element.appendChild(this.buttons.button[0].iconEl);
+				this.buttons.button[0].iconEl.className = 'button-icon hide';
+				this.buttons.button[0].iconEl.alt = 'Button-Icon';
+				this.buttons.button[0].iconEl.width = 100;
+				this.buttons.button[0].iconEl.height = 100;
+				this.buttons.button[0].iconEl.setAttribute('loading', 'lazy');
 
-				const guiMessageButton2Icon = document.createElement('img');
-				this.messageButton2IconEl = guiMessageButton2Icon;
-				guiMessageButton2.appendChild(guiMessageButton2Icon);
-				guiMessageButton2Icon.className = 'gui-message-button-icon hide';
-				guiMessageButton2Icon.alt = 'Button-Icon';
-				guiMessageButton2Icon.width = 100;
-				guiMessageButton2Icon.height = 100;
-				guiMessageButton2Icon.setAttribute('loading', 'lazy');
+				this.buttons.button[1].element = document.createElement('button');
+				this.buttons.containerEl.appendChild(this.buttons.button[1].element);
+				this.buttons.button[1].className = 'button hide';
+
+				this.buttons.button[1].labelEl = document.createElement('div');
+				this.buttons.button[1].element.appendChild(this.buttons.button[1].labelEl);
+				this.buttons.button[1].labelEl.className = 'label';
+				this.buttons.button[1].labelEl.appendChild(document.createTextNode(this.buttonSetup[1].label));
+
+				this.buttons.button[1].iconEl = document.createElement('img');
+				this.buttons.button[1].element.appendChild(this.buttons.button[1].iconEl);
+				this.buttons.button[1].iconEl.className = 'button-icon hide';
+				this.buttons.button[1].iconEl.alt = 'Button-Icon';
+				this.buttons.button[1].iconEl.width = 100;
+				this.buttons.button[1].iconEl.height = 100;
+				this.buttons.button[1].iconEl.setAttribute('loading', 'lazy');
 			}, 
 
 			createElementsAR() {
 				const guiArOverlay = document.createElement('div');
-				this.messageBoxEl.appendChild(guiArOverlay);
+				this.boxEl.appendChild(guiArOverlay);
 				guiArOverlay.id = 'ar-overlay';
 				guiArOverlay.className = 'hide';
 
@@ -736,7 +731,7 @@ const app = {
 				closeContainer.appendChild(closeSymbol);
 				closeSymbol.src = app.assets.icon.small['close'].src.coalgrey;
 				closeSymbol.alt = app.assets.icon.small['close'].alt;
-				closeSymbol.className = 'annotation-close-symbol';
+				closeSymbol.className = 'annotation-close-icon';
 				closeSymbol.width = '24';
 				closeSymbol.height = '24';
 				closeSymbol.setAttribute('loading', 'lazy');
@@ -754,7 +749,7 @@ const app = {
 
 				//close popup
 				const guiCloseContainer = document.createElement('div');
-				this.messageBoxEl.appendChild(guiCloseContainer);
+				this.boxEl.appendChild(guiCloseContainer);
 				guiCloseContainer.className = 'gui-message-container hide';
 				guiCloseContainer.id = 'gui-close-popup';
 
@@ -764,32 +759,32 @@ const app = {
 
 				const guiCloseContentContainer = document.createElement('div');
 				guiCloseMessage.appendChild(guiCloseContentContainer);
-				guiCloseContentContainer.className = 'gui-message-content-container';
+				guiCloseContentContainer.className = 'content-container';
 
 				const guiCloseContent = document.createElement('div');
 				guiCloseContentContainer.appendChild(guiCloseContent);
-				guiCloseContent.className= 'gui-message-content';
+				guiCloseContent.className= 'content';
 				guiCloseContent.innerHTML = '<p> Entdecker-Modus wirklich verlassen? </p>';
 
 				const guiCloseButtonContainer = document.createElement('div');
 				guiCloseContainer.appendChild(guiCloseButtonContainer);
-				guiCloseButtonContainer.className = 'gui-message-button-container';
+				guiCloseButtonContainer.className = 'button-container';
 
 				const guiCloseButton = document.createElement('button');
 				this.closeButton1El = guiCloseButton;
 				guiCloseButtonContainer.appendChild(guiCloseButton);
-				guiCloseButton.classList.add('gui-message-button', 'pearlwhite', 'shadow-coalgrey');
+				guiCloseButton.classList.add('button', 'pearlwhite', 'shadow-coalgrey');
 				guiCloseButton.textContent = 'Ja';
 
 				const guiCloseButton2 = document.createElement('button');
 				this.closeButton2El = guiCloseButton2;
 				guiCloseButtonContainer.appendChild(guiCloseButton2);
-				guiCloseButton2.classList.add('gui-message-button', 'pearlwhite', 'shadow-coalgrey');
+				guiCloseButton2.classList.add('button', 'pearlwhite', 'shadow-coalgrey');
 				guiCloseButton2.textContent = 'Nein';
 
 				const tooltipAR = document.createElement('div');
 				this.tooltipElAr = tooltipAR;
-				this.messageBoxEl.appendChild(tooltipAR);
+				this.boxEl.appendChild(tooltipAR);
 				tooltipAR.className = 'cv-tooltip hide';
 	
 				const tooltipContentAR = document.createElement('div');
@@ -799,7 +794,7 @@ const app = {
 
 				const tooltipOverlay = document.createElement('div');
 				this.tooltipElOverlay = tooltipOverlay;
-				this.messageBoxEl.appendChild(tooltipOverlay);
+				this.boxEl.appendChild(tooltipOverlay);
 				tooltipOverlay.className = 'cv-tooltip hide';
 	
 				const tooltipContentOverlay = document.createElement('div');
@@ -809,7 +804,7 @@ const app = {
 			},
 
 			showMessage() {
-				this.messageContainerEl.classList.remove('hide');
+				this.containerEl.classList.remove('hide');
 
 				if(app.collectionViewer.highlight.pillArray.length > 0) {
 					app.collectionViewer.highlight.setPillEventlisteners();
@@ -819,32 +814,33 @@ const app = {
 			}, 
 
 			hideMessage() {
-				this.type = '';
-				this.content = 'default content';
+				this.type.value = '';
+				this.content.value = 'default content';
 				this.color = 'smokegrey';
 				this.shadow = null;
-				this.button1.content = '';
-				this.button1.color = 'smokegrey';
-				this.button1.shadow = 'coalgrey';
-				this.button2.content = '';
-				this.button2.color = 'smokegrey';
-				this.button2.shadow = 'coalgrey';
+				this.buttonSetup[0].label = '';
+				this.buttonSetup[0].color = 'smokegrey';
+				this.buttonSetup[0].shadow = 'coalgrey';
+				this.buttonSetup[1].label = '';
+				this.buttonSetup[1].color = 'smokegrey';
+				this.buttonSetup[1].shadow = 'coalgrey';
 				this.showClose = true;
+
 				//reset scrolling
-				this.messageContentContainerEl.scrollTop = 0;
+				this.content.containerEl.scrollTop = 0;
 
-				this.messageTypeEl.className = 'gui-message-type hide';
-				this.messageEl.className = 'gui-message';
-				this.messageContainerEl.className = 'gui-message-container hide';
-				this.messageCloseEl.className = 'gui-message-close';
-				this.messageButton1El.className = 'gui-message-button hide';
-				this.messageButton2El.className = 'gui-message-button hide';
-				this.messageButton1IconEl.className = 'gui-message-button-icon hide';
-				this.messageButton2IconEl.className = 'gui-message-button-icon hide';
+				this.type.element.className = 'type hide';
+				this.element.className = 'gui-message';
+				this.containerEl.className = 'gui-message-container hide';
+				this.closeEl.className = 'close';
+				this.buttons.button[0].element.className = 'button hide';
+				this.buttons.button[1].element.className = 'button hide';
+				this.buttons.button[0].iconEl.className = 'button-icon hide';
+				this.buttons.button[1].iconEl.className = 'button-icon hide';
 
-				this.messageContentEl.innerHTML = this.content;
-				this.messageButton1TextEl.innerHTML = this.buttonText;
-				this.messageButton2TextEl.innerHTML = this.button2Text;
+				this.content.element.innerHTML = this.content.value;
+				this.buttons.button[0].labelEl.innerHTML = this.buttonSetup[0].label;
+				this.buttons.button[1].labelEl.innerHTML = this.buttonSetup[1].label;
 
 				app.gui.toolbar.toggleToolbar(true);
 			},
@@ -852,8 +848,8 @@ const app = {
 			setEventListener() {
 				const self = this;
 
-				if(this.messageCloseEl) {
-					this.messageCloseEl.addEventListener('click', (evt) => {
+				if(this.closeEl) {
+					this.closeEl.addEventListener('click', (evt) => {
 						self.hideMessage();
 					});
 				}
@@ -864,77 +860,64 @@ const app = {
 
 				let buttonsActive = false;
 
-				Object.keys(message).includes("type") ? this.type = message.type : '';
-				Object.keys(message).includes("content") ? this.content = message.content : '';
+				Object.keys(message).includes("type") ? this.type.value = message.type : '';
+				Object.keys(message).includes("content") ? this.content.value = message.content : '';
 				Object.keys(message).includes("color") ? this.color = message.color : '';
-				Object.keys(message).includes("shadow") ? this.shadow = 'shadow-'+message.shadow : '';
+				Object.keys(message).includes("shadow") ? this.shadow = 'shadow-' + message.shadow : '';
 
-				if(Object.keys(message).includes("button1")){
+				if(Object.keys(message).includes("buttonSetup")){
 					buttonsActive = true;
-					Object.keys(message.button1).includes("content") ? this.button1.content = message.button1.content : '';
-					Object.keys(message.button1).includes("color") ? this.button1.color = message.button1.color : '';
-					Object.keys(message.button1).includes("shadow") ? this.button1.shadow = 'shadow-'+message.button1.shadow : '';
-					Object.keys(message.button1).includes("icon") ? this.button1.icon = message.button1.icon : '';
-				}
-
-				if(Object.keys(message).includes("button2")){
-					buttonsActive = true;
-					Object.keys(message.button2).includes("content") ? this.button2.content = message.button2.content : '';
-					Object.keys(message.button2).includes("color") ? this.button2.color = message.button2.color : '';
-					Object.keys(message.button2).includes("shadow") ? this.button2.shadow = 'shadow-'+message.button2.shadow : '';
-					Object.keys(message.button2).includes("icon") ? this.button2.icon = message.button2.icon : '';
+					for(let s in message.buttonSetup) {
+						const thisSetup = message.buttonSetup[s];
+						Object.keys(thisSetup).includes("label") ? this.buttonSetup[s].label = thisSetup.label : '';
+						Object.keys(thisSetup).includes("color") ? this.buttonSetup[s].color = thisSetup.color : '';
+						Object.keys(thisSetup).includes("shadow") ? this.buttonSetup[s].shadow = 'shadow-' + thisSetup.shadow : '';
+						Object.keys(thisSetup).includes("icon") ? this.buttonSetup[s].iconEl = thisSetup.icon : '';
+					}
 				}
 
 				Object.keys(message).includes("showClose") ? this.showClose = message.showClose : this.showClose = true;
 
-				this.type && this.messageTypeEl.classList.remove('hide');
+				this.type.value && this.type.element.classList.remove('hide');
 
-				buttonsActive && this.messageEl.classList.add('buttonsActive');
-				this.button1.content && this.messageButton1El.classList.remove('hide');
-				this.button1.icon && this.messageButton1IconEl.classList.remove('hide');
-				this.button2.content && this.messageButton2El.classList.remove('hide');
-				this.button2.icon && this.messageButton2IconEl.classList.remove('hide');
+				buttonsActive && this.element.classList.add('buttonsActive');
 
-				if(this.button1.icon && (this.button1.color === 'coalgrey' || this.button1.color === 'smokegrey' || this.button1.color === 'skyblue' || this.button1.color === 'terracotta')){
-					this.messageButton1IconEl.src = app.assets.icon[this.button1.icon].src.pearlwhite;
-				}else if(this.button1.icon){
-					this.messageButton1IconEl.src = app.assets.icon[this.button1.icon].src.coalgrey;
+				for(let s in this.buttonSetup){
+					const thisSetup = this.buttonSetup[s];
+					thisSetup.label && this.buttons.button[s].element.classList.remove('hide');
+					thisSetup.icon && this.buttons.button[s].iconEl.classList.remove('hide');
+
+					if(thisSetup.icon && (thisSetup.color === 'coalgrey' || thisSetup.color === 'smokegrey' || thisSetup.color === 'skyblue' || thisSetup.color === 'terracotta')){
+						this.buttons.button[s].iconEl.src = app.assets.icon[thisSetup.icon].src.pearlwhite;
+					}else if(thisSetup.icon){
+						this.buttons.button[s].iconEl.src = app.assets.icon[thisSetup.icon].src.coalgrey;
+					}
+
+					thisSetup.color && this.buttons.button[s].element.classList.add(thisSetup.color);
+					thisSetup.shadow && this.buttons.button[s].element.classList.add(thisSetup.shadow);
+
+					this.buttons.button[s].labelEl.innerHTML = thisSetup.label;
 				}
 
-				if(this.button2.icon && (this.button2.color === 'coalgrey' || this.button2.color === 'smokegrey' || this.button2.color === 'skyblue' || this.button2.color === 'terracotta')){
-					this.messageButton1IconEl.src = app.assets.icon[this.button2.icon].src.pearlwhite;
-				}else if(this.button2.icon){
-					this.messageButton1IconEl.src = app.assets.icon[this.button2.icon].src.coalgrey;
-				}
+				this.type.element.innerHTML = this.type.value;
 
+				this.content.element.innerHTML = this.content.value;
+			
+				!this.showClose && this.closeEl.classList.add('hide');
 
-				!this.showClose && this.messageCloseEl.classList.add('hide');
-
-				this.color && this.messageEl.classList.add(this.color);
+				this.color && this.element.classList.add(this.color);
 
 				if(this.color === 'pearlwhite'){
-					this.messageCloseSymbol.src = app.assets.icon.small['close'].src.coalgrey;
-					this.color && this.messageTypeEl.classList.add(message.shadow);
+					this.closeEl.icon.src = app.assets.icon.small['close'].src.coalgrey;
+					this.color && this.type.element.classList.add(message.shadow);
 				}else{
-					this.messageCloseSymbol.src = app.assets.icon.small['close'].src.pearlwhite;
-					this.color && this.messageTypeEl.classList.add(this.color);
+					this.closeEl.icon.src = app.assets.icon.small['close'].src.pearlwhite;
+					this.color && this.type.element.classList.add(this.color);
 				}
 
-				this.shadow && this.messageEl.classList.add(this.shadow);
+				this.shadow && this.element.classList.add(this.shadow);
 
-				this.button1.color && this.messageButton1El.classList.add(this.button1.color);
-				this.button1.shadow && this.messageButton1El.classList.add(this.button1.shadow);
-
-				this.button2.color && this.messageButton2El.classList.add(this.button2.color);
-				this.button2.shadow && this.messageButton2El.classList.add(this.button2.shadow);
-
-				this.messageTypeEl.innerHTML = this.type;
-
-				this.messageContentEl.innerHTML = this.content;
-
-				this.messageButton1TextEl.innerHTML = this.button1.content;
-				this.messageButton2TextEl.innerHTML = this.button2.content;
-
+				app.dev && console.log('dev --- message: ', this)
 				this.showMessage();
 			},
 
@@ -960,8 +943,12 @@ const app = {
 		},
 
 		error: {
-			content: 'error...',
-			buttonText: 'OK',
+			content: {
+				value: 'error...',
+			},
+			button: {
+				label: 'OK',
+			},
 
 			init() {
 				this.createElements();
@@ -969,52 +956,47 @@ const app = {
 			}, 
 
 			createElements() {
-				const guiErrorContainer = document.createElement('div');
-				this.errorContainerEl = guiErrorContainer;
-				app.gui.message.messageBoxEl.appendChild(guiErrorContainer);
-				guiErrorContainer.className = 'gui-error-container hide';
+				this.containerEl = document.createElement('div');
+				app.gui.message.boxEl.appendChild(this.containerEl);
+				this.containerEl.className = 'gui-error-container hide';
 
-				const guiError = document.createElement('div');
-				this.errorEl = guiError;
-				guiErrorContainer.appendChild(guiError);
-				guiError.className = 'gui-error';
+				this.element = document.createElement('div');
+				this.containerEl.appendChild(this.element);
+				this.element.className = 'gui-error';
 
-				const guiErrorContentContainer = document.createElement('div');
-				this.errorContentContainerEl = guiErrorContentContainer;
-				guiError.appendChild(guiErrorContentContainer);
-				guiErrorContentContainer.className = 'gui-error-content-container';
+				this.content.containerEl = document.createElement('div');
+				this.element.appendChild(this.content.containerEl);
+				this.content.containerEl.className = 'gui-error-content-container';
 
-				const guiErrorContent = document.createElement('div');
-				this.errorContentEl = guiErrorContent;
-				guiErrorContentContainer.appendChild(guiErrorContent);
-				guiErrorContent.className = 'gui-error-content';
-				guiErrorContent.appendChild(document.createTextNode(this.content));
+				this.content.element = document.createElement('div');
+				this.content.containerEl.appendChild(this.content.element);
+				this.content.element.className = 'gui-error-content';
+				this.content.element.appendChild(document.createTextNode(this.content.value));
 
-				const guiErrorButton = document.createElement('button');
-				this.errorButtonEl = guiErrorButton;
-				guiErrorContainer.appendChild(guiErrorButton);
-				guiErrorButton.className = 'gui-error-button';
-				guiErrorButton.appendChild(document.createTextNode(this.buttonText));
+				this.buttonEl = document.createElement('button');
+				this.containerEl.appendChild(this.buttonEl);
+				this.buttonEl.className = 'gui-error-button pearlwhite';
+				this.buttonEl.appendChild(document.createTextNode(this.button.label));
 			}, 
 
 			showError() {
-				this.errorContainerEl.classList.remove('hide');
-				this.errorContentEl.innerHTML = this.content;
-				this.errorButtonEl.innerHTML = this.buttonText;
+				this.containerEl.classList.remove('hide');
+				this.content.element.innerHTML = this.content.value;
+				this.buttonEl.innerHTML = this.button.label;
 			}, 
 
 			hideError() {
-				this.content = 'error ...';
-				this.buttonText = 'OK';
-				this.errorContainerEl.classList.add('hide');
-				this.errorContentEl.innerHTML = this.content;
-				this.errorButtonEl.innerHTML = this.buttonText;
+				this.content.value = 'error ...';
+				this.button.label = 'OK';
+				this.containerEl.classList.add('hide');
+				this.content.element.innerHTML = this.content.value;
+				this.buttonEl.innerHTML = this.button.label;
 			}, 
 
 			setEventListener() {
 				const self = this;
-				if(this.errorButtonEl) {
-					this.errorButtonEl.addEventListener('click', (evt) => {
+				if(this.buttonEl) {
+					this.buttonEl.addEventListener('click', (evt) => {
 						self.hideError();
 					});
 				}
@@ -1038,7 +1020,7 @@ const app = {
 				const guiFullScreenImage = document.createElement('img');
 				this.guiFullScreenImageEl = guiFullScreenImage;
 				guiFullScreenContainer.appendChild(guiFullScreenImage);
-				guiFullScreenImage.className = 'gui-fullscreen-image';
+				guiFullScreenImage.className = 'image';
 				guiFullScreenImage.src = this.src;
 				guiFullScreenImage.alt = this.alt;
 				guiFullScreenImage.width = 100;
@@ -1070,20 +1052,20 @@ const app = {
 			},
 	
 			createElements() {
-				const burgerContainer = document.createElement('div');
-				this.burgerEl = burgerContainer;
-				document.body.appendChild(burgerContainer);
-				burgerContainer.className = 'gui-menu-icon';
+				const menuButton = document.createElement('div');
+				this.burgerEl = menuButton;
+				document.body.appendChild(menuButton);
+				menuButton.className = 'gui-menu-button';
 	
-				const burgerSymbol = document.createElement('img');
-				this.burgerSymbolEl = burgerSymbol;
-				burgerContainer.appendChild(burgerSymbol);
-				burgerSymbol.className = 'gui-menu-icon-symbol';
-				burgerSymbol.src = app.assets.icon['menu'].src.coalgrey;
-				burgerSymbol.alt = app.assets.icon['menu'].alt;
-				burgerSymbol.width = 100;
-				burgerSymbol.height = 100;
-				burgerSymbol.setAttribute('loading', 'lazy');
+				const menuIcon = document.createElement('img');
+				this.menuIconEl = menuIcon;
+				menuButton.appendChild(menuIcon);
+				menuIcon.className = 'icon';
+				menuIcon.src = app.assets.icon['menu'].src.coalgrey;
+				menuIcon.alt = app.assets.icon['menu'].alt;
+				menuIcon.width = 100;
+				menuIcon.height = 100;
+				menuIcon.setAttribute('loading', 'lazy');
 	
 				const container = document.createElement('div');
 				this.containerEl = container;
@@ -1093,11 +1075,11 @@ const app = {
 				const closeContainer = document.createElement('div');
 				this.closeEl = closeContainer;
 				container.appendChild(closeContainer);
-				closeContainer.className = 'gui-menu-close';
+				closeContainer.className = 'close';
 	
 				const closeSymbol = document.createElement('img');
 				closeContainer.appendChild(closeSymbol);
-				closeSymbol.className = 'gui-menu-close-symbol';
+				closeSymbol.className = 'close-icon';
 				closeSymbol.src = app.assets.icon.small['close'].src.pearlwhite;
 				closeSymbol.alt = app.assets.icon.small['close'].alt;
 				closeSymbol.width = 100;
@@ -1107,11 +1089,11 @@ const app = {
 				const content = document.createElement('div');
 				this.contentEl = content;
 				container.appendChild(content);
-				content.className = 'gui-menu-content';
+				content.className = 'content';
 	
 				const logoContainer = document.createElement('div');
 				content.appendChild(logoContainer);
-				logoContainer.className = 'gui-menu-logo';
+				logoContainer.className = 'menu-logo';
 	
 				const logoImage = document.createElement('img');
 				logoContainer.appendChild(logoImage);
@@ -1124,17 +1106,17 @@ const app = {
 	
 				const title = document.createElement('div');
 				content.appendChild(title);
-				title.className = 'gui-menu-title';
+				title.className = 'title';
 				title.appendChild(document.createTextNode(app.title));
 	
 				const text = document.createElement('div');
 				content.appendChild(text);
-				text.className = 'gui-menu-text';
+				text.className = 'text';
 				text.appendChild(document.createTextNode(this.text));
 	
 				const buttons = document.createElement('div');
 				content.appendChild(buttons);
-				buttons.className = 'gui-menu-buttons';
+				buttons.className = 'button-container';
 	
 				const buttonsLinkProject = document.createElement('a');
 				buttonsLinkProject.href = '#'; //Links anpassen
@@ -1154,7 +1136,7 @@ const app = {
 	
 				const links = document.createElement('div');
 				content.appendChild(links);
-				links.className = 'gui-menu-links';
+				links.className = 'link-container';
 
 				const linksLinkContact = document.createElement('a');
 				linksLinkContact.href = 'https://dev.handgemacht.bayern?mv=ar&model=00000000-0000-0000-0000-000000000001'; //Links anpassen
@@ -1168,12 +1150,12 @@ const app = {
 	
 				const version = document.createElement('div');
 				content.appendChild(version);
-				version.className = 'gui-menu-version';
+				version.className = 'version';
 				version.appendChild(document.createTextNode(app.version));
 	
 				const patronage = document.createElement('div');
 				container.appendChild(patronage);
-				patronage.className = 'gui-menu-patronage-logo';
+				patronage.className = 'patronage-logo';
 	
 				const patronageImage = document.createElement('img');
 				patronage.appendChild(patronageImage);
@@ -1234,35 +1216,35 @@ const app = {
 				toolbarContainer.appendChild(toolbar);
 				toolbar.className = 'gui-toolbar';
 
-				const toolbarTab = document.createElement('div');
-				this.toolbarTabEl = toolbarTab;
-				toolbarContainer.appendChild(toolbarTab);
-				toolbarTab.className = 'gui-toolbar-tab';
-
 				const toolbarTabBox = document.createElement('div');
 				this.toolbarTabBoxEl = toolbarTabBox;
-				toolbarTab.appendChild(toolbarTabBox);
-				toolbarTabBox.className = 'gui-toolbar-tab-box';
+				toolbarContainer.appendChild(toolbarTabBox);
+				toolbarTabBox.className = 'tab-container';
+
+				const toolbarTab = document.createElement('div');
+				this.toolbarTabEl = toolbarTab;
+				toolbarTabBox.appendChild(toolbarTab);
+				toolbarTab.className = 'tab';
 
 				const toolbarTabContentContainer = document.createElement('div');
 				this.toolbarTabContentContainerEl = toolbarTabContentContainer;
-				toolbarTabBox.appendChild(toolbarTabContentContainer);
-				toolbarTabContentContainer.className = 'gui-toolbar-tab-content-container';
+				toolbarTab.appendChild(toolbarTabContentContainer);
+				toolbarTabContentContainer.className = 'content-container';
 
 				const toolbarTabContentFade = document.createElement('div');
 				this.toolbarTabContentFadeEl = toolbarTabContentFade;
-				toolbarTabBox.appendChild(toolbarTabContentFade);
-				toolbarTabContentFade.className = 'gui-toolbar-tab-content-fade';
+				toolbarTab.appendChild(toolbarTabContentFade);
+				toolbarTabContentFade.className = 'fade';
 
 				const toolbarTabContentFadeBar = document.createElement('div');
 				this.toolbarTabContentFadeBarEl = toolbarTabContentFadeBar;
-				toolbarTabBox.appendChild(toolbarTabContentFadeBar);
-				toolbarTabContentFadeBar.className = 'gui-toolbar-tab-content-fade-bar';
+				toolbarTab.appendChild(toolbarTabContentFadeBar);
+				toolbarTabContentFadeBar.className = 'bar';
 
 				const toolbarTabContent = document.createElement('div');
 				this.toolbarTabContentEl = toolbarTabContent;
 				toolbarTabContentContainer.appendChild(toolbarTabContent);
-				toolbarTabContent.className = 'gui-toolbar-tab-content';
+				toolbarTabContent.className = 'content';
 
 				const toolbarButton1 = document.createElement('button');
 				this.toolbarButton1El = toolbarButton1;
@@ -1358,12 +1340,12 @@ const app = {
 					let fadeBar = this.toolbarTabContentFadeBarEl;
 
 					if(toolbarTab.classList.contains('active')){
-						toolbarTab.className = 'gui-toolbar-tab active';
+						toolbarTab.className = 'tab active';
 					}else{
-						toolbarTab.className = 'gui-toolbar-tab';
+						toolbarTab.className = 'tab';
 					}
 
-					fadeBar.className = 'gui-toolbar-tab-content-fade-bar';	
+					fadeBar.className = 'bar';	
 
 					toolbarTab.classList.add(colors.tabText);
 					toolbarTab.classList.add(colors.tabBackground);
@@ -1736,8 +1718,8 @@ const app = {
 			},
 
 			setEventListener(){
-				if(app.gui.message.messageCloseEl) {
-					app.gui.message.messageCloseEl.addEventListener('click', (evt) => {
+				if(app.gui.message.closeEl) {
+					app.gui.message.closeEl.addEventListener('click', (evt) => {
 						app.collectionViewer.resetView.resetCameraView();
 					});
 				}
@@ -1760,7 +1742,7 @@ const app = {
 				this.pillArray = [];
 				
 				if(type === 'node-object'){
-					let categoryList = '<div class="categorys">';
+					let categoryList = '<div class="categories"><h6 class="text-smokegrey">Kategorien: </h6>';
 					for(let category in fgData.categories) {
 						let pillId = 'c-' + self.crypto.randomUUID();;
 						categoryList += '<div id="' + pillId +'" '
@@ -1775,7 +1757,7 @@ const app = {
 					}
 					categoryList += '</div>';
 	
-					let tagList = '<div class="tags">';
+					let tagList = '<div class="tags"><h6 class="text-smokegrey">Tags: </h6>';
 					for(let tag in fgData.tags) {
 						let pillId = 't-' + self.crypto.randomUUID();;
 						tagList += '<div id="' + pillId +'" '
@@ -1798,21 +1780,21 @@ const app = {
 								+ tagList,
 						color: 'pearlwhite',
 						shadow: app.collectionViewer.elementColor.object,
-						button1: { content: 'erkunden', color: app.collectionViewer.elementColor.object, icon: 'arrow right' }
+						buttonSetup: [
+							{ label: 'erkunden', color: app.collectionViewer.elementColor.object, icon: 'arrow right' }
+							]
 					}
 
 					app.gui.message.setMessage(message);
 
-					app.gui.message.messageButton1El.addEventListener('click', (e) => {
+					app.gui.message.buttons.button[0].element.addEventListener('click', (e) => {
 						let url = '?m=mv&model=' + fgData.id + '';
 						window.location.href = url;
 					})
 				}
 
-				app.devMode && console.log('dev --- proxyfgData: ', app.collectionViewer.proxyfgData)
-
 				if(type === 'node-category'){
-					let objectList = '<div class="categorys">';
+					let objectList = '<div class="objects"><h6 class="text-smokegrey">Verbundene Objekte: </h6>';
 					for(let node of app.collectionViewer.proxyfgData.data.nodes) {
 						if(!node.categories.includes(fgData.name) || node.type === 'node-category'){ continue; }
 						let pillId = 'c-' + self.crypto.randomUUID();;
@@ -1826,12 +1808,6 @@ const app = {
 										+ '</div>';
 						this.pillArray.push('#'+pillId);
 					}
-
-					//let categoryList = fgData.categories.toString();
-					//categoryList = categoryList.replace(/,/g, ", ");
-	
-					//let tagList = fgData.tags.toString();
-					//tagList = tagList.replace(/,/g, ", ");
 					
 					let message = {
 						type: 'Kategorie',
@@ -1951,7 +1927,7 @@ const app = {
 				this.createElements();
 
 				document.addEventListener('proxyfgData-update', (event) => {
-					//app.devMode && console.log('dev --- cv > search > proxyfgData: ', app.collectionViewer.proxyfgData.data);
+					//app.dev && console.log('dev --- cv > search > proxyfgData: ', app.collectionViewer.proxyfgData.data);
 					let fgData = app.collectionViewer.proxyfgData.data.nodes;
 					for( let index in fgData){
 						let object = fgData[index];
@@ -1959,7 +1935,7 @@ const app = {
 							this.nodeArray.push(object.name);
 						}
 					}
-					//app.devMode && console.log('dev --- cv > search > nodeArray: ', this.nodeArray);
+					//app.dev && console.log('dev --- cv > search > nodeArray: ', this.nodeArray);
 					this.autocomplete(this.inputEl, this.nodeArray);
 				});
 			}, 
@@ -2164,7 +2140,7 @@ const app = {
 				this.createElements();
 
 				document.addEventListener('proxyfgData-update', (event) => {
-					//app.devMode && console.log('dev --- cv > filter > proxyfgData-update: ', app.collectionViewer.proxyfgData.data);
+					//app.dev && console.log('dev --- cv > filter > proxyfgData-update: ', app.collectionViewer.proxyfgData.data);
 					this.generateCheckBoxList('#cv-filter-category-list', app.collectionViewer.proxyfgData.data.categorylist, app.collectionViewer.elementColor.category);
 					this.generateCheckBoxList('#cv-filter-tag-list', app.collectionViewer.proxyfgData.data.taglist, app.collectionViewer.elementColor.tag);
 				});
@@ -2338,7 +2314,7 @@ const app = {
 				app.collectionViewer.filter.filteredData.categories = [];
 				app.collectionViewer.filter.filteredData.tags = [];
 
-				//app.devMode && console.log('dev --- cv > filter > updateForcegraph > loadJSONModelsComponent', loadJSONModelsComponent);
+				//app.dev && console.log('dev --- cv > filter > updateForcegraph > loadJSONModelsComponent', loadJSONModelsComponent);
 
 				for(let element of categoryListElement.children) {
 					let active = (element.getAttribute('data-active') === 'true');
@@ -2407,7 +2383,7 @@ const app = {
 			collectionViewerElement.setAttribute('xr-mode-ui', 'enabled: false');
 			collectionViewerElement.setAttribute('device-orientation-permission-ui', 'enabled: false');
 			collectionViewerElement.setAttribute('light', 'defaultLightsEnabled: false');
-			app.showStats && collectionViewerElement.setAttribute('stats', '');
+			app.stats && collectionViewerElement.setAttribute('stats', '');
 
 			const cursorEntity = document.createElement('a-entity');
 			collectionViewerElement.appendChild(cursorEntity);
@@ -2668,47 +2644,51 @@ const app = {
 		forcegraph.setAttribute('highlight', {noUpdate: false});
 	},
 
-	getViewerModeFromURL() {
+	getURLParameter(param = null) {
 		const queryString = window.location.search;
-		this.urlParams = new URLSearchParams(queryString);
+		const urlParams = new URLSearchParams(queryString);
 
-		if(this.urlParams.get('m')==='mv' ||	this.urlParams.get('m')==='cv' || this.urlParams.get('m')==='ar') {
-			return this.urlParams.get('m');
-		}else{
-			return false;
-		}
-	},
+		if(!param) { return false; }
 
-	getParamsModeFromURL(param = null) {
-		const queryString = window.location.search;
-		this.urlParams = new URLSearchParams(queryString);
-
-		if(!param) {return false;}
-
-		if(this.urlParams.get(param)==='true') {
-			return true;
+		if(urlParams.get(param)) {
+			return urlParams.get(param);
 		}
 
 		return false;
 	}, 
 
-	getErrorFromURL() {
-		const queryString = window.location.search;
-		this.urlParams = new URLSearchParams(queryString);
+	handleURLParameter() {
+		this.dev = (this.getURLParameter('dev') === 'true');
+		this.stats = (this.getURLParameter('stats') === 'true');
+		const mode = this.getURLParameter('m');
+		const error = this.getURLParameter('error');
+		this.dev && console.log('dev --- error: ', error);
 
-		if(this.urlParams.get('error')) {
-			return this.urlParams.get('error');
+		if(!this.viewerModes.includes(mode)){
+			this.viewerMode = false;
 		}else{
-			return false;
+			this.viewerMode = mode;
 		}
+
+		if(error && error.match('[0-9]+') && error.length === 3) {
+			this.error = error;
+		}
+
+
 	}, 
 
 	errorHandler(error){
-		this.devMode && console.log('dev --- error: ', error);
+		this.dev && console.log('dev --- error: ', error);
+
+		if(error === '000'){
+			this.gui.error.content.value = 'Error 000: Wrong URL Parameter for viewerMode.';
+			this.gui.error.button.label = 'OK';
+			this.gui.error.showError();
+		}
 
 		if(error === '001'){
-			this.gui.error.content = 'Error 001: A wrong or no model id was found in the URL.';
-			this.gui.error.buttonText = 'OK'
+			this.gui.error.content.value = 'Error 001: A wrong or no model id was found in the URL.';
+			this.gui.error.button.label = 'OK';
 			this.gui.error.showError();
 		}
 	}
