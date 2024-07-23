@@ -338,7 +338,7 @@ const app = {
 
 		if (!this.viewerMode) {
 			//redirect to collection viewer if no m is set in URL
-			let url='?m=cv&error=000';
+			let url='?m=cv';
 			this.dev ? url+='&dev=true' : '';
 			this.stats ? url+='&dev=stats' : '';
 			window.location.href = url;
@@ -2615,8 +2615,6 @@ const app = {
 		if(error && error.match('[0-9]+') && error.length === 3) {
 			this.error = error;
 		}
-
-
 	}, 
 
 	errorHandler(error){
