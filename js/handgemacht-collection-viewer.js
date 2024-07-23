@@ -687,12 +687,14 @@ AFRAME.registerComponent('highlight', {
 		}
 
 		for(let node of fgComp.nodes){
-			if (node.id != '' && node.model.material) {
+			if (node.model.material) {
 				if(node.tags.includes(sourceLink.name)){
 					node.model.material.opacity = 1;
 					node.model.material.visible = true;
+					node.__threeObj.visible = true;
 				}else{
 					node.model.material.visible = false;
+					node.__threeObj.visible = false;
 				}
 			}
 		}
@@ -718,8 +720,8 @@ AFRAME.registerComponent('highlight', {
 		}
 
 		for(let node of fgComp.nodes){
-			if (node.id != '' && node.model.material && typeof node.__threeObj !== 'undefined' && typeof sourceNode.__threeObj !== 'undefined') {
-				distance = node.__threeObj.position.distanceTo(sourceNode.__threeObj.position);
+			if (node.model.material && typeof node.__threeObj !== 'undefined') {
+				typeof sourceNode.__threeObj !== 'undefined' ? distance = node.__threeObj.position.distanceTo(sourceNode.__threeObj.position) : distance = 0;
 				if(modelArray.includes(node.id)){
 					node.model.material.opacity = 1;
 					node.model.material.visible = true;
@@ -782,16 +784,16 @@ AFRAME.registerComponent('highlight', {
 
 		this.highlightLinks(pill);
 
-		if (pill.type === 'category' || pill.type === 'object') {
+		if (type === 'category' || type === 'object') {
 			for(let node of fgComp.nodes){
-				if ((node.type === 'node-category' || node.type === 'node-object') && node.name === pill.name) {
+				if ((node.type === 'node-category' || node.type === 'node-object') && node.name === name) {
 					this.highlightModel(node);
 					return;
 				}
 			}
 		}
 
-		if (pill.type === 'tag') {
+		if (type === 'tag') {
 			for(let link of fgComp.links){
 				if (link.type === 'link-tag' && link.name === name) {
 					this.highlightLinks(link);

@@ -554,7 +554,7 @@ div.gui-loading-screen.transparent {
   opacity: 0;
 }
 
-div.gui-loading-container {
+div.animation-container {
   width: 270px;
   height: 585px;
   margin: 0;
@@ -562,12 +562,12 @@ div.gui-loading-container {
   padding-top: 150px;
 }
 
-div.gui-loading-container > div.text {
+div.animation-container > div.text {
   color: #9B9691;
   padding: 20px;
 }
 
-div.gui-loading-container > object.animation {
+div.animation-container > object.animation {
   width: 150px;
   height: auto;
 }
@@ -721,28 +721,24 @@ div.gui-message > div.button-container > button.button > img.button-icon {
 /* ---------- gui error ---------- */
 
 div.gui-error-container {
-  position: absolute;
-  top: 100px;
-  width: 270px;
-  height: 585px;
+  position: relative;
+  width: calc(100vw - 50%);
+  height: calc(100dvh - 50%);
   margin: 0;
   pointer-events: none;
   z-index: 4;
 }
 
-div.gui-error {
+div.gui-error-container > div.gui-error {
   position: absolute;
   width: 100%;
-  height: 40%;
-  bottom: 20px;
-  background-color: #FF7850;
-  color: #FAF0E6;
+  height: calc(100% - 15px);
   border-radius: 0px 20px 0px 20px;
   pointer-events: all;
   text-align: right;
 }
 
-div.gui-error-content-container {
+div.gui-error-container > div.gui-error > div.content-container {
   position: relative;
   margin-right: 5px;
   padding: 15px;
@@ -750,23 +746,18 @@ div.gui-error-content-container {
   overflow-y: scroll;
 }
 
-div.gui-error-content {
+div.gui-error-container > div.gui-error > div.content-container > div.content {
   text-align: left;
 }
 
-button.gui-error-button {
+div.gui-error-container > button.button {
   position: absolute;
-  bottom: 12px;
-  right: 30px;
+  bottom: 5px;
+  right: 15px;
+  min-width: 70px;
+  min-height: 30px;
   padding: 0 15px 0 15px;
-  box-shadow: 3px 3px #FF7850;
-  overflow-y: visible;
   pointer-events: all;
-  z-index: 1;
-}
-
-button.gui-error-button:hover {
-  box-shadow: 5px 5px #FF7850;
 }
 
 
@@ -774,7 +765,7 @@ button.gui-error-button:hover {
 
 /* ---------- gui fullscreen-image ---------- */
 
-div.gui-fullscreen-image-container {
+div.gui-fullscreen-container {
   position: fixed;
   top: 0;
   left: 0;
@@ -785,7 +776,7 @@ div.gui-fullscreen-image-container {
   z-index: 2; 
 }
 
-div.gui-fullscreen-image-container > img.image {
+div.gui-fullscreen-container > img.image {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -800,17 +791,18 @@ div.gui-fullscreen-image-container > img.image {
 
 /* ---------- gui menu ---------- */
 
-div.gui-menu-button {
+button.gui-menu-button {
   position: fixed;
   top: 15px;
   right: 20px;
   margin: 0;
   padding: 0;
   overflow: hidden;
+  background-color: transparent;
   z-index: 4;
 }
 
-div.gui-menu-button > img.icon {
+button.gui-menu-button > img.icon {
   display: block;
   width: 30px;
   height: 30px;
@@ -955,7 +947,7 @@ div.gui-toolbar.active {
   bottom: 25px;
 }
 
-button.gui-toolbar-button {
+div.gui-toolbar > button.button {
   display: flex;
   width: 50px;
   height: 50px;
@@ -968,34 +960,34 @@ button.gui-toolbar-button {
   overflow: hidden;
 }
 
-button.gui-toolbar-button.feedback {
+div.gui-toolbar > button.button.feedback {
   transition: none;
 }
 
-button.gui-toolbar-button.feedback > img {
+div.gui-toolbar > button.button.feedback > img {
   width: 30px;
   height: 30px;
 }
 
-button.gui-toolbar-button.slide {
+div.gui-toolbar > button.button.slide {
   width: 100%;
   height: 60px;
   margin: 0;
   border-radius: 30px;
 }
 
-button.gui-toolbar-button.tab {
+div.gui-toolbar > button.button.tab {
   height: 60px;
   transform: translateY(-5px);
   border-radius: 0 0 30px 30px;
 }
 
-button.gui-toolbar-button.inactive {
+div.gui-toolbar > button.button.inactive {
   opacity: 0.3;
   pointer-events: none;
 }
 
-button.gui-toolbar-button.remove {
+div.gui-toolbar > button.button.remove {
   width: 0;
   height: 0;
   opacity: 0;
@@ -1004,7 +996,7 @@ button.gui-toolbar-button.remove {
   transition: all 0s;
 }
 
-img.gui-toolbar-button-icon {
+div.gui-toolbar > button.button > img.icon {
   position: relative;
   width: 40px;
   height: 40px;
@@ -1015,21 +1007,21 @@ img.gui-toolbar-button-icon {
   transition-property: width, left, transform;
 }
 
-img.gui-toolbar-button-icon:active {
+div.gui-toolbar > button.button > img.icon:active {
   opacity: 0.5;
 }
 
-img.gui-toolbar-button-icon.slide {
+div.gui-toolbar > button.button > img.icon.slide {
   margin: 5px;
   left: 0;
   transform: translateX(0px);
 }
 
-img.gui-toolbar-button-icon.tab {
+div.gui-toolbar > button.button > img.icon.tab {
 
 }
 
-img.gui-toolbar-button-icon.inactive {
+div.gui-toolbar > button.button > img.icon.inactive {
   opacity: 0.2;
 }
 
@@ -1417,7 +1409,7 @@ div.cv-tooltip {
   z-index: 1;
 }
 
-div.cv-tooltip-type {
+div.cv-tooltip > div.type {
   position: absolute;
   top: 0px;
   left: 0px;
@@ -1425,10 +1417,11 @@ div.cv-tooltip-type {
   border-radius: 0px 7px 0px 0px;
   font-size: 0.75em;
   letter-spacing: .6px;
+  white-space: nowrap;
   z-index: 1;
 }
 
-div.cv-tooltip-content {
+div.cv-tooltip > div.content {
   position: absolute;
   top: 15px;
   padding: 3px 15px 4px 12px;
@@ -1483,43 +1476,49 @@ img.cv-highlight-arrow {
 
 
 
-button.cv-filter-button {
-  width: 100%;
-  background-color: initial;
-  text-align: left;
-}
-
-button.cv-filter-button.collapsible-button {
-}
-
-button.cv-filter-button.collapsible-button > div.arrow {
-  transition: all 0.25s;
-}
-
-button.cv-filter-button.collapsible-button.active > div.arrow {
-  transform: rotate(90deg);
-}
-
-button.cv-filter-button.text-small {
-  margin: 0 0 10px 0;
-}
-
 div.cv-filter-container {
   padding: 15px 0 0 0;
   margin: 0 0 20px 0;
   overflow: hidden;
 }
 
-div.cv-filter-container.collapsible-content {
+.collapsible-content {
   padding: 0;
   max-height: 0;
   transition: all 0.5s;
   overflow: hidden;
 }
 
-div.cv-filter-container.collapsible-content.active {
+.collapsible-content.active {
   padding: 15px 0 0 0;
   max-height: 200dvh;
+}
+
+div.cv-filter-container > div.list-container {
+}
+
+div.cv-filter-container > div.list-container > button.button {
+  width: 100%;
+  background-color: initial;
+  text-align: left;
+}
+
+div.cv-filter-container > div.list-container > button.button.collapsible-button {
+}
+
+div.cv-filter-container > div.list-container > button.button.collapsible-button > div.arrow {
+  transition: all 0.25s;
+}
+
+div.cv-filter-container > div.list-container > button.button.collapsible-button.active > div.arrow {
+  transform: rotate(90deg);
+}
+
+div.cv-filter-container > button.button.text-small {
+  margin: 0 0 10px 0;
+  width: 100%;
+  background-color: initial;
+  text-align: left;
 }
 
 
@@ -1547,7 +1546,7 @@ input.cv-search-input:focus {
   outline: none;
 }
 
-div.cv-search-autocomplete-list-container {
+div.autocomplete-list-container {
   position: absolute;
   width: 100%;
   max-height: 250px;
@@ -1558,15 +1557,14 @@ div.cv-search-autocomplete-list-container {
   overflow-y: scroll;
 }
 
-div.cv-search-autocomplete-list {
+div.autocomplete-list-container > div.autocomplete-list {
   padding: 10px;
 }
 
-div.cv-search-autocomplete-list > div {
+div.autocomplete-list-container > div.autocomplete-list > div {
   margin: 2px;
 }
-
-div.cv-search-autocomplete-list > div.autocomplete-active {
+div.autocomplete-list-container > div.autocomplete-list > div.autocomplete-active {
   font-size: 1.1rem;
   font-weight: 700;
   margin-left: 5px;

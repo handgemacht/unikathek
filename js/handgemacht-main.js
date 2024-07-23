@@ -346,15 +346,13 @@ const app = {
 
 		if (this.viewerMode === 'cv') {
 			this.gui.title.init();
-			this.gui.loadingScreen.content = 'loading collection viewer';
-			this.gui.loadingScreen.showLoadingScreen();
+			this.gui.loadingScreen.showLoadingScreen('loading collection viewer');
 			this.collectionViewer.init();
 		}
 
 		if (this.viewerMode === 'mv') {
 			document.body.innerHTML += modelViewerHTML;
-			this.gui.loadingScreen.content = 'loading model viewer';
-			this.gui.loadingScreen.showLoadingScreen();
+			this.gui.loadingScreen.showLoadingScreen('loading model viewer');
 		}
 
 		//test if WebXR AR is supported
@@ -364,8 +362,7 @@ const app = {
 			if (this.viewerMode === 'ar' && isSupported) {
 			//start ARViewer
 			this.arViewer.init();
-			this.gui.loadingScreen.content = 'loading augmented reality';
-			this.gui.loadingScreen.showLoadingScreen();
+			this.gui.loadingScreen.showLoadingScreen('loading augmented reality');
 			}else{
 				this.dev && console.log("dev --- WebXR AR is not supported on this browser");
 			}
@@ -397,16 +394,14 @@ const app = {
 			},
 
 			createElements() {
-				const guiTitleContainer = document.createElement('div');
-				this.titleContainerEl = guiTitleContainer;
-				document.body.appendChild(guiTitleContainer);
-				guiTitleContainer.className = 'gui-title-container';
+				this.containerEl = document.createElement('div');
+				document.body.appendChild(this.containerEl);
+				this.containerEl.className = 'gui-title-container';
 
-				const guiTitle = document.createElement('h1');
-				this.titleEl = guiTitle;
-				guiTitleContainer.appendChild(guiTitle);
-				guiTitle.className = 'title';
-				guiTitle.appendChild(document.createTextNode(app.title));
+				this.element = document.createElement('h1');
+				this.containerEl.appendChild(this.element);
+				this.element.className = 'title';
+				this.element.appendChild(document.createTextNode(app.title));
 			}
 		},
 
@@ -417,18 +412,18 @@ const app = {
 			},
 
 			createElements() {
-				const guiLogo = document.createElement('div');
-				document.body.appendChild(guiLogo);
-				guiLogo.className = 'gui-logo';
+				this.element = document.createElement('div');
+				document.body.appendChild(this.element);
+				this.element.className = 'gui-logo';
 		
-				const guiLogoImage = document.createElement('img');
-				guiLogo.appendChild(guiLogoImage);
-				guiLogoImage.className = 'logo';
-				guiLogoImage.src = app.assets.logo.src.coalgrey;
-				guiLogoImage.alt = app.assets.logo.alt;
-				guiLogoImage.width = 100;
-				guiLogoImage.height = 100;
-				guiLogoImage.setAttribute('loading', 'lazy');
+				this.element.image = document.createElement('img');
+				this.element.appendChild(this.element.image);
+				this.element.image.className = 'logo';
+				this.element.image.src = app.assets.logo.src.coalgrey;
+				this.element.image.alt = app.assets.logo.alt;
+				this.element.image.width = 100;
+				this.element.image.height = 100;
+				this.element.image.setAttribute('loading', 'lazy');
 			}
 		},
 
@@ -439,71 +434,72 @@ const app = {
 			},
 
 			createElements() {
-				const guiVersion = document.createElement('div');
-				document.body.appendChild(guiVersion);
-				guiVersion.className = 'gui-version text-smokegrey';
-				guiVersion.appendChild(document.createTextNode(app.version));
+				this.element = document.createElement('div');
+				document.body.appendChild(this.element);
+				this.element.className = 'gui-version text-smokegrey';
+				this.element.appendChild(document.createTextNode(app.version));
 			}
 		},
 
 		loadingScreen: {
-			content: 'loading...',
+			content: {
+				value: 'loading...',
+			},
 
 			init() {
 				this.createElements();
 			}, 
 
 			createElements() {
-				const guiLoadingScreen = document.createElement('div');
-				this.loadingScreenEl = guiLoadingScreen;
-				document.body.appendChild(guiLoadingScreen);
-				guiLoadingScreen.className = 'gui-loading-screen hide';
+				this.element = document.createElement('div');
+				document.body.appendChild(this.element);
+				this.element.className = 'gui-loading-screen hide';
 
-				const guiLoadingContainer = document.createElement('div');
-				this.loadingContainerEl = guiLoadingContainer;
-				guiLoadingScreen.appendChild(guiLoadingContainer);
-				guiLoadingContainer.className = 'gui-loading-container';
+				this.animation = {};
+
+				this.animation.containerEl = document.createElement('div');
+				this.element.appendChild(this.animation.containerEl);
+				this.animation.containerEl.className = 'animation-container';
+
+				this.animation.object = document.createElement('object');
+				this.animation.containerEl.appendChild(this.animation.object);
+				this.animation.object.className = 'animation';
+				this.animation.object.type = 'image/svg+xml';
+				this.animation.object.data = app.assets.loading.src;
+				this.animation.object.alt = app.assets.loading.alt;
+				this.animation.object.width = 100;
+				this.animation.object.height = 100;
 		
-				const guiLoadingAnimation = document.createElement('object');
-				this.loadingAnimationEl = guiLoadingAnimation;
-				guiLoadingContainer.appendChild(guiLoadingAnimation);
-				guiLoadingAnimation.className = 'animation';
-				guiLoadingAnimation.type = 'image/svg+xml';
-				guiLoadingAnimation.data = app.assets.loading.src;
-				guiLoadingAnimation.alt = app.assets.loading.alt;
-				guiLoadingAnimation.width = 100;
-				guiLoadingAnimation.height = 100;
-		
-				const guiLoadingText = document.createElement('div');
-				this.loadingTextEl = guiLoadingText;
-				guiLoadingContainer.appendChild(guiLoadingText);
-				guiLoadingText.className = 'text';
-				guiLoadingText.appendChild(document.createTextNode(this.content));
+				this.animation.textEl = document.createElement('div');
+				this.animation.textEl = this.animation.textEl;
+				this.animation.containerEl.appendChild(this.animation.textEl);
+				this.animation.textEl.className = 'text';
+				this.animation.textEl.appendChild(document.createTextNode(this.content.value));
 			}, 
 
-			showLoadingScreen() {
-				this.loadingScreenEl.classList.remove('hide');
-				this.loadingContainerEl.classList.remove('hide');
-				this.loadingScreenEl.classList.remove('transparent');
-				this.loadingTextEl.innerHTML = this.content;
-				if(app.gui.title.titleEl){
-					app.gui.title.titleEl.classList.add('text-pearlwhite');
+			showLoadingScreen(text) {
+				this.element.classList.remove('hide');
+				this.animation.containerEl.classList.remove('hide');
+				this.element.classList.remove('transparent');
+				this.animation.textEl.innerHTML = text;
+				if(app.gui.title.element){
+					app.gui.title.element.classList.add('text-pearlwhite');
 				}
 			}, 
 
 			hideLoadingScreen(timeout = 0) {
 				setTimeout(() => {
-					this.loadingScreenEl.classList.add('transparent');
-					this.content = 'loading ...';
+					this.element.classList.add('transparent');
+					this.animation.textEl.innerHTML = this.content.value;
 
-					if(app.gui.title.titleEl){
-						app.gui.title.titleEl.classList.remove('text-pearlwhite');
+					if(app.gui.title.element){
+						app.gui.title.element.classList.remove('text-pearlwhite');
 					}
 
-					this.loadingContainerEl.classList.add('hide');
+					this.animation.containerEl.classList.add('hide');
 
 					setTimeout(() => {
-						this.loadingScreenEl.classList.add('hide');
+						this.element.classList.add('hide');
 					}, 1500)
 
 				}, timeout);
@@ -962,20 +958,20 @@ const app = {
 
 				this.element = document.createElement('div');
 				this.containerEl.appendChild(this.element);
-				this.element.className = 'gui-error';
+				this.element.className = 'gui-error pearlwhite shadow-smokegrey';
 
 				this.content.containerEl = document.createElement('div');
 				this.element.appendChild(this.content.containerEl);
-				this.content.containerEl.className = 'gui-error-content-container';
+				this.content.containerEl.className = 'content-container';
 
 				this.content.element = document.createElement('div');
 				this.content.containerEl.appendChild(this.content.element);
-				this.content.element.className = 'gui-error-content';
+				this.content.element.className = 'content';
 				this.content.element.appendChild(document.createTextNode(this.content.value));
 
 				this.buttonEl = document.createElement('button');
 				this.containerEl.appendChild(this.buttonEl);
-				this.buttonEl.className = 'gui-error-button pearlwhite';
+				this.buttonEl.className = 'button pearlwhite shadow-smokegrey';
 				this.buttonEl.appendChild(document.createTextNode(this.button.label));
 			}, 
 
@@ -1012,34 +1008,32 @@ const app = {
 			}, 
 
 			createElements() {
-				const guiFullScreenContainer = document.createElement('div');
-				this.fullScreenContainerEl = guiFullScreenContainer;
-				document.body.appendChild(guiFullScreenContainer);
-				guiFullScreenContainer.className = 'gui-fullscreen-image-container hide';
+				this.containerEl = document.createElement('div');
+				document.body.appendChild(this.containerEl);
+				this.containerEl.className = 'gui-fullscreen-container hide';
 
-				const guiFullScreenImage = document.createElement('img');
-				this.guiFullScreenImageEl = guiFullScreenImage;
-				guiFullScreenContainer.appendChild(guiFullScreenImage);
-				guiFullScreenImage.className = 'image';
-				guiFullScreenImage.src = this.src;
-				guiFullScreenImage.alt = this.alt;
-				guiFullScreenImage.width = 100;
-				guiFullScreenImage.height = 100;
-				guiFullScreenImage.setAttribute('loading', 'lazy');
+				this.image = document.createElement('img');
+				this.containerEl.appendChild(this.image);
+				this.image.className = 'image';
+				this.image.src = this.src;
+				this.image.alt = this.alt;
+				this.image.width = 100;
+				this.image.height = 100;
+				this.image.setAttribute('loading', 'lazy');
 			}, 
 
 			showFullScreen() {
-				this.fullScreenContainerEl.classList.remove('hide');
-				this.guiFullScreenImageEl.src = this.src;
-				this.guiFullScreenImageEl.alt = this.alt;
+				this.containerEl.classList.remove('hide');
+				this.image.src = this.src;
+				this.image.alt = this.alt;
 			}, 
 
 			hideFullScreen() {
 				this.src = '';
 				this.alt = '';
-				this.fullScreenContainerEl.classList.add('hide');
-				this.guiFullScreenImageEl.src = this.src;
-				this.guiFullScreenImageEl.alt = this.alt;
+				this.containerEl.classList.add('hide');
+				this.image.src = this.src;
+				this.image.alt = this.alt;
 			}
 		},
 	
@@ -1052,119 +1046,126 @@ const app = {
 			},
 	
 			createElements() {
-				const menuButton = document.createElement('div');
-				this.burgerEl = menuButton;
-				document.body.appendChild(menuButton);
-				menuButton.className = 'gui-menu-button';
+				this.button = {};
+				this.button.element = document.createElement('button');
+				document.body.appendChild(this.button.element);
+				this.button.element.className = 'gui-menu-button';
+				this.button.element.setAttribute('aria-label', 'Menü-Button');
 	
-				const menuIcon = document.createElement('img');
-				this.menuIconEl = menuIcon;
-				menuButton.appendChild(menuIcon);
-				menuIcon.className = 'icon';
-				menuIcon.src = app.assets.icon['menu'].src.coalgrey;
-				menuIcon.alt = app.assets.icon['menu'].alt;
-				menuIcon.width = 100;
-				menuIcon.height = 100;
-				menuIcon.setAttribute('loading', 'lazy');
+				this.button.image = document.createElement('img');
+				this.button.element.appendChild(this.button.image);
+				this.button.image.className = 'icon';
+				this.button.image.src = app.assets.icon['menu'].src.coalgrey;
+				this.button.image.alt = app.assets.icon['menu'].alt;
+				this.button.image.width = 100;
+				this.button.image.height = 100;
+				this.button.image.setAttribute('loading', 'lazy');
 	
-				const container = document.createElement('div');
-				this.containerEl = container;
-				document.body.appendChild(container);
-				container.className = 'gui-menu-container hide';
+				this.containerEl = document.createElement('div');
+				document.body.appendChild(this.containerEl);
+				this.containerEl.className = 'gui-menu-container hide';
 
-				const closeContainer = document.createElement('div');
-				this.closeEl = closeContainer;
-				container.appendChild(closeContainer);
-				closeContainer.className = 'close';
+				this.closeEl = document.createElement('div');
+				this.containerEl.appendChild(this.closeEl);
+				this.closeEl.className = 'close';
 	
-				const closeSymbol = document.createElement('img');
-				closeContainer.appendChild(closeSymbol);
-				closeSymbol.className = 'close-icon';
-				closeSymbol.src = app.assets.icon.small['close'].src.pearlwhite;
-				closeSymbol.alt = app.assets.icon.small['close'].alt;
-				closeSymbol.width = 100;
-				closeSymbol.height = 100;
-				closeSymbol.setAttribute('loading', 'lazy');
+				this.closeEl.icon = document.createElement('img');
+				this.closeEl.appendChild(this.closeEl.icon);
+				this.closeEl.icon.className = 'close-icon';
+				this.closeEl.icon.src = app.assets.icon.small['close'].src.pearlwhite;
+				this.closeEl.icon.alt = app.assets.icon.small['close'].alt;
+				this.closeEl.icon.width = 100;
+				this.closeEl.icon.height = 100;
+				this.closeEl.icon.setAttribute('loading', 'lazy');
 
-				const content = document.createElement('div');
-				this.contentEl = content;
-				container.appendChild(content);
-				content.className = 'content';
-	
-				const logoContainer = document.createElement('div');
-				content.appendChild(logoContainer);
-				logoContainer.className = 'menu-logo';
-	
-				const logoImage = document.createElement('img');
-				logoContainer.appendChild(logoImage);
-				logoImage.className = 'logo';
-				logoImage.src = app.assets.logo.src.pearlwhite;
-				logoImage.alt = app.assets.logo.alt;
-				logoImage.width = 100;
-				logoImage.height = 100;
-				logoImage.setAttribute('loading', 'lazy');
-	
-				const title = document.createElement('div');
-				content.appendChild(title);
-				title.className = 'title';
-				title.appendChild(document.createTextNode(app.title));
-	
-				const text = document.createElement('div');
-				content.appendChild(text);
-				text.className = 'text';
-				text.appendChild(document.createTextNode(this.text));
-	
-				const buttons = document.createElement('div');
-				content.appendChild(buttons);
-				buttons.className = 'button-container';
-	
-				const buttonsLinkProject = document.createElement('a');
-				buttonsLinkProject.href = '#'; //Links anpassen
-				buttons.appendChild(buttonsLinkProject);
-				const projectButton = document.createElement('button');
-				buttonsLinkProject.appendChild(projectButton);
-				projectButton.className = 'pearlwhite shadow-smokegrey';
-				projectButton.appendChild(document.createTextNode('Das Projekt'));
-	
-				const buttonsLinkPatronage = document.createElement('a');
-				buttonsLinkPatronage.href = '#'; //Links anpassen
-				buttons.appendChild(buttonsLinkPatronage);
-				const patronageButton = document.createElement('button');
-				buttonsLinkPatronage.appendChild(patronageButton);
-				patronageButton.className = 'pearlwhite shadow-smokegrey';
-				patronageButton.appendChild(document.createTextNode('Die Förderung'));
-	
-				const links = document.createElement('div');
-				content.appendChild(links);
-				links.className = 'link-container';
+				this.content = {};
+				this.content.element = document.createElement('div');
+				this.containerEl.appendChild(this.content.element);
+				this.content.element.className = 'content';
 
-				const linksLinkContact = document.createElement('a');
-				linksLinkContact.href = 'https://dev.handgemacht.bayern?mv=ar&model=00000000-0000-0000-0000-000000000001'; //Links anpassen
-				links.appendChild(linksLinkContact);
-				linksLinkContact.appendChild(document.createTextNode('Kontakt'));
+				this.content.logo = {};
+				this.content.logo.element = document.createElement('div');
+				this.content.element.appendChild(this.content.logo.element);
+				this.content.logo.element.className = 'menu-logo';
 	
-				const linksLinkImprint = document.createElement('a');
-				linksLinkImprint.href = '#'; //Links anpassen
-				links.appendChild(linksLinkImprint);
-				linksLinkImprint.appendChild(document.createTextNode('Impressum'));
+				this.content.logo.image = document.createElement('img');
+				this.content.logo.element.appendChild(this.content.logo.image);
+				this.content.logo.image.className = 'logo';
+				this.content.logo.image.src = app.assets.logo.src.pearlwhite;
+				this.content.logo.image.alt = app.assets.logo.alt;
+				this.content.logo.image.width = 100;
+				this.content.logo.image.height = 100;
+				this.content.logo.image.setAttribute('loading', 'lazy');
+
+				this.content.title = {};
+				this.content.title.element = document.createElement('div');
+				this.content.element.appendChild(this.content.title.element);
+				this.content.title.element.className = 'title';
+				this.content.title.element.appendChild(document.createTextNode(app.title));
+				
+				this.content.text = {};
+				this.content.text = document.createElement('div');
+				this.content.element.appendChild(this.content.text);
+				this.content.text.className = 'text';
+				this.content.text.appendChild(document.createTextNode(this.text));
+
+				this.content.buttons = {};
+				this.content.buttons.containerEl = document.createElement('div');
+				this.content.element.appendChild(this.content.buttons.containerEl);
+				this.content.buttons.containerEl.className = 'button-container';
+				
+				this.content.buttons.project = {};
+				this.content.buttons['project'].linkEl = document.createElement('a');
+				this.content.buttons['project'].linkEl.href = '#'; //Links anpassen
+				this.content.buttons.containerEl.appendChild(this.content.buttons['project'].linkEl);
+				this.content.buttons['project'].element = document.createElement('button');
+				this.content.buttons['project'].linkEl.appendChild(this.content.buttons['project'].element);
+				this.content.buttons['project'].element.className = 'pearlwhite shadow-smokegrey';
+				this.content.buttons['project'].element.appendChild(document.createTextNode('Das Projekt'));
+				
+				this.content.buttons.patronage = {};
+				this.content.buttons['patronage'].linkEl = document.createElement('a');
+				this.content.buttons['patronage'].linkEl.href = '#'; //Links anpassen
+				this.content.buttons.containerEl.appendChild(this.content.buttons['patronage'].linkEl);
+				this.content.buttons['patronage'].element = document.createElement('button');
+				this.content.buttons['patronage'].linkEl.appendChild(this.content.buttons['patronage'].element);
+				this.content.buttons['patronage'].element.className = 'pearlwhite shadow-smokegrey';
+				this.content.buttons['patronage'].element.appendChild(document.createTextNode('Die Förderung'));
+				
+				this.content.links = {};
+				this.content.links.containerEl = document.createElement('div');
+				this.content.element.appendChild(this.content.links.containerEl);
+				this.content.links.containerEl.className = 'link-container';
+
+				this.content.links.contact = {};
+				this.content.links['contact'].element = document.createElement('a');
+				this.content.links['contact'].element.href = 'https://dev.handgemacht.bayern?mv=ar&model=00000000-0000-0000-0000-000000000001'; //Links anpassen
+				this.content.links.containerEl.appendChild(this.content.links['contact'].element);
+				this.content.links['contact'].element.appendChild(document.createTextNode('Kontakt'));
 	
-				const version = document.createElement('div');
-				content.appendChild(version);
-				version.className = 'version';
-				version.appendChild(document.createTextNode(app.version));
+				this.content.links.imprint = {};
+				this.content.links['imprint'].element = document.createElement('a');
+				this.content.links['imprint'].element.href = '#'; //Links anpassen
+				this.content.links.containerEl.appendChild(this.content.links['imprint'].element);
+				this.content.links['imprint'].element.appendChild(document.createTextNode('Impressum'));
 	
-				const patronage = document.createElement('div');
-				container.appendChild(patronage);
-				patronage.className = 'patronage-logo';
+				this.content.versionEl = document.createElement('div');
+				this.content.element.appendChild(this.content.versionEl);
+				this.content.versionEl.className = 'version';
+				this.content.versionEl.appendChild(document.createTextNode(app.version));
 	
-				const patronageImage = document.createElement('img');
-				patronage.appendChild(patronageImage);
-				patronageImage.className = 'logo';
-				patronageImage.src = app.assets.patronage.src;
-				patronageImage.alt = app.assets.patronage.alt;
-				patronageImage.width = 270;
-				patronageImage.height = 97;
-				patronageImage.setAttribute('loading', 'lazy');
+				this.content.patronageEl = document.createElement('div');
+				this.containerEl.appendChild(this.content.patronageEl);
+				this.content.patronageEl.className = 'patronage-logo';
+	
+				this.content.patronageEl.image = document.createElement('img');
+				this.content.patronageEl.appendChild(this.content.patronageEl.image);
+				this.content.patronageEl.image.className = 'logo';
+				this.content.patronageEl.image.src = app.assets.patronage.src;
+				this.content.patronageEl.image.alt = app.assets.patronage.alt;
+				this.content.patronageEl.image.width = 270;
+				this.content.patronageEl.image.height = 97;
+				this.content.patronageEl.image.setAttribute('loading', 'lazy');
 			},
 	
 			setEventListener() {
@@ -1173,24 +1174,24 @@ const app = {
 						app.gui.menu.hideMenu();
 					});
 				}
-				if(this.burgerEl) {
-					this.burgerEl.addEventListener('click', (evt) => {
+				if(this.button.element) {
+					this.button.element.addEventListener('click', (evt) => {
 						app.gui.menu.showMenu();
 					});
 				}
 			},
 	
 			showMenu() {
-				if(this.containerEl && this.burgerEl) {
+				if(this.containerEl && this.button.element) {
 					this.containerEl.classList.remove('hide');
-					this.burgerEl.classList.add('hide');
+					this.button.element.classList.add('hide');
 				}	
 			},
 	
 			hideMenu() {
-				if(this.containerEl && this.burgerEl) {
+				if(this.containerEl && this.button.element) {
 					this.containerEl.classList.add('hide');
-					this.burgerEl.classList.remove('hide');
+					this.button.element.classList.remove('hide');
 				}
 			}
 		}, 
@@ -1201,119 +1202,65 @@ const app = {
 			},
 	
 			createElements() {
-				const toolbarBox = document.createElement('div');
-				this.toolbarBoxEl = toolbarBox;
-				document.body.appendChild(toolbarBox);
-				toolbarBox.className = 'gui-toolbar-box';
+				this.boxEl = document.createElement('div');
+				document.body.appendChild(this.boxEl);
+				this.boxEl.className = 'gui-toolbar-box';
 
-				const toolbarContainer = document.createElement('div');
-				this.toolbarContainerEl = toolbarContainer;
-				toolbarBox.appendChild(toolbarContainer);
-				toolbarContainer.className = 'gui-toolbar-container';
+				this.containerEl = document.createElement('div');
+				this.boxEl.appendChild(this.containerEl);
+				this.containerEl.className = 'gui-toolbar-container';
 
-				const toolbar = document.createElement('div');
-				this.toolbarEl = toolbar;
-				toolbarContainer.appendChild(toolbar);
-				toolbar.className = 'gui-toolbar';
+				this.element = document.createElement('div');
+				this.containerEl.appendChild(this.element);
+				this.element.className = 'gui-toolbar';
 
-				const toolbarTabBox = document.createElement('div');
-				this.toolbarTabBoxEl = toolbarTabBox;
-				toolbarContainer.appendChild(toolbarTabBox);
-				toolbarTabBox.className = 'tab-container';
+				this.tab = {};
+				this.tab.boxEl = document.createElement('div');
+				this.containerEl.appendChild(this.tab.boxEl);
+				this.tab.boxEl.className = 'tab-container';
 
-				const toolbarTab = document.createElement('div');
-				this.toolbarTabEl = toolbarTab;
-				toolbarTabBox.appendChild(toolbarTab);
-				toolbarTab.className = 'tab';
+				this.tab.element = document.createElement('div');
+				this.tab.boxEl.appendChild(this.tab.element);
+				this.tab.element.className = 'tab';
 
-				const toolbarTabContentContainer = document.createElement('div');
-				this.toolbarTabContentContainerEl = toolbarTabContentContainer;
-				toolbarTab.appendChild(toolbarTabContentContainer);
-				toolbarTabContentContainer.className = 'content-container';
+				this.tab.content = {};
+				this.tab.content.containerEl = document.createElement('div');
+				this.tab.element.appendChild(this.tab.content.containerEl);
+				this.tab.content.containerEl.className = 'content-container';
 
-				const toolbarTabContentFade = document.createElement('div');
-				this.toolbarTabContentFadeEl = toolbarTabContentFade;
-				toolbarTab.appendChild(toolbarTabContentFade);
-				toolbarTabContentFade.className = 'fade';
+				this.tab.content.fadeEl = document.createElement('div');
+				this.tab.element.appendChild(this.tab.content.fadeEl);
+				this.tab.content.fadeEl.className = 'fade';
 
-				const toolbarTabContentFadeBar = document.createElement('div');
-				this.toolbarTabContentFadeBarEl = toolbarTabContentFadeBar;
-				toolbarTab.appendChild(toolbarTabContentFadeBar);
-				toolbarTabContentFadeBar.className = 'bar';
+				this.tab.content.barEl = document.createElement('div');
+				this.tab.element.appendChild(this.tab.content.barEl);
+				this.tab.content.barEl.className = 'bar';
 
-				const toolbarTabContent = document.createElement('div');
-				this.toolbarTabContentEl = toolbarTabContent;
-				toolbarTabContentContainer.appendChild(toolbarTabContent);
-				toolbarTabContent.className = 'content';
+				this.tab.content.element = document.createElement('div');
+				this.tab.content.containerEl.appendChild(this.tab.content.element);
+				this.tab.content.element.className = 'content';
 
-				const toolbarButton1 = document.createElement('button');
-				this.toolbarButton1El = toolbarButton1;
-				toolbar.appendChild(toolbarButton1);
-				toolbarButton1.setAttribute('id', 'toolbar-button-1');
-				toolbarButton1.setAttribute('aria-label', 'Button');
-				toolbarButton1.className = 'gui-toolbar-button hide';
+				this.button = [];
+				for (var i = 0; i < 4; i++) {
+					this.button[i] = document.createElement('button');
+					this.element.appendChild(this.button[i]);
+					this.button[i].setAttribute('id', 'toolbar-button-'+i);
+					this.button[i].setAttribute('aria-label', 'Button');
+					this.button[i].className = 'button hide';
 
-				const toolbarButton1Icon = document.createElement('img');
-				this.toolbarButton1IconEl = toolbarButton1Icon;
-				toolbarButton1.appendChild(toolbarButton1Icon);
-				toolbarButton1Icon.className = 'gui-toolbar-button-icon';
-				toolbarButton1Icon.alt = 'Button-Icon';
-				toolbarButton1Icon.width = 100;
-				toolbarButton1Icon.height = 100;
-				toolbarButton1Icon.setAttribute('loading', 'lazy');
-
-				const toolbarButton2 = document.createElement('button');
-				this.toolbarButton2El = toolbarButton2;
-				toolbar.appendChild(toolbarButton2);
-				toolbarButton2.setAttribute('id', 'toolbar-button-2');
-				toolbarButton2.setAttribute('aria-label', 'Button');
-				toolbarButton2.className = 'gui-toolbar-button hide';
-
-				const toolbarButton2Icon = document.createElement('img');
-				this.toolbarButton2IconEl = toolbarButton2Icon;
-				toolbarButton2.appendChild(toolbarButton2Icon);
-				toolbarButton2Icon.className = 'gui-toolbar-button-icon';
-				toolbarButton2Icon.alt = 'Button-Icon';
-				toolbarButton2Icon.width = 100;
-				toolbarButton2Icon.height = 100;
-				toolbarButton2Icon.setAttribute('loading', 'lazy');
-
-				const toolbarButton3 = document.createElement('button');
-				this.toolbarButton3El = toolbarButton3;
-				toolbar.appendChild(toolbarButton3);
-				toolbarButton3.setAttribute('id', 'toolbar-button-3');
-				toolbarButton3.setAttribute('aria-label', 'Button');
-				toolbarButton3.className = 'gui-toolbar-button hide';
-
-				const toolbarButton3Icon = document.createElement('img');
-				this.toolbarButton3IconEl = toolbarButton3Icon;
-				toolbarButton3.appendChild(toolbarButton3Icon);
-				toolbarButton3Icon.className = 'gui-toolbar-button-icon';
-				toolbarButton3Icon.alt = 'Button-Icon';
-				toolbarButton3Icon.width = 100;
-				toolbarButton3Icon.height = 100;
-				toolbarButton3Icon.setAttribute('loading', 'lazy');
-
-				const toolbarButton4 = document.createElement('button');
-				this.toolbarButton4El = toolbarButton4;
-				toolbar.appendChild(toolbarButton4);
-				toolbarButton4.setAttribute('id', 'toolbar-button-4');
-				toolbarButton4.setAttribute('aria-label', 'Button');
-				toolbarButton4.className = 'gui-toolbar-button hide';
-
-				const toolbarButton4Icon = document.createElement('img');
-				this.toolbarButton4IconEl = toolbarButton4Icon;
-				toolbarButton4.appendChild(toolbarButton4Icon);
-				toolbarButton4Icon.className = 'gui-toolbar-button-icon';
-				toolbarButton4Icon.alt = 'Button-Icon';
-				toolbarButton4Icon.width = 100;
-				toolbarButton4Icon.height = 100;
-				toolbarButton4Icon.setAttribute('loading', 'lazy');
+					this.button[i].icon = document.createElement('img');
+					this.button[i].appendChild(this.button[i].icon);
+					this.button[i].icon.className = 'icon';
+					this.button[i].icon.alt = 'Button-Icon';
+					this.button[i].icon.width = 100;
+					this.button[i].icon.height = 100;
+					this.button[i].icon.setAttribute('loading', 'lazy');
+				}
 			}, 
 
 			setToolbar(color = 'pearlwhite', shadowColor = 'shadow-smokegrey') {
-				if(typeof this.toolbarEl != 'undefined'){
-					let toolbar = this.toolbarEl;
+				if(typeof this.element != 'undefined'){
+					let toolbar = this.element;
 					color && toolbar.classList.add(color);
 					shadowColor && toolbar.classList.add(shadowColor);
 					toolbar.classList.add('active');
@@ -1322,22 +1269,22 @@ const app = {
 
 			toggleToolbar(forceShow = null) {
 				if(forceShow === true) {
-					this.toolbarEl.classList.remove('active');
-					this.toolbarEl.classList.add('active');
+					this.element.classList.remove('active');
+					this.element.classList.add('active');
 					return;
 				}
 				if(forceShow === false) {
-					this.toolbarEl.classList.remove('active');
+					this.element.classList.remove('active');
 					return;
 				}
-				this.toolbarEl.classList.toggle('active');
+				this.element.classList.toggle('active');
 			},
 
 			setToolbarTab(colors) {
-				if(typeof this.toolbarTabEl != 'undefined'){
-					let toolbarTab = this.toolbarTabEl;
-					let fade = this.toolbarTabContentFadeEl;
-					let fadeBar = this.toolbarTabContentFadeBarEl;
+				if(typeof this.tab.element != 'undefined'){
+					let toolbarTab = this.tab.element;
+					let fade = this.tab.content.fadeEl;
+					let fadeBar = this.tab.content.barEl;
 
 					if(toolbarTab.classList.contains('active')){
 						toolbarTab.className = 'tab active';
@@ -1438,7 +1385,7 @@ const app = {
 			buttonActionSlide(button) {
 				if(typeof button === 'undefined' || button.children.length < 1) { return; }
 				
-				let toolbar = this.toolbarEl;
+				let toolbar = this.element;
 				let iconElement = button.children[0];
 				let active = (button.getAttribute('data-active') === 'true');
 				let selectedContentElement = document.querySelector(button.getAttribute('data-selector'));
@@ -1483,7 +1430,7 @@ const app = {
 			}, 
 
 			buttonActionFeedback(button) {
-				let toolbar = this.toolbarEl;
+				let toolbar = this.element;
 				if(typeof button != 'undefined' && button.children.length != 0){
 					let iconElement = button.children[0];
 					//add button class action
@@ -1496,10 +1443,10 @@ const app = {
 			},
 
 			buttonActionTab(button) {
-				let toolbar = this.toolbarEl;
-				let toolbarTab = this.toolbarTabEl
-				let toolbarTabContent = this.toolbarTabContentEl;
-				let toolbarTabFade = this.toolbarTabContentFadeEl;
+				let toolbar = this.element;
+				let toolbarTab = this.tab.element
+				let toolbarTabContent = this.tab.content.element;
+				let toolbarTabFade = this.tab.content.fadeEl;
 				if(typeof button != 'undefined' && button.children.length != 0){
 					let iconElement = button.children[0];
 					let colors = JSON.parse(button.getAttribute('data-colors'));
@@ -1581,19 +1528,19 @@ const app = {
 
 			app.gui.toolbar.setButton(this.search.buttonSetup);
 			this.search.init();
-			app.gui.toolbar.toolbarButton2IconEl.addEventListener('click', (e) => {
+			app.gui.toolbar.button[1].icon.addEventListener('click', (e) => {
 				app.collectionViewer.search.resetSearchInput();
 			})
 
 			app.gui.toolbar.setButton(this.filter.buttonSetup);
 			this.filter.init();
-			app.gui.toolbar.toolbarButton3IconEl.addEventListener('click', (e) => {
+			app.gui.toolbar.button[2].icon.addEventListener('click', (e) => {
 				app.collectionViewer.filter.filterUpdated ? app.collectionViewer.filter.updateForcegraph() : '';
 			})
 
 			app.gui.toolbar.setButton(this.resetView.buttonSetup);
 			this.resetView.init();
-			app.gui.toolbar.toolbarButton4IconEl.addEventListener('click', (e) => {
+			app.gui.toolbar.button[3].icon.addEventListener('click', (e) => {
 				app.collectionViewer.resetView.resetCameraView();
 			})
 		},
@@ -1605,58 +1552,57 @@ const app = {
 			},
 
 			createElements() {
-				const tooltip = document.createElement('div');
-				this.tooltipEl = tooltip;
-				document.body.appendChild(tooltip);
-				tooltip.className = 'cv-tooltip hide';
+				this.element = document.createElement('div');
+				document.body.appendChild(this.element);
+				this.element.className = 'cv-tooltip hide';
 	
-				const tooltipType = document.createElement('div');
-				this.tooltipTypeEl = tooltipType;
-				tooltip.appendChild(tooltipType);
-				tooltipType.className = 'cv-tooltip-type';
+				this.typeEl = document.createElement('div');
+				this.typeEl = this.typeEl;
+				this.element.appendChild(this.typeEl);
+				this.typeEl.className = 'type';
 	
-				const tooltipContent = document.createElement('div');
-				this.tooltipContentEl = tooltipContent;
-				tooltip.appendChild(tooltipContent);
-				tooltipContent.className = 'cv-tooltip-content';
+				this.contentEl = document.createElement('div');
+				this.contentEl = this.contentEl;
+				this.element.appendChild(this.contentEl);
+				this.contentEl.className = 'content';
 			}, 
 
 			showTooltip(type, content) {
 				let typeText = '';
 				if(type === 'node-object'){
 					typeText = 'Objekt'
-					this.tooltipTypeEl.classList.add(app.collectionViewer.elementColor.object);
-					this.tooltipContentEl.classList.add(app.collectionViewer.elementColor.object);
+					this.typeEl.classList.add(app.collectionViewer.elementColor.object);
+					this.contentEl.classList.add(app.collectionViewer.elementColor.object);
 				}
 				if(type === 'node-category'){
 					typeText = 'Kategorie'
-					this.tooltipTypeEl.classList.add(app.collectionViewer.elementColor.category);
-					this.tooltipContentEl.classList.add(app.collectionViewer.elementColor.category);
+					this.typeEl.classList.add(app.collectionViewer.elementColor.category);
+					this.contentEl.classList.add(app.collectionViewer.elementColor.category);
 				}
 				if(type === 'link-tag'){
-					typeText = 'Link'
-					this.tooltipTypeEl.classList.add(app.collectionViewer.elementColor.tag);
-					this.tooltipContentEl.classList.add(app.collectionViewer.elementColor.tag);
+					typeText = 'Tag-Link'
+					this.typeEl.classList.add(app.collectionViewer.elementColor.tag);
+					this.contentEl.classList.add(app.collectionViewer.elementColor.tag);
 				}
 				if(type === 'link-category'){
-					typeText = 'Link'
-					this.tooltipTypeEl.classList.add(app.collectionViewer.elementColor.category);
-					this.tooltipContentEl.classList.add(app.collectionViewer.elementColor.category);
+					typeText = 'Kategorie-Link'
+					this.typeEl.classList.add(app.collectionViewer.elementColor.category);
+					this.contentEl.classList.add(app.collectionViewer.elementColor.category);
 				}
-				this.tooltipTypeEl.appendChild(document.createTextNode(typeText));
-				this.tooltipContentEl.appendChild(document.createTextNode(content));
-				this.tooltipEl.classList.remove('hide');
+				this.typeEl.appendChild(document.createTextNode(typeText));
+				this.contentEl.appendChild(document.createTextNode(content));
+				this.element.classList.remove('hide');
 			}, 
 
 			hideTooltip() {
-				this.tooltipEl.classList.add('hide');
-				this.tooltipTypeEl.innerHTML = '';
-				this.tooltipTypeEl.className = 'cv-tooltip-type';
-				this.tooltipContentEl.innerHTML = '';
-				this.tooltipContentEl.className = 'cv-tooltip-content';
+				this.element.classList.add('hide');
+				this.typeEl.innerHTML = '';
+				this.typeEl.className = 'type';
+				this.contentEl.innerHTML = '';
+				this.contentEl.className = 'content';
 			}, 
 
-			mouseoverHandler(fgData) {
+			mouseoverHandler(fgElement) {
 				this.hideTooltip();
 
 				function isTouchDevice() {
@@ -1674,8 +1620,8 @@ const app = {
 						var y = !isTouchDevice() ? e.pageY : e.touches[0].pageY;
 					} catch (e) {}
 			
-					this.tooltipEl.style.left = x + 25 + 'px';
-					this.tooltipEl.style.top = y + 25 + 'px';
+					this.element.style.left = x + 25 + 'px';
+					this.element.style.top = y + 25 + 'px';
 				};
 			
 				document.addEventListener('mousemove', (e) => {
@@ -1687,25 +1633,25 @@ const app = {
 
 				let type = '';
 
-				fgData ? type = fgData.type : type = 'none';
+				fgElement ? type = fgElement.type : type = 'none';
 
 				if(type === 'none'){
 					return;
 				}
 
-				if (fgData.type === 'link-tag' || fgData.type === 'link-category') {
-					if (fgData.material.visible === false) {
+				if (fgElement.type === 'link-tag' || fgElement.type === 'link-category') {
+					if (fgElement.material.visible === false) {
 						return;
 					}
-				}else if(fgData.type === 'node-object' || fgData.type === 'node-category'){
-					if (fgData.model.material.visible === false) {
+				}else if(fgElement.type === 'node-object' || fgElement.type === 'node-category'){
+					if (fgElement.model.material.visible === false) {
 						return;
 					}
 				}
 
 				if(isTouchDevice()) { return; }
 
-				this.showTooltip(fgData.type, fgData.name);
+				this.showTooltip(fgElement.type, fgElement.name);
 			} 
 		},
 
@@ -1725,48 +1671,48 @@ const app = {
 				}
 			},
 
-			onclickHandler(fgData) {
+			onclickHandler(fgNode) {
 				let type = '';
-				fgData ? type = fgData.type : type = 'none';
+				fgNode ? type = fgNode.type : type = 'none';
 			
 				if(type !== 'none'){
 					app.gui.message.hideMessage();
-					app.collectionViewer.highlight.generateMessage(fgData);
+					app.collectionViewer.highlight.generateMessage(fgNode);
 				}
 			}, 
 
-			generateMessage(fgData) {
+			generateMessage(fgNode) {
 				let type = '';
-				fgData ? type = fgData.type : type = 'none';
+				fgNode ? type = fgNode.type : type = 'none';
 
 				this.pillArray = [];
 				
 				if(type === 'node-object'){
 					let categoryList = '<div class="categories"><h6 class="text-smokegrey">Kategorien: </h6>';
-					for(let category in fgData.categories) {
+					for(let category in fgNode.categories) {
 						let pillId = 'c-' + self.crypto.randomUUID();;
 						categoryList += '<div id="' + pillId +'" '
 										+ 'class="pill shadow-' + app.collectionViewer.elementColor.category + ' text-coalgrey" '
-										+ 'data-model-id="' + fgData.id +'" '
+										+ 'data-model-id="' + fgNode.id +'" '
 										+ 'data-color="' + app.collectionViewer.elementColor.category +'" '
-										+ 'data-name="' + fgData.categories[category].replace(/"/g, '&quot;') +'" '
+										+ 'data-name="' + fgNode.categories[category].replace(/"/g, '&quot;') +'" '
 										+ 'data-type="category" data-active="false">' 
-										+ fgData.categories[category] 
+										+ fgNode.categories[category] 
 										+ '</div>';
 						this.pillArray.push('#'+pillId);
 					}
 					categoryList += '</div>';
 	
 					let tagList = '<div class="tags"><h6 class="text-smokegrey">Tags: </h6>';
-					for(let tag in fgData.tags) {
+					for(let tag in fgNode.tags) {
 						let pillId = 't-' + self.crypto.randomUUID();;
 						tagList += '<div id="' + pillId +'" '
 										+ 'class="pill shadow-' + app.collectionViewer.elementColor.tag + ' text-coalgrey" '
-										+ 'data-model-id="' + fgData.id +'" '
+										+ 'data-model-id="' + fgNode.id +'" '
 										+ 'data-color="' + app.collectionViewer.elementColor.tag +'" '
-										+ 'data-name="' + fgData.tags[tag].replace(/"/g, '&quot;') +'" '
+										+ 'data-name="' + fgNode.tags[tag].replace(/"/g, '&quot;') +'" '
 										+ 'data-type="tag" data-active="false">' 
-										+ fgData.tags[tag] 
+										+ fgNode.tags[tag] 
 										+ '</div>';
 						this.pillArray.push('#'+pillId);
 					}
@@ -1774,7 +1720,7 @@ const app = {
 
 					let message = {
 						type: 'Objekt',
-						content: '<h3>' + fgData.name + '</h3>'
+						content: '<h3>' + fgNode.name + '</h3>'
 								+ '<p>Hier steht später eine Objektbeschreibung</p>'
 								+ categoryList
 								+ tagList,
@@ -1788,7 +1734,7 @@ const app = {
 					app.gui.message.setMessage(message);
 
 					app.gui.message.buttons.button[0].element.addEventListener('click', (e) => {
-						let url = '?m=mv&model=' + fgData.id + '';
+						let url = '?m=mv&model=' + fgNode.id + '';
 						window.location.href = url;
 					})
 				}
@@ -1796,11 +1742,11 @@ const app = {
 				if(type === 'node-category'){
 					let objectList = '<div class="objects"><h6 class="text-smokegrey">Verbundene Objekte: </h6>';
 					for(let node of app.collectionViewer.proxyfgData.data.nodes) {
-						if(!node.categories.includes(fgData.name) || node.type === 'node-category'){ continue; }
+						if(!node.categories.includes(fgNode.name) || node.type === 'node-category'){ continue; }
 						let pillId = 'c-' + self.crypto.randomUUID();;
 						objectList += '<div id="' + pillId +'" '
 										+ 'class="pill shadow-' + app.collectionViewer.elementColor.object + ' text-coalgrey" '
-										+ 'data-model-id="' + node.id +'" '
+										+ 'data-model-id="' + fgNode.id +'" '
 										+ 'data-color="' + app.collectionViewer.elementColor.object +'" '
 										+ 'data-name="' + node.name.replace(/"/g, '&quot;') +'" '
 										+ 'data-type="object" data-active="false">' 
@@ -1811,7 +1757,7 @@ const app = {
 					
 					let message = {
 						type: 'Kategorie',
-						content: '<h3>' + fgData.name + '</h3>'
+						content: '<h3>' + fgNode.name + '</h3>'
 								+ '<p>Hier steht später eine Kategoriebeschreibung</p>'
 								+ objectList,
 						color: 'pearlwhite',
@@ -1869,7 +1815,7 @@ const app = {
 		info: {
 
 			buttonSetup: {
-				id: '#toolbar-button-1',
+				id: '#toolbar-button-0',
 				name: 'Informationen',
 				colors: {
 					button: 'skyblue',
@@ -1899,7 +1845,7 @@ const app = {
 		search: {
 
 			buttonSetup: {
-				id: '#toolbar-button-2',
+				id: '#toolbar-button-1',
 				name: 'Suche',
 				colors: {
 					button: 'terracotta',
@@ -1943,34 +1889,30 @@ const app = {
 			createElements() {
 				if(typeof document.querySelector(this.buttonSetup.id) === 'undefined'){ return; };
 
-				this.buttonEl = document.querySelector(this.buttonSetup.id);
+				this.button = {};
+				this.button.element = document.querySelector(this.buttonSetup.id);
 
-				let inputContainer = document.createElement('div');
-				this.inputContainer = inputContainer;
-				this.buttonEl.appendChild(inputContainer);
-				inputContainer.className = 'cv-search-input-container hide';
+				this.button.input = {};
+				this.button.input.containerEl = document.createElement('div');
+				this.button.element.appendChild(this.button.input.containerEl);
+				this.button.input.containerEl.className = 'cv-search-input-container hide';
 
-				let input = document.createElement('input');
-				this.inputEl = input;
-				inputContainer.appendChild(input);
-				input.className = 'cv-search-input ' + this.buttonSetup.colors.buttonText + ' ' + this.buttonSetup.colors.button;
-				input.setAttribute('id', 'cv-search-input');
-				input.setAttribute('type', 'text');
-				input.setAttribute('name', 'searchBar');
-				input.setAttribute('placeholder', this.texts.placeholder);
+				this.button.input.element = document.createElement('input');
+				this.inputEl = this.button.input.element;
+				this.button.input.containerEl.appendChild(this.button.input.element);
+				this.button.input.element.className = 'cv-search-input ' + this.buttonSetup.colors.buttonText + ' ' + this.buttonSetup.colors.button;
+				this.button.input.element.setAttribute('id', 'cv-search-input');
+				this.button.input.element.setAttribute('type', 'text');
+				this.button.input.element.setAttribute('name', 'searchBar');
+				this.button.input.element.setAttribute('placeholder', this.texts.placeholder);
 
-				let customCaret = document.createElement('div');
-				input.appendChild(customCaret);
-				customCaret.className = 'custom-caret';
-				customCaret.classList.add(this.buttonSetup.colors.tabBackground);
-				customCaret.innerHTML = 'Test &nbsp;';
-
-				let autocompleteListContainer = document.createElement('div');
-				this.autocompleteListContainerEL = autocompleteListContainer;
-				this.buttonEl.appendChild(autocompleteListContainer);
-				autocompleteListContainer.className = 'cv-search-autocomplete-list-container hide';
-				autocompleteListContainer.classList.add(this.buttonSetup.colors.tabBackground);
-				autocompleteListContainer.classList.add(this.buttonSetup.colors.tabShadow);
+				this.button.autocomplete = {};
+				this.button.autocomplete.list = {};
+				this.button.autocomplete.list.containerEl = document.createElement('div');
+				this.button.element.appendChild(this.button.autocomplete.list.containerEl);
+				this.button.autocomplete.list.containerEl.className = 'autocomplete-list-container hide';
+				this.button.autocomplete.list.containerEl.classList.add(this.buttonSetup.colors.tabBackground);
+				this.button.autocomplete.list.containerEl.classList.add(this.buttonSetup.colors.tabShadow);
 			}, 
 
 			autocomplete(element, array) {
@@ -1982,13 +1924,14 @@ const app = {
 					app.collectionViewer.search.removeAutoCompleteList();
 					if (!inputValue || inputValue.length < 1) { return false;}
 					
-					app.collectionViewer.search.autocompleteListContainerEL.classList.remove('hide');
+					app.collectionViewer.search.button.autocomplete.list.containerEl.classList.remove('hide');
 
-					let autocompleteList = document.createElement('div');
-					app.collectionViewer.search.autocompleteListEl = autocompleteList;
-					app.collectionViewer.search.autocompleteListContainerEL.appendChild(autocompleteList);
+					app.collectionViewer.search.button.autocomplete.list.element = document.createElement('div');
+					let autocompleteList = app.collectionViewer.search.button.autocomplete.list.element;
+					app.collectionViewer.search.button.autocomplete.list.element = autocompleteList;
+					app.collectionViewer.search.button.autocomplete.list.containerEl.appendChild(autocompleteList);
 					autocompleteList.setAttribute('id', 'cv-search-input-autocomplete-list');
-					autocompleteList.className = 'cv-search-autocomplete-list ';
+					autocompleteList.className = 'autocomplete-list ';
 					autocompleteList.classList.add(app.collectionViewer.search.buttonSetup.colors.tabText);
 	
 					currentFocus = -1;
@@ -2003,22 +1946,22 @@ const app = {
 							listItemEl.addEventListener("click", function(e) {
 								element.value = this.getElementsByTagName("input")[0].value;
 								app.collectionViewer.search.removeAutoCompleteList();
-								app.gui.toolbar.buttonActionSlide(app.collectionViewer.search.buttonEl);
+								app.gui.toolbar.buttonActionSlide(app.collectionViewer.search.button.element);
 								app.collectionViewer.search.executeRequest(name);
 							});
-							app.collectionViewer.search.autocompleteListEl.appendChild(listItemEl);
+							autocompleteList.appendChild(listItemEl);
 						}
 					}
 
-					if(!app.collectionViewer.search.autocompleteListEl.hasChildNodes()) {
+					if(!autocompleteList.hasChildNodes()) {
 						let listItemEl = document.createElement('div');
 						listItemEl.innerHTML = 'keine Ergebnisse';
-						app.collectionViewer.search.autocompleteListEl.appendChild(listItemEl);
+						autocompleteList.appendChild(listItemEl);
 					}
 				});
 
 				element.addEventListener("keydown", function(e) {
-					var x = app.collectionViewer.search.autocompleteListEl;
+					var x = app.collectionViewer.search.button.autocomplete.list.element;
 					if (x) x = x.getElementsByTagName("div");
 					if (e.keyCode == 40) {
 						/*If the arrow DOWN key is pressed,
@@ -2061,22 +2004,22 @@ const app = {
 			}, 
 
 			removeAutoCompleteList() {
-				let autocompleteLists = document.getElementsByClassName('cv-search-autocomplete-list');
+				let autocompleteLists = document.getElementsByClassName('autocomplete-list');
 				
 				if(typeof autocompleteLists === 'undefined') { return; }
 				if(autocompleteLists.length < 1) { return; };
 				for (let list of autocompleteLists) {
 					list.parentNode.removeChild(list);
 				}
-				this.autocompleteListContainerEL.classList.remove('hide');
-				this.autocompleteListContainerEL.classList.add('hide');
+				this.button.autocomplete.list.containerEl.classList.remove('hide');
+				this.button.autocomplete.list.containerEl.classList.add('hide');
 			}, 
 
 			resetSearchInput() {
 				window.setTimeout( () => {
 					app.collectionViewer.search.inputEl.focus({ focusVisible: true });
 				}, 10)
-				this.inputEl.value = null;
+				this.button.input.element.value = null;
 				this.removeAutoCompleteList();
 			}, 
 
@@ -2104,7 +2047,7 @@ const app = {
 		filter: {
 
 			buttonSetup: {
-				id: '#toolbar-button-3',
+				id: '#toolbar-button-2',
 				name: 'Filter',
 				colors: {
 					button: 'duckyellow',
@@ -2147,7 +2090,7 @@ const app = {
 			},
 
 			createElements() {
-				let toolBarTabContent = app.gui.toolbar.toolbarTabContentEl;
+				let toolBarTabContent = app.gui.toolbar.tab.content.element;
 
 				const filterContainer = document.createElement('div');
 				toolBarTabContent.appendChild(filterContainer);
@@ -2164,11 +2107,11 @@ const app = {
 
 				const categoryListContainer = document.createElement('div');
 				filterContainer.appendChild(categoryListContainer);
-				categoryListContainer.className = 'cv-filter-list-container';
+				categoryListContainer.className = 'list-container';
 
 				const categoryListButton = document.createElement('button');
 				categoryListContainer.appendChild(categoryListButton);
-				categoryListButton.className = 'cv-filter-button collapsible-button ' + this.buttonSetup.colors.tabText;
+				categoryListButton.className = 'button collapsible-button ' + this.buttonSetup.colors.tabText;
 
 				const categoryListButtonIcon = document.createElement('div');
 				categoryListButton.appendChild(categoryListButtonIcon);
@@ -2195,18 +2138,18 @@ const app = {
 
 				const categorySelectAllButton = document.createElement('button');
 				categoryList.appendChild(categorySelectAllButton);
-				categorySelectAllButton.className = 'cv-filter-button text-small';
+				categorySelectAllButton.className = 'button text-small';
 				categorySelectAllButton.setAttribute('data-selected', true);
 				categorySelectAllButton.setAttribute('id', 'cv-filter-category-list-select-all');
 				categorySelectAllButton.appendChild(document.createTextNode(this.texts.selectAllButton));
 
 				const tagListContainer = document.createElement('div');
 				filterContainer.appendChild(tagListContainer);
-				tagListContainer.className = 'cv-filter-list-container';
+				tagListContainer.className = 'list-container';
 
 				const tagListButton = document.createElement('button');
 				tagListContainer.appendChild(tagListButton);
-				tagListButton.className = 'cv-filter-button collapsible-button ' + this.buttonSetup.colors.tabText;
+				tagListButton.className = 'button collapsible-button ' + this.buttonSetup.colors.tabText;
 
 				const tagListButtonIcon = document.createElement('div');
 				tagListButton.appendChild(tagListButtonIcon);
@@ -2233,7 +2176,7 @@ const app = {
 
 				const tagSelectAllButton = document.createElement('button');
 				tagList.appendChild(tagSelectAllButton);
-				tagSelectAllButton.className = 'cv-filter-button text-small';
+				tagSelectAllButton.className = 'button text-small';
 				tagSelectAllButton.setAttribute('data-selected', true);
 				tagSelectAllButton.setAttribute('id', 'cv-filter-tag-list-select-all');
 				tagSelectAllButton.appendChild(document.createTextNode(this.texts.selectAllButton));
@@ -2337,7 +2280,7 @@ const app = {
 		resetView: {
 
 			buttonSetup: {
-				id: '#toolbar-button-4',
+				id: '#toolbar-button-3',
 				name: 'Ansicht Zurücksetzen',
 				colors: {
 					button: 'coalgrey',
@@ -2662,7 +2605,6 @@ const app = {
 		this.stats = (this.getURLParameter('stats') === 'true');
 		const mode = this.getURLParameter('m');
 		const error = this.getURLParameter('error');
-		this.dev && console.log('dev --- error: ', error);
 
 		if(!this.viewerModes.includes(mode)){
 			this.viewerMode = false;
@@ -2678,16 +2620,16 @@ const app = {
 	}, 
 
 	errorHandler(error){
-		this.dev && console.log('dev --- error: ', error);
+		app.dev && console.log('dev --- error: ', error);
 
 		if(error === '000'){
-			this.gui.error.content.value = 'Error 000: Wrong URL Parameter for viewerMode.';
+			this.gui.error.content.value = '<h3>Error-Code: 000</h3>\nWrong URL Parameter for viewerMode.';
 			this.gui.error.button.label = 'OK';
 			this.gui.error.showError();
 		}
 
 		if(error === '001'){
-			this.gui.error.content.value = 'Error 001: A wrong or no model id was found in the URL.';
+			this.gui.error.content.value = '<h3>Error-Code: 001</h3>\nA wrong or no model id was found in the URL.';
 			this.gui.error.button.label = 'OK';
 			this.gui.error.showError();
 		}
@@ -2697,15 +2639,5 @@ const app = {
 //END app 
 
 app.init();
+app.dev && console.log('dev --- app: ', app)
 export { app };
-
-
-
-
-
-
-
-
-
-
-
