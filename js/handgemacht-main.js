@@ -1713,7 +1713,7 @@ const app = {
 								+ '<p>Hier steht später eine Kategoriebeschreibung</p>'
 								+ objectList,
 						color: 'pearlwhite',
-						shadow: 'shadow' + app.collectionViewer.elementColor.category
+						shadow: 'shadow-' + app.collectionViewer.elementColor.category
 					}
 
 					app.gui.message.setMessage(message);
