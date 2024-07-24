@@ -2,12 +2,7 @@
 import { app } from './handgemacht-main.js';
 
 //START Global Variables
-const dirPath_CollectionJSON = 'json/handgemacht-collection.json';
 
-var loader = new THREE.GLTFLoader();
-const dracoLoader = new THREE.DRACOLoader();
-dracoLoader.setDecoderPath( './draco/' );
-loader.setDRACOLoader( dracoLoader );
 //END Global Variables
 
 
@@ -123,7 +118,7 @@ AFRAME.registerComponent('load-json-models', {
 
 		loadJSONModels: function () {
 			const fgData = '';
-			const fileJSON = app.filepaths.files + dirPath_CollectionJSON;
+			const fileJSON = app.filepaths.files + app.filepaths.collectionJSON;
 
 			//fetch json data from file
 			const objectsJSON = fetch(fileJSON)
@@ -134,7 +129,7 @@ AFRAME.registerComponent('load-json-models', {
 					const scene = document.querySelector('a-scene').object3D;
 					for(let object of json.objects){
 						if(object.quality512){
-							loader.load(app.filepaths.files + object.quality512, (gltf) => {
+							app.gltfLoader.load(app.filepaths.files + object.quality512, (gltf) => {
 								gltf.scene.name = object.primaryKey;
 								gltf.scene.altName = object.name;
 								gltf.scene.visible = false;
@@ -477,7 +472,6 @@ AFRAME.registerComponent('load-json-models', {
 
 			app.dev && console.log(`dev --- normalizeScale > \nsizeLog: `, sizeLog);
 		}
-
 });
 //END A-Frame load-json-objects
 
@@ -727,6 +721,7 @@ AFRAME.registerComponent('highlight', {
 					node.model.material.visible = true;
 					this.setHighestDistance(distance);
 					node.__threeObj.visible = true;
+					app.dev && console.log('dev --- node: ', node)
 				}else{
 					node.model.material.visible = false;
 					node.__threeObj.visible = false;
@@ -737,8 +732,6 @@ AFRAME.registerComponent('highlight', {
 
 	resetHighlight: function () {
 		let fgComp = this.fgComp;
-
-		//app.dev && console.log('dev --- resetHighlight');
 
 		for(let link of fgComp.links){
 			if(link.material){
@@ -950,8 +943,8 @@ AFRAME.registerComponent('orbit-controls', {
 		canvasEl.addEventListener('mousemove', this.onMouseMove, false);
 		canvasEl.addEventListener('mouseup', this.releaseMouse, false);
 		canvasEl.addEventListener('mouseout', this.releaseMouse, false);
-		canvasEl.addEventListener('mousewheel', this.onMouseWheel, app.passiveSupported ? { passive: true } : false);
-		canvasEl.addEventListener('MozMousePixelScroll', this.onMouseWheel, app.passiveSupported ? { passive: true } : false); // firefox
+		canvasEl.addEventListener('mousewheel', this.onMouseWheel, false);
+		canvasEl.addEventListener('MozMousePixelScroll', this.onMouseWheel, false); // firefox
 	
 		// Touch events
 		canvasEl.addEventListener('touchstart', this.onTouchStart, app.passiveSupported ? { passive: true } : false);

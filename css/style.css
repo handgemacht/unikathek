@@ -71,10 +71,9 @@ img.logo {
 audio {
   border: 1px solid #9B9691;
   border-radius: 50dvh;
-  margin-left: 40px;
+  margin: 20px auto 20px auto;
   max-height: 100%;
   max-width: 100%;
-  margin: auto;
   object-fit: contain;
 }
 
@@ -470,6 +469,7 @@ div.pill.shadow-duckyellow {
 /* ---------- gui title ---------- */
 
 div.gui-title-container {
+  display: flex;
   position: fixed;
   top: 10px;
   left: 20px;
@@ -478,8 +478,27 @@ div.gui-title-container {
   z-index: 6;
 }
 
+div.gui-title-container.clickable {
+  cursor: pointer;
+}
+
 div.gui-title-container > h1.title {
-  
+  display: inline;
+}
+
+div.gui-title-container > div.arrow {
+  display: inline;
+  top: 0.1em;
+  margin-right: 0.65em;
+}
+
+div.gui-title-container > div.arrow > img.icon {
+  position: relative;
+  display: block;
+  width: 40px;
+  height: 40px;
+  aspect-ratio: auto;
+  z-index: 1;
 }
 
 
@@ -773,7 +792,7 @@ div.gui-fullscreen-container {
   height: 100dvh;
   margin: 0;
   background-color: #41403FAA;
-  z-index: 2; 
+  z-index: 5; 
 }
 
 div.gui-fullscreen-container > img.image {
@@ -1021,10 +1040,6 @@ div.gui-toolbar > button.button > img.icon.tab {
 
 }
 
-div.gui-toolbar > button.button > img.icon.inactive {
-  opacity: 0.2;
-}
-
 div.gui-toolbar > div.tab-container {
   position: relative;
   width: 100%;
@@ -1174,32 +1189,47 @@ button.tool:hover {
 button.hotspot {
   min-width: 0;
   min-height: 0;
-  width: 25px;
-  height: 25px;
+  width: 28px;
+  height: 28px;
   background-color: transparent;
   box-shadow: none;
   margin: 0;
   padding: 0;
+  transition: all 1s;
   --min-hotspot-opacity: 0.2;
 }
 
-svg.hotspot-symbol {
-  width: 100%;
-  height: 100%;
+button.hotspot.focus {
+  width: 200px;
+  height: 200px;
+  pointer-events: none;
 }
 
-.hotspot .border {
+.hotspot.border {
   width: 100%;
   height: 100%;
   border: 3px solid #FAF0E6;
-  border-radius: 13px 13px 13px 13px; 
-  background-color: #46AAC8;
-  padding: 2px;
+  border-radius: 50%; 
+  transition: all 0.5s;
+}
+
+button.hotspot.focus > .hotspot.border {
+  border: 5px solid #FAF0E6;
+  background-color: transparent;
+  pointer-events: none;
 }
 
 img.hotspot-icon {
   width: 100%;
   height: 100%;
+  padding: 1px;
+  opacity: 1;
+  transition: all 0.5s;
+}
+
+button.hotspot.focus > .hotspot.border > img.hotspot-icon {
+  opacity: 0;
+  pointer-events: none;
 }
 
 @keyframes hoverAnimation {
@@ -1215,54 +1245,6 @@ button.hotspot.hover-animation {
 }
 
 /* --- Annotations --- */
-
-div.annotation {
-  position: fixed;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 15px 5px 15px 15px;
-  margin: 15px;
-  min-width: 90%;
-  max-width: 90%;
-  min-height: 35%;
-  max-height: 40%;
-  top: 55%;
-  left: 0;
-  background-color: #FAF0E6;
-  font-size: 1.2em;
-  border-radius: 0px 20px 0px 20px;
-  box-shadow: 3px 3px #9B9691; 
-  z-index: 1;
-}
-
-div.annotation.context-story {
-  margin: 15px;
-  min-width: 90%;
-  max-width: 90%;
-  min-height: 45%;
-  max-height: 80%;
-  top: 5%;
-  left: 0;
-  right: 5%;
-  opacity: 1;
-  box-shadow: 3px 3px #FF7850; 
-}
-
-img.context-story-icon {
-  position: relative;
-  width: 48px;
-  height: 48px;
-  top: 0px;
-  margin-right: 12px;
-}
-
-div.annotation.context-story::-webkit-scrollbar-thumb {
-  background-color: #FF7850;
-}
-
-div.annotation::-webkit-scrollbar-track {
-  margin-top: 30px;
-}
 
 p.annotation-text {
   padding: 0px 30px 15px 0px;
@@ -1282,27 +1264,28 @@ a.annotation-link:visited {
   color: #A04B19;
 }
 
-div.annotation-image {
+div.annotation-image, span.annotation-image {
   float: right;
-  width: 200px;
-  margin: 0 15px 15px 30px;
-  margin-left: 100%;
+  width: 80%;
+  margin: 15px 15px 15px 30px;
   background-color: #FF7850;
   border-radius: 0px 20px 0px 20px;
 }
 
-div.annotation-image > div.annotation-image-box {
-  width: 200px;
-  height: 200px;
+div.annotation-image, span.annotation-image > div.annotation-image-box, span.annotation-image-box {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
   margin: -15px 0 0 -15px; 
 }
 
-div.annotation-image > div.annotation-image-box > img {
+div.annotation-image, span.annotation-image > div.annotation-image-box, span.annotation-image-box > img {
   width: 100%;
   height: auto;
 }
 
-p.annotation-image-caption {
+div.annotation-image-caption, span.annotation-image-caption {
+  display: inline-block;
   font-size: 0.75em;
   font-weight: 700;
   margin: 0;
@@ -1310,7 +1293,8 @@ p.annotation-image-caption {
   color: #FAF0E6;
 }
 
-p.annotation-image-caption > span.copyright {
+div.annotation-image-caption, span.annotation-image-caption > .copyright {
+  display: block;
   font-weight: 356;
   white-space: nowrap;
 }
@@ -1350,14 +1334,13 @@ button.dim {
   position: absolute;
   width: max-content;
   height: max-content;
-  color: #46AAC8;
   background-color: transparent;
   border: none;
   box-shadow: none;
   max-width: 128px;
   overflow-wrap: break-word;
   padding: 0.5em 1em;
-  transform: translate3d(-50%, -50%, 0);
+  transform: translate3d(-20%, -25%, 0);
   pointer-events: none;
   --min-hotspot-opacity: 0;
 }
@@ -1368,10 +1351,9 @@ button.dim {
 }
 
 .dimensionLine {
-  stroke: #46AAC8;
-  stroke-width: 1;
+  stroke: #9B9691;
+  stroke-width: 2;
   stroke-dasharray: 5,7;
-  stroke-opacity: 1;
 }
 
 /* --- fixes --- */
@@ -1903,6 +1885,14 @@ img.help-symbol{
   body {
     font-size: 1.15em;
   }
+
+  div.gui-message-container {
+    width: calc(640px - 40px);
+  }
+
+  div.annotation-image, span.annotation-image {
+  float: right;
+  width: 40%;
 
 }
 

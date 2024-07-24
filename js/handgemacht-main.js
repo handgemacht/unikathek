@@ -2,65 +2,6 @@
 
 
 
-//START modelViewerHTML
-let modelViewerHTML = 
-'<!-- START MODEL VIEWER -->'
-+ '<model-viewer id="main-viewer" loading="eager" ar ar-scale="fixed" xr-environment src="" shadow-intensity="1" camera-controls touch-action="pan-y" disable-tap camera-orbit="" min-camera-orbit="-Infinity 15deg 0.1m" max-camera-orbit="-Infinity 165ddeg 3.5m" camera-target="" field-of-view="" interpolation-decay="150" data-dimension="false">'
-+ '<!-- START INTERFACE -->'
-+ '	<!-- left-side toolbar -->'
-+ '	<section class="toolbar">'
-+ '		<button id="context-story-button" class="tool active" data-tool-function="context-story" data-tool-active="true">'
-+ '		 <img id="context-story-symbol" src="assets/hand.gemacht WebApp button context-story kohlegrau.svg" alt="Button Hintergrundgeschichte" class="tool-symbol" width="100px" height="100px">'
-+ '		</button>'
-+ '		<button id="hotspots-button" class="tool hide" data-tool-function="hotspots" data-tool-active="false">'
-+ '		 <svg id="hide-hotspot-symbol" class="tool-symbol" xmlns="http://www.w3.org/2000/svg">'
-+ '			 <circle cx="50%" cy="50%" r="50%" fill="#41403F"/>'
-+ '		 </svg>'
-+ '		</button>'
-+ '		<button id="dimensions-button" class="tool hide" data-tool-function="dimensions" data-tool-active="false">'
-+ '		 <svg id="dimmensions-symbol" class="tool-symbol" xmlns="http://www.w3.org/2000/svg">'
-+ '			 <circle cx="50%" cy="50%" r="50%" fill="#41403F"/>'
-+ '		 </svg>'
-+ '		</button>'
-+ '		<button id="ar-button" class="tool" data-tool-function="ar" data-tool-active="false">'
-+ '			<img id="ar-symbol" src="assets/hand.gemacht WebApp button ar kohlegrau.svg" alt="Button Augmented Reality" class="tool-symbol" width="100px" height="100px">'
-+ '		</button>'
-+ '	</section>'
-+ '	<!-- remove default ar button -->'
-+ '	<button class="hide" slot="ar-button"></button>'
-+ '	<!-- removes default progress bar -->'
-+ '	<div class="hide" slot="progress-bar"></div>'
-+ '	<!-- END INTERFACE -->'
-+ '	<!-- START DIMENSIONS -->'
-+ '	<button disabled aria-hidden="true" slot="hotspot-dot+X-Y+Z" class="dot" data-position="1 -1 1" data-normal="1 0 0"></button>'
-+ '	<button disabled aria-hidden="true" slot="hotspot-dim+X-Y" class="dim" data-position="1 -1 0" data-normal="1 0 0"></button>'
-+ '	<button disabled aria-hidden="true" slot="hotspot-dot+X-Y-Z" class="dot" data-position="1 -1 -1" data-normal="1 0 0"></button>'
-+ '	<button disabled aria-hidden="true" slot="hotspot-dim+X-Z" class="dim" data-position="1 0 -1" data-normal="1 0 0"></button>'
-+ '	<button disabled aria-hidden="true" slot="hotspot-dot+X+Y-Z" class="dot" data-position="1 1 -1" data-normal="0 1 0"></button>'
-+ '	<button disabled aria-hidden="true" slot="hotspot-dim+Y-Z" class="dim" data-position="0 -1 -1" data-normal="0 1 0"></button>'
-+ '	<button disabled aria-hidden="true" slot="hotspot-dot-X+Y-Z" class="dot" data-position="-1 1 -1" data-normal="0 1 0"></button>'
-+ '	<button disabled aria-hidden="true" slot="hotspot-dim-X-Z" class="dim" data-position="-1 0 -1" data-normal="-1 0 0"></button>'
-+ '	<button disabled aria-hidden="true" slot="hotspot-dot-X-Y-Z" class="dot" data-position="-1 -1 -1" data-normal="-1 0 0"></button>'
-+ '	<button disabled aria-hidden="true" slot="hotspot-dim-X-Y" class="dim" data-position="-1 -1 0" data-normal="-1 0 0"></button>'
-+ '	<button disabled aria-hidden="true" slot="hotspot-dot-X-Y+Z" class="dot" data-position="-1 -1 1" data-normal="-1 0 0"></button>'
-+ '	<svg id="dimLines" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" class="dimensionLineContainer">'
-+ '		<line class="dimensionLine"></line>'
-+ '		<line class="dimensionLine"></line>'
-+ '		<line class="dimensionLine"></line>'
-+ '		<line class="dimensionLine"></line>'
-+ '		<line class="dimensionLine"></line>'
-+ '	</svg>'
-+ '	<!-- END DIMENSIONS -->'
-+ '</model-viewer>'
-+ '<!-- START MODEL VIEWER ANNOTATIONS -->'
-+ '<div id="annotation-container" class="annotation-container"></div>'
-+ '<!-- END MODEL VIEWER ANNOTATIONS -->'
-+ '<!-- END MODEL VIEWER -->'
-//END modelViewerHTML
-
-
-
-
 //START app 
 const app = {
 	title: 'appTitle',
@@ -73,7 +14,9 @@ const app = {
 	filepaths: {
 		files: './files/',
 		assets: './assets/',
-		draco: './draco/'
+		draco: './draco/',
+		annotationMedia: 'annotation-media/',
+		collectionJSON: 'json/handgemacht-collection.json'
 	},
 
 	assets(filepath) {
@@ -92,6 +35,13 @@ const app = {
 			},
 
 			icon: {
+				'ar': {
+					alt: 'Augmented-Reality-Symbol',
+					src: {
+						pearlwhite: filepath + 'hand.gemacht WebApp icon ar pearlwhite.svg',
+						coalgrey: filepath + 'hand.gemacht WebApp icon ar coalgrey.svg' 
+					}
+				},
 				'arrow up': {
 					alt: 'Pfeil nach oben',
 					src: {
@@ -295,46 +245,18 @@ const app = {
 
 		this.handleURLParameter();
 
-		// from: https://stackoverflow.com/questions/11381673/detecting-a-mobile-browser
-		window.mobileCheck = function() {
-			let check = false;
-			(function(a){if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0,4))) check = true;})(navigator.userAgent||navigator.vendor||window.opera);
-			return check;
-		};
-
-		this.isMobile = window.mobileCheck();
-
-		if(this.isMobile) {
-			this.dev && console.log('dev --- mobileAndTabletCheck: ', isMobile);
-		}
+		this.isMobile = this.checkMobile();
+		this.isArCapable = this.checkArSupport();
+		this.passiveSupported = this.checkEventlistenerPassiveSupport();
 
 		window.addEventListener('orientationchange', this.handleScreenOrientation);
 
-		// check for passive flag support
-		this.passiveSupported = false;
-
-		try {
-			const options = {
-				get passive() {
-					// This function will be called when the browser
-					// attempts to access the passive property.
-					this.passiveSupported = true;
-					app.dev && console.log('dev --- passiveSupport: ',this.passiveSupported)
-					return false;
-				},
-			};
-
-			window.addEventListener("test", null, options);
-			window.removeEventListener("test", null, options);
-		} catch (err) {
-			this.passiveSupported = false;
-		}
-
 		this.gui.init();		
 
-		if(this.error) {
-			this.errorHandler(this.error);
-		}
+		this.gltfLoader = new THREE.GLTFLoader();
+		this.dracoLoader = new THREE.DRACOLoader();
+		this.dracoLoader.setDecoderPath( this.filepaths.draco );
+		this.gltfLoader.setDRACOLoader( this.dracoLoader );
 
 		if (!this.viewerMode) {
 			//redirect to collection viewer if no m is set in URL
@@ -345,30 +267,20 @@ const app = {
 		}
 
 		if (this.viewerMode === 'cv') {
+			this.collectionViewer.init();
 			this.gui.title.init();
 			this.gui.loadingScreen.showLoadingScreen('loading collection viewer');
-			this.collectionViewer.init();
 		}
 
 		if (this.viewerMode === 'mv') {
-			document.body.innerHTML += modelViewerHTML;
+			this.modelViewer.init();
+			this.gui.title.init();
 			this.gui.loadingScreen.showLoadingScreen('loading model viewer');
 		}
 
-		//test if WebXR AR is supported
-		if(navigator.xr){
-			navigator.xr.isSessionSupported("immersive-ar").then((isSupported) => {
-			this.dev && console.log("dev --- ar supported:", isSupported);
-			if (this.viewerMode === 'ar' && isSupported) {
-			//start ARViewer
+		if (this.viewerMode === 'ar' && this.isArCapable) {
 			this.arViewer.init();
 			this.gui.loadingScreen.showLoadingScreen('loading augmented reality');
-			}else{
-				this.dev && console.log("dev --- WebXR AR is not supported on this browser");
-			}
-			});
-		}else{
-			this.dev && console.log("dev --- WebXR is not supported on this browser");
 		}
 
 		this.gui.setupCollapsibles();
@@ -398,10 +310,43 @@ const app = {
 				document.body.appendChild(this.containerEl);
 				this.containerEl.className = 'gui-title-container';
 
+				this.arrowEl = document.createElement('div');
+				this.containerEl.appendChild(this.arrowEl);
+				this.arrowEl.className = 'arrow hide';
+
+				this.arrowEl.icon = document.createElement('img');
+				this.arrowEl.appendChild(this.arrowEl.icon);
+				this.arrowEl.icon.className = 'icon';
+				this.arrowEl.icon.src = app.assets.icon['arrow left'].src.coalgrey;
+				this.arrowEl.icon.alt = app.assets.icon['arrow left'].alt;
+				this.arrowEl.icon.width = 100;
+				this.arrowEl.icon.height = 100;
+				this.arrowEl.icon.setAttribute('loading', 'lazy');
+
 				this.element = document.createElement('h1');
 				this.containerEl.appendChild(this.element);
 				this.element.className = 'title';
 				this.element.appendChild(document.createTextNode(app.title));
+			}, 
+
+			set(title = app.title, showArrow = false, from = null) {
+				if(from){
+					from = '&from=' + from;
+				}
+				this.element.innerHTML = title;
+				this.containerEl.className = 'gui-title-container';
+				this.arrowEl.className = 'arrow hide';
+
+				showArrow && this.arrowEl.classList.remove('hide');
+				showArrow && this.containerEl.classList.add('clickable');
+
+				showArrow && this.containerEl.addEventListener('click', (e) => {
+					let url='?m=cv&' + from;
+					app.dev ? url+='&dev=true' : '';
+					app.stats ? url+='&dev=stats' : '';
+					window.location.href = url;
+				})
+
 			}
 		},
 
@@ -859,7 +804,7 @@ const app = {
 				Object.keys(message).includes("type") ? this.type.value = message.type : '';
 				Object.keys(message).includes("content") ? this.content.value = message.content : '';
 				Object.keys(message).includes("color") ? this.color = message.color : '';
-				Object.keys(message).includes("shadow") ? this.shadow = 'shadow-' + message.shadow : '';
+				Object.keys(message).includes("shadow") ? this.shadow = message.shadow : '';
 
 				if(Object.keys(message).includes("buttonSetup")){
 					buttonsActive = true;
@@ -867,7 +812,7 @@ const app = {
 						const thisSetup = message.buttonSetup[s];
 						Object.keys(thisSetup).includes("label") ? this.buttonSetup[s].label = thisSetup.label : '';
 						Object.keys(thisSetup).includes("color") ? this.buttonSetup[s].color = thisSetup.color : '';
-						Object.keys(thisSetup).includes("shadow") ? this.buttonSetup[s].shadow = 'shadow-' + thisSetup.shadow : '';
+						Object.keys(thisSetup).includes("shadow") ? this.buttonSetup[s].shadow = thisSetup.shadow : '';
 						Object.keys(thisSetup).includes("icon") ? this.buttonSetup[s].iconEl = thisSetup.icon : '';
 					}
 				}
@@ -905,12 +850,11 @@ const app = {
 
 				if(this.color === 'pearlwhite'){
 					this.closeEl.icon.src = app.assets.icon.small['close'].src.coalgrey;
-					this.color && this.type.element.classList.add(message.shadow);
 				}else{
 					this.closeEl.icon.src = app.assets.icon.small['close'].src.pearlwhite;
-					this.color && this.type.element.classList.add(this.color);
 				}
 
+				this.shadow && this.type.element.classList.add(this.shadow.replace('shadow-', ''));
 				this.shadow && this.element.classList.add(this.shadow);
 
 				app.dev && console.log('dev --- message: ', this)
@@ -1497,6 +1441,11 @@ const app = {
 
 	collectionViewer: {
 
+		toolBarSetup: {
+			color: 'pearlwhite', 
+			shadowColor: 'shadow-smokegrey'
+		},
+
 		proxyfgData: new Proxy({
 				data: null, 
 				update: new CustomEvent("proxyfgData-update")
@@ -1504,7 +1453,7 @@ const app = {
 			{
 				set: function(target, prop, value){
 					target[prop] = value;
-					document.dispatchEvent(app.collectionViewer.proxyfgData.update)
+					document.dispatchEvent(app.collectionViewer.proxyfgData.update);
 					return true;
 				}
 			}
@@ -1521,7 +1470,7 @@ const app = {
 			this.tooltip.init();
 			this.highlight.init();
 
-			app.gui.toolbar.setToolbar();
+			app.gui.toolbar.setToolbar(this.toolBarSetup.color, this.toolBarSetup.shadowColor);
 
 			app.gui.toolbar.setButton(this.info.buttonSetup);
 			this.info.init();
@@ -1725,7 +1674,7 @@ const app = {
 								+ categoryList
 								+ tagList,
 						color: 'pearlwhite',
-						shadow: app.collectionViewer.elementColor.object,
+						shadow: 'shadow-' + app.collectionViewer.elementColor.object,
 						buttonSetup: [
 							{ label: 'erkunden', color: app.collectionViewer.elementColor.object, icon: 'arrow right' }
 							]
@@ -1734,7 +1683,10 @@ const app = {
 					app.gui.message.setMessage(message);
 
 					app.gui.message.buttons.button[0].element.addEventListener('click', (e) => {
-						let url = '?m=mv&model=' + fgNode.id + '';
+						let url = '?m=mv&history=true';
+						app.dev ? url += '&dev=true' : '';
+						app.stats ? url += '&stats=true' : '';
+						url += '&model=' + fgNode.id;
 						window.location.href = url;
 					})
 				}
@@ -1761,7 +1713,7 @@ const app = {
 								+ '<p>Hier steht später eine Kategoriebeschreibung</p>'
 								+ objectList,
 						color: 'pearlwhite',
-						shadow: app.collectionViewer.elementColor.category
+						shadow: 'shadow' + app.collectionViewer.elementColor.category
 					}
 
 					app.gui.message.setMessage(message);
@@ -1818,10 +1770,10 @@ const app = {
 				id: '#toolbar-button-0',
 				name: 'Informationen',
 				colors: {
-					button: 'skyblue',
+					button: 'coalgrey',
 					buttonIcon: 'pearlwhite', 
 					tabBackground: 'pearlwhite',
-					tabShadow: 'shadow-skyblue',
+					tabShadow: 'shadow-coalgrey',
 					tabText: 'text-coalgrey',
 					tabIcon: 'coalgrey'
 				}, 
@@ -2318,41 +2270,623 @@ const app = {
 
 		createElements() {
 
-			const collectionViewerElement = document.createElement('a-scene');
-			this.collectionViewerEl = collectionViewerElement;
-			document.body.appendChild(collectionViewerElement);
-			collectionViewerElement.setAttribute('gltf-model', 'dracoDecoderPath: ./draco/');
-			collectionViewerElement.setAttribute('load-json-models', 'scaleFactor: 0.05; normalization: 0.6');
-			collectionViewerElement.setAttribute('xr-mode-ui', 'enabled: false');
-			collectionViewerElement.setAttribute('device-orientation-permission-ui', 'enabled: false');
-			collectionViewerElement.setAttribute('light', 'defaultLightsEnabled: false');
-			app.stats && collectionViewerElement.setAttribute('stats', '');
+			this.sceneEl = document.createElement('a-scene');
+			document.body.appendChild(this.sceneEl);
+			this.sceneEl.setAttribute('gltf-model', 'dracoDecoderPath: ./draco/');
+			this.sceneEl.setAttribute('load-json-models', 'scaleFactor: 0.05; normalization: 0.65');
+			this.sceneEl.setAttribute('xr-mode-ui', 'enabled: false');
+			this.sceneEl.setAttribute('device-orientation-permission-ui', 'enabled: false');
+			this.sceneEl.setAttribute('light', 'defaultLightsEnabled: false');
+			app.stats && this.sceneEl.setAttribute('stats', '');
 
-			const cursorEntity = document.createElement('a-entity');
-			collectionViewerElement.appendChild(cursorEntity);
-			cursorEntity.setAttribute('cursor', 'rayOrigin: mouse; mouseCursorStylesEnabled: true;');
-			cursorEntity.setAttribute('raycaster', 'objects: #forcegraph;');
+			this.cursorEl = document.createElement('a-entity');
+			this.sceneEl.appendChild(this.cursorEl);
+			this.cursorEl.setAttribute('cursor', 'rayOrigin: mouse; mouseCursorStylesEnabled: true;');
+			this.cursorEl.setAttribute('raycaster', 'objects: #forcegraph;');
 
-			const camera = document.createElement('a-camera');
-			collectionViewerElement.appendChild(camera);
-			camera.setAttribute('orbit-controls', 'enabled: true; target: #orbit-target; autoRotate: true');
-			camera.setAttribute('wasd-controls', 'enabled: false');
+			this.cameraEl = document.createElement('a-camera');
+			this.sceneEl.appendChild(this.cameraEl);
+			this.cameraEl.setAttribute('orbit-controls', 'enabled: true; target: #orbit-target; autoRotate: true');
+			this.cameraEl.setAttribute('wasd-controls', 'enabled: false');
 
-			const ambientLightEntity = document.createElement('a-entity');
-			collectionViewerElement.appendChild(ambientLightEntity);
-			ambientLightEntity.setAttribute('light', 'type: ambient; color: #FAF0E6; intensity: 2');
+			this.ambientLightEl = document.createElement('a-entity');
+			this.sceneEl.appendChild(this.ambientLightEl);
+			this.ambientLightEl.setAttribute('light', 'type: ambient; color: #FAF0E6; intensity: 2');
 
-			const directionalLightEntity = document.createElement('a-entity');
-			collectionViewerElement.appendChild(directionalLightEntity);
-			directionalLightEntity.setAttribute('light', 'type: directional; color: #FAF0E6; intensity: 4');
-			directionalLightEntity.setAttribute('position', '-2 0 2');
+			this.directionalLightEl = document.createElement('a-entity');
+			this.sceneEl.appendChild(this.directionalLightEl);
+			this.directionalLightEl.setAttribute('light', 'type: directional; color: #FAF0E6; intensity: 4');
+			this.directionalLightEl.setAttribute('position', '-2 0 2');
 
-			const assets = document.createElement('a-assets');
-			collectionViewerElement.appendChild(assets);
+			this.assetsEl = document.createElement('a-assets');
+			this.sceneEl.appendChild(this.assetsEl);
 		}
 	}, //collectionViewer
 
+	modelViewer: {
+
+		toolBarSetup: {
+			color: 'pearlwhite', 
+			shadowColor: 'shadow-terracotta'
+		},
+
+		proxyJSON: new Proxy({
+				data: null, 
+				update: new CustomEvent("proxyJSON-update")
+			}, 
+			{
+				set: function(target, prop, value){
+					target[prop] = value;
+					if(typeof app.modelViewer.proxyJSON === 'undefined') { return false; };
+					if(!app.modelViewer.proxyJSON.data) { return false; };
+					app.dev && console.log('dev --- proxyJSON-update', app.modelViewer.proxyJSON);
+					document.dispatchEvent(app.modelViewer.proxyJSON.update);
+					return true;
+				}
+			}
+		),
+
+		init() {
+			this.createElements();
+
+			app.gui.toolbar.setToolbar(this.toolBarSetup.color, this.toolBarSetup.shadowColor);
+
+			app.gui.toolbar.setButton(this.info.buttonSetup);
+
+			app.gui.toolbar.setButton(this.contextStory.buttonSetup);
+
+			app.gui.toolbar.setButton(this.measurement.buttonSetup);
+			this.measurement.init();
+			app.gui.toolbar.button[2].addEventListener('click', (e) => {
+				app.modelViewer.measurement.toggleMeasurements();
+			})
+
+			app.gui.toolbar.setButton(this.ar.buttonSetup);
+			this.ar.init();
+
+			this.setEventListeners();
+
+			this.getJSONData(app.filepaths.files + 'json/' + app.primaryKey + '.json')
+		},
+
+		info: {
+
+			buttonSetup: {
+				id: '#toolbar-button-0',
+				name: 'Informationen',
+				colors: {
+					button: 'coalgrey',
+					buttonIcon: 'pearlwhite', 
+					tabBackground: 'pearlwhite',
+					tabShadow: 'shadow-coalgrey',
+					tabText: 'text-coalgrey',
+					tabIcon: 'coalgrey'
+				}, 
+				func: 'info', 
+				action: {
+					type: 'tab',
+					selector: '.mv-info-container' 
+				}
+			},
+		},
+
+		contextStory: {
+
+			buttonSetup: {
+				id: '#toolbar-button-1',
+				name: 'Geschichte',
+				colors: {
+					button: 'skyblue',
+					buttonIcon: 'pearlwhite', 
+					tabBackground: 'pearlwhite',
+					tabShadow: 'shadow-skyblue',
+					tabText: 'text-coalgrey',
+					tabIcon: 'coalgrey'
+				}, 
+				func: 'context', 
+				action: {
+					type: 'message',
+					selector: '.mv-context-story-container' 
+				}
+			},
+		},
+
+		measurement: {
+
+			enabled: false,
+
+			buttonSetup: {
+				id: '#toolbar-button-2',
+				name: 'Abmessungen',
+				colors: {
+					button: 'duckyellow',
+					buttonIcon: 'coalgrey', 
+					tabBackground: 'pearlwhite',
+					tabShadow: 'shadow-coalgrey',
+					tabText: 'text-coalgrey',
+					tabIcon: 'text-coalgrey'
+				}, 
+				func: 'measurement', 
+				action: {
+					type: 'feedback',
+					selector: null 
+				}
+			},
+
+			hotspot: {
+				setupArray: [
+					{ slot: 'hotspot-dot+X-Y+Z', class: 'dot', position: '1 -1 1', normal: '1 0 0' },
+					{ slot: 'hotspot-dim+X-Y', class: 'dim', position: '1 -1 0', normal: '1 0 0' },
+					{ slot: 'hotspot-dot+X-Y-Z', class: 'dot', position: '1 -1 -1', normal: '1 0 0' },
+					{ slot: 'hotspot-dim+X-Z', class: 'dim', position: '1 0 -1', normal: '1 0 0' },
+					{ slot: 'hotspot-dot+X+Y-Z', class: 'dot', position: '1 1 -1', normal: '0 1 0' },
+					{ slot: 'hotspot-dim+Y-Z', class: 'dim', position: '0 -1 -1', normal: '0 1 0' },
+					{ slot: 'hotspot-dot-X+Y-Z', class: 'dot', position: '-1 1 -1', normal: '0 1 0' },
+					{ slot: 'hotspot-dim-X-Z', class: 'dim', position: '-1 0 -1', normal: '-1 0 0' },
+					{ slot: 'hotspot-dot-X-Y-Z', class: 'dot', position: '-1 -1 -1', normal: '-1 0 0' },
+					{ slot: 'hotspot-dim-X-Y', class: 'dim', position: '-1 -1 0', normal: '-1 0 0' },
+					{ slot: 'hotspot-dot-X-Y+Z', class: 'dot', position: '-1 -1 1', normal: '-1 0 0' }
+				],
+
+				buttonArray: [],
+			},
+
+			lines: {
+				lineArray: []
+			},
+
+			init() {
+
+				this.createElements();
+				this.renderModelDimensions();
+			},
+
+			renderModelDimensions() {
+				//Original Code: https://modelviewer.dev/examples/annotations/index.html#dimensions
+
+				const modelViewer = app.modelViewer.element;
+
+				// update svg
+				function drawLine(svgLine, dotHotspot1, dotHotspot2, dimensionHotspot) {
+					if (dotHotspot1 && dotHotspot2) {
+						svgLine.setAttribute('x1', dotHotspot1.canvasPosition.x);
+						svgLine.setAttribute('y1', dotHotspot1.canvasPosition.y);
+						svgLine.setAttribute('x2', dotHotspot2.canvasPosition.x);
+						svgLine.setAttribute('y2', dotHotspot2.canvasPosition.y);
+
+						// use provided optional hotspot to tie visibility of this svg line to
+						if (dimensionHotspot && !dimensionHotspot.facingCamera) {
+							svgLine.classList.add('hide');
+						}
+						else {
+							svgLine.classList.remove('hide');
+						}
+					}
+				}
+
+				const dimLines = modelViewer.querySelectorAll('line');
+
+				const renderSVG = () => {
+					drawLine(dimLines[0], modelViewer.queryHotspot('hotspot-dot+X-Y+Z'), modelViewer.queryHotspot('hotspot-dot+X-Y-Z'), modelViewer.queryHotspot('hotspot-dim+X-Y'));
+					drawLine(dimLines[1], modelViewer.queryHotspot('hotspot-dot+X-Y-Z'), modelViewer.queryHotspot('hotspot-dot+X+Y-Z'), modelViewer.queryHotspot('hotspot-dim+X-Z'));
+					drawLine(dimLines[2], modelViewer.queryHotspot('hotspot-dot+X+Y-Z'), modelViewer.queryHotspot('hotspot-dot-X+Y-Z')); // always visible
+					drawLine(dimLines[3], modelViewer.queryHotspot('hotspot-dot-X+Y-Z'), modelViewer.queryHotspot('hotspot-dot-X-Y-Z'), modelViewer.queryHotspot('hotspot-dim-X-Z'));
+					drawLine(dimLines[4], modelViewer.queryHotspot('hotspot-dot-X-Y-Z'), modelViewer.queryHotspot('hotspot-dot-X-Y+Z'), modelViewer.queryHotspot('hotspot-dim-X-Y'));
+				};
+
+				modelViewer.addEventListener('camera-change', renderSVG);
+								
+				modelViewer.addEventListener('load', () => {
+					const center = modelViewer.getBoundingBoxCenter();
+					const size = modelViewer.getDimensions();
+					const x2 = size.x / 2;
+					const y2 = size.y / 2;
+					const z2 = size.z / 2;
+
+					modelViewer.updateHotspot({
+						name: 'hotspot-dot+X-Y+Z',
+						position: `${center.x + x2} ${center.y - y2} ${center.z + z2}`
+					});
+
+					modelViewer.updateHotspot({
+						name: 'hotspot-dim+X-Y',
+						position: `${center.x + x2 * 1.2} ${center.y - y2 * 0.9} ${center.z}`
+					});
+					modelViewer.querySelector('button[slot="hotspot-dim+X-Y"]').textContent =
+							`${(size.z * 100).toFixed(0)} cm`; //depth right
+
+					modelViewer.updateHotspot({
+						name: 'hotspot-dot+X-Y-Z',
+						position: `${center.x + x2} ${center.y - y2} ${center.z - z2}`
+					});
+
+					modelViewer.updateHotspot({
+						name: 'hotspot-dim+X-Z',
+						position: `${center.x + x2 * 1.2} ${center.y} ${center.z - z2 * 1.2}`
+					});
+					modelViewer.querySelector('button[slot="hotspot-dim+X-Z"]').textContent =
+							`${(size.y * 100).toFixed(0)} cm`; //height right
+
+					modelViewer.updateHotspot({
+						name: 'hotspot-dot+X+Y-Z',
+						position: `${center.x + x2} ${center.y + y2} ${center.z - z2}`
+					});
+
+					modelViewer.updateHotspot({
+						name: 'hotspot-dim+Y-Z',
+						position: `${center.x} ${center.y + y2 * 1.2} ${center.z - z2 * 1.2}`
+					});
+					modelViewer.querySelector('button[slot="hotspot-dim+Y-Z"]').textContent =
+							`${(size.x * 100).toFixed(0)} cm`; //width
+
+					modelViewer.updateHotspot({
+						name: 'hotspot-dot-X+Y-Z',
+						position: `${center.x - x2} ${center.y + y2} ${center.z - z2}`
+					});
+
+					modelViewer.updateHotspot({
+						name: 'hotspot-dim-X-Z',
+						position: `${center.x - x2 * 1.2} ${center.y} ${center.z - z2 * 1.2}`
+					});
+					modelViewer.querySelector('button[slot="hotspot-dim-X-Z"]').textContent =
+							`${(size.y * 100).toFixed(0)} cm`; //height left
+
+					modelViewer.updateHotspot({
+						name: 'hotspot-dot-X-Y-Z',
+						position: `${center.x - x2} ${center.y - y2} ${center.z - z2}`
+					});
+
+					modelViewer.updateHotspot({
+						name: 'hotspot-dim-X-Y',
+						position: `${center.x - x2 * 1.2} ${center.y - y2 * 0.9} ${center.z}`
+					});
+					modelViewer.querySelector('button[slot="hotspot-dim-X-Y"]').textContent =
+							`${(size.z * 100).toFixed(0)} cm`; //depth left
+
+					modelViewer.updateHotspot({
+						name: 'hotspot-dot-X-Y+Z',
+						position: `${center.x - x2} ${center.y - y2} ${center.z + z2}`
+					});
+
+					renderSVG();
+							
+				});
+			},
+
+			toggleMeasurements() {
+				app.modelViewer.measurement.enabled ? app.modelViewer.measurement.enabled = false : app.modelViewer.measurement.enabled = true;
+				
+				if(!app.modelViewer.measurement.enabled) {
+					this.lines.element.classList.remove('hide');
+					this.lines.element.classList.add('hide');
+					document.querySelectorAll('button.dim, button.dot').forEach((element) => {
+						element.classList.remove('hide');
+						element.classList.add('hide');
+					})
+
+				}else {
+					this.lines.element.classList.remove('hide');
+					document.querySelectorAll('button.dim, button.dot').forEach((element) => {
+						element.classList.remove('hide');
+					})
+
+				}
+			},
+
+			createElements() {
+				for(let h in this.hotspot.setupArray){
+					this.hotspot.buttonArray[h] = document.createElement('button');
+					const button = this.hotspot.buttonArray[h];
+					app.modelViewer.element.appendChild(button);
+					button.setAttribute('disabled', '');
+					button.setAttribute('aria-hidden', 'true');
+					button.setAttribute('slot', this.hotspot.setupArray[h].slot);
+					button.className = this.hotspot.setupArray[h].class;
+					button.classList.add(this.buttonSetup.colors.tabText);
+					button.classList.add('hide');
+					button.setAttribute('data-position', this.hotspot.setupArray[h].position);
+					button.setAttribute('data-normal', this.hotspot.setupArray[h].normal);
+				}
+
+				const svgHTML = '<svg id="dimLines" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" class="dimensionLineContainer hide"></svg>';
+				app.modelViewer.element.innerHTML += svgHTML;
+				this.lines.element = document.querySelector('#dimLines');
+
+				for (var i = 0; i < 5; i++) {
+					const lineHTML = '<line class="dimensionLine" x1="0" y1="0" x2="1" y2="1"></line>';
+					this.lines.element.innerHTML += lineHTML;
+				}
+			}
+		},
+
+		ar: {
+
+			buttonSetup: {
+				id: '#toolbar-button-3',
+				name: 'Augmented Reality',
+				colors: {
+					button: 'terracotta',
+					buttonIcon: 'pearlwhite', 
+					tabBackground: 'pearlwhite',
+					tabShadow: null,
+					tabText: null,
+					tabIcon: null
+				}, 
+				func: 'ar', 
+				action: {
+					type: 'feedback',
+					selector: null 
+				}
+			},
+
+			init() {
+				const buttonEl = document.querySelector(this.buttonSetup.id);
+				if(!app.isArCapable) {
+					buttonEl.classList.add('inactive');
+				}
+			}
+		},
+
+		annotations: {
+
+			annotationSetup: {
+				colors: {
+					buttonColor: 'skyblue', 
+					messageColor: 'pearlwhite', 
+					messageShadowColor: 'shadow-skyblue' 
+				}
+			},
+
+			annotationArray: [], 
+
+			loadAnnotations(modelJSON) {
+				const modelViewer = app.modelViewer.element;
+
+				//save camera settings for focus movement
+				const preFocusOrbit = modelViewer.cameraOrbit;
+				const preFocusTarget = modelViewer.cameraTarget;
+				const preFocusFOV = modelViewer.fieldOfView;			
+
+				for(let a in modelJSON.appData.annotations){
+					const annotation = modelJSON.appData.annotations[a];
+
+					//button creation
+					this.annotationArray[a] = {};
+					this.annotationArray[a].button = {};
+					this.annotationArray[a].button.id = 'hotspot-' + annotation.id;
+					this.annotationArray[a].button.element = document.createElement('button');
+					const button = this.annotationArray[a].button.element;
+					modelViewer.appendChild(button);
+					button.className = 'hotspot text';
+					button.setAttribute('slot', 'hotspot-' + annotation.id);
+					button.setAttribute('data-hotspot-id', 'hotspot-' + annotation.id);
+					button.setAttribute('data-position', annotation.position);
+					button.setAttribute('data-normal', annotation.normal);
+					button.setAttribute('data-orbit', annotation.cameraOrbit);
+					button.setAttribute('data-target', annotation.cameraTarget);
+					button.setAttribute('data-fov', annotation.cameraField);
+					button.setAttribute('data-visibility-attribute', 'visible');
+
+					this.annotationArray[a].button.icon = {}
+					this.annotationArray[a].button.icon.containerEl = document.createElement('div');
+					const iconContainer = this.annotationArray[a].button.icon.containerEl;
+					button.appendChild(iconContainer);
+					iconContainer.className = 'hotspot border';
+					iconContainer.classList.add(this.annotationSetup.colors.buttonColor)
+
+					this.annotationArray[a].button.icon.image = document.createElement('img');
+					const image = this.annotationArray[a].button.icon.image;
+					iconContainer.appendChild(image);
+					image.className = 'hotspot-icon';
+					image.width = 100;
+					image.height = 100;
+					image.src = app.assets.icon[annotation.mediaType].src.pearlwhite;
+					image.alt = app.assets.icon[annotation.mediaType].alt;
+
+					//button eventlistener
+					button.addEventListener('click', () => this.clickHandler(a));
+					button.addEventListener('mouseover', () => button.classList.add('hover-animation'));
+					button.addEventListener('mouseout', () => button.classList.remove('hover-animation'));
+
+					//annotation creation
+
+					//annotationContentHTML by type
+					let annotationContentHTML = '';
+					for(let annotationContent of annotation.contents) {
+						if(annotationContent.type === 'headline'){
+							const headlineHTML = '<h3>' + annotationContent.content + '</h3>';
+							annotationContentHTML = annotationContentHTML.concat(headlineHTML);
+						}else if(annotationContent.type === 'subheadline'){
+							const subHeadlineHTML = '<h5>' + annotationContent.content + '</h5>';
+							annotationContentHTML = annotationContentHTML.concat(subHeadlineHTML);
+						}else if(annotationContent.type === 'paragraph'){
+							const paragraphHTML = '<p class="annotation-text">' + annotationContent.content + '</p>';
+							annotationContentHTML = annotationContentHTML.concat(paragraphHTML);
+						}else if(annotationContent.type === 'paragraph+image'){
+							const imageHTML = '<img src="' + app.filepaths.files + app.filepaths.annotationMedia + annotationContent.filename + '" alt="' + annotationContent.imageAlt + '" width="100px" height="100px">' 
+							const captionHTML = '<span class="annotation-image-caption">' + annotationContent.imageCaption + '<span class="copyright"> Foto: ' + annotationContent.fileCopyright + '</span></span>';
+							const paragraphAndImageHTML = '<p class="annotation-text"><span class="annotation-image"><span class="annotation-image-box">' + imageHTML + '</span>' + captionHTML + '</span>' + annotationContent.content + '</p>';
+							annotationContentHTML = annotationContentHTML.concat(paragraphAndImageHTML);
+						}else if(annotationContent.type === 'paragraph+audio'){
+							
+						}else if(annotationContent.type === 'paragraph+video'){
+							
+						}else if(annotationContent.type === 'quote'){
+							const quoteHTML = '<p class="annotation-text quote">' + annotationContent.content + '</p>';
+							annotationContentHTML = annotationContentHTML.concat(quoteHTML);
+						}else if(annotationContent.type === 'image'){
+							const imageHTML = '<img src="' + app.filepaths.files + app.filepaths.annotationMedia + annotationContent.filename + '" alt="' + annotationContent.imageAlt + '" width="100px" height="100px">' 
+							const captionHTML = '<p class="annotation-image-caption">' + annotationContent.imageCaption + '<span class="copyright"> Foto: ' + annotationContent.fileCopyright + '</span></p>';
+							const imageAndCaptionHTML = '<div class="annotation-image"><div class="annotation-image-box">' + imageHTML + '</div>' + captionHTML + '</div>';
+							annotationContentHTML = annotationContentHTML.concat(imageAndCaptionHTML);
+						}else if(annotationContent.type === 'audio'){
+							const audioHTML = '<audio controls><source src="' + app.filepaths.files + app.filepaths.annotationMedia + annotationContent.filename + '" type="audio/mpeg"></audio>';
+							annotationContentHTML = annotationContentHTML.concat(audioHTML);
+						}else if(annotationContent.type === 'video'){
+							
+						}else if(annotationContent.type === 'link'){
+							const linkHTML = '<a class="annotation-link" href="">' + annotationContent.content + '</a>';
+							annotationContentHTML = annotationContentHTML.concat(linkHTML);
+						}
+					}
+
+					this.annotationArray[a].message = {
+						content: annotationContentHTML,
+						color: this.annotationSetup.colors.messageColor,
+						shadow: this.annotationSetup.colors.messageShadowColor
+					}
+				}  
+
+				app.gui.message.closeEl.addEventListener('click', () => {
+					for(let a in this.annotationArray){
+						const thisButton = this.annotationArray[a].button.element;
+						thisButton.classList.remove('focus');
+					}
+
+					//reset camera 
+					modelViewer.cameraTarget = preFocusTarget;
+					modelViewer.cameraOrbit = preFocusOrbit;
+					modelViewer.fieldOfView = preFocusFOV;
+				})
+			},
+
+			clickHandler(arrayPos) {
+				const modelViewer = app.modelViewer.element;
+				const button = this.annotationArray[arrayPos].button.element;
+
+				for(let a in this.annotationArray){
+					const thisButton = this.annotationArray[a].button.element;
+					thisButton.classList.remove('focus');
+				}
+
+				button.classList.add('focus');
+
+				//remove interaction prompt (indicating the drag-model-to-turn interaction)
+				modelViewer.interactionPrompt = 'none';
+
+				//remove the CSS hover-animation from the clickedHotspot-element
+				button.classList.remove('hover-animation');
+
+				app.gui.message.setMessage(this.annotationArray[arrayPos].message);
+
+				this.imageHandler();
+
+				modelViewer.cameraTarget = button.dataset.target;
+				modelViewer.cameraOrbit = button.dataset.orbit;
+				modelViewer.fieldOfView = button.dataset.fov;
+			}, 
+
+			imageHandler() {
+				const modelViewer = app.modelViewer.element;
+				app.gui.message.content.element.querySelectorAll('.annotation-image').forEach( function(image){
+					const img = image.querySelector('img');
+					const box = image.querySelector('.annotation-image-box');
+					const fullScreenImageContainer = app.gui.fullScreen.containerEl;
+					const fullScreenImage = app.gui.fullScreen.image;
+					
+					//image Eventlisteners
+					//copies the src and alt from clicked image to the full-screen img-element and switches visibility
+					box.addEventListener('click', function(){
+						fullScreenImage.src = img.src;
+						fullScreenImage.alt = img.alt;
+						fullScreenImageContainer.classList.remove('hide'); 
+						fullScreenImage.classList.remove('hide');
+					});
+					fullScreenImageContainer.addEventListener('click', function(){
+						fullScreenImage.src = '';
+						fullScreenImage.alt = '';
+						fullScreenImageContainer.classList.add('hide'); 
+						fullScreenImage.classList.add('hide');
+					});
+				});
+			}
+		},
+
+		setEventListeners: function() {
+			const self = this;
+
+			document.addEventListener('proxyJSON-update', (e) => {
+				const json = app.modelViewer.proxyJSON.data;
+				self.loadModel(json);
+				json.appData.annotations && self.annotations.loadAnnotations(json);
+			});
+
+			this.element.addEventListener('load', function(event) {
+				app.gui.loadingScreen.hideLoadingScreen();
+			});
+		},
+
+		getJSONData: async function(url) {
+			//JSON fetch and loading model viewer
+			try{
+				const response = await fetch(url);
+				if(!response.ok) {
+					throw new Error(`Response status: ${response.status}`);
+					return false;
+				}
+				await response.json().then((json) => {
+					app.modelViewer.proxyJSON.data = json;
+				});
+			} catch (e) {
+				app.dev && console.error('dev --- fetch error: ', e);
+				app.errorHandler('mv-002')
+			}
+		},
+
+		loadModel(modelJSON) {
+			const modelViewer = this.element;
+			//set title
+			app.gui.title.set(modelJSON.basicData.name, true, app.hasHistory, modelJSON.primaryKey)
+
+			//set modelViewer data
+			modelViewer.src = app.filepaths.files + modelJSON.appData.model.quality2k;
+			modelViewer.cameraOrbit = modelJSON.appData.modelViewer.cameraOrbit;
+			modelViewer.cameraTarget = modelJSON.appData.modelViewer.cameraTarget;
+			modelViewer.fieldOfView = modelJSON.appData.modelViewer.cameraField;
+		},
+
+		createElements() {
+
+			this.element = document.createElement('model-viewer');
+			document.body.appendChild(this.element);
+			this.element.setAttribute('id', 'main-viewer');
+			this.element.setAttribute('loading', 'eager');
+			this.element.setAttribute('ar', '');
+			this.element.setAttribute('ar-scale', 'fixed');
+			this.element.setAttribute('xr-environment', '');
+			this.element.setAttribute('src', '');
+			this.element.setAttribute('shadow-intensity', '1');
+			this.element.setAttribute('camera-controls', '');
+			this.element.setAttribute('touch-action', 'pan-y');
+			this.element.setAttribute('disable-tap', '');
+			this.element.setAttribute('camera-orbit', '');
+			this.element.setAttribute('min-camera-orbit', '-Infinity 15deg 0.1m');
+			this.element.setAttribute('max-camera-orbit', '-Infinity 165ddeg 5.5m');
+			this.element.setAttribute('camera-target', '');
+			this.element.setAttribute('field-of-view', '');
+			this.element.setAttribute('interpolation-decay', '150');
+			this.element.setAttribute('data-dimension', 'false');
+
+			this.default = {};
+
+			this.default.arButtonEl = document.createElement('button');
+			this.element.appendChild(this.default.arButtonEl);
+			this.default.arButtonEl.setAttribute('slot', 'ar-button');
+			this.default.arButtonEl.className = 'hide';
+
+			this.default.progressBarEl = document.createElement('div');
+			this.element.appendChild(this.default.progressBarEl);
+			this.default.progressBarEl.setAttribute('slot', 'progress-bar');
+			this.default.progressBarEl.className = 'hide';
+		}
+	}, //modelViewer
+
 	arViewer: {
+
+		toolBarSetup: {
+			color: 'pearlwhite', 
+			shadowColor: 'shadow-terracotta'
+		},
 
 		init(){
 		this.createElements();
@@ -2419,164 +2953,164 @@ const app = {
 		this.farAwayTip = "Gehe näher an das Objekt heran!";
 		this.clickTip = "Klicke hier!"
 		this.clickMeTip = "Klicke mich zum Ablegen";
-
 		},
 
 		createElements() {
-			const arViewerElement = document.createElement('a-scene');
-			this.arViewerElement = arViewerElement;
-			document.body.appendChild(arViewerElement);
-			arViewerElement.setAttribute('id', 'scene');
-			arViewerElement.setAttribute('gltf-model', 'dracoDecoderPath: ./draco/');
-			arViewerElement.setAttribute('xr-mode-ui', 'enabled:false');
-			arViewerElement.setAttribute('light', 'defaultLightsEnabled: false');
-			arViewerElement.setAttribute('webxr', 'requiredFeatures:	hit-test, dom-overlay, anchors; overlayElement: .gui-message-box; referenceSpaceType:local;');
-			arViewerElement.setAttribute('controller', '');
-			arViewerElement.setAttribute('renderer', 'stencil:true;');
-			arViewerElement.setAttribute('tools', 'enabled:false;')
+			this.sceneEl = document.createElement('a-scene');
+			document.body.appendChild(this.sceneEl);
+			this.sceneEl.setAttribute('id', 'scene');
+			this.sceneEl.setAttribute('gltf-model', 'dracoDecoderPath: ./draco/');
+			this.sceneEl.setAttribute('xr-mode-ui', 'enabled:false');
+			this.sceneEl.setAttribute('light', 'defaultLightsEnabled: false');
+			this.sceneEl.setAttribute('webxr', 'requiredFeatures:	hit-test, dom-overlay, anchors; overlayElement: .gui-message-box; referenceSpaceType:local;');
+			this.sceneEl.setAttribute('controller', '');
+			this.sceneEl.setAttribute('renderer', 'stencil:true;');
+			this.sceneEl.setAttribute('tools', 'enabled:false;')
 
-			const assets = document.createElement('a-assets');
-			arViewerElement.appendChild(assets);
+			this.assets = {};
+			this.assets.element = document.createElement('a-assets');
+			this.sceneEl.appendChild(this.assets.element);
 
-			const imgSprite = document.createElement('img');
-			assets.appendChild(imgSprite);
-			imgSprite.id = 'sprite';
-			imgSprite.crossOrigin = 'anonymous';
+			this.assets.sprite = document.createElement('img');
+			this.assets.element.appendChild(this.assets.sprite);
+			this.assets.sprite.id = 'sprite';
+			this.assets.sprite.crossOrigin = 'anonymous';
 			// TODO our own sprite
-			imgSprite.src = 'https://cdn.glitch.global/421736eb-f719-4a40-8df3-054eca30d277/spark.png?v=1715082340035';
-			imgSprite.setAttribute('loading', 'lazy');
+			this.assets.sprite.src = 'https://cdn.glitch.global/421736eb-f719-4a40-8df3-054eca30d277/spark.png?v=1715082340035';
+			this.assets.sprite.setAttribute('loading', 'lazy');
 
-			const imgPlacer = document.createElement('img');
-			assets.appendChild(imgPlacer);
-			imgPlacer.id = 'placer';
-			imgPlacer.crossOrigin = 'anonymous';
-			imgPlacer.src = app.assets.ar.marker['drop'].src;
-			imgPlacer.setAttribute('loading', 'lazy');
+			this.assets.drop = document.createElement('img');
+			this.assets.element.appendChild(this.assets.drop);
+			this.assets.drop.id = 'placer';
+			this.assets.drop.crossOrigin = 'anonymous';
+			this.assets.drop.src = app.assets.ar.marker['drop'].src;
+			this.assets.drop.setAttribute('loading', 'lazy');
 
-			const imgDrag = document.createElement('img');
-			assets.appendChild(imgDrag);
-			imgDrag.id = 'dragIcon';
-			imgDrag.crossOrigin = 'anonymous';
-			imgDrag.src = app.assets.ar.marker['drag'].src;
-			imgDrag.setAttribute('loading', 'lazy');
+			this.assets.drag = document.createElement('img');
+			this.assets.element.appendChild(this.assets.drag);
+			this.assets.drag.id = 'dragIcon';
+			this.assets.drag.crossOrigin = 'anonymous';
+			this.assets.drag.src = app.assets.ar.marker['drag'].src;
+			this.assets.drag.setAttribute('loading', 'lazy');
 
-			const imgArrow = document.createElement('img');
-			assets.appendChild(imgArrow);
-			imgArrow.id = 'arrow';
-			imgArrow.crossOrigin = 'anonymous';
-			imgArrow.src = app.assets.ar['rotate arrows'].src;
-			imgArrow.setAttribute('loading', 'lazy');
+			this.assets.arrow = document.createElement('img');
+			this.assets.element.appendChild(this.assets.arrow);
+			this.assets.arrow.id = 'arrow';
+			this.assets.arrow.crossOrigin = 'anonymous';
+			this.assets.arrow.src = app.assets.ar['rotate arrows'].src;
+			this.assets.arrow.setAttribute('loading', 'lazy');
 
-			const imgBook = document.createElement('img');
-			assets.appendChild(imgBook);
-			imgBook.id = 'book';
-			imgBook.crossOrigin = 'anonymous';
-			imgBook.src = app.assets.ar.marker['book'].src;
-			imgBook.setAttribute('loading', 'lazy');
+			this.assets.book = document.createElement('img');
+			this.assets.element.appendChild(this.assets.book);
+			this.assets.book.id = 'book';
+			this.assets.book.crossOrigin = 'anonymous';
+			this.assets.book.src = app.assets.ar.marker['book'].src;
+			this.assets.book.setAttribute('loading', 'lazy');
 
-			const imgPlay = document.createElement('img');
-			assets.appendChild(imgPlay);
-			imgPlay.id = 'playAnim';
-			imgPlay.crossOrigin = 'anonymous';
-			imgPlay.src = app.assets.ar.marker['animation'].src;
-			imgPlay.setAttribute('loading', 'lazy');
+			this.assets.play = document.createElement('img');
+			this.assets.element.appendChild(this.assets.play);
+			this.assets.play.id = 'playAnim';
+			this.assets.play.crossOrigin = 'anonymous';
+			this.assets.play.src = app.assets.ar.marker['animation'].src;
+			this.assets.play.setAttribute('loading', 'lazy');
 
-			const imgExcl = document.createElement('img');
-			assets.appendChild(imgExcl);
-			imgExcl.id = 'exclamation';
-			imgExcl.crossOrigin = 'anonymous';
-			imgExcl.src = app.assets.ar.marker['quest'].src;
-			imgExcl.setAttribute('loading', 'lazy');
+			this.assets.quest = document.createElement('img');
+			this.assets.element.appendChild(this.assets.quest);
+			this.assets.quest.id = 'exclamation';
+			this.assets.quest.crossOrigin = 'anonymous';
+			this.assets.quest.src = app.assets.ar.marker['quest'].src;
+			this.assets.quest.setAttribute('loading', 'lazy');
 
-			const imgQuiz = document.createElement('img');
-			assets.appendChild(imgQuiz);
-			imgQuiz.id = 'question';
-			imgQuiz.crossOrigin = 'anonymous';
-			imgQuiz.src = app.assets.ar.marker['quiz'].src;
-			imgQuiz.setAttribute('loading', 'lazy');
+			this.assets.quiz = document.createElement('img');
+			this.assets.element.appendChild(this.assets.quiz);
+			this.assets.quiz.id = 'question';
+			this.assets.quiz.crossOrigin = 'anonymous';
+			this.assets.quiz.src = app.assets.ar.marker['quiz'].src;
+			this.assets.quiz.setAttribute('loading', 'lazy');
 
-			const ambientLightEntity = document.createElement('a-entity');
-			arViewerElement.appendChild(ambientLightEntity);
-			ambientLightEntity.setAttribute('light', 'type: ambient; color: #FAF0E6; intensity: 2');
+			this.ambientLightEl = document.createElement('a-entity');
+			this.sceneEl.appendChild(this.ambientLightEl);
+			this.ambientLightEl.setAttribute('light', 'type: ambient; color: #FAF0E6; intensity: 2');
 
-			const directionalLightEntity = document.createElement('a-entity');
-			arViewerElement.appendChild(directionalLightEntity);
-			directionalLightEntity.setAttribute('light', 'type: directional; color: #FAF0E6; intensity: 2');
-			directionalLightEntity.setAttribute('position', '-2 0 2');
+			this.directionalLightEl = document.createElement('a-entity');
+			this.sceneEl.appendChild(this.directionalLightEl);
+			this.directionalLightEl.setAttribute('light', 'type: directional; color: #FAF0E6; intensity: 2');
+			this.directionalLightEl.setAttribute('position', '-2 0 2');
 
-			const camera = document.createElement('a-entity');
-			arViewerElement.appendChild(camera);
-			camera.setAttribute('id', 'camera');
-			camera.setAttribute('camera', '');
-			camera.setAttribute('position', '0 0.2 0.5');
-			camera.setAttribute('visibility-handler', '');
-			const cameraCursor = document.createElement('a-entity');
-			camera.appendChild(cameraCursor);
-			cameraCursor.setAttribute('id', 'cursor');
-			cameraCursor.setAttribute('geometry', 'primitive: circle; radius: 0.001;');
-			cameraCursor.setAttribute('material', 'color:black; shader:flat');
-			cameraCursor.setAttribute('position', '0 0 -0.01');
-			cameraCursor.setAttribute('raycaster', 'objects: .collidable,.toolidable; enabled:false;');
-			cameraCursor.setAttribute('scale', '0.1 0.1 0.1');		
+			this.cameraEl = document.createElement('a-entity');
+			this.sceneEl.appendChild(this.cameraEl);
+			this.cameraEl.setAttribute('id', 'camera');
+			this.cameraEl.setAttribute('camera', '');
+			this.cameraEl.setAttribute('position', '0 0.2 0.5');
+			this.cameraEl.setAttribute('visibility-handler', '');
 
-			const ring = document.createElement('a-entity');
-			cameraCursor.appendChild(ring);
-			ring.setAttribute('geometry', 'primitive:ring; radiusInner:0.02; radiusOuter:0.03; thetaLength:0');
-			ring.setAttribute('material', 'shader:flat; transparent:true; opacity: 0.5');
-			ring.setAttribute('animation-handler', '');
-			ring.setAttribute('animation', 'property:geometry.thetaLength; from:0; to: 360; dur:2000; startEvents:startRing; pauseEvents: stopRing');
+			this.cursorEl = document.createElement('a-entity');
+			this.cameraEl.appendChild(this.cursorEl);
+			this.cursorEl.setAttribute('id', 'cursor');
+			this.cursorEl.setAttribute('geometry', 'primitive: circle; radius: 0.001;');
+			this.cursorEl.setAttribute('material', 'color:black; shader:flat');
+			this.cursorEl.setAttribute('position', '0 0 -0.01');
+			this.cursorEl.setAttribute('raycaster', 'objects: .collidable,.toolidable; enabled:false;');
+			this.cursorEl.setAttribute('scale', '0.1 0.1 0.1');		
 
-			const placeObject = document.createElement('a-entity');
-			arViewerElement.appendChild(placeObject);
-			placeObject.setAttribute('id', 'place-object');
-			placeObject.setAttribute('ar-hit-test-special', '');
-			placeObject.setAttribute('visible', 'false');
+			this.gazeRingEl = document.createElement('a-entity');
+			this.cursorEl.appendChild(this.gazeRingEl);
+			this.gazeRingEl.setAttribute('geometry', 'primitive:ring; radiusInner:0.02; radiusOuter:0.03; thetaLength:0');
+			this.gazeRingEl.setAttribute('material', 'shader:flat; transparent:true; opacity: 0.5');
+			this.gazeRingEl.setAttribute('animation-handler', '');
+			this.gazeRingEl.setAttribute('animation', 'property:geometry.thetaLength; from:0; to: 360; dur:2000; startEvents:startRing; pauseEvents: stopRing');
 
-			const containerObject = document.createElement('a-entity');
-			arViewerElement.appendChild(containerObject);
-			containerObject.setAttribute('id', 'container');
-			containerObject.setAttribute('hide-on-start-ar', '');
-			containerObject.setAttribute('visible', 'false');
+			this.dropObjectEl = document.createElement('a-entity');
+			this.sceneEl.appendChild(this.dropObjectEl);
+			this.dropObjectEl.setAttribute('id', 'place-object');
+			this.dropObjectEl.setAttribute('ar-hit-test-special', '');
+			this.dropObjectEl.setAttribute('visible', 'false');
+
+			this.containerObjectEl = document.createElement('a-entity');
+			this.sceneEl.appendChild(this.containerObjectEl);
+			this.containerObjectEl.setAttribute('id', 'container');
+			this.containerObjectEl.setAttribute('hide-on-start-ar', '');
+			this.containerObjectEl.setAttribute('visible', 'false');
 			
-			const object = document.createElement('a-entity');
-			containerObject.appendChild(object);
-			object.setAttribute('id', 'object');
-			object.setAttribute('class', 'collidable');
-			object.setAttribute('get-bounding-box', '');
-			object.setAttribute('distance-listener', '');
-			object.setAttribute('animation-mixer', '');
-			object.setAttribute('anchored', 'persistent:true');
+			this.objectEl = document.createElement('a-entity');
+			this.containerObjectEl.appendChild(this.objectEl);
+			this.objectEl.setAttribute('id', 'object');
+			this.objectEl.setAttribute('class', 'collidable');
+			this.objectEl.setAttribute('get-bounding-box', '');
+			this.objectEl.setAttribute('distance-listener', '');
+			this.objectEl.setAttribute('animation-mixer', '');
+			this.objectEl.setAttribute('anchored', 'persistent:true');
 
-			const missionsContainer = document.createElement('a-entity');
-			containerObject.appendChild(missionsContainer);
-			missionsContainer.setAttribute('id', 'missions');
+			this.missionContainerEl = document.createElement('a-entity');
+			this.containerObjectEl.appendChild(this.missionContainerEl);
+			this.missionContainerEl.setAttribute('id', 'missions');
 
-			const noMissionsContainer = document.createElement('a-entity');
-			containerObject.appendChild(noMissionsContainer);
-			noMissionsContainer.setAttribute('id', 'noMissions');
+			this.noMissionContainerEl = document.createElement('a-entity');
+			this.containerObjectEl.appendChild(this.noMissionContainerEl);
+			this.noMissionContainerEl.setAttribute('id', 'noMissions');
 
-			const rotationControl = document.createElement('a-entity');
-			arViewerElement.appendChild(rotationControl);
-			rotationControl.setAttribute('id', 'rotation-ring');
-			rotationControl.setAttribute('geometry', 'primitive:circle');
-			rotationControl.setAttribute('material','transparent:true;src:#arrow');
-			rotationControl.setAttribute('rotation', '-90 0 0');
-			rotationControl.setAttribute('turn-to-camera', 'onlyYAxis:true');
+			this.rotationControlEl = document.createElement('a-entity');
+			this.sceneEl.appendChild(this.rotationControlEl);
+			this.rotationControlEl.setAttribute('id', 'rotation-ring');
+			this.rotationControlEl.setAttribute('geometry', 'primitive:circle');
+			this.rotationControlEl.setAttribute('material','transparent:true;src:#arrow');
+			this.rotationControlEl.setAttribute('rotation', '-90 0 0');
+			this.rotationControlEl.setAttribute('turn-to-camera', 'onlyYAxis:true');
 
-			const touchCircle = document.createElement('a-entity');
-			rotationControl.appendChild(touchCircle);
-			touchCircle.setAttribute('id', 'touch-circle');
-			touchCircle.setAttribute('geometry', 'primitive:circle; radius: 0.3;');
-			touchCircle.setAttribute('visible', 'false');
-			touchCircle.setAttribute("turn-to-camera", '');
-			touchCircle.setAttribute('rotation-handler', 'enabled:false');	
+			this.touchCircleEl = document.createElement('a-entity');
+			this.rotationControlEl.appendChild(this.touchCircleEl);
+			this.touchCircleEl.setAttribute('id', 'touch-circle');
+			this.touchCircleEl.setAttribute('geometry', 'primitive:circle; radius: 0.3;');
+			this.touchCircleEl.setAttribute('visible', 'false');
+			this.touchCircleEl.setAttribute("turn-to-camera", '');
+			this.touchCircleEl.setAttribute('rotation-handler', 'enabled:false');	
 
-			const rotHandle = document.createElement('a-entity');
-			rotationControl.appendChild(rotHandle);
-			rotHandle.setAttribute('id', 'rot-handle');
-			rotHandle.setAttribute('geometry', 'primitive:circle; radius: 0.3;');
-			rotHandle.setAttribute('rotation', ' 0 0 0');
-			rotHandle.setAttribute('material', 'color:#FAF0E6');
+			this.rotHandleEl = document.createElement('a-entity');
+			this.rotationControlEl.appendChild(this.rotHandleEl);
+			this.rotHandleEl.setAttribute('id', 'rot-handle');
+			this.rotHandleEl.setAttribute('geometry', 'primitive:circle; radius: 0.3;');
+			this.rotHandleEl.setAttribute('rotation', ' 0 0 0');
+			this.rotHandleEl.setAttribute('material', 'color:#FAF0E6');
 		}
 
 	}, //arViewer
@@ -2601,36 +3135,119 @@ const app = {
 	}, 
 
 	handleURLParameter() {
+		const regex = new RegExp('^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$');
+		const mode = this.getURLParameter('m');
+		const model = this.getURLParameter('model');
+		const isFrom = this.getURLParameter('from');
 		this.dev = (this.getURLParameter('dev') === 'true');
 		this.stats = (this.getURLParameter('stats') === 'true');
-		const mode = this.getURLParameter('m');
-		const error = this.getURLParameter('error');
 
+		//set viewerMode
 		if(!this.viewerModes.includes(mode)){
 			this.viewerMode = false;
 		}else{
 			this.viewerMode = mode;
 		}
 
-		if(error && error.match('[0-9]+') && error.length === 3) {
-			this.error = error;
-		}
+		//handle model uuid
+		(this.viewerMode === 'mv' && !model) && this.errorHandler('mv-000');
+		(this.viewerMode === 'mv' && !regex.test(model)) && this.errorHandler('mv-001');
+		(this.viewerMode === 'mv' && regex.test(model)) ? this.primaryKey = model : '';
+
+		//handle from parameter
+		(this.viewerMode === 'cv' && regex.test(model)) ? this.isFrom = isFrom : '';
 	}, 
 
+	// from: https://stackoverflow.com/questions/11381673/detecting-a-mobile-browser
+	checkMobile() {
+		let check = false;
+		(function(a){
+			if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0,4))) {
+				check = true;
+			}
+		})(navigator.userAgent||navigator.vendor||window.opera);
+		app.dev && console.log('dev --- checkMobile:', check);
+		return check;
+	},
+
+	checkArSupport() {
+		//test if WebXR AR is supported
+		if(navigator.xr){
+			navigator.xr.isSessionSupported('immersive-ar').then((isSupported) => {
+				app.dev && console.log('dev --- checkArSupport:', isSupported);
+				return isSupported;
+			});
+		}else{
+			app.dev && console.log('dev --- checkArSupport:', false);
+			return false;
+		}
+	},
+
+	checkEventlistenerPassiveSupport() {
+		let passiveSupported = false;
+		try {
+			const options = {
+				get passive() {
+					// This function will be called when the browser attempts to access the passive property.
+					passiveSupported = true;
+				}
+			};
+			window.addEventListener("test", null, options);
+			window.removeEventListener("test", null, options);
+		} catch (err) {
+			passiveSupported = false;
+		} finally {
+			app.dev && console.log('dev --- checkEventlistenerPassiveSupport: ', passiveSupported)
+			return passiveSupported;
+		}
+	},
+
 	errorHandler(error){
-		app.dev && console.log('dev --- error: ', error);
+		let consoleOutput = null;
 
-		if(error === '000'){
-			this.gui.error.content.value = '<h3>Error-Code: 000</h3>\nWrong URL Parameter for viewerMode.';
+		//collectionViewer errors
+
+		if(error === 'cv-000'){
+			consoleOutput = {};
+			this.gui.error.content.value = `<h3>Fehler-Code: ${error}</h3>\n<p>...</p>`;
 			this.gui.error.button.label = 'OK';
 			this.gui.error.showError();
 		}
 
-		if(error === '001'){
-			this.gui.error.content.value = '<h3>Error-Code: 001</h3>\nA wrong or no model id was found in the URL.';
+		if(error === 'cv-001'){
+			consoleOutput = {};
+			this.gui.error.content.value = `<h3>Fehler-Code: ${error}</h3>\n<p>...</p>`;
 			this.gui.error.button.label = 'OK';
 			this.gui.error.showError();
 		}
+
+
+
+
+		//modevViewer errors
+
+		if(error === 'mv-000'){
+			consoleOutput = { primaryKey: this.primaryKey };
+			this.gui.error.content.value = `<h3>Fehler-Code: ${error}</h3>\n<p>Keine Objekt-Id in der URL gefunden. </p>`;
+			this.gui.error.button.label = 'OK';
+			this.gui.error.showError();
+		}
+
+		if(error === 'mv-001'){
+			consoleOutput = { primaryKey: this.primaryKey };
+			this.gui.error.content.value = `<h3>Fehler-Code: ${error}</h3>\n<p>Validierung der Objekt-Id fehlgeschlagen. </p>`;
+			this.gui.error.button.label = 'OK';
+			this.gui.error.showError();
+		}
+
+		if(error === 'mv-002'){
+			consoleOutput = { primaryKey: this.primaryKey };
+			this.gui.error.content.value = `<h3>Fehler-Code: ${error}</h3>\n<p>Laden der JSON-Datei (Objekt-Id: ${this.primaryKey}) fehlgeschlagen. </p>`;
+			this.gui.error.button.label = 'OK';
+			this.gui.error.showError();
+		}
+
+		app.dev && console.log('dev --- error: ', consoleOutput);
 	}
 }
 

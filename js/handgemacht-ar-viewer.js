@@ -1,13 +1,12 @@
 import { app } from './handgemacht-main.js';
 
 //START Global Variables
-let devMode = false;
 const dirPath_Files = './files/';
 const dirPath_Media = './files/annotation-media/';
 const dirPath_Icon = './assets/'
-let loadAV = false;
+let loadAR = false;
 let primaryKey;
-let setError = '';
+let setError;
 //ar specific
 let originalObject;
 let missionMode = false;
@@ -15,10 +14,6 @@ let toolMode = false;
 //tracks if missions are started
 let inMission = false;
 
-var loader = new THREE.GLTFLoader();
-const dracoLoader = new THREE.DRACOLoader();
-dracoLoader.setDecoderPath('./draco/');
-loader.setDRACOLoader(dracoLoader);
 
 
 
@@ -26,8 +21,7 @@ loader.setDRACOLoader(dracoLoader);
 //START Search URL Parameters
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
-urlParams.get('dev') === 'true' ? devMode = true : devMode = false;
-urlParams.get('m') === 'ar' ? loadAV = true : loadAV = false;
+urlParams.get('m') === 'ar' ? loadAR = true : loadAR = false;
 urlParams.get('model') ? primaryKey = urlParams.get('model') : setError = '001';
 //END Search URL Parameters
 
@@ -183,7 +177,7 @@ AFRAME.registerComponent("controller", {
   },
   cancelAR: function () {
     let url = '?m=mv&model=' + primaryKey;
-    this.devMode ? url += '&dev=true' : '';
+    app.dev ? url += '&dev=true' : '';
     window.location.href = url;
 
 
@@ -558,7 +552,7 @@ AFRAME.registerComponent("controller", {
   },
   loadJSON: function () {
     let it = this;
-    if (loadAV && !setError) {
+    if (loadAR && !setError) {
       fetch(dirPath_Files + 'json/' + primaryKey + '.json')
         .then((response) => response.json())
         .then((json) => {
@@ -575,12 +569,12 @@ AFRAME.registerComponent("controller", {
             it.hideMissionBtn();
             it.missionExisting = false;
           }
-          devMode && console.log('dev --- json: ', json);
+          app.dev && console.log('dev --- json: ', json);
         })
         .catch((error) => {
-          devMode && console.error("There was a problem with the fetch operation:", error);
+          app.dev && console.error("There was a problem with the fetch operation:", error);
         });
-    } else if (loadAV && setError === '001') {
+    } else if (loadAR && setError === '001') {
       falsePrimKey();
     }
     //START falsePrimKey
@@ -600,20 +594,20 @@ AFRAME.registerComponent("controller", {
     const gltf_src = json.appData.model.animation ? `url(${"./files/" + json.appData.model.animation})` : `url(${"./files/" + json.appData.model.quality2k})`;
     const gltf_src_orig = "./files/" + json.appData.model.quality2k;
 
-    loader.load(
+    app.gltfLoader.load(
       gltf_src_orig,
       function (gltf) {
-        devMode && console.log("gltf.scene", gltf.scene);
+        app.dev && console.log("gltf.scene", gltf.scene);
         originalObject = gltf.scene;
         object.setAttribute("gltf-model", gltf_src);
         placeObject.setAttribute("gltf-model", gltf_src);
       },
       function (xhr) {
-        devMode && console.log('dev --- ' + (xhr.loaded / xhr.total * 100) + '% loaded');
+        app.dev && console.log('dev --- ' + (xhr.loaded / xhr.total * 100) + '% loaded');
       },
       // called when loading has errors
       function (error) {
-        devMode && console.log('An error happened');
+        app.dev && console.log('An error happened');
       }
     )
   },
@@ -2019,7 +2013,7 @@ AFRAME.registerComponent('animation-mixer', {
     } else {
       this.el.addEventListener('model-loaded', (e) => {
         this.load(e.detail.model);
-        devMode && console.log("Model", e.detail.model);
+        app.dev && console.log("Model", e.detail.model);
       });
     }
   },
@@ -2907,7 +2901,7 @@ AFRAME.registerComponent("tools", {
         this.poGroup.visible = false;
         this.oldObject.visible = true;
       } catch {
-        devMode && console.info("dev --- waiting for init clipping objects")
+        app.dev && console.info("dev --- waiting for init clipping objects")
       }
 
     }
