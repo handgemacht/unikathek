@@ -397,7 +397,7 @@ div.arrow.left.coalgrey {
   
 }
 
-div.pill {
+.pill {
   display: inline-block;
   font-size: 0.75em;
   padding: 2px 12px 2px 12px;
@@ -405,38 +405,39 @@ div.pill {
   border: none;
   border-radius: 20px;
   cursor: pointer;
+  white-space: nowrap;
 }
 
-div.pill.inactive {
+.pill.inactive {
   opacity: 0.3;
 }
 
-div.pill.shadow-coalgrey {
+.pill.shadow-coalgrey {
   border: 1px solid #41403F;
   box-shadow: 1px 1px #41403F;
 }
 
-div.pill.shadow-smokegrey {
+.pill.shadow-smokegrey {
   border: 1px solid #9B9691;
   box-shadow: 1px 1px #9B9691;
 }
 
-div.pill.shadow-pearlwhite {
+.pill.shadow-pearlwhite {
   border: 1px solid #FAF0E6;
   box-shadow: 1px 1px #FAF0E6;
 }
 
-div.pill.shadow-skyblue {
+.pill.shadow-skyblue {
   border: 1px solid #46AAC8;
   box-shadow: 1px 1px #46AAC8;
 }
 
-div.pill.shadow-terracotta {
+.pill.shadow-terracotta {
   border: 1px solid #FF7850;
   box-shadow: 1px 1px #FF7850;
 }
 
-div.pill.shadow-duckyellow {
+.pill.shadow-duckyellow {
   border: 1px solid #FFC800;
   box-shadow: 1px 1px #FFC800;
 }
@@ -471,7 +472,7 @@ div.pill.shadow-duckyellow {
 div.gui-title-container {
   display: flex;
   position: fixed;
-  top: 10px;
+  top: 12px;
   left: 20px;
   margin: 0;
   padding: 0;
@@ -480,23 +481,28 @@ div.gui-title-container {
 
 div.gui-title-container.clickable {
   cursor: pointer;
+  z-index: 2;
 }
 
 div.gui-title-container > h1.title {
   display: inline;
+  position: relative;
+  align-self: center;
+  margin-block: 0;
 }
 
 div.gui-title-container > div.arrow {
   display: inline;
-  top: 0.1em;
-  margin-right: 0.65em;
+  width: auto;
+  height: auto;
+  top: initial;
 }
 
 div.gui-title-container > div.arrow > img.icon {
   position: relative;
   display: block;
-  width: 40px;
-  height: 40px;
+  width: 2.25em;
+  height: 2.25em;
   aspect-ratio: auto;
   z-index: 1;
 }
@@ -799,9 +805,10 @@ div.gui-fullscreen-container > img.image {
   position: fixed;
   top: 50%;
   left: 50%;
-  width: 80%;
+  width: auto;
   max-width: 80%;
   height: auto;
+  max-height: 80%;
   transform: translate(-50%, -50%);
 }
 
@@ -977,6 +984,7 @@ div.gui-toolbar > button.button {
   align-self: center;
   text-align: left;
   overflow: hidden;
+  user-select: none;
 }
 
 div.gui-toolbar > button.button.feedback {
@@ -1002,7 +1010,12 @@ div.gui-toolbar > button.button.tab {
 }
 
 div.gui-toolbar > button.button.inactive {
-  opacity: 0.3;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+div.gui-toolbar > button.button.disabled {
+  opacity: 0.5;
   pointer-events: none;
 }
 
@@ -1119,11 +1132,195 @@ div.tab > div.content-container > div.content {
 
 
 
+/* START collection viewer */
+
+
+
+
+
+/* ---------- tooltip ---------- */
+
+div.cv-tooltip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  user-select: none;
+  z-index: 1;
+}
+
+div.cv-tooltip > div.type {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  padding: 2px 15px 1px 12px;
+  border-radius: 0px 7px 0px 0px;
+  font-size: 0.75em;
+  letter-spacing: .6px;
+  white-space: nowrap;
+  user-select: none;
+  z-index: 1;
+}
+
+div.cv-tooltip > div.content {
+  position: absolute;
+  top: 15px;
+  padding: 3px 15px 4px 12px;
+  border-radius: 0px 20px 0px 20px;
+  font-size: 1.2em;
+  white-space: nowrap;
+  user-select: none;
+}
+
+
+
+
+/* ---------- highlight ---------- */
+
+div.cv-highlight {
+  position: absolute;
+  z-index: 1;
+}
+
+div.cv-highlight-type {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  padding: 2px 15px 1px 12px;
+  border-radius: 0px 7px 0px 0px;
+  font-size: 0.75em;
+  letter-spacing: .6px;
+  z-index: 1;
+}
+
+div.cv-highlight-content {
+  position: absolute;
+  top: 15px;
+  padding: 3px 15px 4px 12px;
+  border-radius: 0px 20px 0px 20px;
+  font-size: 1.2em;
+  white-space: nowrap;
+}
+
+img.cv-highlight-arrow {
+  display: inline-block;
+  margin-left: 10px;
+  transform: translateY(3px);
+  width: 20px;
+  height: 20px;
+}
+
+
+
+
+/* ---------- filter ---------- */
+
+div.cv-filter-container {
+  padding: 15px 0 0 0;
+  margin: 0 0 20px 0;
+  overflow: hidden;
+}
+
+.collapsible-content {
+  padding: 0;
+  max-height: 0;
+  transition: all 0.5s;
+  overflow: hidden;
+}
+
+.collapsible-content.active {
+  padding: 15px 0 0 0;
+  max-height: 200dvh;
+}
+
+div.cv-filter-container > div.list-container {
+}
+
+div.cv-filter-container > div.list-container > button.button {
+  width: 100%;
+  background-color: initial;
+  text-align: left;
+}
+
+div.cv-filter-container > div.list-container > button.button.collapsible-button {
+}
+
+div.cv-filter-container > div.list-container > button.button.collapsible-button > div.arrow {
+  transition: all 0.25s;
+}
+
+div.cv-filter-container > div.list-container > button.button.collapsible-button.active > div.arrow {
+  transform: rotate(90deg);
+}
+
+div.cv-filter-container > button.button.text-small {
+  margin: 0 0 10px 0;
+  width: 100%;
+  background-color: initial;
+  text-align: left;
+}
+
+
+
+
+/* ---------- search ---------- */
+
+div.cv-search-input-container {
+  width: 100%;
+  height: 100%;
+}
+
+input.cv-search-input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background-color: transparent;
+  padding: 0 20px 0 10px;
+}
+
+input.cv-search-input:focus {
+  outline: none;
+}
+
+div.autocomplete-list-container {
+  position: absolute;
+  width: 100%;
+  max-height: 250px;
+  left: 0;
+  bottom: 70px;
+  border-radius: 0 20px 0 20px;
+  overflow: hidden;
+  overflow-y: scroll;
+}
+
+div.autocomplete-list-container > div.autocomplete-list {
+  padding: 10px;
+}
+
+div.autocomplete-list-container > div.autocomplete-list > div {
+  margin: 2px;
+}
+div.autocomplete-list-container > div.autocomplete-list > div.autocomplete-active {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-left: 5px;
+}
+
+
+
+
+
+
+/* END collection viewer */
+
+
+
+
+
+
+
+
+
 /* START model viewer */
-
-
-
-
 
 
 
@@ -1132,119 +1329,105 @@ div.tab > div.content-container > div.content {
 model-viewer {
   width: 100vw;
   height: 100dvh;
-  opacity: 1;
 }
 
-/* --- Toolbar and Tools --- */
 
-section.toolbar {
-  position: absolute;
-  top: 100px;
-  width: 50px;
-  padding: 0px;
-  margin: 20px;
+
+
+/* --- info --- */
+
+
+
+
+div.mv-info-container {
+  padding: 15px 0 0 0;
+  margin: 0 0 20px 0;
+  overflow: hidden;
 }
 
-button.tool {
+div.mv-info-container > h3 {
+  margin-block-start: 1.5em;
+  margin-block-end: 0.5em;
+}
+
+div.mv-info-container > dl {
+  margin-block-start: 0;
+}
+
+div.mv-info-container > dl > dt {
+  margin-block-start: 0.65em;
+}
+
+div.mv-info-container > dl > dt:first-of-type {
+  margin-block-start: 0;
+}
+
+div.mv-info-container > dl > dd {
+  margin-inline-start: 20px;
+}
+
+div.mv-info-container > dl > dd > * {
+  cursor: initial;
+}
+
+
+
+
+/* --- contextStory --- */
+
+
+
+
+/* --- measurements --- */
+
+button.dot {
+  display: block;
+  width: 0px;
+  height: 0px;
   border: none;
-  width: 50px;
-  height: 50px;
-  background-color: transparent;
-  margin-bottom: 30px;
-  padding: 0;
-  border-radius: 25px;
-  box-shadow: 3px 1px #46AAC8;
-  transition: all 1s;
-}
-
-button.tool.attention-animation{
-  animation-name: attentionAnimation;
-  animation-duration: 4.0s;
-  animation-iteration-count: infinite;
-}
-
-@keyframes attentionAnimation {
-  0% {transform: rotate(0deg) translateX(0px);}
-  80% {transform: rotate(0deg) translateX(0px);}
-  86% {transform: rotate(7deg) translateX(3px);}
-  96% {transform: rotate(-7deg) translateX(-3px);}
-  100% {transform: rotate(0deg) translateX(0px);}
-}
-
-button.tool.active {
-  box-shadow: 3px 1px #FF7850;
-}
-
-button.tool:hover {
-  transform: scale(1.2);
-}
-
-.tool-symbol {
-  width: 100%;
-  height: 100%;
-}
-
-/* --- Hotspots --- */
-
-button.hotspot {
-  min-width: 0;
-  min-height: 0;
-  width: 28px;
-  height: 28px;
   background-color: transparent;
   box-shadow: none;
-  margin: 0;
-  padding: 0;
-  transition: all 1s;
-  --min-hotspot-opacity: 0.2;
-}
-
-button.hotspot.focus {
-  width: 200px;
-  height: 200px;
+  --min-hotspot-opacity: 0;
+  --max-hotspot-opacity: 0;
   pointer-events: none;
 }
 
-.hotspot.border {
-  width: 100%;
-  height: 100%;
-  border: 3px solid #FAF0E6;
-  border-radius: 50%; 
-  transition: all 0.5s;
-}
-
-button.hotspot.focus > .hotspot.border {
-  border: 5px solid #FAF0E6;
+button.dim {
+  display: block;
+  position: absolute;
+  width: max-content;
+  height: max-content;
   background-color: transparent;
+  border: none;
+  box-shadow: none;
+  max-width: 128px;
+  overflow-wrap: break-word;
+  padding: 0.5em 1em;
+  transform: translate3d(-20%, -25%, 0);
   pointer-events: none;
+  --min-hotspot-opacity: 0;
 }
 
-img.hotspot-icon {
-  width: 100%;
-  height: 100%;
-  padding: 1px;
-  opacity: 1;
-  transition: all 0.5s;
-}
-
-button.hotspot.focus > .hotspot.border > img.hotspot-icon {
-  opacity: 0;
+.dimensionLineContainer {
   pointer-events: none;
+  display: block;
 }
 
-@keyframes hoverAnimation {
-  from {transform: scale(1);}
-  to {transform: scale(1.5);}
+.dimensionLine {
+  stroke: #9B9691;
+  stroke-width: 2;
+  stroke-dasharray: 5,7;
 }
 
-button.hotspot.hover-animation {
-  animation-name: hoverAnimation;
-  animation-duration: 0.6s;
-  animation-direction: alternate;
-  animation-iteration-count: infinite;
-}
 
-/* --- Annotations --- */
+
+
+/* --- ar --- */
+
+
+
+
+/* --- annotations --- */
 
 p.annotation-text {
   padding: 0px 30px 15px 0px;
@@ -1315,46 +1498,71 @@ img.annotation-close-icon {
   height: 16px;
 }
 
-/* --- measurements --- */
 
-button.dot {
-  display: block;
-  width: 0px;
-  height: 0px;
-  border: none;
+
+
+/* --- hotspots --- */
+
+button.hotspot {
+  min-width: 0;
+  min-height: 0;
+  width: 28px;
+  height: 28px;
   background-color: transparent;
   box-shadow: none;
-  --min-hotspot-opacity: 0;
-  --max-hotspot-opacity: 0;
+  margin: 0;
+  padding: 0;
+  transition: all 1s;
+  --min-hotspot-opacity: 0.2;
+}
+
+button.hotspot.focus {
+  width: 200px;
+  height: 200px;
   pointer-events: none;
 }
 
-button.dim {
-  display: block;
-  position: absolute;
-  width: max-content;
-  height: max-content;
+.hotspot.border {
+  width: 100%;
+  height: 100%;
+  border: 3px solid #FAF0E6;
+  border-radius: 50%; 
+  transition: all 0.5s;
+}
+
+button.hotspot.focus > .hotspot.border {
+  border: 5px solid #FAF0E6;
   background-color: transparent;
-  border: none;
-  box-shadow: none;
-  max-width: 128px;
-  overflow-wrap: break-word;
-  padding: 0.5em 1em;
-  transform: translate3d(-20%, -25%, 0);
   pointer-events: none;
-  --min-hotspot-opacity: 0;
 }
 
-.dimensionLineContainer {
-  pointer-events: none;
-  display: block;
+img.hotspot-icon {
+  width: 100%;
+  height: 100%;
+  padding: 1px;
+  opacity: 1;
+  transition: all 0.5s;
 }
 
-.dimensionLine {
-  stroke: #9B9691;
-  stroke-width: 2;
-  stroke-dasharray: 5,7;
+button.hotspot.focus > .hotspot.border > img.hotspot-icon {
+  opacity: 0;
+  pointer-events: none;
 }
+
+@keyframes hoverAnimation {
+  from {transform: scale(1);}
+  to {transform: scale(1.5);}
+}
+
+button.hotspot.hover-animation {
+  animation-name: hoverAnimation;
+  animation-duration: 0.6s;
+  animation-direction: alternate;
+  animation-iteration-count: infinite;
+}
+
+
+
 
 /* --- fixes --- */
 
@@ -1367,197 +1575,6 @@ button.dim {
 
 
 /* END model-viewer */
-
-
-
-
-
-
-
-
-
-/* START collection viewer */
-
-
-
-
-
-/* ---------- tooltip ---------- */
-
-div.cv-tooltip {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1;
-}
-
-div.cv-tooltip > div.type {
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  padding: 2px 15px 1px 12px;
-  border-radius: 0px 7px 0px 0px;
-  font-size: 0.75em;
-  letter-spacing: .6px;
-  white-space: nowrap;
-  z-index: 1;
-}
-
-div.cv-tooltip > div.content {
-  position: absolute;
-  top: 15px;
-  padding: 3px 15px 4px 12px;
-  border-radius: 0px 20px 0px 20px;
-  font-size: 1.2em;
-  white-space: nowrap;
-}
-
-
-
-
-/* ---------- highlight ---------- */
-
-div.cv-highlight {
-  position: absolute;
-  z-index: 1;
-}
-
-div.cv-highlight-type {
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  padding: 2px 15px 1px 12px;
-  border-radius: 0px 7px 0px 0px;
-  font-size: 0.75em;
-  letter-spacing: .6px;
-  z-index: 1;
-}
-
-div.cv-highlight-content {
-  position: absolute;
-  top: 15px;
-  padding: 3px 15px 4px 12px;
-  border-radius: 0px 20px 0px 20px;
-  font-size: 1.2em;
-  white-space: nowrap;
-}
-
-img.cv-highlight-arrow {
-  display: inline-block;
-  margin-left: 10px;
-  transform: translateY(3px);
-  width: 20px;
-  height: 20px;
-}
-
-
-
-
-/* ---------- filter ---------- */
-
-
-
-
-div.cv-filter-container {
-  padding: 15px 0 0 0;
-  margin: 0 0 20px 0;
-  overflow: hidden;
-}
-
-.collapsible-content {
-  padding: 0;
-  max-height: 0;
-  transition: all 0.5s;
-  overflow: hidden;
-}
-
-.collapsible-content.active {
-  padding: 15px 0 0 0;
-  max-height: 200dvh;
-}
-
-div.cv-filter-container > div.list-container {
-}
-
-div.cv-filter-container > div.list-container > button.button {
-  width: 100%;
-  background-color: initial;
-  text-align: left;
-}
-
-div.cv-filter-container > div.list-container > button.button.collapsible-button {
-}
-
-div.cv-filter-container > div.list-container > button.button.collapsible-button > div.arrow {
-  transition: all 0.25s;
-}
-
-div.cv-filter-container > div.list-container > button.button.collapsible-button.active > div.arrow {
-  transform: rotate(90deg);
-}
-
-div.cv-filter-container > button.button.text-small {
-  margin: 0 0 10px 0;
-  width: 100%;
-  background-color: initial;
-  text-align: left;
-}
-
-
-
-
-/* ---------- search ---------- */
-
-
-
-
-div.cv-search-input-container {
-  width: 100%;
-  height: 100%;
-}
-
-input.cv-search-input {
-  width: 100%;
-  height: 100%;
-  border: none;
-  background-color: transparent;
-  padding: 0 20px 0 10px;
-}
-
-input.cv-search-input:focus {
-  outline: none;
-}
-
-div.autocomplete-list-container {
-  position: absolute;
-  width: 100%;
-  max-height: 250px;
-  left: 0;
-  bottom: 70px;
-  border-radius: 0 20px 0 20px;
-  overflow: hidden;
-  overflow-y: scroll;
-}
-
-div.autocomplete-list-container > div.autocomplete-list {
-  padding: 10px;
-}
-
-div.autocomplete-list-container > div.autocomplete-list > div {
-  margin: 2px;
-}
-div.autocomplete-list-container > div.autocomplete-list > div.autocomplete-active {
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin-left: 5px;
-}
-
-
-
-
-
-
-/* END collection viewer */
 
 
 
@@ -1865,7 +1882,7 @@ img.help-symbol{
   }
 
   div.gui-toolbar-container {
-    width: calc(340px - 40px);
+    width: calc(380px - 40px);
   }
 
   div.gui-toolbar-tab.active {

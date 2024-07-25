@@ -246,7 +246,7 @@ const app = {
 		this.handleURLParameter();
 
 		this.isMobile = this.checkMobile();
-		this.isArCapable = this.checkArSupport();
+		this.isWebXRCapable = this.checkWebXRSupport();
 		this.passiveSupported = this.checkEventlistenerPassiveSupport();
 
 		window.addEventListener('orientationchange', this.handleScreenOrientation);
@@ -278,7 +278,7 @@ const app = {
 			this.gui.loadingScreen.showLoadingScreen('loading model viewer');
 		}
 
-		if (this.viewerMode === 'ar' && this.isArCapable) {
+		if (this.viewerMode === 'ar' && this.isWebXRCapable) {
 			this.arViewer.init();
 			this.gui.loadingScreen.showLoadingScreen('loading augmented reality');
 		}
@@ -303,6 +303,7 @@ const app = {
 			
 			init() {
 				this.createElements();
+				app.hideGUI && this.containerEl.classList.add('hide');
 			},
 
 			createElements() {
@@ -335,6 +336,7 @@ const app = {
 				}
 				this.element.innerHTML = title;
 				this.containerEl.className = 'gui-title-container';
+				app.hideGUI && this.containerEl.classList.add('hide');
 				this.arrowEl.className = 'arrow hide';
 
 				showArrow && this.arrowEl.classList.remove('hide');
@@ -354,6 +356,7 @@ const app = {
 
 			init() {
 				this.createElements();
+				app.hideGUI && this.element.classList.add('hide');
 			},
 
 			createElements() {
@@ -376,6 +379,7 @@ const app = {
 			
 			init() {
 				this.createElements();
+				app.hideGUI && this.element.classList.add('hide');
 			},
 
 			createElements() {
@@ -987,6 +991,8 @@ const app = {
 			init(){
 				this.createElements();
 				this.setEventListener();
+				app.hideGUI && this.containerEl.classList.add('hide');
+				app.hideGUI && this.button.element.classList.add('hide');
 			},
 	
 			createElements() {
@@ -1143,6 +1149,7 @@ const app = {
 		toolbar: {
 			init(){
 				this.createElements();
+				app.hideGUI && this.boxEl.classList.add('hide');
 			},
 	
 			createElements() {
@@ -1238,14 +1245,14 @@ const app = {
 
 					fadeBar.className = 'bar';	
 
-					toolbarTab.classList.add(colors.tabText);
-					toolbarTab.classList.add(colors.tabBackground);
-					colors.tabShadow && toolbarTab.classList.add(colors.tabShadow);
-					colors.tabShadow && fadeBar.classList.add(colors.button);
+					toolbarTab.classList.add(colors.tab.text);
+					toolbarTab.classList.add(colors.tab.background);
+					colors.tab.shadow && toolbarTab.classList.add(colors.tab.shadow);
+					colors.tab.shadow && fadeBar.classList.add(colors.button.background);
 
 					let fadeColor = '#000000';
 
-					switch (colors.tabBackground) {
+					switch (colors.tab.background) {
 						case 'coalgrey':
 							fadeColor = '#41403F';
 							break;
@@ -1283,10 +1290,10 @@ const app = {
 					element.setAttribute('data-selector', setup.action.selector);
 					element.setAttribute('data-active', false);
 					element.setAttribute('aria-label', setup.name)
-					element.classList.add(setup.colors.button);
+					element.classList.add(setup.colors.button.background);
 					let iconElement = element.children[0];
 
-					iconElement.src = app.assets.icon[setup.func].src[setup.colors.buttonIcon];
+					iconElement.src = app.assets.icon[setup.func].src[setup.colors.button.icon];
 					iconElement.alt = app.assets.icon[setup.func].alt;
 					
 					element.classList.remove('hide');
@@ -1683,7 +1690,7 @@ const app = {
 					app.gui.message.setMessage(message);
 
 					app.gui.message.buttons.button[0].element.addEventListener('click', (e) => {
-						let url = '?m=mv&history=true';
+						let url = '?m=mv';
 						app.dev ? url += '&dev=true' : '';
 						app.stats ? url += '&stats=true' : '';
 						url += '&model=' + fgNode.id;
@@ -1770,12 +1777,17 @@ const app = {
 				id: '#toolbar-button-0',
 				name: 'Informationen',
 				colors: {
-					button: 'coalgrey',
-					buttonIcon: 'pearlwhite', 
-					tabBackground: 'pearlwhite',
-					tabShadow: 'shadow-coalgrey',
-					tabText: 'text-coalgrey',
-					tabIcon: 'coalgrey'
+					button: {
+						background: 'coalgrey',
+						text: null,
+						icon: 'pearlwhite'
+					},
+					tab: {
+						background: 'pearlwhite',
+						shadow: 'shadow-coalgrey',
+						text: 'text-coalgrey',
+						icon: 'coalgrey'
+					}
 				}, 
 				func: 'info', 
 				action: {
@@ -1800,13 +1812,17 @@ const app = {
 				id: '#toolbar-button-1',
 				name: 'Suche',
 				colors: {
-					button: 'terracotta',
-					buttonText: 'text-pearlwhite',
-					buttonIcon: 'pearlwhite', 
-					tabBackground: 'pearlwhite',
-					tabShadow: 'shadow-terracotta',
-					tabText: 'text-coalgrey',
-					tabIcon: 'coalgrey'
+					button: {
+						background: 'terracotta',
+						text: 'text-pearlwhite',
+						icon: 'pearlwhite'
+					},
+					tab: {
+						background: 'pearlwhite',
+						shadow: 'shadow-terracotta',
+						text: 'text-coalgrey',
+						icon: 'coalgrey'
+					}
 				}, 
 				func: 'search', 
 				action: {
@@ -1852,7 +1868,7 @@ const app = {
 				this.button.input.element = document.createElement('input');
 				this.inputEl = this.button.input.element;
 				this.button.input.containerEl.appendChild(this.button.input.element);
-				this.button.input.element.className = 'cv-search-input ' + this.buttonSetup.colors.buttonText + ' ' + this.buttonSetup.colors.button;
+				this.button.input.element.className = 'cv-search-input ' + this.buttonSetup.colors.button.background + ' ' + this.buttonSetup.colors.button.text;
 				this.button.input.element.setAttribute('id', 'cv-search-input');
 				this.button.input.element.setAttribute('type', 'text');
 				this.button.input.element.setAttribute('name', 'searchBar');
@@ -1863,8 +1879,8 @@ const app = {
 				this.button.autocomplete.list.containerEl = document.createElement('div');
 				this.button.element.appendChild(this.button.autocomplete.list.containerEl);
 				this.button.autocomplete.list.containerEl.className = 'autocomplete-list-container hide';
-				this.button.autocomplete.list.containerEl.classList.add(this.buttonSetup.colors.tabBackground);
-				this.button.autocomplete.list.containerEl.classList.add(this.buttonSetup.colors.tabShadow);
+				this.button.autocomplete.list.containerEl.classList.add(this.buttonSetup.colors.tab.background);
+				this.button.autocomplete.list.containerEl.classList.add(this.buttonSetup.colors.tab.shadow);
 			}, 
 
 			autocomplete(element, array) {
@@ -1884,7 +1900,7 @@ const app = {
 					app.collectionViewer.search.button.autocomplete.list.containerEl.appendChild(autocompleteList);
 					autocompleteList.setAttribute('id', 'cv-search-input-autocomplete-list');
 					autocompleteList.className = 'autocomplete-list ';
-					autocompleteList.classList.add(app.collectionViewer.search.buttonSetup.colors.tabText);
+					autocompleteList.classList.add(app.collectionViewer.search.buttonSetup.colors.tab.text);
 	
 					currentFocus = -1;
 	
@@ -2002,12 +2018,17 @@ const app = {
 				id: '#toolbar-button-2',
 				name: 'Filter',
 				colors: {
-					button: 'duckyellow',
-					buttonIcon: 'coalgrey', 
-					tabBackground: 'pearlwhite',
-					tabShadow: 'shadow-duckyellow',
-					tabText: 'text-coalgrey',
-					tabIcon: 'coalgrey'
+					button: {
+						background: 'duckyellow',
+						text: null,
+						icon: 'coalgrey'
+					},
+					tab: {
+						background: 'pearlwhite',
+						shadow: 'shadow-duckyellow',
+						text: 'text-coalgrey',
+						icon: 'coalgrey'
+					}
 				}, 
 				func: 'filter', 
 				action: {
@@ -2063,7 +2084,7 @@ const app = {
 
 				const categoryListButton = document.createElement('button');
 				categoryListContainer.appendChild(categoryListButton);
-				categoryListButton.className = 'button collapsible-button ' + this.buttonSetup.colors.tabText;
+				categoryListButton.className = 'button collapsible-button ' + this.buttonSetup.colors.tab.text;
 
 				const categoryListButtonIcon = document.createElement('div');
 				categoryListButton.appendChild(categoryListButtonIcon);
@@ -2081,7 +2102,7 @@ const app = {
 
 				const categoryListButtonArrow = document.createElement('div');
 				categoryListButton.appendChild(categoryListButtonArrow);
-				categoryListButtonArrow.className = 'arrow right ' + this.buttonSetup.colors.tabIcon;
+				categoryListButtonArrow.className = 'arrow right ' + this.buttonSetup.colors.tab.icon;
 
 				const categoryList = document.createElement('div');
 				categoryListContainer.appendChild(categoryList);
@@ -2101,7 +2122,7 @@ const app = {
 
 				const tagListButton = document.createElement('button');
 				tagListContainer.appendChild(tagListButton);
-				tagListButton.className = 'button collapsible-button ' + this.buttonSetup.colors.tabText;
+				tagListButton.className = 'button collapsible-button ' + this.buttonSetup.colors.tab.text;
 
 				const tagListButtonIcon = document.createElement('div');
 				tagListButton.appendChild(tagListButtonIcon);
@@ -2119,7 +2140,7 @@ const app = {
 
 				const tagListButtonArrow = document.createElement('div');
 				tagListButton.appendChild(tagListButtonArrow);
-				tagListButtonArrow.className = 'arrow right ' + this.buttonSetup.colors.tabIcon;
+				tagListButtonArrow.className = 'arrow right ' + this.buttonSetup.colors.tab.icon;
 
 				const tagList = document.createElement('div');
 				tagListContainer.appendChild(tagList);
@@ -2235,12 +2256,17 @@ const app = {
 				id: '#toolbar-button-3',
 				name: 'Ansicht Zurücksetzen',
 				colors: {
-					button: 'coalgrey',
-					buttonIcon: 'pearlwhite', 
-					tabBackground: 'pearlwhite',
-					tabShadow: null,
-					tabText: null,
-					tabIcon: null
+					button: {
+						background: 'coalgrey',
+						text: null,
+						icon: 'pearlwhite'
+					},
+					tab: {
+						background: null,
+						shadow: null,
+						text: null,
+						icon: null
+					}
 				}, 
 				func: 'reset view', 
 				action: { 
@@ -2307,7 +2333,7 @@ const app = {
 
 		toolBarSetup: {
 			color: 'pearlwhite', 
-			shadowColor: 'shadow-terracotta'
+			shadowColor: 'shadow-smokegrey'
 		},
 
 		proxyJSON: new Proxy({
@@ -2328,25 +2354,23 @@ const app = {
 
 		init() {
 			this.createElements();
+			this.setEventListeners();
+			this.getJSONData(app.filepaths.files + 'json/' + app.primaryKey + '.json')
 
 			app.gui.toolbar.setToolbar(this.toolBarSetup.color, this.toolBarSetup.shadowColor);
 
 			app.gui.toolbar.setButton(this.info.buttonSetup);
-
 			app.gui.toolbar.setButton(this.contextStory.buttonSetup);
-
+			app.gui.toolbar.button[1].addEventListener('click', (e) => {
+				app.modelViewer.contextStory.setContextStory();
+			})
 			app.gui.toolbar.setButton(this.measurement.buttonSetup);
 			this.measurement.init();
 			app.gui.toolbar.button[2].addEventListener('click', (e) => {
 				app.modelViewer.measurement.toggleMeasurements();
 			})
-
 			app.gui.toolbar.setButton(this.ar.buttonSetup);
 			this.ar.init();
-
-			this.setEventListeners();
-
-			this.getJSONData(app.filepaths.files + 'json/' + app.primaryKey + '.json')
 		},
 
 		info: {
@@ -2355,12 +2379,17 @@ const app = {
 				id: '#toolbar-button-0',
 				name: 'Informationen',
 				colors: {
-					button: 'coalgrey',
-					buttonIcon: 'pearlwhite', 
-					tabBackground: 'pearlwhite',
-					tabShadow: 'shadow-coalgrey',
-					tabText: 'text-coalgrey',
-					tabIcon: 'coalgrey'
+					button: {
+						background: 'coalgrey',
+						text: null,
+						icon: 'pearlwhite'
+					},
+					tab: {
+						background: 'pearlwhite',
+						shadow: 'shadow-coalgrey',
+						text: 'text-coalgrey',
+						icon: 'coalgrey'
+					}
 				}, 
 				func: 'info', 
 				action: {
@@ -2368,6 +2397,200 @@ const app = {
 					selector: '.mv-info-container' 
 				}
 			},
+
+			createTabContent(modelJSON) {
+				const tabContentEl = app.gui.toolbar.tab.content.element;
+				const basicData = modelJSON.basicData;
+				const collectionData = modelJSON.collectionData;
+				const objectData = modelJSON.objectData;
+
+				const mvInfoContainerEl = document.createElement('div');
+				tabContentEl.appendChild(mvInfoContainerEl);
+				mvInfoContainerEl.className = 'mv-info-container';
+
+				const descriptionListBasicEl = document.createElement('dl');
+				mvInfoContainerEl.appendChild(descriptionListBasicEl);
+
+				if(basicData.name){
+					const nameTermEl = document.createElement('dt');
+					descriptionListBasicEl.appendChild(nameTermEl);
+					const nameTermHeadline = document.createElement('h6');
+					nameTermEl.appendChild(nameTermHeadline);
+					nameTermHeadline.appendChild(document.createTextNode('Bezeichnung: '));
+					nameTermHeadline.className = 'text-smokegrey';
+	
+					const nameValueEl = document.createElement('dd');
+					descriptionListBasicEl.appendChild(nameValueEl);
+					const nameValueHeadline = document.createElement('h3');
+					nameValueEl.appendChild(nameValueHeadline);
+					nameValueHeadline.appendChild(document.createTextNode(basicData.name));
+				}
+				
+				if(basicData.key){
+					const keyTermEl = document.createElement('dt');
+					descriptionListBasicEl.appendChild(keyTermEl);
+					const keyTermHeadline = document.createElement('h6');
+					keyTermEl.appendChild(keyTermHeadline);
+					keyTermHeadline.appendChild(document.createTextNode('Objektnummer: '));
+					keyTermHeadline.className = 'text-smokegrey';
+	
+					const keyValueEl = document.createElement('dd');
+					descriptionListBasicEl.appendChild(keyValueEl);
+					keyValueEl.appendChild(document.createTextNode(basicData.key));
+				}
+
+				if(basicData.categorys.length > 0) {
+					const categoryTermEl = document.createElement('dt');
+					descriptionListBasicEl.appendChild(categoryTermEl);
+					const categoryTermHeadline = document.createElement('h6');
+					categoryTermEl.appendChild(categoryTermHeadline);
+					categoryTermHeadline.appendChild(document.createTextNode('Kategorien: '));
+					categoryTermHeadline.className = 'text-smokegrey';
+	
+					const categoryValueEl = document.createElement('dd');
+					descriptionListBasicEl.appendChild(categoryValueEl);
+					for(let category of basicData.categorys) {
+						const categoryEl = document.createElement('span');
+						categoryEl.appendChild(document.createTextNode(category));
+						categoryEl.className = 'pill ' + app.collectionViewer.elementColor.category;
+						categoryValueEl.appendChild(categoryEl);
+					}
+				}
+
+				if(basicData.tags.length > 0) {
+					const tagTermEl = document.createElement('dt');
+					descriptionListBasicEl.appendChild(tagTermEl);
+					const tagTermHeadline = document.createElement('h6');
+					tagTermEl.appendChild(tagTermHeadline);
+					tagTermHeadline.appendChild(document.createTextNode('Tags: '));
+					tagTermHeadline.className = 'text-smokegrey';
+				
+					const tagValueEl = document.createElement('dd');
+					descriptionListBasicEl.appendChild(tagValueEl);
+					for(let tag of basicData.tags) {
+						const tagEl = document.createElement('span');
+						tagEl.appendChild(document.createTextNode(tag));
+						tagEl.className = 'pill ' + app.collectionViewer.elementColor.tag;
+						tagValueEl.appendChild(tagEl);
+					}
+				}
+
+				const objectDataHeadline = document.createElement('h3');
+				mvInfoContainerEl.appendChild(objectDataHeadline);
+				objectDataHeadline.appendChild(document.createTextNode('Objektdaten: '));
+
+				const descriptionListObjectEl = document.createElement('dl');
+				mvInfoContainerEl.appendChild(descriptionListObjectEl);
+
+				if(objectData.alternativeName){
+					const altNameTermEl = document.createElement('dt');
+					descriptionListObjectEl.appendChild(altNameTermEl);
+					const altNameTermHeadline = document.createElement('h6');
+					altNameTermEl.appendChild(altNameTermHeadline);
+					altNameTermHeadline.appendChild(document.createTextNode('Alternative Bezeichnung: '));
+					altNameTermHeadline.className = 'text-smokegrey';
+	
+					const altNameValueEl = document.createElement('dd');
+					descriptionListObjectEl.appendChild(altNameValueEl);
+					const altNameValueHeadline = document.createElement('h3');
+					altNameValueEl.appendChild(altNameValueHeadline);
+					altNameValueHeadline.appendChild(document.createTextNode(objectData.alternativeName));
+				}
+
+				if(objectData.datingFrom && objectData.datingTo){
+					var datingFromTo = 'von ' + objectData.datingFrom + ' bis ' + objectData.datingTo;
+					objectData.datingFrom === objectData.datingTo ? datingFromTo = objectData.datingFrom : '';
+
+					const datingFromToTermEl = document.createElement('dt');
+					descriptionListObjectEl.appendChild(datingFromToTermEl);
+					const datingFromToTermHeadline = document.createElement('h6');
+					datingFromToTermEl.appendChild(datingFromToTermHeadline);
+					datingFromToTermHeadline.appendChild(document.createTextNode('Datierung: '));
+					datingFromToTermHeadline.className = 'text-smokegrey';
+	
+					const datingFromToValueEl = document.createElement('dd');
+					descriptionListObjectEl.appendChild(datingFromToValueEl);
+					datingFromToValueEl.appendChild(document.createTextNode(datingFromTo));
+				}
+
+				if(objectData.location && objectData.locationCode){
+					var location = objectData.location + ' (' + objectData.locationCode+ ')';
+
+					const locationTermEl = document.createElement('dt');
+					descriptionListObjectEl.appendChild(locationTermEl);
+					const locationTermHeadline = document.createElement('h6');
+					locationTermEl.appendChild(locationTermHeadline);
+					locationTermHeadline.appendChild(document.createTextNode('Verortung: '));
+					locationTermHeadline.className = 'text-smokegrey';
+	
+					const locationValueEl = document.createElement('dd');
+					descriptionListObjectEl.appendChild(locationValueEl);
+					locationValueEl.appendChild(document.createTextNode(location));
+				}
+
+				if(objectData.origin && objectData.originCode){
+					var origin = objectData.origin + ' (' + objectData.originCode+ ')';
+
+					const originTermEl = document.createElement('dt');
+					descriptionListObjectEl.appendChild(originTermEl);
+					const originTermHeadline = document.createElement('h6');
+					originTermEl.appendChild(originTermHeadline);
+					originTermHeadline.appendChild(document.createTextNode('Enstehungsort: '));
+					originTermHeadline.className = 'text-smokegrey';
+	
+					const originValueEl = document.createElement('dd');
+					descriptionListObjectEl.appendChild(originValueEl);
+					originValueEl.appendChild(document.createTextNode(origin));
+				}
+
+				const collectionDataHeadline = document.createElement('h3');
+				mvInfoContainerEl.appendChild(collectionDataHeadline);
+				collectionDataHeadline.appendChild(document.createTextNode('Sammlungsdaten: '));
+
+				const descriptionListCollectionEl = document.createElement('dl');
+				mvInfoContainerEl.appendChild(descriptionListCollectionEl);
+
+				if(collectionData.collectionDate){
+					const collectionDateTermEl = document.createElement('dt');
+					descriptionListCollectionEl.appendChild(collectionDateTermEl);
+					const collectionDateTermHeadline = document.createElement('h6');
+					collectionDateTermEl.appendChild(collectionDateTermHeadline);
+					collectionDateTermHeadline.appendChild(document.createTextNode('Erhebungsdatum: '));
+					collectionDateTermHeadline.className = 'text-smokegrey';
+	
+					const collectionDateValueEl = document.createElement('dd');
+					descriptionListCollectionEl.appendChild(collectionDateValueEl);
+					collectionDateValueEl.appendChild(document.createTextNode(collectionData.collectionDate));
+				}
+
+				if(collectionData.collectionLocation && collectionData.collectionLocationCode){
+					var collectionLocation = collectionData.collectionLocation + ' (' + collectionData.collectionLocationCode+ ')';
+
+					const collectionLocationTermEl = document.createElement('dt');
+					descriptionListCollectionEl.appendChild(collectionLocationTermEl);
+					const collectionLocationTermHeadline = document.createElement('h6');
+					collectionLocationTermEl.appendChild(collectionLocationTermHeadline);
+					collectionLocationTermHeadline.appendChild(document.createTextNode('Erhebungsort: '));
+					collectionLocationTermHeadline.className = 'text-smokegrey';
+	
+					const collectionLocationValueEl = document.createElement('dd');
+					descriptionListCollectionEl.appendChild(collectionLocationValueEl);
+					collectionLocationValueEl.appendChild(document.createTextNode(collectionLocation));
+				}
+
+				if(collectionData.collectionScanner){
+					const collectionScannerTermEl = document.createElement('dt');
+					descriptionListCollectionEl.appendChild(collectionScannerTermEl);
+					const collectionScannerTermHeadline = document.createElement('h6');
+					collectionScannerTermEl.appendChild(collectionScannerTermHeadline);
+					collectionScannerTermHeadline.appendChild(document.createTextNode('Erhebungsdatum: '));
+					collectionScannerTermHeadline.className = 'text-smokegrey';
+	
+					const collectionScannerValueEl = document.createElement('dd');
+					descriptionListCollectionEl.appendChild(collectionScannerValueEl);
+					collectionScannerValueEl.appendChild(document.createTextNode(collectionData.collectionScanner));
+				}
+			}
 		},
 
 		contextStory: {
@@ -2376,12 +2599,17 @@ const app = {
 				id: '#toolbar-button-1',
 				name: 'Geschichte',
 				colors: {
-					button: 'skyblue',
-					buttonIcon: 'pearlwhite', 
-					tabBackground: 'pearlwhite',
-					tabShadow: 'shadow-skyblue',
-					tabText: 'text-coalgrey',
-					tabIcon: 'coalgrey'
+					button: {
+						background: 'skyblue',
+						text: null,
+						icon: 'pearlwhite'
+					},
+					tab: {
+						background: 'pearlwhite',
+						shadow: 'shadow-skyblue',
+						text: 'text-coalgrey',
+						icon: 'coalgrey'
+					}
 				}, 
 				func: 'context', 
 				action: {
@@ -2389,6 +2617,29 @@ const app = {
 					selector: '.mv-context-story-container' 
 				}
 			},
+
+			messageSetup: {
+				colors: { 
+					background: 'pearlwhite', 
+					shadow: 'shadow-skyblue' 
+				}
+			},
+
+			loadContextStory(modelJSON) {
+				const modelViewer = app.modelViewer.element;
+
+				let contentHTML = '<h3>Headline</h3><p>' + modelJSON.objectData.usageContext + '</p>';
+
+				this.message = {
+					content: contentHTML,
+					color: this.messageSetup.colors.background,
+					shadow: this.messageSetup.colors.shadow
+				}
+			}, 
+
+			setContextStory() {
+				app.gui.message.setMessage(this.message);
+			}
 		},
 
 		measurement: {
@@ -2399,12 +2650,17 @@ const app = {
 				id: '#toolbar-button-2',
 				name: 'Abmessungen',
 				colors: {
-					button: 'duckyellow',
-					buttonIcon: 'coalgrey', 
-					tabBackground: 'pearlwhite',
-					tabShadow: 'shadow-coalgrey',
-					tabText: 'text-coalgrey',
-					tabIcon: 'text-coalgrey'
+					button: {
+						background: 'duckyellow',
+						text: null,
+						icon: 'coalgrey'
+					},
+					tab: {
+						background: null,
+						shadow: null,
+						text: null,
+						icon: null
+					}
 				}, 
 				func: 'measurement', 
 				action: {
@@ -2582,7 +2838,7 @@ const app = {
 					button.setAttribute('aria-hidden', 'true');
 					button.setAttribute('slot', this.hotspot.setupArray[h].slot);
 					button.className = this.hotspot.setupArray[h].class;
-					button.classList.add(this.buttonSetup.colors.tabText);
+					button.classList.add(this.buttonSetup.colors.tab.text);
 					button.classList.add('hide');
 					button.setAttribute('data-position', this.hotspot.setupArray[h].position);
 					button.setAttribute('data-normal', this.hotspot.setupArray[h].normal);
@@ -2605,12 +2861,17 @@ const app = {
 				id: '#toolbar-button-3',
 				name: 'Augmented Reality',
 				colors: {
-					button: 'terracotta',
-					buttonIcon: 'pearlwhite', 
-					tabBackground: 'pearlwhite',
-					tabShadow: null,
-					tabText: null,
-					tabIcon: null
+					button: {
+						background: 'terracotta',
+						text: null,
+						icon: 'pearlwhite'
+					},
+					tab: {
+						background: null,
+						shadow: null,
+						text: null,
+						icon: null
+					}
 				}, 
 				func: 'ar', 
 				action: {
@@ -2620,10 +2881,33 @@ const app = {
 			},
 
 			init() {
+				const modelViewer = app.modelViewer.element;
 				const buttonEl = document.querySelector(this.buttonSetup.id);
-				if(!app.isArCapable) {
-					buttonEl.classList.add('inactive');
+				const colors = JSON.parse(buttonEl.getAttribute('data-colors'));
+				const func = buttonEl.getAttribute('data-func');
+				const iconElement = buttonEl.querySelector('.icon');
+
+				if(app.isWebXRCapable) {
+					buttonEl.addEventListener('click', (e) => {
+						let url='?m=ar';
+						app.dev ? url+='&dev=true' : '';
+						app.stats ? url+='&dev=stats' : '';
+						app.primaryKey ? url+='&model='+app.primaryKey: '';
+						window.location.href = url;
+					})
+					return;
 				}
+
+				if(app.isARCapable) {
+					buttonEl.addEventListener('click', (e) => {
+						modelViewer.activateAR();
+					})
+					return;
+				}
+
+				iconElement.src = app.assets.icon[func].src['pearlwhite'];
+				buttonEl.classList.remove(colors.button.background);
+				buttonEl.className = 'button smokegrey disabled';
 			}
 		},
 
@@ -2809,9 +3093,12 @@ const app = {
 				const json = app.modelViewer.proxyJSON.data;
 				self.loadModel(json);
 				json.appData.annotations && self.annotations.loadAnnotations(json);
+				json.objectData.usageContext && self.contextStory.loadContextStory(json);
+				self.info.createTabContent(json);
 			});
 
 			this.element.addEventListener('load', function(event) {
+				self.isARCapable = self.checkARSupport();
 				app.gui.loadingScreen.hideLoadingScreen();
 			});
 		},
@@ -2839,10 +3126,22 @@ const app = {
 			app.gui.title.set(modelJSON.basicData.name, true, app.hasHistory, modelJSON.primaryKey)
 
 			//set modelViewer data
-			modelViewer.src = app.filepaths.files + modelJSON.appData.model.quality2k;
+			app.hideGUI ? modelViewer.src = app.filepaths.files + modelJSON.appData.model.quality1k : modelViewer.src = app.filepaths.files + modelJSON.appData.model.quality2k;
 			modelViewer.cameraOrbit = modelJSON.appData.modelViewer.cameraOrbit;
 			modelViewer.cameraTarget = modelJSON.appData.modelViewer.cameraTarget;
 			modelViewer.fieldOfView = modelJSON.appData.modelViewer.cameraField;
+		},
+
+		checkARSupport() {
+			const modelViewer = app.modelViewer.element;
+			//test if WebXR AR is supported
+			if(modelViewer.canActivateAR){
+				app.dev && console.log('dev --- checkARSupport:', true);
+				return true;
+			}else{
+				app.dev && console.log('dev --- checkARSupport:', false);
+				return false;
+			}
 		},
 
 		createElements() {
@@ -2860,6 +3159,7 @@ const app = {
 			this.element.setAttribute('touch-action', 'pan-y');
 			this.element.setAttribute('disable-tap', '');
 			this.element.setAttribute('camera-orbit', '');
+			this.element.setAttribute('orbit-sensitivity', '2');
 			this.element.setAttribute('min-camera-orbit', '-Infinity 15deg 0.1m');
 			this.element.setAttribute('max-camera-orbit', '-Infinity 165ddeg 5.5m');
 			this.element.setAttribute('camera-target', '');
@@ -3138,6 +3438,7 @@ const app = {
 		const regex = new RegExp('^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$');
 		const mode = this.getURLParameter('m');
 		const model = this.getURLParameter('model');
+		const noGUI = (this.getURLParameter('gui') === 'false');
 		const isFrom = this.getURLParameter('from');
 		this.dev = (this.getURLParameter('dev') === 'true');
 		this.stats = (this.getURLParameter('stats') === 'true');
@@ -3153,6 +3454,9 @@ const app = {
 		(this.viewerMode === 'mv' && !model) && this.errorHandler('mv-000');
 		(this.viewerMode === 'mv' && !regex.test(model)) && this.errorHandler('mv-001');
 		(this.viewerMode === 'mv' && regex.test(model)) ? this.primaryKey = model : '';
+
+		//handle gui
+		noGUI ? this.hideGUI = true : this.hideGUI = false;
 
 		//handle from parameter
 		(this.viewerMode === 'cv' && regex.test(model)) ? this.isFrom = isFrom : '';
@@ -3170,15 +3474,15 @@ const app = {
 		return check;
 	},
 
-	checkArSupport() {
+	checkWebXRSupport() {
 		//test if WebXR AR is supported
 		if(navigator.xr){
 			navigator.xr.isSessionSupported('immersive-ar').then((isSupported) => {
-				app.dev && console.log('dev --- checkArSupport:', isSupported);
+				app.dev && console.log('dev --- checkWebXRSupport:', isSupported);
 				return isSupported;
 			});
 		}else{
-			app.dev && console.log('dev --- checkArSupport:', false);
+			app.dev && console.log('dev --- checkWebXRSupport:', false);
 			return false;
 		}
 	},
