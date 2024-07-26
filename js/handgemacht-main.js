@@ -280,7 +280,7 @@ const app = {
 
 		if (this.viewerMode === 'ar' && this.isWebXRCapable) {
 			this.arViewer.init();
-			this.gui.loadingScreen.showLoadingScreen('loading augmented reality');
+			this.gui.loadingScreen.showLoadingScreen('loading augmented reality scene');
 		}
 
 		this.gui.setupCollapsibles();
@@ -2370,7 +2370,6 @@ const app = {
 				app.modelViewer.measurement.toggleMeasurements();
 			})
 			app.gui.toolbar.setButton(this.ar.buttonSetup);
-			this.ar.init();
 		},
 
 		info: {
@@ -2730,7 +2729,9 @@ const app = {
 					drawLine(dimLines[4], modelViewer.queryHotspot('hotspot-dot-X-Y-Z'), modelViewer.queryHotspot('hotspot-dot-X-Y+Z'), modelViewer.queryHotspot('hotspot-dim-X-Y'));
 				};
 
-				modelViewer.addEventListener('camera-change', renderSVG);
+				modelViewer.addEventListener('camera-change', () => {
+					app.modelViewer.measurement.enabled ? renderSVG() : '';
+				});
 								
 				modelViewer.addEventListener('load', () => {
 					const center = modelViewer.getBoundingBoxCenter();
@@ -2805,7 +2806,6 @@ const app = {
 					});
 
 					renderSVG();
-							
 				});
 			},
 
@@ -2880,12 +2880,14 @@ const app = {
 				}
 			},
 
-			init() {
+			setARButton() {
 				const modelViewer = app.modelViewer.element;
 				const buttonEl = document.querySelector(this.buttonSetup.id);
 				const colors = JSON.parse(buttonEl.getAttribute('data-colors'));
 				const func = buttonEl.getAttribute('data-func');
 				const iconElement = buttonEl.querySelector('.icon');
+
+				app.dev && console.log('dev --- setARButton: ', {isWebXRCapable: app.isWebXRCapable, isARCapable: app.isARCapable});
 
 				if(app.isWebXRCapable) {
 					buttonEl.addEventListener('click', (e) => {
@@ -2900,7 +2902,10 @@ const app = {
 
 				if(app.isARCapable) {
 					buttonEl.addEventListener('click', (e) => {
+						app.gui.loadingScreen.showLoadingScreen('loading augmented reality');
 						modelViewer.activateAR();
+						//hide loading screen with 10s delay
+						app.gui.loadingScreen.hideLoadingScreen(10000);
 					})
 					return;
 				}
@@ -3098,7 +3103,8 @@ const app = {
 			});
 
 			this.element.addEventListener('load', function(event) {
-				self.isARCapable = self.checkARSupport();
+				app.isARCapable = app.modelViewer.checkARSupport();
+				app.modelViewer.ar.setARButton();
 				app.gui.loadingScreen.hideLoadingScreen();
 			});
 		},
@@ -3142,6 +3148,7 @@ const app = {
 				app.dev && console.log('dev --- checkARSupport:', false);
 				return false;
 			}
+			return false;
 		},
 
 		createElements() {
@@ -3476,9 +3483,10 @@ const app = {
 	checkWebXRSupport() {
 		//test if WebXR AR is supported
 		if(navigator.xr){
+			return true;
 			navigator.xr.isSessionSupported('immersive-ar').then((isSupported) => {
 				app.dev && console.log('dev --- checkWebXRSupport:', isSupported);
-				return isSupported;
+				
 			});
 		}else{
 			app.dev && console.log('dev --- checkWebXRSupport:', false);

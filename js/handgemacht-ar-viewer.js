@@ -1,9 +1,9 @@
 import { app } from './handgemacht-main.js';
 
 //START Global Variables
-const dirPath_Files = './files/';
-const dirPath_Media = './files/annotation-media/';
-const dirPath_Icon = './assets/'
+const dirPath_Files = app.filepaths.files;
+const dirPath_Media = app.filepaths.files + app.filepaths.annotationMedia;
+const dirPath_Icon = app.filepaths.assets;
 let loadAR = false;
 let primaryKey;
 let setError;
@@ -173,7 +173,7 @@ AFRAME.registerComponent("controller", {
   },
   startAR: function () {
     this.el.enterAR();
-    app.gui.message.messageButton2El.removeEventListener('click', this.cancelAR);
+    app.gui.message.buttons.button[1].element.removeEventListener('click', this.cancelAR);
   },
   cancelAR: function () {
     let url = '?m=mv&model=' + primaryKey;
@@ -181,7 +181,7 @@ AFRAME.registerComponent("controller", {
     window.location.href = url;
 
 
-    app.gui.message.messageButton1El.removeEventListener('click', this.startAR);
+    app.gui.message.buttons.button[0].element.removeEventListener('click', this.startAR);
     app.gui.message.hideMessage();
   },
   initGui: function () {
@@ -197,9 +197,7 @@ AFRAME.registerComponent("controller", {
     const texture = document.getElementById("texture");
     const freezeShot = document.getElementById("shot");
     const distanceSlider = document.getElementById("distance-slider");
-    const closeButton = document.querySelector(
-      "#close-cont .annotation-close-symbol"
-    );
+    const closeButton = document.querySelector("#close-cont");
     const helpCont = document.querySelector('.help-container');
     const helpButton = document.querySelector('.help-symbol');
 
@@ -222,8 +220,8 @@ AFRAME.registerComponent("controller", {
         button2: { content: app.arViewer.no, color: 'pearlwhite', shadow: 'coalgrey' },
       }
       app.gui.message.setMessage(message);
-      app.gui.message.messageButton1El.addEventListener('click', it.startAR, { once: true });
-      app.gui.message.messageButton2El.addEventListener('click', it.cancelAR, { once: true });
+      app.gui.message.buttons.button[0].element.addEventListener('click', it.startAR, { once: true });
+      app.gui.message.buttons.button[1].element.addEventListener('click', it.cancelAR, { once: true });
     });
 
     //after start AR
@@ -239,7 +237,7 @@ AFRAME.registerComponent("controller", {
       }
 
       app.gui.message.setMessage(message);
-      app.gui.message.messageButton1El.addEventListener('click', (e) => {
+      app.gui.message.buttons.button[0].element.addEventListener('click', (e) => {
         self.emit("ready-for-placing", null, true);
       }, { once: true });
 
@@ -301,8 +299,8 @@ AFRAME.registerComponent("controller", {
         button2: { content: app.arViewer.goodbyeMessageButton2, color: 'pearlwhite', shadow: 'coalgrey' },
       }
       app.gui.message.setMessage(message);
-      app.gui.message.messageButton1El.addEventListener('click', it.startAR, { once: true });
-      app.gui.message.messageButton2El.addEventListener('click', it.cancelAR, { once: true });
+      app.gui.message.buttons.button[0].element.addEventListener('click', it.startAR, { once: true });
+      app.gui.message.buttons.button[1].element.addEventListener('click', it.cancelAR, { once: true });
 
     });
 
@@ -349,7 +347,7 @@ AFRAME.registerComponent("controller", {
             inventar: false,
             noMission: false
           });
-          app.gui.message.messageButton1El.addEventListener('click', () => {
+          app.gui.message.buttons.button[0].element.addEventListener('click', () => {
             app.gui.message.hideMessage();
             self.setAttribute("controller", {
               mission: true,
@@ -411,7 +409,7 @@ AFRAME.registerComponent("controller", {
           }
           app.gui.message.setMessage(message);
 
-          app.gui.message.messageButton1El.addEventListener('click', () => {
+          app.gui.message.buttons.button[0].element.addEventListener('click', () => {
             app.gui.message.hideMessage();
             self.setAttribute("controller", {
               mission: false,
@@ -1032,7 +1030,7 @@ AFRAME.registerComponent("controller", {
       button1: completed ? { content: app.arViewer.restartMissionButton, color: 'duckyellow', shadow: 'shadowduckyellow' } : {},
     }
     app.gui.message.setMessage(message);
-    if (completed) app.gui.message.messageButton1El.addEventListener('click', this.restartMissions, { once: true });
+    if (completed) app.gui.message.buttons.button[0].element.addEventListener('click', this.restartMissions, { once: true });
     const scoreCont = document.getElementById("score-container");
     app.gui.message.messageCloseEl.addEventListener('click', function (e) {
       scoreCont.classList.remove("hide");
@@ -1280,7 +1278,7 @@ AFRAME.registerComponent("controller", {
     app.gui.message.tooltipElOverlay.style.top = '7%';
   },
   restartMissions: function (event) {
-    app.gui.message.messageButton1El.removeEventListener("click", this.restartMissions);
+    app.gui.message.buttons.button[0].element.removeEventListener("click", this.restartMissions);
     app.gui.message.hideMessage();
     this.completed = false;
     for (let mission of this.missions) {
@@ -1414,7 +1412,7 @@ AFRAME.registerComponent("ar-hit-test-special", {
         button1: { content: app.arViewer.place, color: 'coalgrey', shadow: 'shadow-coalgrey' }
       }
       app.gui.message.setMessage(message);
-      app.gui.message.messageButton1El.addEventListener("click", this.placeObject, { once: true });
+      app.gui.message.buttons.button[0].element.addEventListener("click", this.placeObject, { once: true });
     } else if (step == "placed") {
       message = {
         showClose: false,
@@ -1426,8 +1424,8 @@ AFRAME.registerComponent("ar-hit-test-special", {
 
       }
       app.gui.message.setMessage(message);
-      app.gui.message.messageButton1El.addEventListener("click", this.placeEnd, { once: true });
-      app.gui.message.messageButton2El.addEventListener("click", this.placeAgain, { once: true });
+      app.gui.message.buttons.button[0].element.addEventListener("click", this.placeEnd, { once: true });
+      app.gui.message.buttons.button[1].element.addEventListener("click", this.placeAgain, { once: true });
     }
   },
   hideMessage: function () {
@@ -1468,14 +1466,14 @@ AFRAME.registerComponent("ar-hit-test-special", {
     this.finished = true;
   },
   placeEnd: function (event) {
-    app.gui.message.messageButton2El.removeEventListener("click", this.placeAgain);
+    app.gui.message.buttons.button[1].element.removeEventListener("click", this.placeAgain);
     this.hideMessage();
     this.el.emit("placingAchieved", this.firstTime, true);
     this.showMenu();
     this.firstTime = false;
   },
   placeAgain: function (event) {
-    app.gui.message.messageButton1El.removeEventListener("click", this.placeEnd);
+    app.gui.message.buttons.button[0].element.removeEventListener("click", this.placeEnd);
     this.el.emit("new-placement", null, true);
   },
   tick: function () {
@@ -2511,7 +2509,7 @@ AFRAME.registerComponent("quiz-task", {
       return content + headline + form + description;
     }
     app.gui.message.setMessage(message);
-    app.gui.message.messageButton1El.addEventListener("click", this.checkAnswer);
+    app.gui.message.buttons.button[0].element.addEventListener("click", this.checkAnswer);
     if (this.solved) this.disableRadios();
     self.sceneEl.setAttribute("controller", {
       raycaster: false,
@@ -2539,7 +2537,7 @@ AFRAME.registerComponent("quiz-task", {
       if (selectedOption.value === this.data.rightAnswer.toLowerCase()) {
         text.innerHTML = "Richtig!<br>" + this.data.description;
         event.target.removeEventListener("click", this.checkAnswer);
-        app.gui.message.messageButton1El.classList.add("hide");
+        app.gui.message.buttons.button[0].element.classList.add("hide");
         //scroll to end
         scrollToEnd()
         // Prevent default click behavior on radio buttons
