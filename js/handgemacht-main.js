@@ -327,7 +327,7 @@ const app = {
 				this.element = document.createElement('h1');
 				this.containerEl.appendChild(this.element);
 				this.element.className = 'title';
-				this.element.appendChild(document.createTextNode(app.title));
+				this.element.textContent = app.title;
 			}, 
 
 			set(title = app.title, showArrow = false, from = null) {
@@ -386,7 +386,7 @@ const app = {
 				this.element = document.createElement('div');
 				document.body.appendChild(this.element);
 				this.element.className = 'gui-version text-smokegrey';
-				this.element.appendChild(document.createTextNode(app.version));
+				this.element.textContent = app.version;
 			}
 		},
 
@@ -423,7 +423,7 @@ const app = {
 				this.animation.textEl = this.animation.textEl;
 				this.animation.containerEl.appendChild(this.animation.textEl);
 				this.animation.textEl.className = 'text';
-				this.animation.textEl.appendChild(document.createTextNode(this.content.value));
+				this.animation.textEl.textContent = this.content.value;
 			}, 
 
 			showLoadingScreen(text) {
@@ -513,7 +513,7 @@ const app = {
 				this.content.element = document.createElement('div');
 				this.content.containerEl.appendChild(this.content.element);
 				this.content.element.className = 'content';
-				this.content.element.appendChild(document.createTextNode(this.content));
+				this.content.element.textContent = this.content;
 
 				this.buttons = {};
 
@@ -530,7 +530,7 @@ const app = {
 				this.buttons.button[0].labelEl = document.createElement('div');
 				this.buttons.button[0].element.appendChild(this.buttons.button[0].labelEl);
 				this.buttons.button[0].labelEl.className = 'label';
-				this.buttons.button[0].labelEl.appendChild(document.createTextNode(this.buttonSetup[0].label));
+				this.buttons.button[0].labelEl.textContent = this.buttonSetup[0].label;
 
 				this.buttons.button[0].iconEl = document.createElement('img');
 				this.buttons.button[0].element.appendChild(this.buttons.button[0].iconEl);
@@ -547,7 +547,7 @@ const app = {
 				this.buttons.button[1].labelEl = document.createElement('div');
 				this.buttons.button[1].element.appendChild(this.buttons.button[1].labelEl);
 				this.buttons.button[1].labelEl.className = 'label';
-				this.buttons.button[1].labelEl.appendChild(document.createTextNode(this.buttonSetup[1].label));
+				this.buttons.button[1].labelEl.textContent = this.buttonSetup[1].label;
 
 				this.buttons.button[1].iconEl = document.createElement('img');
 				this.buttons.button[1].element.appendChild(this.buttons.button[1].iconEl);
@@ -866,7 +866,7 @@ const app = {
 			},
 
 			showTooltipAR(content){
-				this.tooltipContentElAr.appendChild(document.createTextNode(content));
+				this.tooltipContentElAr.textContent = content;
 				this.tooltipElAr.classList.remove('hide');
 			},
 
@@ -876,7 +876,7 @@ const app = {
 			},
 
 			showTooltipOverlay(content){
-				this.tooltipContentElOverlay.appendChild(document.createTextNode(content));
+				this.tooltipContentElOverlay.textContent = content;
 				this.tooltipElOverlay.classList.remove('hide');
 			},
 
@@ -915,12 +915,12 @@ const app = {
 				this.content.element = document.createElement('div');
 				this.content.containerEl.appendChild(this.content.element);
 				this.content.element.className = 'content';
-				this.content.element.appendChild(document.createTextNode(this.content.value));
+				this.content.element.textContent = this.content.value;
 
 				this.buttonEl = document.createElement('button');
 				this.containerEl.appendChild(this.buttonEl);
 				this.buttonEl.className = 'button pearlwhite shadow-smokegrey';
-				this.buttonEl.appendChild(document.createTextNode(this.button.label));
+				this.buttonEl.textContent = this.button.label;
 			}, 
 
 			showError() {
@@ -1051,13 +1051,13 @@ const app = {
 				this.content.title.element = document.createElement('div');
 				this.content.element.appendChild(this.content.title.element);
 				this.content.title.element.className = 'title';
-				this.content.title.element.appendChild(document.createTextNode(app.title));
+				this.content.title.element.textContent = app.title;
 				
 				this.content.text = {};
 				this.content.text = document.createElement('div');
 				this.content.element.appendChild(this.content.text);
 				this.content.text.className = 'text';
-				this.content.text.appendChild(document.createTextNode(this.text));
+				this.content.text.textContent = this.text;
 
 				this.content.buttons = {};
 				this.content.buttons.containerEl = document.createElement('div');
@@ -1071,7 +1071,7 @@ const app = {
 				this.content.buttons['project'].element = document.createElement('button');
 				this.content.buttons['project'].linkEl.appendChild(this.content.buttons['project'].element);
 				this.content.buttons['project'].element.className = 'pearlwhite shadow-smokegrey';
-				this.content.buttons['project'].element.appendChild(document.createTextNode('Das Projekt'));
+				this.content.buttons['project'].element.textContent = 'Das Projekt';
 				
 				this.content.buttons.patronage = {};
 				this.content.buttons['patronage'].linkEl = document.createElement('a');
@@ -1080,7 +1080,7 @@ const app = {
 				this.content.buttons['patronage'].element = document.createElement('button');
 				this.content.buttons['patronage'].linkEl.appendChild(this.content.buttons['patronage'].element);
 				this.content.buttons['patronage'].element.className = 'pearlwhite shadow-smokegrey';
-				this.content.buttons['patronage'].element.appendChild(document.createTextNode('Die Förderung'));
+				this.content.buttons['patronage'].element.textContent = 'Die Förderung';
 				
 				this.content.links = {};
 				this.content.links.containerEl = document.createElement('div');
@@ -1091,18 +1091,18 @@ const app = {
 				this.content.links['contact'].element = document.createElement('a');
 				this.content.links['contact'].element.href = 'https://dev.handgemacht.bayern?mv=ar&model=00000000-0000-0000-0000-000000000001'; //Links anpassen
 				this.content.links.containerEl.appendChild(this.content.links['contact'].element);
-				this.content.links['contact'].element.appendChild(document.createTextNode('Kontakt'));
+				this.content.links['contact'].element.textContent = 'Kontakt';
 	
 				this.content.links.imprint = {};
 				this.content.links['imprint'].element = document.createElement('a');
 				this.content.links['imprint'].element.href = '#'; //Links anpassen
 				this.content.links.containerEl.appendChild(this.content.links['imprint'].element);
-				this.content.links['imprint'].element.appendChild(document.createTextNode('Impressum'));
+				this.content.links['imprint'].element.textContent = 'Impressum';
 	
 				this.content.versionEl = document.createElement('div');
 				this.content.element.appendChild(this.content.versionEl);
 				this.content.versionEl.className = 'version';
-				this.content.versionEl.appendChild(document.createTextNode(app.version));
+				this.content.versionEl.textContent = app.version;
 	
 				this.content.patronageEl = document.createElement('div');
 				this.containerEl.appendChild(this.content.patronageEl);
@@ -1499,6 +1499,8 @@ const app = {
 			app.gui.toolbar.button[3].icon.addEventListener('click', (e) => {
 				app.collectionViewer.resetView.resetCameraView();
 			})
+
+			this.registerComponents();
 		},
 
 		tooltip: {
@@ -1545,8 +1547,8 @@ const app = {
 					this.typeEl.classList.add(app.collectionViewer.elementColor.category);
 					this.contentEl.classList.add(app.collectionViewer.elementColor.category);
 				}
-				this.typeEl.appendChild(document.createTextNode(typeText));
-				this.contentEl.appendChild(document.createTextNode(content));
+				this.typeEl.textContent = typeText;
+				this.contentEl.textContent = content;
 				this.element.classList.remove('hide');
 			}, 
 
@@ -1644,35 +1646,41 @@ const app = {
 				this.pillArray = [];
 				
 				if(type === 'node-object'){
-					let categoryList = '<div class="categories"><h6 class="text-smokegrey">Kategorien: </h6>';
-					for(let category in fgNode.categories) {
-						let pillId = 'c-' + self.crypto.randomUUID();;
+					let categoryList = '';
+					for(let category of fgNode.categories) {
+						if(category === ''){ continue; }
+						let pillId = 'c-' + self.crypto.randomUUID();
 						categoryList += '<div id="' + pillId +'" '
 										+ 'class="pill shadow-' + app.collectionViewer.elementColor.category + ' text-coalgrey" '
 										+ 'data-model-id="' + fgNode.id +'" '
 										+ 'data-color="' + app.collectionViewer.elementColor.category +'" '
-										+ 'data-name="' + fgNode.categories[category].replace(/"/g, '&quot;') +'" '
+										+ 'data-name="' + category.replace(/"/g, '&quot;') +'" '
 										+ 'data-type="category" data-active="false">' 
-										+ fgNode.categories[category] 
+										+ category 
 										+ '</div>';
 						this.pillArray.push('#'+pillId);
 					}
-					categoryList += '</div>';
+					if(categoryList !== '') {
+						categoryList = '<div class="categories"><h6 class="text-smokegrey">Kategorien: </h6>' + categoryList + '</div>';
+					}
 	
-					let tagList = '<div class="tags"><h6 class="text-smokegrey">Tags: </h6>';
-					for(let tag in fgNode.tags) {
-						let pillId = 't-' + self.crypto.randomUUID();;
+					let tagList = '';
+					for(let tag of fgNode.tags) {
+						if(tag === ''){ continue; }
+						let pillId = 't-' + self.crypto.randomUUID();
 						tagList += '<div id="' + pillId +'" '
 										+ 'class="pill shadow-' + app.collectionViewer.elementColor.tag + ' text-coalgrey" '
 										+ 'data-model-id="' + fgNode.id +'" '
 										+ 'data-color="' + app.collectionViewer.elementColor.tag +'" '
-										+ 'data-name="' + fgNode.tags[tag].replace(/"/g, '&quot;') +'" '
+										+ 'data-name="' + tag.replace(/"/g, '&quot;') +'" '
 										+ 'data-type="tag" data-active="false">' 
-										+ fgNode.tags[tag] 
+										+ tag 
 										+ '</div>';
 						this.pillArray.push('#'+pillId);
 					}
-					tagList += '</div>';
+					if(tagList !== '') {
+						tagList = '<div class="tags"><h6 class="text-smokegrey">Tags: </h6>' + tagList + '</div>';
+					}
 
 					let message = {
 						type: 'Objekt',
@@ -2071,12 +2079,12 @@ const app = {
 
 				const filterHeadline = document.createElement('h3');
 				filterContainer.appendChild(filterHeadline);
-				filterHeadline.appendChild(document.createTextNode(this.texts.title));
+				filterHeadline.textContent = this.texts.title;
 
 				const filterText = document.createElement('p');
 				filterContainer.appendChild(filterText);
 				filterText.className = 'text-small';
-				filterText.appendChild(document.createTextNode(this.texts.intro));
+				filterText.textContent = this.texts.intro;
 
 				const categoryListContainer = document.createElement('div');
 				filterContainer.appendChild(categoryListContainer);
@@ -2098,7 +2106,7 @@ const app = {
 				categoryIcon.height = 100;
 				categoryIcon.setAttribute('loading', 'lazy');
 
-				categoryListButton.appendChild(document.createTextNode(this.texts.categoriesButton));
+				categoryListButton.textContent = this.texts.categoriesButton;
 
 				const categoryListButtonArrow = document.createElement('div');
 				categoryListButton.appendChild(categoryListButtonArrow);
@@ -2114,7 +2122,7 @@ const app = {
 				categorySelectAllButton.className = 'button text-small';
 				categorySelectAllButton.setAttribute('data-selected', true);
 				categorySelectAllButton.setAttribute('id', 'cv-filter-category-list-select-all');
-				categorySelectAllButton.appendChild(document.createTextNode(this.texts.selectAllButton));
+				categorySelectAllButton.textContent = this.texts.selectAllButton;
 
 				const tagListContainer = document.createElement('div');
 				filterContainer.appendChild(tagListContainer);
@@ -2136,7 +2144,7 @@ const app = {
 				tagIcon.height = 100;
 				tagIcon.setAttribute('loading', 'lazy');
 
-				tagListButton.appendChild(document.createTextNode(this.texts.tagsButton));
+				tagListButton.textContent = this.texts.tagsButton;
 
 				const tagListButtonArrow = document.createElement('div');
 				tagListButton.appendChild(tagListButtonArrow);
@@ -2152,7 +2160,7 @@ const app = {
 				tagSelectAllButton.className = 'button text-small';
 				tagSelectAllButton.setAttribute('data-selected', true);
 				tagSelectAllButton.setAttribute('id', 'cv-filter-tag-list-select-all');
-				tagSelectAllButton.appendChild(document.createTextNode(this.texts.selectAllButton));
+				tagSelectAllButton.textContent = this.texts.selectAllButton;
 			}, 
 
 			generateCheckBoxList(id, dataArray, color){
@@ -2171,7 +2179,7 @@ const app = {
 					newPill.className = 'pill ' + color + ' ' + shadowColor;
 					newPill.setAttribute('data-color', color);
 					newPill.setAttribute('data-active', true);
-					newPill.appendChild(document.createTextNode(data));
+					newPill.textContent = data;
 
 					newPill.addEventListener('click', app.collectionViewer.filter.clickPillHandler);
 				})
@@ -2286,8 +2294,9 @@ const app = {
 					target: '#orbit-target', 
 					desiredDistance: 300, 
 					autoRotate: true,
-					pitchCamera: true, 
-					desiredCameraPitch: 0,
+					// removed pitch reset due to user feedback
+					//pitchCamera: true, 
+					//desiredCameraPitch: 0,
 					desiredCameraTilt: -5,
 					forceUpdate: true
 				});
@@ -2326,6 +2335,1313 @@ const app = {
 
 			this.assetsEl = document.createElement('a-assets');
 			this.sceneEl.appendChild(this.assetsEl);
+		}, 
+
+		registerComponents() {
+			//START A-Frame load-json-objects
+			AFRAME.registerComponent('load-json-models', {
+					
+					schema: { 
+						scaleFactor: { default: 1 }, 
+						normalization: { default: 0 } 
+					},
+
+					init: function () {
+						const comp = this;
+						this.nodeModelSet = false;
+						this.linkMaterialSet = false;
+						this.scaleFactor = this.data.scaleFactor;
+						this.normalization = this.data.normalization;
+						this.cameraPos = new THREE.Vector3();
+
+						this.setEventlisteners();
+						this.createCategoryAndTagModels();
+						this.createForceGraph();
+						this.loadJSONModels();
+					},
+
+					update: function () {
+						this.fgComp = document.querySelector('#forcegraph').getAttribute('forcegraph');
+						this.scaleFactor = this.data.scaleFactor;
+						this.normalization = this.data.normalization;
+						//app.dev && console.log('dev --- scaleFactor: ', this.scaleFactor);
+						//app.dev && console.log('dev --- normalization: ', this.normalization);
+						if(this.nodeModelSet){
+							this.normalizeScale(this.scaleFactor, this.normalization);
+						}
+					},
+
+					tick: function () {
+						if(this.nodeModelSet && this.fgComp){
+							for(let node of this.fgComp.nodes){
+								if(node.type === 'node-category' && node.__threeObj) {
+									this.el.sceneEl.camera.getWorldPosition(this.cameraPos);
+									node.__threeObj.lookAt(this.cameraPos);
+								}
+							}
+						}
+					},
+
+					remove: function () {},
+
+					pause: function () {},
+
+					play: function () {}, 
+
+					setEventlisteners: function() {
+						const comp = this;
+
+						//listen for filter-updated event
+						this.el.sceneEl.addEventListener('filter-updated', (e) => {
+							comp.assignModelsToNodes();	
+							comp.assignMaterialToLinks();
+							comp.normalizeScale(this.scaleFactor, this.normalization);
+							document.querySelector('#forcegraph').setAttribute('highlight', {noUpdate: false});
+							app.gui.loadingScreen.hideLoadingScreen();
+						});
+
+						//listen for JSON-models-loaded event
+						this.el.sceneEl.addEventListener('JSON-models-loaded', (e) => {
+							
+							if(comp.json) {
+								//prepare JSON data for forcegraph
+								comp.fgData = comp.getDataFromJSON(comp.json);
+								//parse forcegraph data to app.collectionViewer
+								app.collectionViewer.proxyfgData.data = comp.fgData;
+								//filter forcegraph data for default view
+								comp.filterFgData(comp.fgData, comp.fgData.taglist, comp.fgData.categorylist); //default: all tags, all categories
+							}
+						}, {once: true});
+					},
+
+					createCategoryAndTagModels: function() {
+						this.imgCategory = document.createElement('img');
+						this.imgCategory.id = 'icon-category';
+						this.imgCategory.crossOrigin = 'anonymous';
+						this.imgCategory.src = app.assets.cv.marker['category'].src;
+						this.el.sceneEl.querySelector('a-assets').appendChild(this.imgCategory);
+						
+						//create category model 
+						this.categoryModelEl = document.createElement('a-entity');
+						this.categoryModelEl.setAttribute('id', 'category-model');
+						this.categoryModelEl.setAttribute('geometry', 'primitive: circle; radius: 5');
+						this.categoryModelEl.setAttribute('material', 'src: #icon-category');
+						this.categoryModelEl.setAttribute('visible', false);
+						this.el.sceneEl.querySelector('a-assets').appendChild(this.categoryModelEl);
+
+						//create link category model 
+						this.linkCategoryModelEl = document.createElement('a-entity');
+						this.linkCategoryModelEl.setAttribute('id', 'link-category-model');
+						this.linkCategoryModelEl.setAttribute('geometry', 'primitive: sphere; radius: 1');			
+						this.linkCategoryModelEl.setAttribute('material', 'color: #46AAC8; shader: flat; opacity: 0.4, transparent: true');
+						this.linkCategoryModelEl.setAttribute('visible', false);
+						this.el.sceneEl.querySelector('a-assets').appendChild(this.linkCategoryModelEl);
+
+						//create link tag model 
+						this.linkTagModelEl = document.createElement('a-entity');
+						this.linkTagModelEl.setAttribute('id', 'link-tag-model');
+						this.linkTagModelEl.setAttribute('geometry', 'primitive: sphere; radius: 1');			
+						this.linkTagModelEl.setAttribute('material', 'color: #FFC800; shader: flat; opacity: 0.4, transparent: true');
+						this.linkTagModelEl.setAttribute('visible', false);
+						this.el.sceneEl.querySelector('a-assets').appendChild(this.linkTagModelEl);
+					},
+
+					loadJSONModels: function () {
+						const fgData = '';
+						const fileJSON = app.filepaths.files + app.filepaths.collectionJSON;
+
+						//fetch json data from file
+						const objectsJSON = fetch(fileJSON)
+							.then((response) => response.json())
+							.then((json) => {
+								this.json = json;
+								//load models to scene
+								const scene = document.querySelector('a-scene').object3D;
+								for(let object of json.objects){
+									if(object.quality512){
+										app.gltfLoader.load(app.filepaths.files + object.quality512, (gltf) => {
+											gltf.scene.name = object.primaryKey;
+											gltf.scene.altName = object.name;
+											gltf.scene.visible = false;
+											scene.add( gltf.scene );
+										}, (xhr) =>{ 
+											//app.dev && console.log( ( 'dev --- load model: ' + object.name + ' - ' + xhr.loaded / xhr.total * 100 ) + '% loaded' );
+										}, (error) => {		
+											console.log( 'An error happened: ' + error );
+										});
+									}
+								}
+
+								//event dispatcher for JSON-models-loaded event
+								THREE.DefaultLoadingManager.onLoad = function () {
+									let event = new Event('JSON-models-loaded');
+									document.querySelector('a-scene').dispatchEvent(event);
+								};
+							});
+					},
+
+					getDataFromJSON: function (json) {
+						if(!this.json) {return;};
+						const fgData={ 'nodes': [], 'links': [], 'categorylist': [], 'taglist': [] };
+
+						function filterEmptyTag(tag){
+							return tag !== '';
+						}
+
+						function containsObject(obj, list) {
+							for(let item of list){
+								if (item === obj) {
+									return true;
+								}
+							}
+							return false;
+						}
+
+						function filterDoubles(link) {
+							return link.double == false || link.type == 'link-category';
+						}
+					
+						//create nodes from categories 
+						for(let category of json.categorylist){
+							if(category === '') { continue; }
+							const newNode = {}
+							newNode.id = category;
+							newNode.categories = [category];
+							newNode.name = category;
+							newNode.type = 'node-category';
+							newNode.tags = [];
+							newNode.size = 0;
+							newNode.model = '';
+							fgData.nodes.push(newNode);
+						}
+					
+						//create nodes from objects
+						for(let object of json.objects){
+							const newNode = {}
+							newNode.id = object.primaryKey;
+							newNode.categories = object.categories;
+							newNode.name = object.name;
+							newNode.type = 'node-object';
+							newNode.tags = object.tags.filter(filterEmptyTag);
+							newNode.size = 100;
+							newNode.model = ''
+							fgData.nodes.push(newNode);
+						}
+					
+						//create links for categories
+						for(let category of json.categorylist){
+							for(let object of json.objects){
+								if(containsObject(category, object.categories)){
+									const newLink = {};
+									newLink.source = category; 
+									newLink.target = object.primaryKey; 
+									newLink.name = category;
+									newLink.type = 'link-category';
+									newLink.material = '';
+									fgData.links.push(newLink);
+								}
+							}
+						}
+					
+						//create links for tags
+						for(let objectSource of json.objects){
+							for(let tag of objectSource.tags){
+								for(let objectTarget of json.objects){
+									if(objectSource !== objectTarget && tag !== '' && containsObject(tag, objectTarget.tags)) {
+										const newLink = {}; 
+										newLink.source = objectSource.primaryKey; 
+										newLink.target = objectTarget.primaryKey; 
+										newLink.name = tag;
+										newLink.type = 'link-tag';
+										newLink.material = '';
+										fgData.links.push(newLink);
+									}
+								}
+							}
+						}
+						
+						//mark doubled link
+						for(let linkA of fgData.links){
+							let sourceA = linkA.source;
+							let targetA = linkA.target;
+							for(let linkB of fgData.links){
+								let sourceB = linkB.source;
+								let targetB = linkB.target;
+								if(sourceA === targetB && targetA === sourceB){
+									linkA.double = true;
+									linkB.double = false;
+								}
+							}
+						}
+
+						//remove marked doubled links
+						fgData.links = fgData.links.filter(filterDoubles);
+
+						fgData.categorylist = json.categorylist;
+						fgData.taglist = json.taglist;
+					
+						return fgData;
+					},
+
+					filterFgData: function(fgData, tags = [], categories = []) {
+						let filteredFgData = { 'nodes': [], 'links': [] };
+
+						app.dev && console.log('dev --- forcegraph filter Data tags: ', tags);
+						app.dev && console.log('dev --- forcegraph filter Data categories: ', categories);
+
+						for( let link in fgData.links ){
+							let thisLink = fgData.links[link];
+							if(tags.includes(thisLink.name) || categories.includes(thisLink.name)) {
+								filteredFgData.links.push(thisLink);
+							}
+						}
+
+						for( let node in fgData.nodes ){
+							let thisNode = fgData.nodes[node];
+							let newNode = null;
+							let filteredTags = thisNode.tags.filter(value => tags.includes(value));
+							let filteredCategories = thisNode.categories.filter(value => categories.includes(value));
+							if(typeof filteredTags !== 'undefined' && filteredTags.length > 0){
+								newNode = thisNode;
+							}
+							if(typeof filteredCategories !== 'undefined' && filteredCategories.length > 0){
+								newNode = thisNode;
+							}
+							if(newNode){
+								filteredFgData.nodes.push(newNode);
+							}
+						}
+
+						filteredFgData.nodes = JSON.stringify(filteredFgData.nodes);
+						filteredFgData.links = JSON.stringify(filteredFgData.links);
+
+						document.querySelector('#forcegraph').setAttribute('forcegraph', {
+							nodes: filteredFgData.nodes,
+							links: filteredFgData.links
+						});
+
+						let event = new Event('filter-updated');
+						document.querySelector('a-scene').dispatchEvent(event);
+					},
+
+					createForceGraph: function() {
+						//create a-entity forcegraph
+						let forcegraphEntity = document.createElement('a-entity');
+						this.el.sceneEl.appendChild(forcegraphEntity);
+						forcegraphEntity.setAttribute('id', 'forcegraph');
+						forcegraphEntity.setAttribute('highlight', { noUpdate: true });
+						forcegraphEntity.setAttribute('forcegraph', {
+							forceEngine: 'd3', //'d3' (default) or 'ngraph'
+							warmupTicks: 2000,
+							cooldownTicks: 0,
+							d3AlphaMin: 0.5,
+							d3AlphaDecay: 0.028,
+							d3VelocityDecay: 0.6,
+							linkWidth: 0.6,
+							linkCurvature: 0.15,
+							linkThreeObjectExtend: false,
+							nodeRelSize: 1,
+							nodeVal: node => { return node.size },
+							nodeThreeObject: node => {
+								node.material.visible = false;
+							},
+							nodeThreeObjectExtend: true,
+							nodeOpacity: 0,
+							onLinkHover: link => { 
+								app.collectionViewer.tooltip.mouseoverHandler(link);
+								//app.dev && console.log('dev --- onLinkHover: ', link);
+							},
+							onLinkClick: link => { 
+								//app.dev && console.log('dev --- onLinkClick: ', link);
+							},
+							onNodeHover: node => { 
+								app.collectionViewer.tooltip.mouseoverHandler(node);
+								//app.dev && console.log('dev --- onNodeHover: ', node);
+							},
+							onNodeClick: node => { 
+								//app.dev && console.log('dev --- onNodeClick: ', node);
+								if(document.querySelector('a-camera').components['orbit-controls'].hasUserInput) {return;}
+								document.querySelector('a-camera').setAttribute('camera-focus-target', {target: node, duration: 1200});
+								app.collectionViewer.highlight.onclickHandler(node);
+								forcegraphEntity.setAttribute('highlight', {source: node});
+							}
+						});
+					},
+
+					assignModelsToNodes: function () {
+						const scene = document.querySelector('a-scene').object3D;
+						if(!this.fgComp.nodes){ return; }
+						const fgComp = this.fgComp;
+						this.categoryArray = [];
+
+						const categoryModel = this.categoryModelEl.object3D;
+
+						//set JSON-model or category-model for each node
+						for(let node of fgComp.nodes){
+							if(node.id === ''){continue;}
+							for (let child of scene.children){
+								if(child.name === ''){continue;}
+								//set model for objects
+								if(child.name === node.id && node.type === 'node-object'){
+									node.model = child.children[0].clone();
+								}
+								//set model for categories
+								if(node.type === 'node-category'){
+									node.model = categoryModel.children[0].clone();
+									node.model.material = new THREE.MeshBasicMaterial();
+									node.model.material.copy(categoryModel.children[0].material);
+								}
+								//skip if no model was set
+								if(!node.model) {continue;}
+							}
+						}
+
+						document.querySelector('#forcegraph').setAttribute('forcegraph', {
+							nodeThreeObject: node => { return node.model }
+						});
+
+						this.nodeModelSet = true;
+					}, 
+
+					assignMaterialToLinks: function () {
+						let scene = document.querySelector('a-scene').object3D;
+						if(!this.fgComp.links){ return; }
+						const fgComp = this.fgComp;
+
+						let categoryMaterial = this.linkCategoryModelEl.object3D.children[0].material;
+						let tagMaterial = this.linkTagModelEl.object3D.children[0].material;
+
+						//set tag-material or category-material for each link
+						for(let link of fgComp.links){
+							if(link.type === 'link-category'){
+								link.material = new THREE.MeshBasicMaterial();
+								link.material.copy(categoryMaterial);
+							}else if(link.type === 'link-tag'){
+								link.material = new THREE.MeshBasicMaterial();
+								link.material.copy(tagMaterial);
+							}
+						}
+
+						document.querySelector('#forcegraph').setAttribute('forcegraph', {
+							linkMaterial: link => { return link.material }
+						});
+
+						this.linkMaterialSet = true;
+					},
+
+					normalizeScale: function(scaleFactor, normalization) {
+						if(typeof scaleFactor !== 'number'){
+							app.dev && console.log('dev --- normalizeScale error! > scaleFactor is not a Number! Setting factor to 1. Old value: ', scaleFactor);
+							scaleFactor = 1;
+						}
+						if(typeof normalization !== 'number'){
+							app.dev && console.log('dev --- normalizeScale error! > normalization is not a Number! Setting factor to 0. Old value: ', normalization);
+							normalization = 0;
+						}
+
+						//normalization must range from 0 to 1
+						if(normalization > 1){
+							normalization = 1;
+						}else if( normalization < 0) {
+							normalization = 1;
+						}
+
+						const mapToRange = (number, [inputMinRange, inputMaxRange], [outputMinRange, outputMaxRange]) => {
+							return (number - inputMinRange) / (inputMaxRange - inputMinRange) * (outputMaxRange - outputMinRange) + outputMinRange;
+						}
+
+						if(!this.fgComp.nodes){ return; }
+						const fgComp = this.fgComp;
+
+						let sizeLog = {
+							mean: 0,
+							min: Infinity, 
+							minObject: '',
+							max: 0, 
+							maxObject: ''
+						}
+
+						//find mean, max and min sizes of every non category model bounding box
+						for(let node of fgComp.nodes){
+							if(node.type === 'node-category') { continue; };
+
+							node.model.scale.set(1, 1, 1);
+							node.boundingBox = new THREE.Box3();
+							node.boundingBox.size = new THREE.Vector3();
+							node.boundingBox.setFromObject(node.model).getSize(node.boundingBox.size);
+
+							//find highest value of x, y, z in bounding box of object
+							node.boundingBox.size.max = node.boundingBox.size.x;
+							node.boundingBox.size.y > node.boundingBox.size.max ? node.boundingBox.size.max = node.boundingBox.size.y : '';
+							node.boundingBox.size.z > node.boundingBox.size.max ? node.boundingBox.size.max = node.boundingBox.size.z : '';
+							sizeLog.mean += node.boundingBox.size.max;
+							if(sizeLog.min > node.boundingBox.size.max) {
+								sizeLog.min = node.boundingBox.size.max;
+								sizeLog.minObject = node;
+							}
+							if(sizeLog.max < node.boundingBox.size.max) {
+								sizeLog.max = node.boundingBox.size.max;
+								sizeLog.maxObject = node;
+							}
+						}
+						sizeLog.mean = sizeLog.mean / fgComp.nodes.length;
+
+						//calculate normalized scale for every node and set node size
+						for(let node of fgComp.nodes){
+							if(node.type === 'node-category') { 
+								node.size = sizeLog.mean * 10 * scaleFactor;
+								continue;
+							};
+							const sizeDeviation = sizeLog.mean - node.boundingBox.size.max;
+							const sizeFactor = 1 + mapToRange(sizeDeviation, [sizeLog.min, sizeLog.max], [0, 1]); // range from 0 to 2 with 1 as median
+							const normFactor = normalization * sizeFactor;
+							const normalizedScale = scaleFactor * ((1 + normFactor) - normalization);
+							//app.dev && console.log(`dev --- normalizeScale node: ${node.name} > \nnormalization: ${normalization}, \nsizeFactor: ${sizeFactor}, \nnormFactor: ${normFactor}, \nscaleFactor: ${scaleFactor}, \nnormalizedScale: ${normalizedScale}`);
+							node.model.scale.set(normalizedScale, normalizedScale, normalizedScale);
+						}
+
+						app.dev && console.log(`dev --- normalizeScale > \nsizeLog: `, sizeLog);
+					}
+			});
+			//END A-Frame load-json-objects
+
+
+
+			//START camera-focus-target
+			AFRAME.registerComponent('camera-focus-target', {
+
+				schema: {
+					target: { default: '' },
+					duration: { default: 1500 }
+				},
+
+				init: function () {
+					this.cameraEl = document.querySelector('a-camera');
+					this.camera = this.cameraEl.object3D;
+
+					this.orbitTargetEl = document.querySelector('#orbit-target');
+					this.orbitTarget = document.querySelector('#orbit-target').object3D;
+				},
+
+				update: function () {
+					this.moveOrbitTarget();
+					//app.dev && console.log('dev --- camera-focus-target: ', this.data.target);
+				},
+
+				tick: function () {},
+
+				remove: function () {},
+
+				pause: function () {},
+
+				play: function () {},
+
+				moveOrbitTarget: function() {
+					if(!this.data.target){
+						this.target = document.querySelector('#forcegraph').object3D;
+					}else if(this.data.target.type === 'link-tag'){
+						this.target = {};
+						this.target.position = this.data.target.__curve.v1;
+					}else{
+						this.target = this.data.target.__threeObj;
+					}
+
+					let newCameraPosition = new THREE.Vector3(); 
+					this.target.getWorldPosition(newCameraPosition);
+
+					//animation orbitTarget move to target x
+					this.orbitTargetEl.setAttribute('animation__mot-x', {
+						'property': 'object3D.position.x',
+						'from': this.orbitTarget.position.x,
+						'to': newCameraPosition.x,
+						'dur': this.data.duration, 
+						'easing': 'easeInOutQuad',
+						'startEvent': 'anim-orbit-target'
+					});	
+
+					//animation orbitTarget move to target y
+					this.orbitTargetEl.setAttribute('animation__mot-y', {
+						'property': 'object3D.position.y',
+						'from': this.orbitTarget.position.y,
+						'to': newCameraPosition.y,
+						'dur': this.data.duration, 
+						'easing': 'easeInOutQuad',
+						'startEvent': 'anim-orbit-target'
+					});	
+
+					//animation orbitTarget move to target z
+					this.orbitTargetEl.setAttribute('animation__mot-z', {
+						'property': 'object3D.position.z',
+						'from': this.orbitTarget.position.z,
+						'to': newCameraPosition.z,
+						'dur': this.data.duration, 
+						'easing': 'easeInOutQuad',
+						'startEvent': 'anim-orbit-target'
+					});	
+					
+					this.orbitTargetEl.emit('anim-orbit-target', null, false);
+				}, 
+			});
+			//END camera-focus-target
+
+
+
+			//START highlight
+			AFRAME.registerComponent('highlight', {
+
+				schema: {
+					source: { default: '' }, 
+					highestDistance: { default: 0 }, 
+					noUpdate: { default: null }
+				}, 
+
+				init: function () {
+					this.cameraEl = document.querySelector('a-camera');
+					this.camera = document.querySelector('a-camera').object3D;
+					this.data.highestDistance = {
+						max: 110,
+						value: 0
+					}
+				},
+
+				update: function () {
+					let source = this.data.source;
+					this.fgComp = this.el.components.forcegraph.data;
+
+					if(this.data.noUpdate){
+						return;
+					};
+					this.data.noUpdate = null;
+
+					let newDistance = 0;
+					let newDesiredCameraTilt = 0;
+					let newDesiredDistance = 0
+					let newTarget = '';
+					let newHighestDistance = 0;
+
+					if(!source) {
+						this.resetHighlight();
+						newTarget = document.querySelector('#forcegraph').object3D.position;
+						newHighestDistance = this.data.highestDistance.max;
+						newDesiredCameraTilt = -5;
+					}
+
+					if(source.type === 'node-object' || source.type === 'node-category') {
+						this.highlightModel(source);
+						newTarget = this.data.source.__threeObj.position;
+						newHighestDistance = this.data.highestDistance.value;
+						newDesiredCameraTilt = -12;
+					}
+
+					if(source.type === 'link-tag' || source.type === 'link-category') {
+						return;
+					}
+
+					newDistance = this.camera.position.distanceTo(newTarget);
+
+					if(screen.orientation.type === 'landscape-primary') {
+						newDesiredDistance = newHighestDistance * (2 * (newHighestDistance / window.innerWidth)) + newHighestDistance;
+					}else{
+						newDesiredDistance = newHighestDistance * (5 * (newHighestDistance / window.innerWidth)) + newHighestDistance;
+					}
+
+					const distanceLog = {
+						newDistance: newDistance,
+						newDesiredDistance: newDesiredDistance,
+						highestDistance: newHighestDistance,
+						screenOrientation: screen.orientation.type, 
+						windowInnerWidth: window.innerWidth
+					}
+
+					app.dev && console.log('dev -- camera-focus-target > distanceLog: ', distanceLog)
+
+					this.cameraEl.setAttribute('orbit-controls', { 
+						autoRotate: false, 
+						distance: newDistance, 
+						desiredDistance: newDesiredDistance, 
+						pitchCamera: true, 
+						desiredCameraPitch: 0, 
+						desiredCameraTilt: newDesiredCameraTilt, 
+						forceUpdate: true 
+					});
+
+					this.data.highestDistance.value = 0;
+				},
+
+				tick: function () {
+					if(this.data.source){
+
+						let targetPosition = new THREE.Vector3();
+
+						this.camera.children[0].updateMatrixWorld();
+
+						if(this.data.source.type === 'node-object' || this.data.source.type === 'node-category') {
+							targetPosition.setFromMatrixPosition(this.data.source.__threeObj.matrixWorld);
+							targetPosition.project(this.camera.children[0])
+						}
+						if( this.data.source.type === 'link-tag') {
+							targetPosition.set(this.data.source.__curve.v1.x, this.data.source.__curve.v1.y, this.data.source.__curve.v1.z);
+							targetPosition.project(this.camera.children[0])
+						}
+						if( this.data.source.type === 'link-category') {
+							targetPosition.setFromMatrixPosition(this.data.source.source.__threeObj.matrixWorld);
+							targetPosition.project(this.camera.children[0])
+						}
+					}
+				},
+
+				remove: function () {},
+
+				pause: function () {},
+
+				play: function () {},
+
+				highlightLinks: function (sourceLink) {
+					let fgComp = this.fgComp;
+
+					for(let link of fgComp.links){
+						if (link.material) {
+							if(link.name === sourceLink.name){
+								link.material.opacity = 1;
+								link.material.visible = true;
+							}else{
+								link.material.visible = false;
+							}
+						}
+					}
+
+					for(let node of fgComp.nodes){
+						if (node.model.material) {
+							if(node.tags.includes(sourceLink.name)){
+								node.model.material.opacity = 1;
+								node.model.material.visible = true;
+								node.__threeObj.visible = true;
+							}else{
+								node.model.material.visible = false;
+								node.__threeObj.visible = false;
+							}
+						}
+					}
+				}, 
+
+				highlightModel: function (sourceNode) {
+					let fgComp = this.fgComp;
+					let distance = 0;
+
+					let modelArray = [];
+
+					for(let link of fgComp.links){
+						if (link.material) {
+							if(link.source.id === sourceNode.id || link.target.id === sourceNode.id){
+								link.material.opacity = 1;
+								link.material.visible = true;
+								modelArray.push(link.source.id);
+								modelArray.push(link.target.id);
+							}else{
+								link.material.visible = false;
+							}
+						}
+					}
+
+					for(let node of fgComp.nodes){
+						if (node.model.material && typeof node.__threeObj !== 'undefined') {
+							typeof sourceNode.__threeObj !== 'undefined' ? distance = node.__threeObj.position.distanceTo(sourceNode.__threeObj.position) : distance = 0;
+							if(modelArray.includes(node.id)){
+								node.model.material.opacity = 1;
+								node.model.material.visible = true;
+								this.setHighestDistance(distance);
+								node.__threeObj.visible = true;
+								//app.dev && console.log('dev --- node: ', node)
+							}else{
+								node.model.material.visible = false;
+								node.__threeObj.visible = false;
+							}
+						}
+					}
+				},
+
+				resetHighlight: function () {
+					let fgComp = this.fgComp;
+
+					for(let link of fgComp.links){
+						if(link.material){
+							link.material.opacity = 0.4;
+							link.material.visible = true;
+						}
+					}
+
+					for(let node of fgComp.nodes){
+						if (node.id != '' && node.model.material && typeof node.__threeObj !== 'undefined') {
+							node.model.material.opacity = 1;
+							node.model.material.visible = true;
+							let distance = this.data.highestDistance.max;
+							this.setHighestDistance(distance);
+							node.__threeObj.visible = true;
+						}
+					}
+					document.querySelector('a-camera').setAttribute('camera-focus-target', {target: '', duration: 1200});
+				}, 
+
+				setHighestDistance: function(distance = this.data.highestDistance.max) {
+					if(typeof distance !== 'number') { return; }
+					//app.dev && console.log('dev --- highlight > distance: ', distance);
+					if (this.data.highestDistance.value < distance) {
+						this.data.highestDistance.value = distance;
+						this.data.highestDistance.max = distance;
+						//app.dev && console.log('dev --- highlight > new highest distance set: ', distance);
+					}
+				}, 
+
+				highlightFromPill: function(name, type, active, modelId) {
+					let fgComp = this.fgComp;
+					let pill = {};
+					pill.id = modelId;
+					pill.name = name;
+					pill.type = type;
+					pill.active = active;
+
+					if (active) {
+						this.highlightModel(pill);
+						return;
+					}
+
+					this.highlightLinks(pill);
+
+					if (type === 'category' || type === 'object') {
+						for(let node of fgComp.nodes){
+							if ((node.type === 'node-category' || node.type === 'node-object') && node.name === name) {
+								this.highlightModel(node);
+								return;
+							}
+						}
+					}
+
+					if (type === 'tag') {
+						for(let link of fgComp.links){
+							if (link.type === 'link-tag' && link.name === name) {
+								this.highlightLinks(link);
+								return;
+							}
+						}
+					}
+				}
+			});
+			//END highlight
+
+
+
+			//START custom orbit-controls
+			// To avoid recalculation at every mouse movement tick
+			var PI_2 = Math.PI / 2;
+
+			AFRAME.registerComponent('orbit-controls', {
+
+				schema: {
+					enabled: { default: false },
+					target: { default: '#orbit-target' }, 
+					distance: { default: 50 }, 
+					desiredDistance: { default: 300 },
+					minDistance: { default: 30 },
+					maxDistance: { default: 700 }, 
+					autoRotate: { default: true }, 
+					autoRotateSpeed: { default: 10 },
+					pitchCamera: { default: false },
+					desiredCameraPitch: { default: 0 }, 
+					cameraTilt: { default: 0 },
+					desiredCameraTilt: { default: -5 }, 
+					forceUpdate: { default: false }
+				},
+
+				init: function () {
+					this.touchEventCache = [];
+					this.previousDistance = -1;
+					this.hasUserInput = false;
+					this.previousPosition = new THREE.Vector3();
+					this.deltaPosition = new THREE.Vector3();
+					this.setupMouseControls();
+					this.setupHMDControls();
+					this.bindMethods();
+				
+					if (this.el.components['look-controls']) {
+						this.lookControls = this.el.components['look-controls'];
+						this.lookControls.pause();
+					} else {
+						this.el.setAttribute('look-controls', '');
+						this.lookControls = this.el.components['look-controls'];
+						this.lookControls.pause();
+					}
+				},
+
+				update: function () {
+					if (!this.data.enabled) { return; }
+
+					if(document.querySelector(this.data.target)){
+						this.target3D = document.querySelector(this.data.target).object3D;
+					}else{
+						//create orbit target
+						this.orbitTargetEl = document.createElement('a-entity');
+						this.orbitTarget = this.orbitTargetEl.object3D;
+						this.el.sceneEl.appendChild(this.orbitTargetEl);
+						this.orbitTargetEl.setAttribute('id', 'orbit-target');
+						app.dev && this.orbitTargetEl.setAttribute('geometry', 'primitive: sphere; radius: 1');
+				
+						this.target3D = document.querySelector(this.data.target).object3D;
+					}
+				
+					if(this.data.distance) {
+						this.distance = this.data.distance;
+						this.data.distance = null;
+					}
+
+					if(this.data.desiredDistance){
+						this.desiredDistance = this.data.desiredDistance;
+						this.data.desiredDistance = null;
+					}
+					
+					//this.controls.update();
+					this.updateOrientation();
+					this.updatePosition();
+				},
+
+				play: function () {
+					this.previousPosition.set(0, 0, 0);
+					this.addEventListeners();
+				},
+
+				pause: function () {
+					this.removeEventListeners();
+				},
+
+				tick: function (t) {
+					if(this.data.enabled){
+
+						this.data.forceUpdate && this.update();
+						this.data.forceUpdate = false;
+
+						//this.controls.update();
+						this.updateOrientation();
+						this.updatePosition();
+						this.updateCameraTilt();
+					}
+				},
+
+				remove: function () {
+					this.pause();
+				},
+
+				bindMethods: function () {
+					this.onMouseDown = this.onMouseDown.bind(this);
+					this.onMouseMove = this.onMouseMove.bind(this);
+					this.onMouseWheel = this.onMouseWheel.bind(this);
+					this.releaseMouse = this.releaseMouse.bind(this);
+					this.onTouchStart = this.onTouchStart.bind(this);
+					this.onTouchMove = this.onTouchMove.bind(this);
+					this.onTouchEnd = this.onTouchEnd.bind(this);
+					this.pointerdownHandler = this.pointerdownHandler.bind(this);
+					this.pointermoveHandler = this.pointermoveHandler.bind(this);
+					this.pointerupHandler = this.pointerupHandler.bind(this);
+				},
+
+				setupMouseControls: function () {
+					// The canvas where the scene is painted
+					this.mouseDown = false;
+					this.pitchObject = new THREE.Object3D();
+					this.yawObject = new THREE.Object3D();
+					this.yawObject.position.y = 10;
+					this.yawObject.add(this.pitchObject);
+				},
+
+				setupHMDControls: function () {
+					this.dolly = new THREE.Object3D();
+					this.euler = new THREE.Euler();
+					//this.controls = new THREE.VRControls(this.dolly);
+					this.zeroQuaternion = new THREE.Quaternion();
+				},
+
+				addEventListeners: function () {
+					var sceneEl = this.el.sceneEl;
+					var canvasEl = sceneEl.canvas;
+				
+					// listen for canvas to load.
+					if (!canvasEl) {
+						sceneEl.addEventListener('render-target-loaded', this.addEventListeners.bind(this));
+						return;
+					}
+				
+					// Mouse Events
+					canvasEl.addEventListener('mousedown', this.onMouseDown, false);
+					canvasEl.addEventListener('mousemove', this.onMouseMove, false);
+					canvasEl.addEventListener('mouseup', this.releaseMouse, false);
+					canvasEl.addEventListener('mouseout', this.releaseMouse, false);
+					canvasEl.addEventListener('mousewheel', this.onMouseWheel, false);
+					canvasEl.addEventListener('MozMousePixelScroll', this.onMouseWheel, false); // firefox
+				
+					// Touch events
+					canvasEl.addEventListener('touchstart', this.onTouchStart, app.passiveSupported ? { passive: true } : false);
+					canvasEl.addEventListener('touchmove', this.onTouchMove, app.passiveSupported ? { passive: true } : false);
+					canvasEl.addEventListener('touchend', this.onTouchEnd);
+				
+					// Touch pinch events
+					canvasEl.addEventListener('pointerdown', this.pointerdownHandler);
+					canvasEl.addEventListener('pointermove', this.pointermoveHandler);
+				
+					canvasEl.addEventListener('pointerup', this.pointerupHandler);
+					canvasEl.addEventListener('pointercancel', this.pointerupHandler);
+					canvasEl.addEventListener('pointerout', this.pointerupHandler);
+					canvasEl.addEventListener('pointerleave', this.pointerupHandler);
+				},
+
+				removeEventListeners: function () {
+					var sceneEl = document.querySelector('a-scene');
+					var canvasEl = sceneEl && sceneEl.canvas;
+					if (!canvasEl) { return; }
+				
+					// Mouse Events
+					canvasEl.removeEventListener('mousedown', this.onMouseDown);
+					canvasEl.removeEventListener('mousemove', this.onMouseMove);
+					canvasEl.removeEventListener('mouseup', this.releaseMouse);
+					canvasEl.removeEventListener('mouseout', this.releaseMouse);
+					canvasEl.removeEventListener('mousewheel', this.onMouseWheel, false);
+					canvasEl.removeEventListener('MozMousePixelScroll', this.onMouseWheel, false); // firefox
+				
+					// Touch events
+					canvasEl.removeEventListener('touchstart', this.onTouchStart);
+					canvasEl.removeEventListener('touchmove', this.onTouchMove);
+					canvasEl.removeEventListener('touchend', this.onTouchEnd);
+				
+					// Touch pinch events
+					canvasEl.removeEventListener('pointerdown', this.pointerdownHandler);
+					canvasEl.removeEventListener('pointermove', this.pointermoveHandler);
+				
+					canvasEl.removeEventListener('pointerup', this.pointerupHandler);
+					canvasEl.removeEventListener('pointercancel', this.pointerupHandler);
+					canvasEl.removeEventListener('pointerout', this.pointerupHandler);
+					canvasEl.removeEventListener('pointerleave', this.pointerupHandler);
+				},
+
+				updateOrientation: (function () {
+					var hmdEuler = new THREE.Euler();
+					hmdEuler.order = 'YXZ';
+					return function () {
+						var pitchObject = this.pitchObject;
+						var yawObject = this.yawObject;
+						var desiredCameraPitch = (this.data.desiredCameraPitch * 0.01745);
+						var hmdQuaternion = this.calculateHMDQuaternion();
+						hmdEuler.setFromQuaternion(hmdQuaternion);
+				
+						if(this.data.autoRotate){
+							yawObject.rotation.y += this.data.autoRotateSpeed * 0.0001;
+						}
+
+						if((pitchObject.rotation.x > desiredCameraPitch) && this.data.pitchCamera) {
+							pitchObject.rotation.x -= 0.005;
+						}
+				
+						if((pitchObject.rotation.x < desiredCameraPitch) && this.data.pitchCamera) {
+							pitchObject.rotation.x += 0.005;
+						}
+
+						if((pitchObject.rotation.x < (desiredCameraPitch + 0.01)) && (pitchObject.rotation.x > (desiredCameraPitch - 0.01))) {
+							this.data.pitchCamera = false;
+						}
+				
+						this.el.setAttribute('rotation', {
+						x: (hmdEuler.x * 114.59155903) + (pitchObject.rotation.x * 114.59155903),
+						y: (hmdEuler.y * 114.59155903) + (yawObject.rotation.y * 114.59155903),
+						z: (hmdEuler.z * 114.59155903) + (yawObject.rotation.z * 114.59155903)
+						});
+					};
+				})(),
+
+				calculateHMDQuaternion: (function () {
+					var hmdQuaternion = new THREE.Quaternion();
+					return function () {
+						var dolly = this.dolly;
+						if (!this.zeroed && !dolly.quaternion.equals(this.zeroQuaternion)) {
+						this.zeroOrientation();
+						this.zeroed = true;
+						}
+						hmdQuaternion.copy(this.zeroQuaternion).multiply(dolly.quaternion);
+						return hmdQuaternion;
+					};
+				})(),
+
+				updatePosition: (function () {
+					var position = new THREE.Vector3();
+					var quaternion = new THREE.Quaternion();
+					var scale = new THREE.Vector3();
+					return function () {
+						var el = this.el;
+						var deltaPosition = this.calculateDeltaPosition();
+						var currentPosition = this.target3D.position;
+						this.el.object3D.matrixWorld.decompose(position, quaternion, scale);
+				
+						deltaPosition.applyQuaternion(quaternion);
+				
+						// Reset the Camera to 0
+				
+						el.setAttribute('position', {
+							x: this.target3D.position.x,
+							y: this.target3D.position.y,
+							z: this.target3D.position.z
+						});
+
+						if(this.distance > this.desiredDistance) {
+							let distFactor = (this.distance - this.desiredDistance)/50;
+							this.distance -= 1 + distFactor;
+						}
+						
+						if(this.distance < this.desiredDistance) {
+							let distFactor = (this.desiredDistance - this.distance)/50;
+							this.distance += 1 + distFactor;
+						}
+				
+						if(this.distance < this.data.minDistance) { 
+							this.distance = this.data.minDistance;
+							this.desiredDistance = this.data.minDistance; 
+						};
+
+						if(this.distance > this.data.maxDistance) { 
+							this.distance = this.data.maxDistance;
+							this.desiredDistance = this.data.maxDistance; 
+						};
+
+						var targetCameraPosition = this.el.object3D.translateOnAxis( new THREE.Vector3(0,0,1), this.distance ).position;
+				
+						el.setAttribute('position', {
+							x: targetCameraPosition.x,
+							y: targetCameraPosition.y,
+							z: targetCameraPosition.z
+						});
+					};
+				})(),
+
+				updateCameraTilt: function () {
+					if(this.data.cameraTilt > this.data.desiredCameraTilt) {
+						this.data.cameraTilt -= 0.3;
+					}
+					
+					if(this.data.cameraTilt < this.data.desiredCameraTilt) {
+						this.data.cameraTilt += 0.3;
+					}
+					
+					this.el.object3D.rotation.x += (this.data.cameraTilt * 0.01745);
+				},
+
+				calculateDeltaPosition: function () {
+					var dolly = this.dolly;
+					var deltaPosition = this.deltaPosition;
+					var previousPosition = this.previousPosition;
+					deltaPosition.copy(dolly.position);
+					deltaPosition.sub(previousPosition);
+					previousPosition.copy(dolly.position);
+					return deltaPosition;
+				},
+
+				updateHMDQuaternion: (function () {
+					var hmdQuaternion = new THREE.Quaternion();
+					return function () {
+						var dolly = this.dolly;
+						this.controls.update();
+						if (!this.zeroed && !dolly.quaternion.equals(this.zeroQuaternion)) {
+						this.zeroOrientation();
+						this.zeroed = true;
+						}
+						hmdQuaternion.copy(this.zeroQuaternion).multiply(dolly.quaternion);
+						return hmdQuaternion;
+					};
+				})(),
+
+				zeroOrientation: function () {
+					var euler = new THREE.Euler();
+					euler.setFromQuaternion(this.dolly.quaternion.clone().inverse());
+					// Cancel out roll and pitch. We want to only reset yaw
+					euler.z = 0;
+					euler.x = 0;
+					this.zeroQuaternion.setFromEuler(euler);
+				},
+
+				onMouseMove: function (event) {
+					var pitchObject = this.pitchObject;
+					var yawObject = this.yawObject;
+					var previousMouseEvent = this.previousMouseEvent;
+				
+					if (!this.mouseDown || !this.data.enabled) { 
+						this.mouseMove = false;
+						return;
+					}
+				
+					this.mouseMove = true;
+
+					if(!this.hasUserInput) {
+						setTimeout(() => {
+							this.hasUserInput = true;
+						}, 100)
+					}
+				
+					var movementX = event.movementX || event.mozMovementX;
+					var movementY = event.movementY || event.mozMovementY;
+				
+					if (movementX === undefined || movementY === undefined) {
+						movementX = event.screenX - previousMouseEvent.screenX;
+						movementY = event.screenY - previousMouseEvent.screenY;
+					}
+					this.previousMouseEvent = event;
+				
+					yawObject.rotation.y -= movementX * 0.002;
+					pitchObject.rotation.x -= movementY * 0.002;
+					pitchObject.rotation.x = Math.max(-PI_2/2, Math.min(PI_2/2, pitchObject.rotation.x));
+				},
+
+				onMouseDown: function (event) {
+					this.mouseDown = true;
+					this.previousMouseEvent = event;
+
+					// Stop Auto Rotation
+					this.data.autoRotate = false;
+				},
+
+				releaseMouse: function () {
+					this.mouseDown = false;
+
+					if(this.hasUserInput) {
+						setTimeout(() => {
+							this.hasUserInput = false;
+						}, 300)
+					}
+				},
+
+				onMouseWheel: function (event) {
+					if (!this.data.enabled) return;
+				
+					event.preventDefault();
+					event.stopPropagation();
+				
+					var scrollDelta = 0;
+					if (event.wheelDelta !== undefined) { // WebKit,Opera,IE 9
+						scrollDelta = event.wheelDelta;
+					} else if (event.detail !== undefined) { // Firefox
+						scrollDelta = -event.detail;
+					}
+				
+					if (scrollDelta > 0) {
+						this.desiredDistance -= 20;
+					} else if (scrollDelta < 0) {
+						this.desiredDistance += 20;
+					}
+				},
+
+				onTouchStart: function (e) {
+					if (e.touches.length !== 1) { return; }
+					this.touchStart = {
+						x: e.touches[0].pageX,
+						y: e.touches[0].pageY
+					};
+					this.touchStarted = true;
+				
+					// Stop Zoom
+					this.desiredDistance = this.distance;
+
+					// Stop Auto Rotation
+					this.data.autoRotate = false;
+
+					if(!this.hasUserInput) {
+						setTimeout(() => {
+							this.hasUserInput = true;
+						}, 100)
+					}
+				},
+
+				onTouchMove: function (e) {
+					if (e.touches.length !== 1) { return; }
+					this.touchMove = true;
+					var deltaY;
+					var deltaX;
+					var yawObject = this.yawObject;
+					var pitchObject = this.pitchObject;
+					if (!this.touchStarted) { return; }
+					deltaY = 2 * Math.PI * (e.touches[0].pageX - this.touchStart.x) / this.el.sceneEl.canvas.clientWidth;
+					deltaX = 2 * Math.PI * (e.touches[0].pageY - this.touchStart.y) / this.el.sceneEl.canvas.clientHeight;
+				
+					// Limits touch orientaion to to yaw (y axis)
+					yawObject.rotation.y -= deltaY * 0.5;
+
+					// Limits touch orientation to pitch (x axis)
+					pitchObject.rotation.x -= deltaX * 0.5;
+					pitchObject.rotation.x = Math.max(-PI_2/2, Math.min(PI_2/2, pitchObject.rotation.x));
+				
+					this.touchStart = {
+						x: e.touches[0].pageX,
+						y: e.touches[0].pageY
+					};
+				},
+
+				onTouchEnd: function () {
+					this.touchStarted = false;
+					this.touchMove = false;
+
+					if(this.hasUserInput) {
+						setTimeout(() => {
+							this.hasUserInput = false;
+						}, 300)
+					}
+				}, 
+
+				pointerdownHandler: function (e) {
+					if(!this.touchEventCache) {
+						this.touchEventCache = [];
+					}
+					this.touchEventCache.push(e);
+
+					if(!this.hasUserInput) {
+						setTimeout(() => {
+							this.hasUserInput = true;
+						}, 100)
+					}
+				},
+
+				pointermoveHandler: function (e) {
+					let currentDistance = 0;
+					let difference = 0;
+
+					const index = this.touchEventCache.findIndex(
+						(cachedEvent) => cachedEvent.pointerId === e.pointerId,
+					);
+
+					this.touchEventCache[index] = e;
+
+					if (this.touchEventCache.length === 2) {
+						let currentDistanceY = Math.abs(this.touchEventCache[0].clientY - this.touchEventCache[1].clientY);
+						let currentDistanceX = Math.abs(this.touchEventCache[0].clientX - this.touchEventCache[1].clientX);
+						currentDistance = Math.sqrt(currentDistanceY*currentDistanceY  + currentDistanceX*currentDistanceX)
+						difference = currentDistance - this.previousDistance;
+						if (this.previousDistance > 0) {
+							this.desiredDistance -= difference;
+						}
+						this.previousDistance = currentDistance;
+					}
+				},
+
+				pointerupHandler: function (e) {
+					// Remove this event from the target's cache
+					const index = this.touchEventCache.findIndex(
+						(cachedEvent) => cachedEvent.pointerId === e.pointerId,
+					);
+
+					this.touchEventCache.splice(index, 1);
+					// If the number of pointers down is less than two then reset diff tracker
+					if (this.touchEventCache.length < 2) {
+						this.previousDistance = -1;
+					}	
+
+					if(this.hasUserInput) {
+						setTimeout(() => {
+							this.hasUserInput = false;
+						}, 300)
+					}
+				}
+			});
+			//END custom orbit-controls
 		}
 	}, //collectionViewer
 
@@ -2415,14 +3731,14 @@ const app = {
 					descriptionListBasicEl.appendChild(nameTermEl);
 					const nameTermHeadline = document.createElement('h6');
 					nameTermEl.appendChild(nameTermHeadline);
-					nameTermHeadline.appendChild(document.createTextNode('Bezeichnung: '));
+					nameTermHeadline.textContent = 'Bezeichnung: ';
 					nameTermHeadline.className = 'text-smokegrey';
 	
 					const nameValueEl = document.createElement('dd');
 					descriptionListBasicEl.appendChild(nameValueEl);
 					const nameValueHeadline = document.createElement('h3');
 					nameValueEl.appendChild(nameValueHeadline);
-					nameValueHeadline.appendChild(document.createTextNode(basicData.name));
+					nameValueHeadline.textContent = basicData.name;
 				}
 				
 				if(basicData.key){
@@ -2430,12 +3746,12 @@ const app = {
 					descriptionListBasicEl.appendChild(keyTermEl);
 					const keyTermHeadline = document.createElement('h6');
 					keyTermEl.appendChild(keyTermHeadline);
-					keyTermHeadline.appendChild(document.createTextNode('Objektnummer: '));
+					keyTermHeadline.textContent = 'Objektnummer: ';
 					keyTermHeadline.className = 'text-smokegrey';
 	
 					const keyValueEl = document.createElement('dd');
 					descriptionListBasicEl.appendChild(keyValueEl);
-					keyValueEl.appendChild(document.createTextNode(basicData.key));
+					keyValueEl.textContent = basicData.key;
 				}
 
 				if(basicData.categorys.length > 0) {
@@ -2443,40 +3759,51 @@ const app = {
 					descriptionListBasicEl.appendChild(categoryTermEl);
 					const categoryTermHeadline = document.createElement('h6');
 					categoryTermEl.appendChild(categoryTermHeadline);
-					categoryTermHeadline.appendChild(document.createTextNode('Kategorien: '));
+					categoryTermHeadline.textContent = 'Kategorien: ';
 					categoryTermHeadline.className = 'text-smokegrey';
 	
 					const categoryValueEl = document.createElement('dd');
 					descriptionListBasicEl.appendChild(categoryValueEl);
 					for(let category of basicData.categorys) {
+						if(category === ''){ continue; }
 						const categoryEl = document.createElement('span');
-						categoryEl.appendChild(document.createTextNode(category));
+						categoryEl.textContent = category;
 						categoryEl.className = 'pill ' + app.collectionViewer.elementColor.category;
 						categoryValueEl.appendChild(categoryEl);
 					}
+					if(categoryValueEl.innerHTML === '') {
+						categoryValueEl.remove();
+						categoryTermEl.remove();
+					}
 				}
+
 
 				if(basicData.tags.length > 0) {
 					const tagTermEl = document.createElement('dt');
 					descriptionListBasicEl.appendChild(tagTermEl);
 					const tagTermHeadline = document.createElement('h6');
 					tagTermEl.appendChild(tagTermHeadline);
-					tagTermHeadline.appendChild(document.createTextNode('Tags: '));
+					tagTermHeadline.textContent = 'Tags: ';
 					tagTermHeadline.className = 'text-smokegrey';
 				
 					const tagValueEl = document.createElement('dd');
 					descriptionListBasicEl.appendChild(tagValueEl);
 					for(let tag of basicData.tags) {
+						if(tag === ''){ continue; }
 						const tagEl = document.createElement('span');
-						tagEl.appendChild(document.createTextNode(tag));
+						tagEl.textContent = tag;
 						tagEl.className = 'pill ' + app.collectionViewer.elementColor.tag;
 						tagValueEl.appendChild(tagEl);
+					}
+					if(tagValueEl.innerHTML === '') {
+						tagValueEl.remove();
+						tagTermEl.remove();
 					}
 				}
 
 				const objectDataHeadline = document.createElement('h3');
 				mvInfoContainerEl.appendChild(objectDataHeadline);
-				objectDataHeadline.appendChild(document.createTextNode('Objektdaten: '));
+				objectDataHeadline.textContent = 'Objektdaten: ';
 
 				const descriptionListObjectEl = document.createElement('dl');
 				mvInfoContainerEl.appendChild(descriptionListObjectEl);
@@ -2486,14 +3813,12 @@ const app = {
 					descriptionListObjectEl.appendChild(altNameTermEl);
 					const altNameTermHeadline = document.createElement('h6');
 					altNameTermEl.appendChild(altNameTermHeadline);
-					altNameTermHeadline.appendChild(document.createTextNode('Alternative Bezeichnung: '));
+					altNameTermHeadline.textContent = 'Alternative Bezeichnung: ';
 					altNameTermHeadline.className = 'text-smokegrey';
 	
 					const altNameValueEl = document.createElement('dd');
 					descriptionListObjectEl.appendChild(altNameValueEl);
-					const altNameValueHeadline = document.createElement('h3');
-					altNameValueEl.appendChild(altNameValueHeadline);
-					altNameValueHeadline.appendChild(document.createTextNode(objectData.alternativeName));
+					altNameValueEl.textContent = objectData.alternativeName;
 				}
 
 				if(objectData.datingFrom && objectData.datingTo){
@@ -2504,12 +3829,12 @@ const app = {
 					descriptionListObjectEl.appendChild(datingFromToTermEl);
 					const datingFromToTermHeadline = document.createElement('h6');
 					datingFromToTermEl.appendChild(datingFromToTermHeadline);
-					datingFromToTermHeadline.appendChild(document.createTextNode('Datierung: '));
+					datingFromToTermHeadline.textContent = 'Datierung: ';
 					datingFromToTermHeadline.className = 'text-smokegrey';
 	
 					const datingFromToValueEl = document.createElement('dd');
 					descriptionListObjectEl.appendChild(datingFromToValueEl);
-					datingFromToValueEl.appendChild(document.createTextNode(datingFromTo));
+					datingFromToValueEl.textContent = datingFromTo;
 				}
 
 				if(objectData.location && objectData.locationCode){
@@ -2519,12 +3844,12 @@ const app = {
 					descriptionListObjectEl.appendChild(locationTermEl);
 					const locationTermHeadline = document.createElement('h6');
 					locationTermEl.appendChild(locationTermHeadline);
-					locationTermHeadline.appendChild(document.createTextNode('Verortung: '));
+					locationTermHeadline.textContent = 'Verortung: ';
 					locationTermHeadline.className = 'text-smokegrey';
 	
 					const locationValueEl = document.createElement('dd');
 					descriptionListObjectEl.appendChild(locationValueEl);
-					locationValueEl.appendChild(document.createTextNode(location));
+					locationValueEl.textContent = location;
 				}
 
 				if(objectData.origin && objectData.originCode){
@@ -2534,17 +3859,17 @@ const app = {
 					descriptionListObjectEl.appendChild(originTermEl);
 					const originTermHeadline = document.createElement('h6');
 					originTermEl.appendChild(originTermHeadline);
-					originTermHeadline.appendChild(document.createTextNode('Enstehungsort: '));
+					originTermHeadline.textContent = 'Enstehungsort: ';
 					originTermHeadline.className = 'text-smokegrey';
 	
 					const originValueEl = document.createElement('dd');
 					descriptionListObjectEl.appendChild(originValueEl);
-					originValueEl.appendChild(document.createTextNode(origin));
+					originValueEl.textContent = origin;
 				}
 
 				const collectionDataHeadline = document.createElement('h3');
 				mvInfoContainerEl.appendChild(collectionDataHeadline);
-				collectionDataHeadline.appendChild(document.createTextNode('Sammlungsdaten: '));
+				collectionDataHeadline.textContent = 'Sammlungsdaten: ';
 
 				const descriptionListCollectionEl = document.createElement('dl');
 				mvInfoContainerEl.appendChild(descriptionListCollectionEl);
@@ -2554,12 +3879,12 @@ const app = {
 					descriptionListCollectionEl.appendChild(collectionDateTermEl);
 					const collectionDateTermHeadline = document.createElement('h6');
 					collectionDateTermEl.appendChild(collectionDateTermHeadline);
-					collectionDateTermHeadline.appendChild(document.createTextNode('Erhebungsdatum: '));
+					collectionDateTermHeadline.textContent = 'Erhebungsdatum: ';
 					collectionDateTermHeadline.className = 'text-smokegrey';
 	
 					const collectionDateValueEl = document.createElement('dd');
 					descriptionListCollectionEl.appendChild(collectionDateValueEl);
-					collectionDateValueEl.appendChild(document.createTextNode(collectionData.collectionDate));
+					collectionDateValueEl.textContent = collectionData.collectionDate;
 				}
 
 				if(collectionData.collectionLocation && collectionData.collectionLocationCode){
@@ -2569,12 +3894,12 @@ const app = {
 					descriptionListCollectionEl.appendChild(collectionLocationTermEl);
 					const collectionLocationTermHeadline = document.createElement('h6');
 					collectionLocationTermEl.appendChild(collectionLocationTermHeadline);
-					collectionLocationTermHeadline.appendChild(document.createTextNode('Erhebungsort: '));
+					collectionLocationTermHeadline.textContent = 'Erhebungsort: ';
 					collectionLocationTermHeadline.className = 'text-smokegrey';
 	
 					const collectionLocationValueEl = document.createElement('dd');
 					descriptionListCollectionEl.appendChild(collectionLocationValueEl);
-					collectionLocationValueEl.appendChild(document.createTextNode(collectionLocation));
+					collectionLocationValueEl.textContent = collectionLocation;
 				}
 
 				if(collectionData.collectionScanner){
@@ -2582,12 +3907,12 @@ const app = {
 					descriptionListCollectionEl.appendChild(collectionScannerTermEl);
 					const collectionScannerTermHeadline = document.createElement('h6');
 					collectionScannerTermEl.appendChild(collectionScannerTermHeadline);
-					collectionScannerTermHeadline.appendChild(document.createTextNode('Erhebungsdatum: '));
+					collectionScannerTermHeadline.textContent = '3D-Scanner: ';
 					collectionScannerTermHeadline.className = 'text-smokegrey';
 	
 					const collectionScannerValueEl = document.createElement('dd');
 					descriptionListCollectionEl.appendChild(collectionScannerValueEl);
-					collectionScannerValueEl.appendChild(document.createTextNode(collectionData.collectionScanner));
+					collectionScannerValueEl.textContent = collectionData.collectionScanner;
 				}
 			}
 		},
@@ -2890,6 +4215,7 @@ const app = {
 				app.dev && console.log('dev --- setARButton: ', {isWebXRCapable: app.isWebXRCapable, isARCapable: app.isARCapable});
 
 				if(app.isWebXRCapable) {
+					buttonEl.setAttribute('data-webxr', true);
 					buttonEl.addEventListener('click', (e) => {
 						let url='?m=ar';
 						app.dev ? url+='&dev=true' : '';
@@ -2901,6 +4227,7 @@ const app = {
 				}
 
 				if(app.isARCapable) {
+					buttonEl.setAttribute('data-webxr', false);
 					buttonEl.addEventListener('click', (e) => {
 						app.gui.loadingScreen.showLoadingScreen('loading augmented reality');
 						modelViewer.activateAR();
@@ -3269,7 +4596,7 @@ const app = {
 			this.sceneEl.setAttribute('gltf-model', 'dracoDecoderPath: ./draco/');
 			this.sceneEl.setAttribute('xr-mode-ui', 'enabled:false');
 			this.sceneEl.setAttribute('light', 'defaultLightsEnabled: false');
-			this.sceneEl.setAttribute('webxr', 'requiredFeatures:	hit-test, dom-overlay, anchors; overlayElement: .gui-message-box; referenceSpaceType:local;');
+			this.sceneEl.setAttribute('webxr', 'requiredFeatures: hit-test, dom-overlay, anchors; overlayElement: .gui-message-box; referenceSpaceType:local;');
 			this.sceneEl.setAttribute('controller', '');
 			this.sceneEl.setAttribute('renderer', 'stencil:true;');
 			this.sceneEl.setAttribute('tools', 'enabled:false;')
@@ -3284,56 +4611,48 @@ const app = {
 			this.assets.sprite.crossOrigin = 'anonymous';
 			// TODO our own sprite
 			this.assets.sprite.src = 'https://cdn.glitch.global/421736eb-f719-4a40-8df3-054eca30d277/spark.png?v=1715082340035';
-			this.assets.sprite.setAttribute('loading', 'lazy');
 
 			this.assets.drop = document.createElement('img');
 			this.assets.element.appendChild(this.assets.drop);
 			this.assets.drop.id = 'placer';
 			this.assets.drop.crossOrigin = 'anonymous';
 			this.assets.drop.src = app.assets.ar.marker['drop'].src;
-			this.assets.drop.setAttribute('loading', 'lazy');
 
 			this.assets.drag = document.createElement('img');
 			this.assets.element.appendChild(this.assets.drag);
 			this.assets.drag.id = 'dragIcon';
 			this.assets.drag.crossOrigin = 'anonymous';
 			this.assets.drag.src = app.assets.ar.marker['drag'].src;
-			this.assets.drag.setAttribute('loading', 'lazy');
 
-			this.assets.arrow = document.createElement('img');
-			this.assets.element.appendChild(this.assets.arrow);
-			this.assets.arrow.id = 'arrow';
-			this.assets.arrow.crossOrigin = 'anonymous';
-			this.assets.arrow.src = app.assets.ar['rotate arrows'].src;
-			this.assets.arrow.setAttribute('loading', 'lazy');
+			this.assets.rotateArrows = document.createElement('img');
+			this.assets.element.appendChild(this.assets.rotateArrows);
+			this.assets.rotateArrows.id = 'rotateArrows';
+			this.assets.rotateArrows.crossOrigin = 'anonymous';
+			this.assets.rotateArrows.src = app.assets.ar['rotate arrows'].src;
 
 			this.assets.book = document.createElement('img');
 			this.assets.element.appendChild(this.assets.book);
 			this.assets.book.id = 'book';
 			this.assets.book.crossOrigin = 'anonymous';
 			this.assets.book.src = app.assets.ar.marker['book'].src;
-			this.assets.book.setAttribute('loading', 'lazy');
 
 			this.assets.play = document.createElement('img');
 			this.assets.element.appendChild(this.assets.play);
 			this.assets.play.id = 'playAnim';
 			this.assets.play.crossOrigin = 'anonymous';
 			this.assets.play.src = app.assets.ar.marker['animation'].src;
-			this.assets.play.setAttribute('loading', 'lazy');
 
 			this.assets.quest = document.createElement('img');
 			this.assets.element.appendChild(this.assets.quest);
 			this.assets.quest.id = 'exclamation';
 			this.assets.quest.crossOrigin = 'anonymous';
 			this.assets.quest.src = app.assets.ar.marker['quest'].src;
-			this.assets.quest.setAttribute('loading', 'lazy');
 
 			this.assets.quiz = document.createElement('img');
 			this.assets.element.appendChild(this.assets.quiz);
 			this.assets.quiz.id = 'question';
 			this.assets.quiz.crossOrigin = 'anonymous';
 			this.assets.quiz.src = app.assets.ar.marker['quiz'].src;
-			this.assets.quiz.setAttribute('loading', 'lazy');
 
 			this.ambientLightEl = document.createElement('a-entity');
 			this.sceneEl.appendChild(this.ambientLightEl);
@@ -3400,7 +4719,7 @@ const app = {
 			this.sceneEl.appendChild(this.rotationControlEl);
 			this.rotationControlEl.setAttribute('id', 'rotation-ring');
 			this.rotationControlEl.setAttribute('geometry', 'primitive:circle');
-			this.rotationControlEl.setAttribute('material','transparent:true;src:#arrow');
+			this.rotationControlEl.setAttribute('material','transparent:true;src:#rotateArrows');
 			this.rotationControlEl.setAttribute('rotation', '-90 0 0');
 			this.rotationControlEl.setAttribute('turn-to-camera', 'onlyYAxis:true');
 
@@ -3409,7 +4728,7 @@ const app = {
 			this.touchCircleEl.setAttribute('id', 'touch-circle');
 			this.touchCircleEl.setAttribute('geometry', 'primitive:circle; radius: 0.3;');
 			this.touchCircleEl.setAttribute('visible', 'false');
-			this.touchCircleEl.setAttribute("turn-to-camera", '');
+			this.touchCircleEl.setAttribute('turn-to-camera', '');
 			this.touchCircleEl.setAttribute('rotation-handler', 'enabled:false');	
 
 			this.rotHandleEl = document.createElement('a-entity');
@@ -3456,10 +4775,15 @@ const app = {
 			this.viewerMode = mode;
 		}
 
-		//handle model uuid
+		//handle mv model uuid
 		(this.viewerMode === 'mv' && !model) && this.errorHandler('mv-000');
 		(this.viewerMode === 'mv' && !regex.test(model)) && this.errorHandler('mv-001');
 		(this.viewerMode === 'mv' && regex.test(model)) ? this.primaryKey = model : '';
+
+		//handle ar model uuid
+		(this.viewerMode === 'ar' && !model) && this.errorHandler('ar-000');
+		(this.viewerMode === 'ar' && !regex.test(model)) && this.errorHandler('ar-001');
+		(this.viewerMode === 'ar' && regex.test(model)) ? this.primaryKey = model : '';
 
 		//handle gui
 		noGUI ? this.hideGUI = true : this.hideGUI = false;

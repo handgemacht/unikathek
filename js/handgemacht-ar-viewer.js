@@ -1,9 +1,6 @@
 import { app } from './handgemacht-main.js';
 
 //START Global Variables
-const dirPath_Files = app.filepaths.files;
-const dirPath_Media = app.filepaths.files + app.filepaths.annotationMedia;
-const dirPath_Icon = app.filepaths.assets;
 let loadAR = false;
 let primaryKey;
 let setError;
@@ -13,11 +10,11 @@ let missionMode = false;
 let toolMode = false;
 //tracks if missions are started
 let inMission = false;
-
-
-
-
 //END Global Variables
+
+
+
+
 //START Search URL Parameters
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
@@ -28,6 +25,7 @@ urlParams.get('model') ? primaryKey = urlParams.get('model') : setError = '001';
 
 //CONTROLLER: loads JSON model, missions, gui | controls start and first Contact | states:  raycaster, tools, missions, inventar, score, reverse, noMissions
 AFRAME.registerComponent("controller", {
+
   schema: {
     raycaster: { type: "boolean", default: false },
     inventar: { type: "boolean", default: false },
@@ -37,6 +35,7 @@ AFRAME.registerComponent("controller", {
     tool: { type: "boolean", default: false },
     noMission: { type: "boolean", default: false },
   },
+
   init: function () {
     let self = this.el;
     let it = this;
@@ -51,10 +50,13 @@ AFRAME.registerComponent("controller", {
     this.activatePreparation = this.activatePreparation.bind(this);
     this.activateMission = this.activateMission.bind(this);
     this.resetActivatedMissions = this.resetActivatedMissions.bind(this);
+
     //load JSON 
     it.loadJSON();
+
     //init gui
     it.initGui();
+
     //interaction pause/play listener for rotation and popups
     let currentMission, currentTool;
     self.addEventListener("pause-interaction", function (event) {
@@ -72,6 +74,7 @@ AFRAME.registerComponent("controller", {
         noMission: false,
       });
     });
+
     self.addEventListener("play-interaction", function (event) {
       let rotateBool = event.detail.rotate;
       let noMissionBool = !inMission && !currentMission && !currentTool ? true : false;
@@ -84,12 +87,12 @@ AFRAME.registerComponent("controller", {
         noMission: noMissionBool,
       });
     });
-
-
   },
+
   //turns on or off the components or/and the visibility
   update: function () {
     let self = this.el;
+
     //reverse missions
     if (this.data.reverse) {
       for (let element of this.inventar) {
@@ -98,12 +101,16 @@ AFRAME.registerComponent("controller", {
           element.place.classList.add("hide");
         element.el.classList.remove("selected");
       }
+
       this.inventar.length = 0;
+
       self.emit("missions-reversed", null, false);
       this.resetActivatedMissions();
+
       //reset score
       this.resetScore();
       self.setAttribute("controller", "reverse", false);
+
       return;
     }
 
@@ -213,11 +220,14 @@ AFRAME.registerComponent("controller", {
       //message to start ar
       let message = {
         type: app.arViewer.name,
-        showClose: false,
         content: app.arViewer.welcomeMessage,
         color: 'skyblue',
-        button1: { content: app.arViewer.yes, color: 'pearlwhite', shadow: 'coalgrey' },
-        button2: { content: app.arViewer.no, color: 'pearlwhite', shadow: 'coalgrey' },
+        shadow: null,
+        buttonSetup: [
+          { label: app.arViewer.yes, color: 'pearlwhite', shadow: 'coalgrey' },
+          { label: app.arViewer.no, color: 'pearlwhite', shadow: 'coalgrey' }
+          ],
+        showClose: false
       }
       app.gui.message.setMessage(message);
       app.gui.message.buttons.button[0].element.addEventListener('click', it.startAR, { once: true });
@@ -230,10 +240,14 @@ AFRAME.registerComponent("controller", {
       activateButton(null);
       //show welcome message
       let message = {
-        showClose: false,
+        type: null,
         content: app.arViewer.startPlacing,
         color: 'terracotta',
-        button1: { content: app.arViewer.startPlacingButton, color: 'pearlwhite', shadow: 'coalgrey' },
+        shadow: null,
+        buttonSetup: [
+          { label: app.arViewer.startPlacingButton, color: 'pearlwhite', shadow: 'coalgrey' }
+          ],
+        showClose: false,
       }
 
       app.gui.message.setMessage(message);
@@ -251,9 +265,12 @@ AFRAME.registerComponent("controller", {
       else it.firstContact = e.detail;
       if (it.firstContact) {
         let message = {
-          showClose: true,
+          type: null,
           content: it.missionExisting ? app.arViewer.firstContactWithMission : app.arViewer.firstContactWithoutMission,
-          color: 'skyblue'
+          color: 'skyblue', 
+          shadow: null,
+          buttonSetup: null,
+          showClose: true
         }
         self.emit("showFirstContactMessage", null, false);
         app.gui.message.setMessage(message);
@@ -292,11 +309,14 @@ AFRAME.registerComponent("controller", {
       }
       let message = {
         type: 'Entdeckermodus',
-        showClose: false,
         content: app.arViewer.goodbyeMessage,
         color: 'skyblue',
-        button1: { content: app.arViewer.goodbyeMessageButton1, color: 'pearlwhite', shadow: 'coalgrey' },
-        button2: { content: app.arViewer.goodbyeMessageButton2, color: 'pearlwhite', shadow: 'coalgrey' },
+        shadow: null,
+        buttonSetup: [
+          { label: app.arViewer.goodbyeMessageButton1, color: 'pearlwhite', shadow: 'coalgrey' },
+          { label: app.arViewer.goodbyeMessageButton2, color: 'pearlwhite', shadow: 'coalgrey' }
+          ],
+        showClose: false
       }
       app.gui.message.setMessage(message);
       app.gui.message.buttons.button[0].element.addEventListener('click', it.startAR, { once: true });
@@ -333,10 +353,14 @@ AFRAME.registerComponent("controller", {
         activateButton(missionBtn);
         if (it.firstContactMission) {
           let message = {
-            showClose: false,
+            type: null,
             content: app.arViewer.firstContactMission,
             color: 'terracotta',
-            button1: { content: app.arViewer.allRight, color: 'pearlwhite', shadow: 'coalgrey' },
+            shadow: null,
+            buttonSetup: [
+              { label: app.arViewer.allRight, color: 'pearlwhite', shadow: 'coalgrey' }
+              ],
+            showClose: false
           }
           app.gui.message.setMessage(message);
           self.setAttribute("controller", {
@@ -393,6 +417,7 @@ AFRAME.registerComponent("controller", {
       } else {
         activateButton(toolsBtn);
         if (it.firstContactTool) {
+
           self.setAttribute("controller", {
             mission: false,
             tool: false,
@@ -401,11 +426,16 @@ AFRAME.registerComponent("controller", {
             inventar: false,
             noMission: false
           });
+
           let message = {
-            showClose: false,
+            type: null,
             content: app.arViewer.firstContactTool,
             color: 'terracotta',
-            button1: { content: app.arViewer.allRight, color: 'pearlwhite', shadow: 'coalgrey' },
+            shadow: null,
+            buttonSetup: [
+              { label: app.arViewer.allRight, color: 'pearlwhite', shadow: 'coalgrey' }
+              ], 
+            showClose: false
           }
           app.gui.message.setMessage(message);
 
@@ -420,6 +450,7 @@ AFRAME.registerComponent("controller", {
               noMission: false
             });
           }, { once: true });
+
           it.firstContactTool = false;
         } else {
           self.setAttribute("controller", {
@@ -493,9 +524,9 @@ AFRAME.registerComponent("controller", {
 
     function closeAR(event) {
       self.emit("pause-interaction", { rotate: false }, false);
-      let noMessage = app.gui.message.messageContainerEl.classList.contains("hide");
+      let noMessage = app.gui.message.containerEl.classList.contains("hide");
       if (!noMessage) {
-        app.gui.message.messageContainerEl.classList.add('hide');
+        app.gui.message.containerEl.classList.add('hide');
       }
       const closePopup = document.getElementById('gui-close-popup');
       closePopup.classList.remove('hide');
@@ -509,7 +540,7 @@ AFRAME.registerComponent("controller", {
       }
       function stayInAR(event) {
         if (!noMessage) {
-          app.gui.message.messageContainerEl.classList.remove('hide');
+          app.gui.message.containerEl.classList.remove('hide');
         }
         app.gui.message.closeButton1El.removeEventListener('click', exitAR);
         closePopup.classList.add('hide');
@@ -522,22 +553,31 @@ AFRAME.registerComponent("controller", {
       let message;
       if (toolMode) {
         message = {
-          showClose: true,
+          type: null,
           content: app.arViewer.firstContactTool,
-          color: 'terracotta'
+          color: 'terracotta',
+          shadow: null,
+          buttonSetup: null,
+          showClose: true
         }
       }
       else if (missionMode) {
         message = {
-          showClose: true,
+          type: null,
           content: app.arViewer.firstContactMission,
-          color: 'skyblue'
+          color: 'skyblue',
+          shadow: null,
+          buttonSetup: null,
+          showClose: true
         }
       } else {
         message = {
-          showClose: true,
+          type: null,
           content: it.missionExisting ? app.arViewer.firstContactWithMission : app.arViewer.firstContactWithoutMission,
-          color: 'duckyellow'
+          color: 'duckyellow',
+          shadow: null,
+          buttonSetup: null,
+          showClose: true
         }
       }
       self.emit("pause-interaction", { rotate: false }, true);
@@ -551,7 +591,7 @@ AFRAME.registerComponent("controller", {
   loadJSON: function () {
     let it = this;
     if (loadAR && !setError) {
-      fetch(dirPath_Files + 'json/' + primaryKey + '.json')
+      fetch(app.filepaths.files + 'json/' + primaryKey + '.json')
         .then((response) => response.json())
         .then((json) => {
           it.loadModel(json);
@@ -632,7 +672,7 @@ AFRAME.registerComponent("controller", {
               name: currentTask.name,
               description_drag: currentTask.descriptionDrag,
               description_drop: currentTask.descriptionDrop,
-              src_image: currentTask.symbol.imageType === "image" ? dirPath_Media + currentTask.symbol.filename : dirPath_Icon + currentTask.symbol.filename,
+              src_image: currentTask.symbol.imageType === "image" ? app.filepaths.files + app.filepaths.annotationMedia + currentTask.symbol.filename : app.filepaths.assets + currentTask.symbol.filename,
               alt_image: currentTask.symbol.imageAlt,
               caption_image: currentTask.symbol.imageCaption,
               copyright_image: currentTask.symbol.fileCopyright,
@@ -741,7 +781,7 @@ AFRAME.registerComponent("controller", {
             });
             if (currentTask.image) {
               taskEl.setAttribute("point-task", {
-                src_image: dirPath_Media + currentTask.image.filename,
+                src_image: app.filepaths.files + app.filepaths.annotationMedia + currentTask.image.filename,
                 alt_image: currentTask.image.imageAlt,
                 caption_image: currentTask.image.imageCaption,
                 copyright_image: currentTask.image.fileCopyright,
@@ -749,7 +789,7 @@ AFRAME.registerComponent("controller", {
             }
             if (currentTask.audio) {
               taskEl.setAttribute("point-task", {
-                src_audio: dirPath_Media + currentTask.audio.filename,
+                src_audio: app.filepaths.files + app.filepaths.annotationMedia + currentTask.audio.filename,
                 copyright_audio: currentTask.audio.fileCopyright
               });
             }
@@ -1021,15 +1061,19 @@ AFRAME.registerComponent("controller", {
   showMissionPopup: function(completed) {
     let it = this;
     let self = this.el;
+
     let message = {
       type: app.arViewer.overview,
-      showClose: true,
       content: getContent(completed),
       color: 'pearlwhite',
       shadow: 'shadow-terracotta',
-      button1: completed ? { content: app.arViewer.restartMissionButton, color: 'duckyellow', shadow: 'shadowduckyellow' } : {},
+      buttonSetup: [
+        completed ? { label: app.arViewer.restartMissionButton, color: 'duckyellow', shadow: 'shadowduckyellow' } : {}
+        ],
+      showClose: true,
     }
     app.gui.message.setMessage(message);
+
     if (completed) app.gui.message.buttons.button[0].element.addEventListener('click', this.restartMissions, { once: true });
     const scoreCont = document.getElementById("score-container");
     app.gui.message.messageCloseEl.addEventListener('click', function (e) {
@@ -1397,31 +1441,38 @@ AFRAME.registerComponent("ar-hit-test-special", {
     let message;
     if (step == "start") {
       message = {
-        showClose: false,
+        type: null,
         content: '<p>' + text[0] + '</p>',
         color: 'pearlwhite',
-        shadow: 'shadow-skyblue'
+        shadow: 'shadow-skyblue',
+        buttonSetup: null,
+        showClose: false,
       }
       app.gui.message.setMessage(message);
     } else if (step == "move") {
       message = {
-        showClose: false,
+        type: null,
         content: '<p>' + text[1] + '</p>',
         color: 'pearlwhite',
         shadow: 'shadow-skyblue',
-        button1: { content: app.arViewer.place, color: 'coalgrey', shadow: 'shadow-coalgrey' }
+        buttonSetup: [
+          { label: app.arViewer.place, color: 'coalgrey', shadow: 'shadow-coalgrey' }
+          ],
+        showClose: false
       }
       app.gui.message.setMessage(message);
       app.gui.message.buttons.button[0].element.addEventListener("click", this.placeObject, { once: true });
     } else if (step == "placed") {
       message = {
-        showClose: false,
+        type: null,
         content: '<p>' + text[2] + '</p>',
         color: 'pearlwhite',
         shadow: 'shadow-skyblue',
-        button1: { content: app.arViewer.yes, color: 'coalgrey', shadow: 'shadow-coalgrey' },
-        button2: { content: app.arViewer.placeNew, color: 'coalgrey', shadow: 'shadow-coalgrey' }
-
+        buttonSetup: [
+          { label: app.arViewer.yes, color: 'coalgrey', shadow: 'shadow-coalgrey' },
+          { label: app.arViewer.placeNew, color: 'coalgrey', shadow: 'shadow-coalgrey' }
+          ],
+        showClose: false
       }
       app.gui.message.setMessage(message);
       app.gui.message.buttons.button[0].element.addEventListener("click", this.placeEnd, { once: true });
@@ -1859,7 +1910,7 @@ AFRAME.registerComponent("rotation-handler", {
     this.arrayPos = this.pos;
     const rotControl = document.getElementById('rotation-ring');
     const rotHandle = document.getElementById('rot-handle');
-    rotControl.setAttribute('material', 'src', '#arrow');
+    rotControl.setAttribute('material', 'src', '#rotateArrows');
     rotHandle.setAttribute('material', 'color', '#FAF0E6');
 
     this.canvas.removeEventListener("touchend", this.endTouch);
@@ -2216,9 +2267,11 @@ AFRAME.registerComponent("drag-drop-task", {
     let self = this.el;
     let message = {
       type: app.arViewer.dragDropHead,
-      showClose: true,
       content: getContent(),
-      color: 'skyblue'
+      color: 'skyblue',
+      shadow: null,
+      buttonSetup: null,
+      showClose: true,
     }
     function getContent() {
       let content = '';
@@ -2260,9 +2313,11 @@ AFRAME.registerComponent("drag-drop-task", {
     const randomIndex = Math.floor(Math.random() * falseMessages.length);
     let message = {
       type: app.arViewer.dragDropHead,
-      showClose: true,
       content: `<p>${falseMessages[randomIndex]}</p>`,
-      color: 'smokegrey'
+      color: 'smokegrey', 
+      shadow: null,
+      buttonSetup: null,
+      showClose: true
     }
     app.gui.message.setMessage(message);
 
@@ -2377,9 +2432,11 @@ AFRAME.registerComponent("point-task", {
     let self = this.el;
     let message = {
       type: app.arViewer.pointHead,
-      showClose: true,
       content: getContent(),
-      color: 'duckyellow'
+      color: 'duckyellow', 
+      shadow: null,
+      buttonSetup: null,
+      showClose: true
     }
     function getContent() {
       let content = '';
@@ -2484,10 +2541,13 @@ AFRAME.registerComponent("quiz-task", {
     let it = this;
     let message = {
       type: app.arViewer.quizHead,
-      showClose: true,
       content: getContent(),
       color: 'terracotta',
-      button1: this.solved ? {} : { content: app.arViewer.quizButton, color: "pearlwhite", shadow: "coalgrey" }
+      shadow: null,
+      buttonSetup: [
+        this.solved ? {} : { label: app.arViewer.quizButton, color: "pearlwhite", shadow: "coalgrey" }
+        ],
+      showClose: true
     }
     function getContent() {
       let content = '';
@@ -2663,9 +2723,11 @@ AFRAME.registerComponent("animation-task", {
     let self = this.el;
     let message = {
       type: app.arViewer.animationHead,
-      showClose: true,
       content: getContent(),
-      color: 'skyblue'
+      color: 'skyblue', 
+      shadow: null,
+      buttonSetup: null,
+      showClose: true
     }
     function getContent() {
       let description = `<p>${desc}</p>`
