@@ -132,7 +132,7 @@
 				"searchable": 0,
 				"symbol": {
 					"imageType": "icon",
-					"filename": "hand.gemacht WebApp close perlweiss.svg",
+					"filename": "hand.gemacht WebApp icon small close pearlwhite.svg",
 					"imageAlt": "..."
 				},
 				"positionDrop": "0.06m 0.29m 0.06m",
@@ -151,7 +151,7 @@
 				"symbol": {
 					"imageType": "image",
 					"fileCopyright": "Julian Moder",
-					"filename": "hand.gemacht WebApp close perlweiss.png",
+					"filename": "hand.gemacht WebApp icon small close pearlwhite.png",
 					"imageAlt": "Feuer-Symbol",
 					"imageCaption": "..."
 				},

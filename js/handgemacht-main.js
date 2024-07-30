@@ -9,7 +9,7 @@ const app = {
 	dev: false,
 	stats: false,
 	viewerMode: false,
-	viewerModes: [ 'cv', 'mv', 'ar'],
+	viewerModes: [ 'cv', 'mv'],
 
 	filepaths: {
 		files: './files/',
@@ -274,13 +274,9 @@ const app = {
 
 		if (this.viewerMode === 'mv') {
 			this.modelViewer.init();
+			this.arViewer.registerComponents();
 			this.gui.title.init();
 			this.gui.loadingScreen.showLoadingScreen('loading model viewer');
-		}
-
-		if (this.viewerMode === 'ar' && this.isWebXRCapable) {
-			this.arViewer.init();
-			this.gui.loadingScreen.showLoadingScreen('loading augmented reality scene');
 		}
 
 		this.gui.setupCollapsibles();
@@ -472,7 +468,6 @@ const app = {
 
 			init() {
 				this.createElements();
-				this.createElementsAR();
 				this.setEventListener();
 			}, 
 
@@ -556,196 +551,6 @@ const app = {
 				this.buttons.button[1].iconEl.width = 100;
 				this.buttons.button[1].iconEl.height = 100;
 				this.buttons.button[1].iconEl.setAttribute('loading', 'lazy');
-			}, 
-
-			createElementsAR() {
-				const guiArOverlay = document.createElement('div');
-				this.boxEl.appendChild(guiArOverlay);
-				guiArOverlay.id = 'ar-overlay';
-				guiArOverlay.className = 'hide';
-
-				const bottomMenu = document.createElement('div');
-				guiArOverlay.appendChild(bottomMenu);
-				bottomMenu.className = 'bottom-menu hide';
-
-				const missionBtn = document.createElement('button');
-				bottomMenu.appendChild(missionBtn);
-				missionBtn.id = 'missionBtn';
-				missionBtn.className = 'menu-btn';
-				missionBtn.textContent = 'Mission';
-
-				const toolsBtn = document.createElement('button');
-				bottomMenu.appendChild(toolsBtn);
-				toolsBtn.id = 'toolsBtn';
-				toolsBtn.className = 'menu-btn';
-				toolsBtn.textContent = 'Tools';
-				
-				const toggleContainer = document.createElement('div');
-				guiArOverlay.appendChild(toggleContainer);
-				toggleContainer.className = 'toggle-container hide';
-
-				const replaceButton = document.createElement('button');
-				toggleContainer.appendChild(replaceButton);
-				replaceButton.className = 'message-btn';
-				replaceButton.id = 'replace-button';
-				replaceButton.textContent = 'Neu platzieren';
-
-				function createToggle(id, label, checked) {
-					const wrapper = document.createElement('div');
-					wrapper.className = 'toggle-wrapper';
-
-					const span = document.createElement('span');
-					wrapper.appendChild(span);
-					span.className = 'toggle-label';
-					span.textContent = label;
-
-					const labelSwitch = document.createElement('label');
-					wrapper.appendChild(labelSwitch);
-					labelSwitch.className = 'switch';
-
-					const input = document.createElement('input');
-					labelSwitch.appendChild(input);
-					input.type = 'checkbox';
-					input.id = id;
-
-					if (checked) input.checked = true;
-					const slider = document.createElement('span');
-					labelSwitch.appendChild(slider);
-					slider.className = 'slider';
-			
-					return wrapper;
-				}
-
-				toggleContainer.appendChild(createToggle('wireframe', 'Wireframe', false));
-				toggleContainer.appendChild(createToggle('texture', 'Textur', true));
-				toggleContainer.appendChild(createToggle('clipping', 'Clipping', true));
-				toggleContainer.appendChild(createToggle('shot', 'Freeze', false));
-				
-				function createSlider(id, label, min, max, step, value) {
-					const wrapper = document.createElement('div');
-					wrapper.className = 'slider-container';
-		
-					const span = document.createElement('span');
-					wrapper.appendChild(span);
-					span.className = 'slider-label';
-					span.textContent = label;
-		
-					const input = document.createElement('input');
-					wrapper.appendChild(input);
-					input.type = 'range';
-					input.id = id;
-					input.min = min;
-					input.max = max;
-					input.step = step;
-					input.value = value;
-		
-					return wrapper;
-				}
-				toggleContainer.appendChild(createSlider('distance-slider', 'Entfernung', 0.1, 1, 0.01, 0.5));
-
-				const missionOverlay = document.createElement('div');
-				guiArOverlay.appendChild(missionOverlay);
-				missionOverlay.id = 'missionOverlay';
-				missionOverlay.className = 'hide';
-
-				const scoreContainer = document.createElement('div');
-				missionOverlay.appendChild(scoreContainer);
-				scoreContainer.id = 'score-container';
-				scoreContainer.className = 'book-container';
-
-				const scoreImg = document.createElement('img');
-				scoreContainer.appendChild(scoreImg);
-				scoreImg.src = app.assets.ar.marker['book'].src; 
-				scoreImg.alt = app.assets.ar.marker['book'].alt;
-				scoreImg.setAttribute('loading', 'lazy');
-
-				const scoreSpan = document.createElement('span');
-				scoreContainer.appendChild(scoreSpan);
-				scoreSpan.id = 'score';
-				scoreSpan.textContent = '0/0';
-
-				var inventar = document.createElement('div');
-				missionOverlay.appendChild(inventar);
-				inventar.id = 'inventar';
-
-				const closeContainer = document.createElement('div');
-				guiArOverlay.appendChild(closeContainer);
-				closeContainer.id = 'close-cont';
-				closeContainer.className = 'annotation-close-container';
-				var closeSymbol = document.createElement('img');
-				closeContainer.appendChild(closeSymbol);
-				closeSymbol.src = app.assets.icon.small['close'].src.coalgrey;
-				closeSymbol.alt = app.assets.icon.small['close'].alt;
-				closeSymbol.className = 'annotation-close-icon';
-				closeSymbol.width = '24';
-				closeSymbol.height = '24';
-				closeSymbol.setAttribute('loading', 'lazy');
-
-				const helpContainer = document.createElement('div');
-				guiArOverlay.appendChild(helpContainer);
-				helpContainer.id = 'help-cont';
-				helpContainer.className = 'help-container hide';
-				var helpSymbol = document.createElement('img');
-				helpContainer.appendChild(helpSymbol);
-				helpSymbol.src = app.assets.ar.marker['quiz'].src;
-				helpSymbol.alt = app.assets.ar.marker['quiz'].alt;
-				helpSymbol.className = 'help-symbol';
-				helpSymbol.setAttribute('loading', 'lazy');
-
-				//close popup
-				const guiCloseContainer = document.createElement('div');
-				this.boxEl.appendChild(guiCloseContainer);
-				guiCloseContainer.className = 'gui-message-container hide';
-				guiCloseContainer.id = 'gui-close-popup';
-
-				const guiCloseMessage = document.createElement('div');
-				guiCloseContainer.appendChild(guiCloseMessage);
-				guiCloseMessage.classList.add('gui-message', 'terracotta');
-
-				const guiCloseContentContainer = document.createElement('div');
-				guiCloseMessage.appendChild(guiCloseContentContainer);
-				guiCloseContentContainer.className = 'content-container';
-
-				const guiCloseContent = document.createElement('div');
-				guiCloseContentContainer.appendChild(guiCloseContent);
-				guiCloseContent.className= 'content';
-				guiCloseContent.innerHTML = '<p> Entdecker-Modus wirklich verlassen? </p>';
-
-				const guiCloseButtonContainer = document.createElement('div');
-				guiCloseContainer.appendChild(guiCloseButtonContainer);
-				guiCloseButtonContainer.className = 'button-container';
-
-				const guiCloseButton = document.createElement('button');
-				this.closeButton1El = guiCloseButton;
-				guiCloseButtonContainer.appendChild(guiCloseButton);
-				guiCloseButton.classList.add('button', 'pearlwhite', 'shadow-coalgrey');
-				guiCloseButton.textContent = 'Ja';
-
-				const guiCloseButton2 = document.createElement('button');
-				this.closeButton2El = guiCloseButton2;
-				guiCloseButtonContainer.appendChild(guiCloseButton2);
-				guiCloseButton2.classList.add('button', 'pearlwhite', 'shadow-coalgrey');
-				guiCloseButton2.textContent = 'Nein';
-
-				const tooltipAR = document.createElement('div');
-				this.tooltipElAr = tooltipAR;
-				this.boxEl.appendChild(tooltipAR);
-				tooltipAR.className = 'cv-tooltip hide';
-	
-				const tooltipContentAR = document.createElement('div');
-				this.tooltipContentElAr = tooltipContentAR;
-				tooltipAR.appendChild(tooltipContentAR);
-				tooltipContentAR.classList.add('cv-tooltip-content', 'duckyellow');
-
-				const tooltipOverlay = document.createElement('div');
-				this.tooltipElOverlay = tooltipOverlay;
-				this.boxEl.appendChild(tooltipOverlay);
-				tooltipOverlay.className = 'cv-tooltip hide';
-	
-				const tooltipContentOverlay = document.createElement('div');
-				this.tooltipContentElOverlay = tooltipContentOverlay;
-				tooltipOverlay.appendChild(tooltipContentOverlay);
-				tooltipContentOverlay.classList.add('cv-tooltip-content', 'skyblue');
 			},
 
 			showMessage() {
@@ -866,23 +671,23 @@ const app = {
 			},
 
 			showTooltipAR(content){
-				this.tooltipContentElAr.textContent = content;
-				this.tooltipElAr.classList.remove('hide');
+				app.arViewer.tooltipContentElAr.textContent = content;
+				app.arViewer.tooltipElAr.classList.remove('hide');
 			},
 
 			hideTooltipAR(){
-				this.tooltipElAr.classList.add('hide');
-				this.tooltipContentElAr.innerHTML = '';
+				app.arViewer.tooltipElAr.classList.add('hide');
+				app.arViewer.tooltipContentElAr.innerHTML = '';
 			},
 
 			showTooltipOverlay(content){
-				this.tooltipContentElOverlay.textContent = content;
-				this.tooltipElOverlay.classList.remove('hide');
+				app.arViewer.tooltipContentElOverlay.textContent = content;
+				app.arViewer.tooltipElOverlay.classList.remove('hide');
 			},
 
 			hideTooltipOverlay(){
-				this.tooltipElOverlay.classList.add('hide');
-				this.tooltipContentElOverlay.innerHTML = '';
+				app.arViewer.tooltipElOverlay.classList.add('hide');
+				app.arViewer.tooltipContentElOverlay.innerHTML = '';
 			}
 		},
 
@@ -2307,7 +2112,7 @@ const app = {
 
 			this.sceneEl = document.createElement('a-scene');
 			document.body.appendChild(this.sceneEl);
-			this.sceneEl.setAttribute('gltf-model', 'dracoDecoderPath: ./draco/');
+			this.sceneEl.setAttribute('gltf-model', 'dracoDecoderPath: ' + app.filepaths.draco);
 			this.sceneEl.setAttribute('load-json-models', 'scaleFactor: 0.05; normalization: 0.65');
 			this.sceneEl.setAttribute('xr-mode-ui', 'enabled: false');
 			this.sceneEl.setAttribute('device-orientation-permission-ui', 'enabled: false');
@@ -2467,7 +2272,7 @@ const app = {
 										}, (xhr) =>{ 
 											//app.dev && console.log( ( 'dev --- load model: ' + object.name + ' - ' + xhr.loaded / xhr.total * 100 ) + '% loaded' );
 										}, (error) => {		
-											console.log( 'An error happened: ' + error );
+											console.log( 'An error happened: ', error );
 										});
 									}
 								}
@@ -3677,14 +3482,10 @@ const app = {
 
 			app.gui.toolbar.setButton(this.info.buttonSetup);
 			app.gui.toolbar.setButton(this.contextStory.buttonSetup);
-			app.gui.toolbar.button[1].addEventListener('click', (e) => {
-				app.modelViewer.contextStory.setContextStory();
-			})
+			app.gui.toolbar.button[1].addEventListener('click', (e) => app.modelViewer.contextStory.setContextStory() );
 			app.gui.toolbar.setButton(this.measurement.buttonSetup);
 			this.measurement.init();
-			app.gui.toolbar.button[2].addEventListener('click', (e) => {
-				app.modelViewer.measurement.toggleMeasurements();
-			})
+			app.gui.toolbar.button[2].addEventListener('click', (e) => app.modelViewer.measurement.toggleMeasurements() );
 			app.gui.toolbar.setButton(this.ar.buttonSetup);
 		},
 
@@ -4212,21 +4013,23 @@ const app = {
 				const func = buttonEl.getAttribute('data-func');
 				const iconElement = buttonEl.querySelector('.icon');
 
+				iconElement.src = app.assets.icon[func].src['pearlwhite'];
+				buttonEl.classList.remove(colors.button.background);
+				buttonEl.className = 'button smokegrey disabled';
+
 				app.dev && console.log('dev --- setARButton: ', {isWebXRCapable: app.isWebXRCapable, isARCapable: app.isARCapable});
 
-				if(app.isWebXRCapable) {
+				if(app.isMobile && app.isWebXRCapable) {
 					buttonEl.setAttribute('data-webxr', true);
+					app.arViewer.init();
 					buttonEl.addEventListener('click', (e) => {
-						let url='?m=ar';
-						app.dev ? url+='&dev=true' : '';
-						app.stats ? url+='&dev=stats' : '';
-						app.primaryKey ? url+='&model='+app.primaryKey: '';
-						window.location.href = url;
+						app.arViewer.close.element.classList.remove('hide');
+						app.modelViewer.removeElements();
 					})
 					return;
 				}
 
-				if(app.isARCapable) {
+				if(app.isMobile && app.isARCapable) {
 					buttonEl.setAttribute('data-webxr', false);
 					buttonEl.addEventListener('click', (e) => {
 						app.gui.loadingScreen.showLoadingScreen('loading augmented reality');
@@ -4234,12 +4037,11 @@ const app = {
 						//hide loading screen with 10s delay
 						app.gui.loadingScreen.hideLoadingScreen(10000);
 					})
+					iconElement.src = app.assets.icon[func].src['pearlwhite'];
+					arButtonEl.classList.add(colors.button.background);
+					arButtonEl.classList.remove('disabled');
 					return;
 				}
-
-				iconElement.src = app.assets.icon[func].src['pearlwhite'];
-				buttonEl.classList.remove(colors.button.background);
-				buttonEl.className = 'button smokegrey disabled';
 			}
 		},
 
@@ -4512,94 +4314,105 @@ const app = {
 			this.element.appendChild(this.default.progressBarEl);
 			this.default.progressBarEl.setAttribute('slot', 'progress-bar');
 			this.default.progressBarEl.className = 'hide';
+		}, 
+
+		removeElements() {
+			this.element.remove();
+			app.gui.toolbar.button[1].removeEventListener('click', (e) => app.modelViewer.contextStory.setContextStory() );
+			app.gui.toolbar.button[2].removeEventListener('click', (e) => app.modelViewer.measurement.toggleMeasurements() );
 		}
 	}, //modelViewer
 
 	arViewer: {
 
+		originalObject: {},
+		missionMode: false,
+		toolMode: false,
+		inMission: false,
+
 		toolBarSetup: {
 			color: 'pearlwhite', 
-			shadowColor: 'shadow-terracotta'
+			shadowColor: 'shadow-smokegrey'
 		},
 
 		init(){
-		this.createElements();
-		this.name = "Entdeckermodus";
-		this.firstContactWithMission= "<h3>Super! Nun bist du bereit das Objekt zu entdecken.</h3> <p>Schaue Dir das Objekt erst einmal von allen Seiten an. Wenn es möglich ist, gehe um das Objekt herum. Wenn nicht, kannst du das Objekt auch an dem Knopf unterhalb vom Objekt drehen.</br> Es gibt zwei verschiedene Modi: die Mission und die Tools. Bei der Mission bekommst du verschiedene Aufgaben gestellt und kannst so Bücher sammeln. Bei den Tools kannst du das 3D-Objekt genauer erforschen und sehen wie so ein 3D-Objekt aufgebaut ist. </p>";
-		this.firstContactWithoutMission= "<h3>Super! Nun bist du bereit das Objekt zu entdecken.</h3><p>Schaue Dir das Objekt erst einmal von allen Seiten an. Wenn es möglich ist, gehe um das Objekt herum. Wenn nicht, kannst du das Objekt auch an dem Knopf unterhalb vom Objekt drehen.</br> Es gibt außerdem den Tools-Modus. Hier kannst du das 3D-Objekt genauer erforschen und sehen wie so ein 3D-Objekt aufgebaut ist. </p>";
-		this.welcomeMessage= '<h3>Willkommen im Entdeckermodus!</h3> <p>Hier kannst Du das Objekt im Raum platzieren. Danach kannst du Dir das 3D-Objekt genauer ansehen.</p><p>Möchtest Du den Entdecker-Modus starten?</p>';
-		this.firstContactMission = "<h3>Mission</h3> <p>Wilkommen bei deiner Mission. </br>Es gibt verschiedene Aufgaben, die du zu erledigen hast. Für jede erfolgreiche Aufgabe erhälst du ein Buch. </br> Info: Klicke oben links auf das Buch, um die Punkteübersicht anzeigen zu lassen. </br> Tipp: Gehe nah an das Objekt heran und ziele mit dem schwarzen Punkt auf ein Icon.</p>";
-		this.firstContactTool = "<h3>Tools</h3> <p>Willkommen bei den Tools. Hier kannst du das Objekt mit Clipping genauer untersuchen. Bewege die Kamera dazu nahe an das Objekt, um das Objekt abzuschneiden. Außerdem kannst du einen Schnitt festhalten mit Freeze oder die Entfernung des Schnitts einstellen. </br> Du kannst die Textur, also die Beschaffenheit der Oberfläche, sowie das Wireframe, also das visuelle Modell des 3D-Object an- bzw. ausschalten.";
-		this.goodbyeMessage = "<h3>Entdecker-Modus verlassen</h3> <p>Was möchtest du tun?</p>";
-		this.goodbyeMessageButton1 = "Entdeckermodus erneut starten";
-		this.goodbyeMessageButton2 = "Zum Modelviewer zurückkehren";
-		this.startPlacing = '<img src="' + app.assets.icon['move'].src.pearlwhite + '" alt="' + app.assets.icon['move'].alt + '" height="50px" loading="lazy" /> <p>Um das Objekt zu platzieren, suche eine freie Boden- oder Tischfläche. Das Objekt soll dort in realer Größe platziert werden.</p>';
-		this.leaveAR = '<p>Entdecker-Modus wirklich verlassen?</p>';
-		this.startPlacingButton = 'Platzierung starten!';
-
-		this.overview = "Übersicht";
-		this.restartMissionButton = "Missionen neu starten";
-		this.missionOverviewText = [
-			"Objekte erfolgreich zugeordnet",
-			"Punkte gefunden",
-			"Fragen beantwortet",
-			"Animationen gestartet",
-			];
-		this.solveMissions = '<h3>Schließe alle Missionen ab!</h3>';
-		this.solveAllMissions = '<h3>Herzlichen Glückwunsch du hast alle Missionen erfüllt!</h3>';
-
-		this.yes = "Ja";
-		this.no = "Nein";
-		this.allRight = "Alles klar";
-		this.place = "Platzieren";
-		this.placeNew = "Neu platzieren";
-
-		this.placeMessages = [
-			"Bewege die Kamera entlang einer Fläche",
-			"Bewege das Objekt, indem du die Kamera bewegst. Wenn du zufrieden bist , klicke auf den Button.",
-			"Du solltest jetzt das gesamte Objekt direkt vor dir sehen. Ist es korrekt platziert?",
-			];
-
-		this.dragDropHead = 'Drag & Drop';
-		this.falseMessages = [
-			"Ups! Das gehört hier nicht hin. Versuch's mal woanders!",
-			"Hoppla! Das passt hier leider nicht. Ab zur richtigen Stelle",
-			"Oh nein! Das fühlt sich hier nicht wohl. Versuch’s mal an einem anderen Ort!",
-			];
-
-		this.pointHead = "Punkt gefunden";
-		this.quizHead = "Quiz";
-		this.animationHead = "Animation";
-		this.quizButton = "Antwort überprüfen";
-		this.quizFalse = "Leider falsch. Probiere es noch einmal!";
-		this.quizNull = "Bitte wähle etwas aus!";
-
-		//texts for cursor animation
-		this.dragObject = "Objekt aufheben";
-		this.dropObject = "Objekt ablegen";
-		this.activatePoint = "Punkt aktivieren";
-		this.activateQuiz = "Quiz anzeigen";
-		this.showBook = "Buch anzeigen";
-		this.restartAnim = "Animation neu starten";
-
-		this.rotationTip = "Klicke und ziehe hier um zu rotieren";
-		this.inventarTip = "Klick mich, um mich abzulegen";
-		this.farAwayTip = "Gehe näher an das Objekt heran!";
-		this.clickTip = "Klicke hier!"
-		this.clickMeTip = "Klicke mich zum Ablegen";
+			this.createElements();
+			this.name = "Entdeckermodus";
+			this.firstContactWithMission= "<h3>Super! Nun bist du bereit das Objekt zu entdecken.</h3> <p>Schaue Dir das Objekt erst einmal von allen Seiten an. Wenn es möglich ist, gehe um das Objekt herum. Wenn nicht, kannst du das Objekt auch an dem Knopf unterhalb vom Objekt drehen.</br> Es gibt zwei verschiedene Modi: die Mission und die Tools. Bei der Mission bekommst du verschiedene Aufgaben gestellt und kannst so Bücher sammeln. Bei den Tools kannst du das 3D-Objekt genauer erforschen und sehen wie so ein 3D-Objekt aufgebaut ist. </p>";
+			this.firstContactWithoutMission= "<h3>Super! Nun bist du bereit das Objekt zu entdecken.</h3><p>Schaue Dir das Objekt erst einmal von allen Seiten an. Wenn es möglich ist, gehe um das Objekt herum. Wenn nicht, kannst du das Objekt auch an dem Knopf unterhalb vom Objekt drehen.</br> Es gibt außerdem den Tools-Modus. Hier kannst du das 3D-Objekt genauer erforschen und sehen wie so ein 3D-Objekt aufgebaut ist. </p>";
+			this.welcomeMessage= '<h3>Willkommen im Entdeckermodus!</h3> <p>Hier kannst Du das Objekt im Raum platzieren. Danach kannst du Dir das 3D-Objekt genauer ansehen.</p><p>Möchtest Du den Entdecker-Modus starten?</p>';
+			this.firstContactMission = "<h3>Mission</h3> <p>Wilkommen bei deiner Mission. </br>Es gibt verschiedene Aufgaben, die du zu erledigen hast. Für jede erfolgreiche Aufgabe erhälst du ein Buch. </br> Info: Klicke oben links auf das Buch, um die Punkteübersicht anzeigen zu lassen. </br> Tipp: Gehe nah an das Objekt heran und ziele mit dem schwarzen Punkt auf ein Icon.</p>";
+			this.firstContactTool = "<h3>Tools</h3> <p>Willkommen bei den Tools. Hier kannst du das Objekt mit Clipping genauer untersuchen. Bewege die Kamera dazu nahe an das Objekt, um das Objekt abzuschneiden. Außerdem kannst du einen Schnitt festhalten mit Freeze oder die Entfernung des Schnitts einstellen. </br> Du kannst die Textur, also die Beschaffenheit der Oberfläche, sowie das Wireframe, also das visuelle Modell des 3D-Object an- bzw. ausschalten.";
+			this.goodbyeMessage = "<h3>Entdecker-Modus verlassen</h3> <p>Was möchtest du tun?</p>";
+			this.goodbyeMessageButton1 = "Entdeckermodus erneut starten";
+			this.goodbyeMessageButton2 = "Zum Modelviewer zurückkehren";
+			this.startPlacing = '<img src="' + app.assets.icon['move'].src.pearlwhite + '" alt="' + app.assets.icon['move'].alt + '" height="50px" loading="lazy" /> <p>Um das Objekt zu platzieren, suche eine freie Boden- oder Tischfläche. Das Objekt soll dort in realer Größe platziert werden.</p>';
+			this.leaveAR = '<p>Entdecker-Modus wirklich verlassen?</p>';
+			this.startPlacingButton = 'Platzierung starten!';
+	
+			this.overview = "Übersicht";
+			this.restartMissionButton = "Missionen neu starten";
+			this.missionOverviewText = [
+				"Objekte erfolgreich zugeordnet",
+				"Punkte gefunden",
+				"Fragen beantwortet",
+				"Animationen gestartet",
+				];
+			this.solveMissions = '<h3>Schließe alle Missionen ab!</h3>';
+			this.solveAllMissions = '<h3>Herzlichen Glückwunsch du hast alle Missionen erfüllt!</h3>';
+	
+			this.yes = "Ja";
+			this.no = "Nein";
+			this.allRight = "Alles klar";
+			this.place = "Platzieren";
+			this.placeNew = "Neu platzieren";
+	
+			this.placeMessages = [
+				"Bewege die Kamera entlang einer Fläche",
+				"Bewege das Objekt, indem du die Kamera bewegst. Wenn du zufrieden bist , klicke auf den Button.",
+				"Du solltest jetzt das gesamte Objekt direkt vor dir sehen. Ist es korrekt platziert?",
+				];
+	
+			this.dragDropHead = 'Drag & Drop';
+			this.falseMessages = [
+				"Ups! Das gehört hier nicht hin. Versuch's mal woanders!",
+				"Hoppla! Das passt hier leider nicht. Ab zur richtigen Stelle",
+				"Oh nein! Das fühlt sich hier nicht wohl. Versuch’s mal an einem anderen Ort!",
+				];
+	
+			this.pointHead = "Punkt gefunden";
+			this.quizHead = "Quiz";
+			this.animationHead = "Animation";
+			this.quizButton = "Antwort überprüfen";
+			this.quizFalse = "Leider falsch. Probiere es noch einmal!";
+			this.quizNull = "Bitte wähle etwas aus!";
+	
+			//texts for cursor animation
+			this.dragObject = "Objekt aufheben";
+			this.dropObject = "Objekt ablegen";
+			this.activatePoint = "Punkt aktivieren";
+			this.activateQuiz = "Quiz anzeigen";
+			this.showBook = "Buch anzeigen";
+			this.restartAnim = "Animation neu starten";
+	
+			this.rotationTip = "Klicke und ziehe hier um zu rotieren";
+			this.inventoryTip = "Klick mich, um mich abzulegen";
+			this.farAwayTip = "Gehe näher an das Objekt heran!";
+			this.clickTip = "Klicke hier!"
+			this.clickMeTip = "Klicke mich zum Ablegen";
 		},
 
 		createElements() {
 			this.sceneEl = document.createElement('a-scene');
 			document.body.appendChild(this.sceneEl);
 			this.sceneEl.setAttribute('id', 'scene');
-			this.sceneEl.setAttribute('gltf-model', 'dracoDecoderPath: ./draco/');
+			this.sceneEl.setAttribute('gltf-model', 'dracoDecoderPath: ' + app.filepaths.draco);
 			this.sceneEl.setAttribute('xr-mode-ui', 'enabled:false');
 			this.sceneEl.setAttribute('light', 'defaultLightsEnabled: false');
 			this.sceneEl.setAttribute('webxr', 'requiredFeatures: hit-test, dom-overlay, anchors; overlayElement: .gui-message-box; referenceSpaceType:local;');
 			this.sceneEl.setAttribute('controller', '');
 			this.sceneEl.setAttribute('renderer', 'stencil:true;');
-			this.sceneEl.setAttribute('tools', 'enabled:false;')
+			this.sceneEl.setAttribute('tools', 'enabled:false;');
 
 			this.assets = {};
 			this.assets.element = document.createElement('a-assets');
@@ -4686,33 +4499,33 @@ const app = {
 			this.gazeRingEl.setAttribute('animation-handler', '');
 			this.gazeRingEl.setAttribute('animation', 'property:geometry.thetaLength; from:0; to: 360; dur:2000; startEvents:startRing; pauseEvents: stopRing');
 
-			this.dropObjectEl = document.createElement('a-entity');
-			this.sceneEl.appendChild(this.dropObjectEl);
-			this.dropObjectEl.setAttribute('id', 'place-object');
-			this.dropObjectEl.setAttribute('ar-hit-test-special', '');
-			this.dropObjectEl.setAttribute('visible', 'false');
-
-			this.containerObjectEl = document.createElement('a-entity');
-			this.sceneEl.appendChild(this.containerObjectEl);
-			this.containerObjectEl.setAttribute('id', 'container');
-			this.containerObjectEl.setAttribute('hide-on-start-ar', '');
-			this.containerObjectEl.setAttribute('visible', 'false');
+			this.objectContainerEl = document.createElement('a-entity');
+			this.sceneEl.appendChild(this.objectContainerEl);
+			this.objectContainerEl.setAttribute('id', 'ar-object-container');
+			this.objectContainerEl.setAttribute('hide-on-start-ar', '');
+			this.objectContainerEl.setAttribute('visible', 'false');
 			
 			this.objectEl = document.createElement('a-entity');
-			this.containerObjectEl.appendChild(this.objectEl);
-			this.objectEl.setAttribute('id', 'object');
+			this.objectContainerEl.appendChild(this.objectEl);
+			this.objectEl.setAttribute('id', 'ar-object');
 			this.objectEl.setAttribute('class', 'collidable');
 			this.objectEl.setAttribute('get-bounding-box', '');
 			this.objectEl.setAttribute('distance-listener', '');
 			this.objectEl.setAttribute('animation-mixer', '');
 			this.objectEl.setAttribute('anchored', 'persistent:true');
 
+			this.placeObjectEl = document.createElement('a-entity');
+			this.sceneEl.appendChild(this.placeObjectEl);
+			this.placeObjectEl.setAttribute('id', 'ar-place-object');
+			this.placeObjectEl.setAttribute('ar-hit-test-special', '');
+			this.placeObjectEl.setAttribute('visible', 'false');
+
 			this.missionContainerEl = document.createElement('a-entity');
-			this.containerObjectEl.appendChild(this.missionContainerEl);
+			this.objectContainerEl.appendChild(this.missionContainerEl);
 			this.missionContainerEl.setAttribute('id', 'missions');
 
 			this.noMissionContainerEl = document.createElement('a-entity');
-			this.containerObjectEl.appendChild(this.noMissionContainerEl);
+			this.objectContainerEl.appendChild(this.noMissionContainerEl);
 			this.noMissionContainerEl.setAttribute('id', 'noMissions');
 
 			this.rotationControlEl = document.createElement('a-entity');
@@ -4737,6 +4550,3145 @@ const app = {
 			this.rotHandleEl.setAttribute('geometry', 'primitive:circle; radius: 0.3;');
 			this.rotHandleEl.setAttribute('rotation', ' 0 0 0');
 			this.rotHandleEl.setAttribute('material', 'color:#FAF0E6');
+
+			const guiArOverlay = document.createElement('div');
+			app.gui.message.boxEl.appendChild(guiArOverlay);
+			guiArOverlay.id = 'ar-overlay';
+			guiArOverlay.className = 'hide';
+
+			const bottomMenu = document.createElement('div');
+			guiArOverlay.appendChild(bottomMenu);
+			bottomMenu.className = 'bottom-menu hide';
+
+			const missionBtn = document.createElement('button');
+			bottomMenu.appendChild(missionBtn);
+			missionBtn.id = 'missionBtn';
+			missionBtn.className = 'menu-btn';
+			missionBtn.textContent = 'Mission';
+
+			const toolsBtn = document.createElement('button');
+			bottomMenu.appendChild(toolsBtn);
+			toolsBtn.id = 'toolsBtn';
+			toolsBtn.className = 'menu-btn';
+			toolsBtn.textContent = 'Tools';
+			
+			const toggleContainer = document.createElement('div');
+			guiArOverlay.appendChild(toggleContainer);
+			toggleContainer.className = 'toggle-container hide';
+
+			const replaceButton = document.createElement('button');
+			toggleContainer.appendChild(replaceButton);
+			replaceButton.className = 'message-btn';
+			replaceButton.id = 'replace-button';
+			replaceButton.textContent = 'Neu platzieren';
+
+			function createToggle(id, label, checked) {
+				const wrapper = document.createElement('div');
+				wrapper.className = 'toggle-wrapper';
+				const span = document.createElement('span');
+				wrapper.appendChild(span);
+				span.className = 'toggle-label';
+				span.textContent = label;
+				const labelSwitch = document.createElement('label');
+				wrapper.appendChild(labelSwitch);
+				labelSwitch.className = 'switch';
+				const input = document.createElement('input');
+				labelSwitch.appendChild(input);
+				input.type = 'checkbox';
+				input.id = id;
+				if (checked) input.checked = true;
+				const slider = document.createElement('span');
+				labelSwitch.appendChild(slider);
+				slider.className = 'slider';
+		
+				return wrapper;
+			}
+
+			toggleContainer.appendChild(createToggle('wireframe', 'Wireframe', false));
+			toggleContainer.appendChild(createToggle('texture', 'Textur', true));
+			toggleContainer.appendChild(createToggle('clipping', 'Clipping', true));
+			toggleContainer.appendChild(createToggle('shot', 'Freeze', false));
+			
+			function createSlider(id, label, min, max, step, value) {
+				const wrapper = document.createElement('div');
+				wrapper.className = 'slider-container';
+		
+				const span = document.createElement('span');
+				wrapper.appendChild(span);
+				span.className = 'slider-label';
+				span.textContent = label;
+		
+				const input = document.createElement('input');
+				wrapper.appendChild(input);
+				input.type = 'range';
+				input.id = id;
+				input.min = min;
+				input.max = max;
+				input.step = step;
+				input.value = value;
+		
+				return wrapper;
+			}
+
+			toggleContainer.appendChild(createSlider('distance-slider', 'Entfernung', 0.1, 1, 0.01, 0.5));
+			
+			const missionOverlay = document.createElement('div');
+			guiArOverlay.appendChild(missionOverlay);
+			missionOverlay.id = 'missionOverlay';
+			missionOverlay.className = 'hide';
+
+			this.score = {};
+			this.score.containerEl = document.createElement('div');
+			missionOverlay.appendChild(this.score.containerEl);
+			this.score.containerEl.id = 'score-container';
+			this.score.containerEl.className = 'book-container';
+
+			this.score.image = document.createElement('img');
+			this.score.containerEl.appendChild(this.score.image);
+			this.score.image.src = app.assets.ar.marker['book'].src; 
+			this.score.image.alt = app.assets.ar.marker['book'].alt;
+			this.score.image.setAttribute('loading', 'lazy');
+
+			this.score.element = document.createElement('span');
+			this.score.containerEl.appendChild(this.score.element);
+			this.score.element.id = 'score';
+			this.score.element.textContent = '0/0';
+
+			this.inventoryEl = document.createElement('div');
+			missionOverlay.appendChild(this.inventoryEl);
+			this.inventoryEl.id = 'inventory';
+
+			this.close = {};
+			this.close.element = document.createElement('button');
+			document.body.appendChild(this.close.element);
+			this.close.element.id = 'gui-ar-close-button';
+			this.close.element.className = 'gui-ar-close-button hide';
+			this.close.element.setAttribute('aria-label', 'AR-Schließen-Button');
+
+			this.close.element.image = document.createElement('img');
+			this.close.element.appendChild(this.close.element.image);
+			this.close.element.image.src = app.assets.icon.small['close'].src.pearlwhite;
+			this.close.element.image.alt = app.assets.icon.small['close'].alt;
+			this.close.element.image.className = 'icon';
+			this.close.element.image.width = 100;
+			this.close.element.image.height = 100;
+			this.close.element.image.setAttribute('loading', 'lazy');
+
+			//close popup
+			this.close.popup = {};
+			this.close.popup.containerEl = document.createElement('div');
+			app.gui.message.boxEl.appendChild(this.close.popup.containerEl);
+			this.close.popup.containerEl.className = 'gui-ar-close-popup-container hide';
+			this.close.popup.containerEl.id = 'gui-ar-close-popup';
+
+			this.close.popup.element = document.createElement('div');
+			this.close.popup.containerEl.appendChild(this.close.popup.element);
+			this.close.popup.element.classList.add('gui-ar-close-popup', 'terracotta');
+
+			this.close.popup.content = {};
+			this.close.popup.content.containerEl = document.createElement('div');
+			this.close.popup.element.appendChild(this.close.popup.content.containerEl);
+			this.close.popup.content.containerEl.className = 'content-container';
+
+			this.close.popup.content.element = document.createElement('div');
+			this.close.popup.content.containerEl.appendChild(this.close.popup.content.element);
+			this.close.popup.content.element.className= 'content';
+			this.close.popup.content.element.innerHTML = '<p> Entdecker-Modus wirklich verlassen? </p>';
+			
+			this.close.popup.button = {};
+			this.close.popup.button.containerEl = document.createElement('div');
+			this.close.popup.element.appendChild(this.close.popup.button.containerEl);
+			this.close.popup.button.containerEl.className = 'button-container';
+			
+			this.close.popup.button.buttonArray = [];
+			this.close.popup.button.buttonArray[0] = document.createElement('button');
+			this.close.popup.button.containerEl.appendChild(this.close.popup.button.buttonArray[0]);
+			this.close.popup.button.buttonArray[0].classList.add('button', 'pearlwhite', 'shadow-coalgrey');
+			this.close.popup.button.buttonArray[0].textContent = 'Ja';
+			this.close.popup.button.buttonArray[0].setAttribute('aria-label', 'Ja-Button');
+			
+			this.close.popup.button.buttonArray[1] = document.createElement('button');
+			this.close.popup.button.containerEl.appendChild(this.close.popup.button.buttonArray[1]);
+			this.close.popup.button.buttonArray[1].classList.add('button', 'pearlwhite', 'shadow-coalgrey');
+			this.close.popup.button.buttonArray[1].textContent = 'Nein';
+			this.close.popup.button.buttonArray[1].setAttribute('aria-label', 'Nein-Button');
+
+			const helpContainer = document.createElement('div');
+			guiArOverlay.appendChild(helpContainer);
+			helpContainer.id = 'help-cont';
+			helpContainer.className = 'help-container hide';
+
+			var helpSymbol = document.createElement('img');
+			helpContainer.appendChild(helpSymbol);
+			helpSymbol.src = app.assets.ar.marker['quiz'].src;
+			helpSymbol.alt = app.assets.ar.marker['quiz'].alt;
+			helpSymbol.className = 'help-symbol';
+			helpSymbol.setAttribute('loading', 'lazy');
+			
+			const tooltipAR = document.createElement('div');
+			this.tooltipElAr = tooltipAR;
+			app.gui.message.boxEl.appendChild(tooltipAR);
+			tooltipAR.className = 'cv-tooltip hide';
+		
+			const tooltipContentAR = document.createElement('div');
+			this.tooltipContentElAr = tooltipContentAR;
+			tooltipAR.appendChild(tooltipContentAR);
+			tooltipContentAR.classList.add('cv-tooltip-content', 'duckyellow');
+			
+			const tooltipOverlay = document.createElement('div');
+			this.tooltipElOverlay = tooltipOverlay;
+			app.gui.message.boxEl.appendChild(tooltipOverlay);
+			tooltipOverlay.className = 'cv-tooltip hide';
+		
+			const tooltipContentOverlay = document.createElement('div');
+			this.tooltipContentElOverlay = tooltipContentOverlay;
+			tooltipOverlay.appendChild(tooltipContentOverlay);
+			tooltipContentOverlay.classList.add('cv-tooltip-content', 'skyblue');
+		}, 
+
+		registerComponents() {
+			//CONTROLLER: loads JSON model, missions, gui | controls start and first Contact | states:  raycaster, tools, missions, inventory, score, reverse, noMissions
+			AFRAME.registerComponent("controller", {
+
+			  schema: {
+				raycaster: { type: "boolean", default: false },
+				inventory: { type: "boolean", default: false },
+				rotate: { type: "boolean", default: false },
+				reverse: { type: "boolean", default: false },
+				mission: { type: "boolean", default: false },
+				tool: { type: "boolean", default: false },
+				noMission: { type: "boolean", default: false },
+			  },
+
+			  init: function () {
+				let self = this;
+
+				//bind methods
+				this.showMissionPopup = this.showMissionPopup.bind(this);
+				this.solveMission = this.solveMission.bind(this);
+				this.restartMissions = this.restartMissions.bind(this);
+				this.resetScore = this.resetScore.bind(this);
+				this.startAR = this.startAR.bind(this);
+				this.cancelAR = this.cancelAR.bind(this);
+				this.activatePreparation = this.activatePreparation.bind(this);
+				this.activateMission = this.activateMission.bind(this);
+				this.resetActivatedMissions = this.resetActivatedMissions.bind(this);
+
+				//load JSON 
+				self.loadJSON();
+
+				//init gui
+				self.initGui();
+
+				//interaction pause/play listener for rotation and popups
+				let currentMission, currentTool;
+				self.el.addEventListener("pause-interaction", function (event) {
+				  let rotateBool = event.detail.rotate;
+
+				  let toolsBool = event.detail.tools ? event.detail.tools : false;
+				  currentMission = self.data.mission;
+				  currentTool = self.data.tool;
+				  self.el.setAttribute("controller", {
+					raycaster: false,
+					tool: toolsBool,
+					mission: false,
+					inventory: false,
+					rotate: rotateBool,
+					noMission: false,
+				  });
+				});
+
+				self.el.addEventListener("play-interaction", function (event) {
+				  let rotateBool = event.detail.rotate;
+				  let noMissionBool = !app.arViewer.inMission && !currentMission && !currentTool ? true : false;
+				  self.el.setAttribute("controller", {
+					raycaster: noMissionBool ? noMissionBool : currentMission,
+					tool: currentTool,
+					mission: currentMission,
+					inventory: currentMission,
+					rotate: rotateBool,
+					noMission: noMissionBool,
+				  });
+				});
+			  },
+
+			  update: function () {
+				//turns on or off the components or/and the visibility
+
+				let self = this;
+
+				//reverse missions
+				if (this.data.reverse) {
+				  for (let element of this.inventory) {
+					element.place.classList.remove("clicked");
+					if (!element.place.classList.contains("hide"))
+					  element.place.classList.add("hide");
+					element.el.classList.remove("selected");
+				  }
+
+				  this.inventory.length = 0;
+
+				  self.el.emit("missions-reversed", null, false);
+				  this.resetActivatedMissions();
+
+				  //reset score
+				  this.resetScore();
+				  self.el.setAttribute("controller", "reverse", false);
+
+				  return;
+				}
+
+				// on or off raycaster
+				if (this.data.raycaster && self.el.camera.el.children[0]) {
+				  self.el.camera.el.children[0].setAttribute("raycaster", "enabled", "true");
+				  self.el.camera.el.children[0].object3D.visible = true;
+				} else if(self.el.camera.el.children[0]){
+				  self.el.camera.el.children[0].setAttribute("raycaster", "enabled", "false");
+				  self.el.camera.el.children[0].object3D.visible = false;
+				}
+
+				// show or hide inventory
+				const inventory = document.querySelector("#inventory");
+				if (this.data.inventory) {
+				  inventory.classList.remove("hide");
+				} else {
+				  inventory.classList.add("hide");
+				}
+
+				//on or off rotate
+				const rotHandle = document.getElementById("touch-circle");
+				if (this.data.rotate) {
+				  rotHandle.setAttribute("rotation-handler", "enabled", "true");
+				} else {
+				  rotHandle.setAttribute("rotation-handler", "enabled", "false");
+				}
+
+				//no mission mode 
+				const noMissionCont = document.getElementById("noMissions");
+				const object = document.getElementById("ar-object");
+				if (this.data.noMission) {
+				  noMissionCont.object3D.visible = true;
+				} else {
+				  noMissionCont.object3D.visible = false;
+				}
+
+				//mission mode
+				const missionCont = document.getElementById("missions");
+				const missionOverlay = document.getElementById("missionOverlay");
+
+				if (this.data.mission) {
+				  app.arViewer.missionMode = true;
+				  missionCont.object3D.visible = true;
+				  missionOverlay.classList.remove("hide");
+				  object.setAttribute("distance-listener", "enabled", "true");
+				} else {
+				  app.arViewer.missionMode = false;
+				  missionCont.object3D.visible = false;
+				  missionOverlay.classList.add("hide");
+				  object.setAttribute("distance-listener", "enabled", "false");
+				}
+
+				//tool mode
+				const toolsCont = document.querySelector(".toggle-container");
+				if (this.data.tool) {
+				  app.arViewer.toolMode = true;
+				  self.el.setAttribute("tools", "enabled", true);
+				  toolsCont.classList.remove('hide');
+				} else {
+				  if (this.modelLoaded) {
+					app.arViewer.toolMode = false;
+					self.el.setAttribute("tools", "enabled", false);
+					toolsCont.classList.add('hide');
+				  }
+				}
+			  },
+
+			  startAR: function () {
+				app.gui.message.buttons.button[1].element.removeEventListener('click', this.cancelAR);
+				this.el.enterAR();
+			  },
+
+			  cancelAR: function () {
+				let url = '?m=mv&model=' + app.primaryKey;
+				app.dev ? url += '&dev=true' : '';
+				window.location.href = url;
+			  },
+
+			  initGui: function () {
+				let self = this;
+
+				const domOverlay = document.getElementById("ar-overlay");
+				const missionBtn = document.getElementById("missionBtn");
+				const toolsBtn = document.getElementById("toolsBtn");
+				const replaceButton = document.getElementById("replace-button");
+				const wireframe = document.getElementById("wireframe");
+				const clipping = document.getElementById("clipping");
+				const texture = document.getElementById("texture");
+				const freezeShot = document.getElementById("shot");
+				const distanceSlider = document.getElementById("distance-slider");
+				const closeButton = document.querySelector("#gui-ar-close-button");
+				const helpCont = document.querySelector('.help-container');
+				const helpButton = document.querySelector('.help-symbol');
+
+				//first contact variables
+				self.firstContactMission = false;
+				self.firstContactTool = false;
+				self.firstContactInventory = false;
+
+				//after model loaded show welcome message
+				self.el.addEventListener("model-loaded", function (e) {
+					const arButtonEl = document.querySelector(app.modelViewer.ar.buttonSetup.id);
+					const colors = JSON.parse(arButtonEl.getAttribute('data-colors'));
+					const func = arButtonEl.getAttribute('data-func');
+					const iconElement = arButtonEl.querySelector('.icon');
+					iconElement.src = app.assets.icon[func].src['pearlwhite'];
+					arButtonEl.classList.add(colors.button.background);
+					arButtonEl.classList.remove('disabled');
+				  !self.modelLoaded && arButtonEl.addEventListener('click', self.startAR, { once: true });
+				  self.modelLoaded = true;
+				});
+
+				//after start AR
+				self.el.addEventListener("enter-vr", function (e) {
+				  //show welcome message
+				  let message = {
+					type: null,
+					content: app.arViewer.startPlacing,
+					color: 'terracotta',
+					shadow: null,
+					buttonSetup: [
+					  { label: app.arViewer.startPlacingButton, color: 'pearlwhite', shadow: 'coalgrey' }
+					  ],
+					showClose: false,
+				  }
+
+				  app.gui.message.setMessage(message);
+				  app.gui.message.buttons.button[0].element.addEventListener('click', (e) => {
+					self.el.emit("ready-for-placing", null, true);
+				  }, { once: true });
+
+				  domOverlay.classList.remove("hide");
+				  activateButton(null);
+				});
+
+				//after object is placed, gets information if first contact from local storage
+				self.el.addEventListener("placingAchieved", function (e) {
+				  helpCont.classList.remove("hide");
+				  let storedValue = JSON.parse(localStorage.getItem('firstContact'));
+				  if (storedValue === false) self.firstContact = storedValue;
+				  else self.firstContact = e.detail;
+				  if (self.firstContact) {
+					let message = {
+					  type: null,
+					  content: self.missionExisting ? app.arViewer.firstContactWithMission : app.arViewer.firstContactWithoutMission,
+					  color: 'skyblue', 
+					  shadow: null,
+					  buttonSetup: null,
+					  showClose: true
+					}
+					self.el.emit("showFirstContactMessage", null, false);
+					app.gui.message.setMessage(message);
+					app.gui.message.closeEl.addEventListener('click', (evt) => {
+					  let rotation = document.getElementById('rot-handle');
+					  self.el.setAttribute('controller', {
+						raycaster: true,
+						tool: false,
+						mission: false,
+						inventory: false,
+						rotate: true,
+						noMission: true
+					  });
+					  self.el.emit('start-tooltip', { description: app.arViewer.rotationTip, point: rotation }, true);
+					}, { once: true });
+				  } else {
+					self.el.setAttribute('controller', {
+					  raycaster: true,
+					  tool: false,
+					  mission: false,
+					  inventory: false,
+					  rotate: true,
+					  noMission: true
+					});
+				  }
+				});
+
+				// exit ar mode
+				self.el.addEventListener("exit-vr", function () {
+				  self.cancelAR();
+				});
+
+				// menu for mission and tools
+				function activateButton(button) {
+				  missionBtn.classList.remove("active");
+				  toolsBtn.classList.remove("active");
+				  if (button != null) button.classList.add("active");
+				}
+				//if ar mode is used for the first time
+				self.el.addEventListener("showFirstContactMessage", function () {
+				  self.firstContactMission = true;
+				  self.firstContactTool = true;
+				  self.firstContactInventory = true;
+				})
+				// mission menu button clicked
+				missionBtn.addEventListener("click", () => {
+				  if (missionBtn.classList.contains('active')) {
+					self.el.setAttribute("controller", {
+					  mission: false,
+					  tool: false,
+					  rotate: true,
+					  raycaster: app.arViewer.inMission ? false : true,
+					  inventory: false,
+					  noMission: app.arViewer.inMission ? false : true,
+					})
+					activateButton(null);
+
+				  } else {
+					activateButton(missionBtn);
+					if (self.firstContactMission) {
+					  let message = {
+						type: null,
+						content: app.arViewer.firstContactMission,
+						color: 'terracotta',
+						shadow: null,
+						buttonSetup: [
+						  { label: app.arViewer.allRight, color: 'pearlwhite', shadow: 'coalgrey' }
+						  ],
+						showClose: false
+					  }
+					  app.gui.message.setMessage(message);
+					  self.el.setAttribute("controller", {
+						mission: true,
+						tool: false,
+						raycaster: false,
+						rotate: false,
+						inventory: false,
+						noMission: false
+					  });
+					  app.gui.message.buttons.button[0].element.addEventListener('click', () => {
+						app.gui.message.hideMessage();
+						self.el.setAttribute("controller", {
+						  mission: true,
+						  tool: false,
+						  rotate: true,
+						  raycaster: true,
+						  inventory: true,
+						  noMission: false
+						});
+					  }, { once: true });
+					  self.firstContactMission = false;
+
+					} else {
+					  self.el.setAttribute("controller", {
+						mission: true,
+						tool: false,
+						raycaster: true,
+						rotate: true,
+						inventory: true,
+						noMission: false
+					  });
+					}
+					if (!app.arViewer.inMission) {
+					  app.arViewer.inMission = true;
+					  //start preparation
+					  self.activatePreparation();
+					}
+				  }
+				});
+
+				//tools menu button clicked
+				toolsBtn.addEventListener("click", () => {
+				  if (toolsBtn.classList.contains('active')) {
+					self.el.setAttribute("controller", {
+					  mission: false,
+					  tool: false,
+					  rotate: true,
+					  raycaster: app.arViewer.inMission ? false : true,
+					  inventory: false,
+					  noMission: app.arViewer.inMission ? false : true,
+					})
+					activateButton(null);
+				  } else {
+					activateButton(toolsBtn);
+					if (self.firstContactTool) {
+
+					  self.el.setAttribute("controller", {
+						mission: false,
+						tool: false,
+						rotate: false,
+						raycaster: false,
+						inventory: false,
+						noMission: false
+					  });
+
+					  let message = {
+						type: null,
+						content: app.arViewer.firstContactTool,
+						color: 'terracotta',
+						shadow: null,
+						buttonSetup: [
+						  { label: app.arViewer.allRight, color: 'pearlwhite', shadow: 'coalgrey' }
+						  ], 
+						showClose: false
+					  }
+					  app.gui.message.setMessage(message);
+
+					  app.gui.message.buttons.button[0].element.addEventListener('click', () => {
+						app.gui.message.hideMessage();
+						self.el.setAttribute("controller", {
+						  mission: false,
+						  tool: true,
+						  rotate: true,
+						  raycaster: false,
+						  inventory: false,
+						  noMission: false
+						});
+					  }, { once: true });
+
+					  self.firstContactTool = false;
+					} else {
+					  self.el.setAttribute("controller", {
+						mission: false,
+						tool: true,
+						rotate: true,
+						raycaster: false,
+						inventory: false,
+						noMission: false
+					  });
+					}
+				  }
+
+				});
+				//replace object button
+				replaceButton.addEventListener("click", function () {
+				  self.el.emit("new-placement", null, true);
+				  self.el.setAttribute("controller", {
+					rotate: false,
+					raycaster: false,
+					mission: false,
+					tool: false,
+				  });
+				  activateButton(null);
+				});
+				//tools toggle wireframe
+				wireframe.addEventListener("change", () => {
+				  wireframe.checked
+					? self.el.setAttribute("tools", "wireframe", "true")
+					: self.el.setAttribute("tools", "wireframe", "false");
+				});
+				//tools toggle texture
+				texture.addEventListener("change", () => {
+				  texture.checked
+					? self.el.setAttribute("tools", "texture", "true")
+					: self.el.setAttribute("tools", "texture", "false");
+				});
+				//tools toggle clipping
+				clipping.addEventListener("change", () => {
+				  if (clipping.checked) {
+					self.el.setAttribute("tools", "clipping", "true");
+					freezeShot.parentElement.parentElement.classList.remove('hide');
+					distanceSlider.parentElement.classList.remove('hide');
+				  } else {
+					self.el.setAttribute("tools", "clipping", "false");
+					freezeShot.parentElement.parentElement.classList.add('hide');
+					distanceSlider.parentElement.classList.add('hide');
+				  }
+				});
+				//tools toggle freeze
+				freezeShot.addEventListener("change", () => {
+				  freezeShot.checked
+					? self.el.setAttribute("tools", "shot", "true")
+					: self.el.setAttribute("tools", "shot", "false");
+				});
+				//tools slider distance plane
+				distanceSlider.addEventListener('input', (event) => {
+				  self.el.emit("distance-changed", { dist: event.target.value }, false);
+				})
+				//blocks rotation for slider input
+				distanceSlider.addEventListener('touchstart', (event) => {
+				  self.el.emit("pause-interaction", { rotate: false, tools: true }, false);
+				})
+
+				distanceSlider.addEventListener('touchend', (event) => {
+				  self.el.emit("play-interaction", { rotate: true }, false);
+				})
+
+				//close button listener
+				closeButton.addEventListener("click", closeAR);
+
+				function closeAR(event) {
+				  self.el.emit("pause-interaction", { rotate: false }, false);
+				  let noMessage = app.gui.message.containerEl.classList.contains("hide");
+				  if (!noMessage) {
+					app.gui.message.containerEl.classList.add('hide');
+				  }
+				  const closePopup = document.getElementById('gui-ar-close-popup');
+				  closePopup.classList.remove('hide');
+
+				  app.gui.arViewer.close.button.buttonArray[0].addEventListener('click', exitAR, { once: true });
+				  app.gui.arViewer.close.button.buttonArray[1].addEventListener('click', stayInAR, { once: true });
+				  function exitAR(event) {
+					app.gui.arViewer.close.button.buttonArray[0].removeEventListener('click', stayInAR);
+					closePopup.classList.add('hide');
+					self.el.exitVR();
+				  }
+				  function stayInAR(event) {
+					if (!noMessage) {
+					  app.gui.message.containerEl.classList.remove('hide');
+					}
+					app.gui.arViewer.close.button.buttonArray[0].removeEventListener('click', exitAR);
+					closePopup.classList.add('hide');
+					self.el.emit("play-interaction", { rotate: true }, false);
+				  }
+				}
+
+				//help button
+				helpButton.addEventListener("click", (e) => {
+				  let message;
+				  if (app.arViewer.toolMode) {
+					message = {
+					  type: null,
+					  content: app.arViewer.firstContactTool,
+					  color: 'terracotta',
+					  shadow: null,
+					  buttonSetup: null,
+					  showClose: true
+					}
+				  }
+				  else if (app.arViewer.missionMode) {
+					message = {
+					  type: null,
+					  content: app.arViewer.firstContactMission,
+					  color: 'skyblue',
+					  shadow: null,
+					  buttonSetup: null,
+					  showClose: true
+					}
+				  } else {
+					message = {
+					  type: null,
+					  content: self.missionExisting ? app.arViewer.firstContactWithMission : app.arViewer.firstContactWithoutMission,
+					  color: 'duckyellow',
+					  shadow: null,
+					  buttonSetup: null,
+					  showClose: true
+					}
+				  }
+				  self.el.emit("pause-interaction", { rotate: false }, true);
+				  app.gui.message.setMessage(message);
+				  app.gui.message.closeEl.addEventListener('click', () => {
+					app.gui.message.hideMessage();
+					self.el.emit("play-interaction", { rotate: true }, false);
+				  }, { once: true });
+				})
+			  },
+
+			  loadJSON: function () {
+				let self = this;
+				fetch(app.filepaths.files + 'json/' + app.primaryKey + '.json')
+				  .then((response) => response.json())
+				  .then((json) => {
+					self.loadModel(json);
+					// init mission if tasks is declared
+					if (json.appData.tasks.length > 0) {
+					  self.loadMissions(json);
+					  self.missionExisting = true;
+					  //missions
+					  self.initMissions(json);
+					  //mission UI
+					  self.initMissionUI();
+					} else {
+					  self.hideMissionBtn();
+					  self.missionExisting = false;
+					}
+					app.dev && console.log('dev --- arViewer > json: \n', json);
+				  })
+				  .catch((error) => {
+					app.dev && console.error("There was a problem with the fetch operation:", error);
+				  });
+			  },
+
+			  hideMissionBtn: function () {
+				let missionButton = document.getElementById('missionBtn');
+				missionButton.classList.add("hide");
+			  },
+
+			  loadModel: function (json) {
+				const object = document.getElementById("ar-object");
+				const placeObject = document.getElementById("ar-place-object");
+				const gltf_src = json.appData.model.animation ? `url(${app.filepaths.files + json.appData.model.animation})` : `url(${app.filepaths.files + json.appData.model.quality2k})`;
+				const gltf_src_orig = app.filepaths.files + json.appData.model.quality2k;
+
+				app.gltfLoader.load(
+				  gltf_src_orig,
+				  function (gltf) {
+					//app.dev && console.log("dev --- gltf.scene", gltf.scene);
+					app.arViewer.originalObject = gltf.scene;
+					object.setAttribute("gltf-model", gltf_src);
+					placeObject.setAttribute("gltf-model", gltf_src);
+				  },
+				  function (xhr) {
+					//app.dev && console.log('dev --- ' + (xhr.loaded / xhr.total * 100) + '% loaded');
+				  },
+				  // called when loading has errors
+				  function (error) {
+					app.dev && console.log('An error happened', error);
+				  }
+				)
+			  },
+
+			  loadMissions: function (json) {
+				let self = this;
+				const missionsContainer = document.getElementById("missions");
+				const noMissionsContainer = document.getElementById("noMissions");
+				//radius of model calculated
+				this.el.addEventListener("radius-set", function (event) {
+				  //radius of the collidable visible points
+				  let radius = event.detail.maxSize / 15;
+				  //radius of the toolidable unvisible points
+				  let bigRadius = event.detail.maxSize / 5;
+
+				  for (let i = 0; i < json.appData.tasks.length; i++) {
+					let currentTask = json.appData.tasks[i];
+					let taskEl = document.createElement("a-entity");
+					let currentClass = currentTask.id;
+					taskEl.classList.add(currentClass);
+					taskEl.classList.add(currentTask.taskType);
+					switch (currentTask.taskType) {
+					  case "dragDrop":
+						taskEl.setAttribute("drag-drop-task", {
+						  name: currentTask.name,
+						  description_drag: currentTask.descriptionDrag,
+						  description_drop: currentTask.descriptionDrop,
+						  src_image: currentTask.symbol.imageType === "image" ? app.filepaths.files + app.filepaths.annotationMedia + currentTask.symbol.filename : app.filepaths.assets + currentTask.symbol.filename,
+						  alt_image: currentTask.symbol.imageAlt,
+						  caption_image: currentTask.symbol.imageCaption,
+						  copyright_image: currentTask.symbol.fileCopyright,
+
+						});
+						let dragElement = document.createElement("a-entity");
+						dragElement.classList.add(currentClass, "drag");
+
+						dragElement.setAttribute("geometry", {
+						  primitive: "circle",
+						  radius: radius,
+						});
+						if (currentTask.searchable == 0) {
+						  dragElement.setAttribute("material", {
+							shader: "flat",
+							src: '#dragIcon',
+							transparent: true,
+						  });
+						} else {
+						  dragElement.setAttribute("material", {
+							shader: "flat",
+							src: "#sprite",
+							transparent: true,
+						  });
+						  dragElement.setAttribute("spritesheet-animation", {
+							rows: 4,
+							columns: 4,
+							frameDuration: 0.08,
+							loop: true,
+						  });
+						}
+						dragElement.setAttribute("collider-check", {
+						  description: app.arViewer.dragObject,
+						});
+						dragElement.setAttribute("distance-tracker", "");
+						dragElement.setAttribute(
+						  "position",
+						  formatPos(currentTask.positionDrag)
+						);
+						dragElement.setAttribute("rotation", "-90 0 0");
+
+						taskEl.appendChild(dragElement);
+						let dragTipElement = document.createElement("a-entity");
+						dragTipElement.classList.add(currentClass, "drag");
+						dragTipElement.setAttribute("geometry", {
+						  primitive: "circle",
+						  radius: bigRadius,
+						});
+						dragTipElement.setAttribute("collider-check", {
+						  description: app.arViewer.dragObject,
+						});
+						dragTipElement.setAttribute("position",
+						  formatPos(currentTask.positionDrag));
+						dragTipElement.setAttribute("rotation", "-90 0 0");
+						dragTipElement.object3D.visible = false;
+						taskEl.appendChild(dragTipElement);
+						if (!currentTask.dependable) {
+						  dragElement.classList.add("collidable");
+						  dragTipElement.classList.add("toolidable");
+						} else {
+						  dragElement.object3D.visible = false;
+						}
+
+						let dropElement = document.createElement("a-entity");
+						dropElement.classList.add(currentClass, "drop");
+						dropElement.setAttribute("geometry", {
+						  primitive: "plane",
+						  height: radius * 2,
+						  width: radius * 2,
+						});
+						dropElement.setAttribute("material", {
+						  shader: "flat",
+						  src: "#placer",
+						  transparent: true,
+						});
+						dropElement.setAttribute("collider-check", {
+						  description: app.arViewer.dropObject,
+						});
+						dropElement.setAttribute("turn-to-camera", "");
+						dropElement.object3D.visible = false;
+						dropElement.setAttribute(
+						  "position",
+						  formatPos(currentTask.positionDrop)
+						);
+						taskEl.appendChild(dropElement);
+						let dropTipElement = document.createElement("a-entity");
+						dropTipElement.classList.add(currentClass, "tipDrop");
+						dropTipElement.setAttribute("geometry", {
+						  primitive: "circle",
+						  radius: bigRadius,
+						});
+						dropTipElement.setAttribute("collider-check", {
+						  description: app.arViewer.dropObject,
+						});
+						dropTipElement.setAttribute("position",
+						  formatPos(currentTask.positionDrop));
+						dropTipElement.setAttribute("turn-to-camera", "");
+						dropTipElement.object3D.visible = false;
+						taskEl.appendChild(dropTipElement);
+						break;
+					  case "point":
+						taskEl.setAttribute("point-task", {
+						  name: currentTask.name,
+						  description: currentTask.description,
+						  searchable: currentTask.searchable,
+						});
+						if (currentTask.image) {
+						  taskEl.setAttribute("point-task", {
+							src_image: app.filepaths.files + app.filepaths.annotationMedia + currentTask.image.filename,
+							alt_image: currentTask.image.imageAlt,
+							caption_image: currentTask.image.imageCaption,
+							copyright_image: currentTask.image.fileCopyright,
+						  })
+						}
+						if (currentTask.audio) {
+						  taskEl.setAttribute("point-task", {
+							src_audio: app.filepaths.files + app.filepaths.annotationMedia + currentTask.audio.filename,
+							copyright_audio: currentTask.audio.fileCopyright
+						  });
+						}
+						let element = document.createElement("a-entity");
+						element.classList.add(currentClass);
+
+						element.setAttribute("geometry", {
+						  primitive: "circle",
+						  radius: radius,
+						});
+						if (currentTask.searchable == 0) {
+						  element.setAttribute("material", {
+							shader: "flat",
+							src: '#exclamation',
+							transparent: true,
+						  });
+						} else {
+						  element.setAttribute("material", {
+							shader: "flat",
+							src: "#sprite",
+							transparent: true,
+						  });
+						  element.setAttribute("spritesheet-animation", {
+							rows: 4,
+							columns: 4,
+							frameDuration: 0.08,
+							loop: true,
+						  });
+						}
+						element.setAttribute("collider-check", {
+						  description: app.arViewer.activatePoint,
+						});
+						element.setAttribute("distance-tracker", "");
+						element.setAttribute("turn-to-camera", "");
+						element.setAttribute("position", formatPos(currentTask.position));
+						taskEl.appendChild(element);
+						let tipElement = document.createElement("a-entity");
+						tipElement.classList.add(currentClass);
+						tipElement.setAttribute("geometry", {
+						  primitive: "circle",
+						  radius: bigRadius,
+						});
+						tipElement.setAttribute("collider-check", {
+						  description: app.arViewer.activatePoint,
+						});
+						tipElement.setAttribute("position",
+						  formatPos(currentTask.position));
+						tipElement.setAttribute("turn-to-camera", "");
+						tipElement.object3D.visible = false;
+						taskEl.appendChild(tipElement);
+						if (!currentTask.dependable) {
+						  element.classList.add("collidable");
+						  tipElement.classList.add("toolidable");
+						} else {
+						  element.object3D.visible = false;
+						}
+
+						break;
+					  case "quiz":
+						taskEl.setAttribute("quiz-task", {
+						  name: currentTask.name,
+						  description: currentTask.description,
+						  answers: currentTask.answers,
+						  rightAnswer: currentTask.rightAnswer,
+						  searchable: currentTask.searchable,
+						});
+						let quizEl = document.createElement("a-entity");
+						quizEl.classList.add(currentClass);
+
+						quizEl.setAttribute("geometry", {
+						  primitive: "circle",
+						  radius: radius,
+						});
+						if (currentTask.searchable === 0) {
+						  quizEl.setAttribute("material", {
+							shader: "flat",
+							src: "#question",
+							transparent: true,
+						  });
+						}
+						else {
+						  quizEl.setAttribute("material", {
+							shader: "flat",
+							src: "#sprite",
+							transparent: true,
+						  });
+						  quizEl.setAttribute("spritesheet-animation", {
+							rows: 4,
+							columns: 4,
+							frameDuration: 0.08,
+							loop: true,
+						  });
+						}
+
+						quizEl.setAttribute("collider-check", {
+						  description: app.arViewer.activateQuiz,
+						});
+						quizEl.setAttribute("distance-tracker", "");
+						quizEl.setAttribute("turn-to-camera", "");
+						quizEl.setAttribute("position", formatPos(currentTask.position));
+						taskEl.appendChild(quizEl);
+						let tipQuizEl = document.createElement("a-entity");
+						tipQuizEl.classList.add(currentClass);
+						tipQuizEl.setAttribute("geometry", {
+						  primitive: "circle",
+						  radius: bigRadius,
+						});
+						tipQuizEl.setAttribute("collider-check", {
+						  description: app.arViewer.activateQuiz,
+						});
+						tipQuizEl.setAttribute("position",
+						  formatPos(currentTask.position));
+						tipQuizEl.setAttribute("turn-to-camera", "");
+						tipQuizEl.object3D.visible = false;
+						taskEl.appendChild(tipQuizEl);
+						if (!currentTask.dependable) {
+						  quizEl.classList.add("collidable");
+						  tipQuizEl.classList.add("toolidable");
+						} else {
+						  quizEl.object3D.visible = false;
+						}
+
+						break;
+					  case "animation":
+						taskEl.setAttribute("animation-task", {
+						  name: currentTask.name,
+						  repetition: currentTask.animLoop,
+						  animName: currentTask.animName,
+						  animFinished: currentTask.animFinished,
+						  deactivatesAnimName: currentTask.deactivatesAnimName,
+						  descriptionStart: currentTask.descriptionStart,
+						  descriptionEnd: currentTask.descriptionEnd
+
+						})
+						let animationEl = document.createElement("a-entity");
+						animationEl.classList.add(currentClass);
+						animationEl.setAttribute("geometry", {
+						  primitive: "circle",
+						  radius: radius,
+						});
+						animationEl.setAttribute("material", {
+						  shader: "flat",
+						  src: "#playAnim",
+						  transparent: true,
+						});
+						animationEl.setAttribute("collider-check", {
+						  description: currentTask.name,
+						});
+						animationEl.setAttribute("distance-tracker", "");
+						animationEl.setAttribute("turn-to-camera", "");
+						animationEl.setAttribute("position", formatPos(currentTask.position));
+						taskEl.appendChild(animationEl);
+
+						let tipAnimEl = document.createElement("a-entity");
+						tipAnimEl.classList.add(currentClass);
+						tipAnimEl.setAttribute("geometry", {
+						  primitive: "circle",
+						  radius: bigRadius,
+						});
+						tipAnimEl.setAttribute("collider-check", {
+						  description: currentTask.name,
+						});
+						tipAnimEl.setAttribute("position",
+						  formatPos(currentTask.position));
+						tipAnimEl.setAttribute("turn-to-camera", "");
+						tipAnimEl.object3D.visible = false;
+						taskEl.appendChild(tipAnimEl);
+						if (!currentTask.dependable) {
+						  animationEl.classList.add("collidable");
+						  tipAnimEl.classList.add("toolidable");
+						} else {
+						  animationEl.object3D.visible = false;
+						}
+
+						break;
+					  case "preparation":
+						self.preparation = currentTask.animName;
+						continue;
+					}
+
+					if (currentTask.mission) {
+					  missionsContainer.appendChild(taskEl);
+					} else {
+					  taskEl.classList.add("noMission");
+					  noMissionsContainer.appendChild(taskEl);
+					}
+				  }
+				  function formatPos(position) {
+					return position.replace(/m/g, "");
+				  }
+				  self.initInventory();
+				}, { once: true });
+			  },
+
+			  initMissionUI: function () {
+				let self = this;
+				self.completed = false;
+
+				//init points UI overview
+				this.scoreField = document.getElementById("score");
+				this.scoreField.textContent = `0/${this.sumPoints}`;
+
+				//click listener
+				const scoreCont = document.getElementById("score-container");
+				scoreCont.addEventListener("click", function (e) {
+				  scoreCont.classList.add("hide");
+				  self.showMissionPopup(self.completed);
+				  self.el.setAttribute("controller", {
+					raycaster: false,
+					inventory: false,
+					rotate: false,
+				  });
+				});
+			  },
+
+			  initMissions: function (json) {
+				let self = this;
+				//global variables
+				self.missions = [];
+				self.noMissions = [];
+				self.sumPointsPerCategory = { dragDrop: 0, point: 0, quiz: 0, animation: 0 };
+				self.currentPointsPerCategory = { dragDrop: 0, point: 0, quiz: 0, animation: 0 };
+				self.sumPoints = 0
+				self.currentPoints = 0;
+
+				// init missions array and sum points per category
+				for (let mission of json.appData.tasks) {
+				  if (mission.mission) {
+					self.missions.push({
+					  taskType: mission.taskType,
+					  id: mission.id,
+					  done: false,
+					  activates: mission.activates,
+					  depends: mission.dependable,
+					});
+					switch (mission.taskType) {
+					  case "dragDrop":
+						self.sumPointsPerCategory.dragDrop++;
+						break;
+					  case "point":
+						self.sumPointsPerCategory.point++;
+						break;
+					  case "quiz":
+						self.sumPointsPerCategory.quiz++;
+						break;
+					  case "animation":
+						self.sumPointsPerCategory.animation++;
+						break;
+					}
+					if (!(mission.taskType == "preparation")) {
+					  self.sumPoints++;
+					}
+
+				  } else {
+					self.noMissions.push({
+					  taskType: mission.taskType,
+					  id: mission.id,
+					  activates: mission.activates,
+					  depends: mission.dependable,
+					})
+				  }
+				}
+
+				//if point is achieved
+				this.el.addEventListener("point-achieved", function (event) {
+				  self.solveMission(event.detail.pointID);
+				});
+			  },
+
+			  showMissionPopup: function(completed) {
+				let self = this;
+
+				let message = {
+				  type: app.arViewer.overview,
+				  content: getContent(completed),
+				  color: 'pearlwhite',
+				  shadow: 'shadow-terracotta',
+				  buttonSetup: [
+					completed ? { label: app.arViewer.restartMissionButton, color: 'duckyellow', shadow: 'shadowduckyellow' } : {}
+					],
+				  showClose: true,
+				}
+
+				app.gui.message.setMessage(message);
+
+				if (completed) app.gui.message.buttons.button[0].element.addEventListener('click', this.restartMissions, { once: true });
+
+				const scoreCont = document.getElementById("score-container");
+
+				app.gui.message.closeEl.addEventListener('click', function (e) {
+				  scoreCont.classList.remove("hide");
+				  self.el.setAttribute("controller", {
+					raycaster: true,
+					inventory: true,
+					rotate: true,
+				  });
+				}, { once: true });
+
+				function getContent(completed) {
+				  const missionTexts = app.arViewer.missionOverviewText;
+				  let content = '';
+				  content += completed ? app.arViewer.solveAllMissions : app.arViewer.solveMissions;
+				  let sumPointsValues = Object.values(self.sumPointsPerCategory);
+				  let currentPointsValues = Object.values(self.currentPointsPerCategory);
+				  for (let i = 0; i < sumPointsValues.length; i++) {
+					if (sumPointsValues[i] < 1) continue;
+					let pointLine =
+					  '<div class="book-container">'
+					  + `<img src="${app.assets.ar.marker['book'].src}" alt="${app.assets.ar.marker['book'].alt}" height="50px">`
+					  + `<p>${currentPointsValues[i]}/${sumPointsValues[i]} ${missionTexts[i]}</p></div>`
+					content += pointLine;
+				  }
+				  return content;
+				}
+			  },
+
+			  initInventory: function () {
+				let self = this;
+				//inventory variables
+				self.inventory = [];
+				self.oneSelected = false;
+				self.modelLoaded = false;
+
+				//each dropzone has one specific place gui element
+				self.dropZones = document.querySelectorAll(".drop");
+				const inventoryCont = document.getElementById("inventory");
+				for (let i = 0; i < self.dropZones.length; i++) {
+				  let roundCont = document.createElement("div");
+				  roundCont.setAttribute("id", self.getId(self.dropZones[i].classList[0]));
+				  roundCont.setAttribute("class", "round-container hide");
+				  let imgElement = document.createElement("img");
+				  imgElement.setAttribute("alt", "Object Image");
+				  roundCont.appendChild(imgElement);
+				  inventoryCont.appendChild(roundCont);
+				}
+				this.initInventoryClick();
+				//element gets draged
+				self.el.addEventListener("element-added-inventory", function (event) {
+				  if (self.firstContactInventory) {
+					app.gui.message.showTooltipOverlay(app.arViewer.clickMeTip);
+					app.gui.message.tooltipElOverlay.style.left = '20%';
+					app.gui.message.tooltipElOverlay.style.top = '70%';
+				  }
+				  const place = document.querySelector(
+					`#inventory div[id="${self.getId(event.detail.origin.classList[0])}"]`
+				  );
+				  place.classList.remove("hide");
+				  self.inventory.push({ place: place, el: event.detail.origin });
+				  const img = place.querySelector("img");
+				  img.src = event.detail.src;
+				  self.dropZones = document.querySelectorAll(".drop");
+				  //show all drop zones 
+				  self.dropZones.forEach((element) => {
+					element.object3D.visible = true;
+				  });
+				});
+				//element gets dropped
+				self.el.addEventListener("element-dropped-inventory", function (event) {
+				  const place = document.querySelector(
+					`#inventory div[id="${self.getId(event.detail.origin.classList[0])}"]`
+				  );
+				  event.detail.origin.classList.remove("selected");
+				  place.classList.add("hide");
+				  place.classList.remove("clicked");
+				  self.inventory = self.inventory.filter((item) => item.place !== place);
+				  self.oneSelected = false;
+				  //hide drop zones and make them not collidable
+				  self.dropZones = document.querySelectorAll(".drop");
+				  self.dropZones.forEach((element) => {
+					element.classList.remove("collidable");
+				  });
+				  self.tipDropZones = document.querySelectorAll(".tipDrop");
+				  self.tipDropZones.forEach((element) => {
+					element.classList.remove("toolidable");
+				  });
+				});
+			  },
+
+			  getId: function (origin) {
+				let match = origin.match(/\d+/);
+				let id = match ? parseInt(match[0], 10) : null;
+				return id;
+			  },
+
+			  initInventoryClick: function () {
+				let places = document.querySelectorAll(".round-container");
+				let self = this;
+				let i = 0;
+				//each round-container(place) listens to a click event
+				places.forEach((place) => {
+				  i++;
+				  place.addEventListener("click", () => {
+					if (self.firstContactInventory) {
+					  app.gui.message.hideTooltipOverlay();
+					  self.firstContactInventory = false;
+					}
+					let placeId = i;
+					//if place is already clicked
+					if (place.classList.contains("clicked")) {
+					  place.classList.remove("clicked");
+					  //no drop zone is selectable
+					  for (let element of self.inventory) {
+						element.el.classList.remove("selected");
+					  }
+					  self.oneSelected = false;
+					}
+					// place was not selected
+					else {
+					  for (let element of self.inventory) {
+						//other places get not clicked
+						if (element.place != place) {
+						  element.place.classList.remove("clicked");
+						  element.el.classList.remove("selected");
+						} else {
+						  //set clicked and related drop zone to selected
+						  element.place.classList.add("clicked");
+						  element.el.classList.add("selected");
+
+						  self.oneSelected = true;
+						}
+					  }
+					}
+					//if one place is selected the drop zones are collidable, if not not
+					const dropZones = document.querySelectorAll(".drop");
+					dropZones.forEach((element) => {
+					  if (self.oneSelected) {
+						if (!element.classList.contains("collidable")) {
+						  element.classList.add("collidable");
+						}
+					  } else {
+						element.classList.remove("collidable");
+					  }
+					});
+					const tipDropZones = document.querySelectorAll(".tipDrop");
+					tipDropZones.forEach((element) => {
+					  if (self.oneSelected) {
+						if (!element.classList.contains("toolidable")) {
+						  element.classList.add("toolidable");
+						}
+					  } else {
+						element.classList.remove("toolidable");
+					  }
+					});
+				  });
+				});
+			  },
+
+			  solveMission: function (pointID) {
+				//mission is done
+
+				let currentID = pointID;
+				if (app.arViewer.missionMode) {
+				  //add point general
+				  this.currentPoints++;
+				  this.scoreField.textContent = `${this.currentPoints}/${this.sumPoints}`;
+				  for (let i = 0; i < this.missions.length; i++) {
+					if (this.missions[i].id === currentID) {
+					  this.missions[i].done = true;
+					  if (this.missions[i].activates) {
+						this.activateMission(this.missions[i].activates);
+					  }
+					}
+				  }
+
+				  //actualize points per category    
+				  for (let i = 0; i < this.missions.length; i++) {
+					if (this.missions[i].id === currentID) {
+					  switch (this.missions[i].taskType) {
+						case "dragDrop":
+						  this.currentPointsPerCategory.dragDrop++;
+						  break;
+						case "point":
+						  this.currentPointsPerCategory.point++;
+						  break;
+						case "quiz":
+						  this.currentPointsPerCategory.quiz++;
+						  break;
+						case "animation":
+						  this.currentPointsPerCategory.animation++;
+						  break;
+					  }
+					}
+				  }
+				} else {
+
+				  for (let i = 0; i < this.noMissions.length; i++) {
+					if (this.noMissions[i].id === currentID) {
+
+					  if (this.noMissions[i].activates) {
+						this.activateNoMission(this.noMissions[i].activates);
+					  }
+					}
+				  }
+				}
+
+				//all missions solved
+				if (this.currentPoints === this.sumPoints) {
+				  this.completed = true;
+				  this.showMissionFinishedTip();
+				  app.arViewer.inMission = false;
+
+				}
+			  },
+
+			  activatePreparation: function () {
+				let self = this;
+				if (self.preparation) {
+				  this.el.emit('startPreparation', { animNames: self.preparation }, false);
+
+				  for (let i = 0; i < self.missions.length; i++) {
+					if (self.missions[i].taskType === "preparation") {
+					  self.missions[i].done = true;
+					  if (self.missions[i].activates) {
+
+						self.activateMission(self.missions[i].activates);
+					  }
+					}
+				  }
+				}
+			  },
+
+			  activateMission: function (depId) {
+				const missionGroup = document.getElementById("missions");
+				const dependableMission = missionGroup.querySelector("." + depId).object3D;
+				dependableMission.children[0].visible = true;
+				dependableMission.children[0].el.classList.add("collidable");
+				dependableMission.children[1].el.classList.add("toolidable");
+				this.el.emit('mission-activated', { id: depId }, false);
+			  },
+
+			  activateNoMission: function (id) {
+				const noMissionGroup = document.getElementById("noMissions");
+				const dependableNoMission = noMissionGroup.querySelector("." + id).object3D;
+				dependableNoMission.children[0].visible = true;
+				dependableNoMission.children[0].el.classList.add("collidable");
+				dependableNoMission.children[1].el.classList.add("toolidable");
+			  },
+
+			  showMissionFinishedTip: function () {
+				app.gui.message.showTooltipOverlay(app.arViewer.clickTip);
+				app.gui.message.tooltipElOverlay.style.left = '5%';
+				app.gui.message.tooltipElOverlay.style.top = '7%';
+			  },
+
+			  restartMissions: function (event) {
+				app.gui.message.buttons.button[0].element.removeEventListener("click", this.restartMissions);
+				app.gui.message.hideMessage();
+				this.completed = false;
+				for (let mission of this.missions) {
+				  mission.done = false;
+				}
+				this.el.setAttribute("controller", {
+				  raycaster: true,
+				  inventory: true,
+				  reverse: true,
+				  rotate: true,
+				});
+			  },
+
+			  resetActivatedMissions: function () {
+				const self = this;
+				const missionGroup = document.getElementById("missions");
+				for (let mission of this.missions) {
+				  if (mission.depends === true) {
+					let missionEl = missionGroup.querySelector("." + mission.id).object3D;
+					missionEl.children[0].visible = false;
+					missionEl.children[0].el.classList.remove("collidable");
+					missionEl.children[1].el.classList.remove("toolidable");
+				  }
+				}
+				self.activatePreparation();
+			  },
+
+			  resetScore: function () {
+				const scoreCont = document.getElementById("score-container");
+				app.gui.message.hideTooltipOverlay();
+				scoreCont.classList.remove("hide");
+				this.currentPoints = 0;
+				Object.keys(this.currentPointsPerCategory).forEach(key => {
+				  this.currentPointsPerCategory[key] = 0;
+				});
+
+				this.scoreField.textContent = `${this.currentPoints}/${this.sumPoints}`;
+			  },
+			});
+
+			//HIDE-ON-START-AR: hide 3d objects in AR while placing them
+			AFRAME.registerComponent("hide-on-start-ar", {
+			  init: function () {
+				let self = this;
+				self.el.sceneEl.addEventListener("start-placing", function () {
+				  this.wasVisible = self.el.object3D.visible;
+				  if (self.el.sceneEl.is("ar-mode")) {
+					self.el.object3D.visible = false;
+				  }
+				});
+			  },
+			});
+
+			//AR-HIT-TEST-SPECIAL: place object with 3D-object
+			AFRAME.registerComponent("ar-hit-test-special", {
+
+			  init: function () {
+				const self = this;
+				self.xrHitTestSource = null;
+				self.viewerSpace = null;
+				self.refSpace = null;
+				self.firstTime = true;
+				self.objectContainerEl = document.getElementById("ar-object-container");
+
+				self.placeObject = self.placeObject.bind(self);
+				self.placeEnd = self.placeEnd.bind(self);
+				self.placeAgain = self.placeAgain.bind(self);
+				self.showMessage = self.showMessage.bind(self);
+
+				self.el.sceneEl.renderer.xr.addEventListener("sessionend", (ev) => {
+				  self.el.viewerSpace = null;
+				  self.el.refSpace = null;
+				  self.el.xrHitTestSource = null;
+				});
+
+				self.el.sceneEl.addEventListener("ready-for-placing", (ev) => {
+				  let session = self.el.sceneEl.renderer.xr.getSession();
+				  self.hideMenu();
+				  self.firstPose = false;
+				  self.el.emit("start-placing", null, true);
+				  self.showMessage("start");
+
+				  session.requestReferenceSpace("viewer").then((space) => {
+					self.viewerSpace = space;
+					session.requestHitTestSource({ space: self.viewerSpace, offsetRay: new XRRay({ y: -0.3 }) })
+					  .then((hitTestSource) => {
+						self.xrHitTestSource = hitTestSource;
+					  });
+				  });
+
+				  session.requestReferenceSpace("local").then((space) => {
+					self.refSpace = space;
+				  });
+
+				  self.el.addEventListener("first-pose", function () {
+					self.showMessage("move");
+					self.el.object3D.visible = true;
+				  });
+
+				  self.el.sceneEl.addEventListener("new-placement", function () {
+					self.el.emit("start-placing", null, true);
+					self.hideMenu();
+					self.el.object3D.visible = true;
+					self.finished = false;
+					self.showMessage("move");
+				  });
+				});
+			  },
+
+			  showMessage: function (step) {
+				const text = app.arViewer.placeMessages;
+				let message;
+				if (step == "start") {
+				  message = {
+					type: null,
+					content: '<p>' + text[0] + '</p>',
+					color: 'pearlwhite',
+					shadow: 'shadow-skyblue',
+					buttonSetup: null,
+					showClose: false,
+				  }
+				  app.gui.message.setMessage(message);
+				} else if (step == "move") {
+				  message = {
+					type: null,
+					content: '<p>' + text[1] + '</p>',
+					color: 'pearlwhite',
+					shadow: 'shadow-skyblue',
+					buttonSetup: [
+					  { label: app.arViewer.place, color: 'coalgrey', shadow: 'shadow-coalgrey' }
+					  ],
+					showClose: false
+				  }
+				  app.gui.message.setMessage(message);
+				  app.gui.message.buttons.button[0].element.addEventListener("click", this.placeObject, { once: true });
+				} else if (step == "placed") {
+				  message = {
+					type: null,
+					content: '<p>' + text[2] + '</p>',
+					color: 'pearlwhite',
+					shadow: 'shadow-skyblue',
+					buttonSetup: [
+					  { label: app.arViewer.yes, color: 'coalgrey', shadow: 'shadow-coalgrey' },
+					  { label: app.arViewer.placeNew, color: 'coalgrey', shadow: 'shadow-coalgrey' }
+					  ],
+					showClose: false
+				  }
+				  app.gui.message.setMessage(message);
+				  app.gui.message.buttons.button[0].element.addEventListener("click", this.placeEnd, { once: true });
+				  app.gui.message.buttons.button[1].element.addEventListener("click", this.placeAgain, { once: true });
+				}
+			  },
+
+			  showMenu: function () {
+				const menu = document.querySelector(".bottom-menu");
+				menu.classList.remove("hide");
+			  },
+
+			  hideMenu: function () {
+				const menu = document.querySelector(".bottom-menu");
+				menu.classList.add("hide");
+			  },
+
+			  placeObject: function (event) {
+				let position = this.el.getAttribute("position");
+
+				this.objectContainerEl.object3D.position.set(position.x, position.y, position.z);
+				this.objectContainerEl.object3D.visible = true;
+				this.el.object3D.visible = false;
+
+				let camera = this.el.sceneEl.camera;
+				let cameraPos = new THREE.Vector3();
+				camera.getWorldPosition(cameraPos);
+				this.objectContainerEl.object3D.lookAt(cameraPos);
+				this.objectContainerEl.object3D.rotation.x = 0;
+				this.objectContainerEl.object3D.rotation.z = 0;
+
+				//anchor for position
+				let anchoredComponent = this.objectContainerEl.components.anchored;
+				if (anchoredComponent) {
+				  anchoredComponent.createAnchor(
+					this.objectContainerEl.object3D.position,
+					this.objectContainerEl.object3D.quaternion
+				  );
+				}
+				this.showMessage("placed");
+
+				this.finished = true;
+			  },
+
+			  placeEnd: function (event) {
+				app.gui.message.buttons.button[1].element.removeEventListener("click", this.placeAgain);
+				app.gui.message.hideMessage()
+				this.el.emit("placingAchieved", this.firstTime, true);
+				this.showMenu();
+				this.firstTime = false;
+			  },
+
+			  placeAgain: function (event) {
+				app.gui.message.buttons.button[0].element.removeEventListener("click", this.placeEnd);
+				this.el.emit("new-placement", null, true);
+			  },
+
+			  tick: function () {
+				if (this.el.sceneEl.is("ar-mode")) {
+
+				  if (!this.viewerSpace || this.finished) return;
+
+				  let frame = this.el.sceneEl.frame;
+				  let xrViewerPose = frame.getViewerPose(this.refSpace);
+
+				  if (this.xrHitTestSource && xrViewerPose) {
+					let hitTestResults = frame.getHitTestResults(this.xrHitTestSource);
+
+					if (hitTestResults.length > 0) {
+					  if (!this.firstPose) {
+						this.el.emit("first-pose", null, false);
+						this.firstPose = true;
+					  }
+
+					  let pose = hitTestResults[0].getPose(this.refSpace);
+
+					  let inputMat = new THREE.Matrix4();
+					  inputMat.fromArray(pose.transform.matrix);
+
+					  let position = new THREE.Vector3();
+					  position.setFromMatrixPosition(inputMat);
+					  this.el.object3D.position.set(position.x, position.y, position.z);
+					}
+				  }
+				}
+			  }
+			});
+
+			//COLLIDER-CHECK: tracks raycast collision on each collidable/toolidable element, tests if object is in between
+			AFRAME.registerComponent("collider-check", {
+			  schema: {
+				description: { type: "string", default: "" },
+			  },
+
+			  init: function () {
+				let self = this;
+
+				this.checkCursor = this.checkCursor.bind(this);
+				self.el.addEventListener("raycaster-intersected", this.checkCursor);
+				self.el.addEventListener("raycaster-intersected-cleared", (e) => {
+				  if (self.el.classList.contains("collidable")) self.el.emit("collided-ended");
+				  else if (self.el.classList.contains("toolidable")) self.el.emit("tool-collided-ended");
+				});
+			  },
+			  update: function () {
+				let self = this;
+				self.el.removeEventListener("raycaster-intersected", self.checkCursor);
+				self.el.addEventListener("raycaster-intersected", self.checkCursor);
+			  },
+			  checkCursor: function (event) {
+				let self = this;
+				let cursor = event.detail.el;
+				let desc = this.data.description;
+				let firstCollidedObject = cursor.components.raycaster.intersectedEls[0];
+				if (firstCollidedObject.getAttribute("id") == "ar-object") return;
+				//tests if mission element is collided but it is not app.arViewer.missionMode or the other way around then it returns
+				if ((app.arViewer.missionMode && self.el.parentElement.classList.contains("noMission")) || (app.arViewer.inMission && self.el.parentElement.classList.contains("noMission"))) {
+				  return;
+				}
+				if ((!app.arViewer.missionMode) && (!self.el.parentElement.classList.contains("noMission"))) {
+				  return;
+				}
+				if (self.el.classList.contains("toolidable")) self.el.emit("tool-collided", { description: desc }, true);
+
+				if (self.el.classList.contains("collidable")) {
+				  self.el.emit("collided", true);
+				  self.el.emit("tool-collided", { description: desc }, true);
+				}
+
+			  },
+			});
+
+			//ANIMATION-HANDLER: handles cursor animation
+			AFRAME.registerComponent("animation-handler", {
+			  init: function () {
+				let self = this;
+				let currentClass;
+				let srcElement;
+				let srcTipElement;
+				let animationComplete = false;
+				//animation to activate
+				self.el.sceneEl.addEventListener("collided", function (event) {
+				  // test if a new point is activated
+				  srcElement = event.srcElement;
+				  let from =
+					currentClass == event.srcElement.classList
+					  ? self.el.getAttribute("geometry").thetaLength
+					  : 0;
+
+				  self.el.setAttribute("animation", {
+					dir: "normal",
+					from: from,
+					to: 360,
+					easing: "easeInQuad",
+				  });
+				  self.el.emit(`startRing`, null, false);
+				  //vibration for starting avtivation
+				  navigator.vibrate(5);
+
+				  currentClass = event.srcElement.classList;
+				});
+				//activate tooltip
+				self.el.sceneEl.addEventListener("tool-collided", function (event) {
+				  //add text
+				  self.el.emit(
+					"start-tooltip",
+					{ description: event.detail.description, point: event.srcElement },
+					true
+				  );
+				})
+				//animation to reverse activation
+				self.el.sceneEl.addEventListener("collided-ended", function (event) {
+
+				  if (animationComplete) {
+
+					return;
+				  }
+				  self.el.setAttribute("animation", {
+					dir: "reverse",
+					from: 0,
+					to: self.el.getAttribute("geometry").thetaLength,
+					easing: "easeOutQuad",
+				  });
+				  self.el.emit(`startRing`, null, false);
+				  // remove text
+				});
+				self.el.sceneEl.addEventListener("tool-collided-ended", function (event) {
+				  self.el.emit("stop-tooltip", null, true);
+				});
+
+				self.el.addEventListener("animationcomplete", function (event) {
+				  if (self.el.getAttribute("geometry").thetaLength == 360) {
+					self.el.setAttribute("geometry", "thetaLength", 0);
+					//vibrate for acitivation
+					navigator.vibrate([10, 50, 80]);
+					srcTipElement = srcElement.nextElementSibling;
+					//event for components: place-element
+					self.el.emit("point-to-play-trigger", { point: srcElement, tipPoint: srcTipElement }, true);
+
+					self.el.emit("stop-tooltip", null, true);
+				  }
+				});
+			  },
+			});
+
+			//VISIBILITY-HANDLER: handles tooltip visibility
+			AFRAME.registerComponent("visibility-handler", {
+			  init: function () {
+				let self = this;
+				this.show = false;
+				this.point = null;
+				this.camera = this.el.object3D;
+				self.el.sceneEl.addEventListener("start-tooltip", function (event) {
+				  app.gui.message.hideTooltipAR();
+				  self.show = true;
+				  self.point = event.detail.point.object3D;
+				  app.gui.message.showTooltipAR(event.detail.description);
+				});
+				self.el.sceneEl.addEventListener("stop-tooltip", function (event) {
+				  app.gui.message.hideTooltipAR();
+				  self.show = false;
+				});
+			  },
+			  tick: function () {
+				if (this.show) {
+				  let targetPosition = new THREE.Vector3();
+				  let canvas = document.querySelector('.a-canvas');
+				  targetPosition.setFromMatrixPosition(this.point.matrixWorld);
+				  targetPosition.project(this.camera.children[1]);
+
+				  let targetScreenPosition = {
+					x: Math.round((0.5 + targetPosition.x / 2) * (canvas.width / window.devicePixelRatio)),
+					y: Math.round((0.5 - targetPosition.y / 2) * (canvas.height / window.devicePixelRatio))
+				  }
+
+				  app.gui.message.tooltipElAr.style.left = (targetScreenPosition.x - app.gui.message.tooltipElAr.clientWidth) + "px";
+				  app.gui.message.tooltipElAr.style.top = (targetScreenPosition.y + 50) + "px";
+
+				}
+			  }
+			});
+
+			//TURN-TO-CAMERA: points turn to camera for better raycast interaction
+			AFRAME.registerComponent("turn-to-camera", {
+			  schema: { onlyYAxis: { type: "boolean", default: false } },
+			  init: function () {
+				this.cameraPos = new THREE.Vector3();
+			  },
+			  tick: function () {
+				this.el.sceneEl.camera.getWorldPosition(this.cameraPos);
+				let x = this.el.object3D.rotation.x;
+				let z = this.el.object3D.rotation.z;
+				this.el.object3D.lookAt(this.cameraPos);
+				if (this.data.onlyYAxis) {
+				  this.el.object3D.rotation.x = x;
+				  this.el.object3D.rotation.z = z;
+				  this.el.object3D.rotation.y = this.el.object3D.rotation.y - Math.PI / 2;
+				}
+			  },
+			});
+
+			//DISTANCE-TRACKER: the visibility of the points change dependend on the distance to the object,
+			//if the points are not visible, they are also not collidable
+			AFRAME.registerComponent("distance-tracker", {
+			  init: function () {
+				this.camera = document.getElementById("camera");
+				this.selfPos = new THREE.Vector3();
+				this.lastGroup = "";
+				let self = this;
+
+				//depending on the threshold the opacity is changed
+				this.el.sceneEl.addEventListener("distance-far", (event) => {
+				  self.el.object3D.children[0].el.setAttribute("material", "opacity", 0);
+				  if (self.el.object3D.children[0].el.getAttribute("visible") === true) {
+					self.el.object3D.children[0].el.classList.remove("collidable");
+				  }
+
+				});
+				this.el.sceneEl.addEventListener("distance-middle", (event) => {
+				  self.el.object3D.children[0].el.setAttribute("material", "opacity", 0.5);
+				  if (self.el.object3D.children[0].el.getAttribute("visible") === true) {
+					self.el.object3D.children[0].el.classList.add("collidable");
+				  }
+				});
+				this.el.sceneEl.addEventListener("distance-near", (event) => {
+				  self.el.object3D.children[0].el.setAttribute("material", "opacity", 1);
+				});
+			  },
+			});
+
+			//DISTANCE-LISTENER: tracks the distance between camera and object and emit events to distance-tracker
+			AFRAME.registerComponent("distance-listener", {
+			  schema: { enabled: { type: "boolean", default: false } },
+			  init: function () {
+				let self = this;
+				this.camera = document.getElementById("camera");
+				this.selfPos = new THREE.Vector3();
+
+				this.el.sceneEl.addEventListener("radius-set", function (evt) {
+				  let radius = evt.detail.radius;
+				  self.distanceMiddle = radius * 2.5;
+				  self.distanceLong = radius * 5;
+				})
+			  },
+			  update: function () {
+				this.lastGroup = "";
+			  },
+			  tick: function () {
+				if (this.data.enabled) {
+				  // tracks the distance between camera and parallel to y axis at the position of the object each frame and emits an event if the threshold is changed
+				  let cameraPos = this.camera.object3D.position;
+				  this.el.object3D.getWorldPosition(this.selfPos);
+				  const dx = cameraPos.x - this.selfPos.x;
+				  const dz = cameraPos.z - this.selfPos.z;
+				  const distance = Math.sqrt(dx * dx + dz * dz);
+				  if (distance > this.distanceLong && !(this.lastGroup == "far")) {
+					this.lastGroup = "far";
+					this.el.emit("distance-far", null, true);
+					app.gui.message.showTooltipOverlay(app.arViewer.farAwayTip);
+					app.gui.message.tooltipElOverlay.style.left = '5%';
+					app.gui.message.tooltipElOverlay.style.top = '60%';
+				  } else if (
+					distance < this.distanceLong &&
+					distance > this.distanceMiddle &&
+					!(this.lastGroup == "middle")
+				  ) {
+					if (this.lastGroup == "far") {
+					  app.gui.message.hideTooltipOverlay();
+					}
+					this.lastGroup = "middle";
+					this.el.emit("distance-middle", null, true);
+				  } else if (distance < this.distanceMiddle && !(this.lastGroup == "near")) {
+					this.lastGroup = "near";
+					this.el.emit("distance-near", null, true);
+				  }
+				}
+			  },
+			});
+
+			//ROTATION-HANDLER: handles touch input and rotation angle
+			AFRAME.registerComponent("rotation-handler", {
+			  schema: { enabled: { type: "boolean", default: false } },
+			  init: function () {
+				const self = this;
+				self.firstTime = true;
+				self.canvas = document.querySelector('.a-dom-overlay');
+				self.steps = 12;
+				self.arrayPos = self.steps / 2;
+				//get circle positions after radius is calculated
+				self.el.sceneEl.addEventListener("radius-set", function (event) {
+				  self.circlePos = [];
+				  for (let t = 0; t <= 2 * Math.PI; t += Math.PI / self.steps) {
+					self.circlePos.push({ t: t });
+				  }
+				});
+				self.checkTouch = self.checkTouch.bind(self);
+				self.trackTouch = self.trackTouch.bind(self);
+				self.endTouch = self.endTouch.bind(self);
+			  },
+			  update: function () {
+				const self = this;
+				const containerEl = document.getElementById("ar-object-container");
+
+				this.touches = [];
+
+				this.pos = this.steps / 2;
+				if (this.data.enabled) {
+				  const circleContainer = this.el.object3D.parent;
+				  //set container positon of circle handler
+				  let posCont = containerEl.object3D.position;
+				  circleContainer.position.set(posCont.x, posCont.y, posCont.z);
+				  circleContainer.visible = true;
+
+				  self.canvas.addEventListener("touchstart", this.checkTouch);
+				} else {
+				  this.el.object3D.parent.visible = false;
+				  self.canvas.removeEventListener("touchstart", this.checkTouch);
+				}
+			  },
+			  checkTouch: function (event) {
+				//tests if self is clicked
+
+				const self = this;
+				const mouse = new THREE.Vector2();
+				self.camera = self.el.sceneEl.camera;
+				mouse.x = (event.touches[0].clientX / window.innerWidth) * 2 - 1; // convert to range (-1, 1)
+				mouse.y = -(event.touches[0].clientY / window.innerHeight) * 2 + 1; // convert to range (-1, 1)
+
+				// Set the ray's origin and direction based on the camera and mouse coordinates
+				const raycaster = new THREE.Raycaster();
+				raycaster.setFromCamera(mouse, self.camera);
+
+				// Find intersections between the ray and objects in the scene
+				const intersects = raycaster.intersectObject(self.el.object3D);
+				//if not clicked return
+				if (intersects.length < 1) return;
+				const rotHandle = document.getElementById('rot-handle');
+				rotHandle.removeAttribute('material', 'src');
+				rotHandle.setAttribute('material', 'color', '#FF7850');
+				self.canvas.addEventListener("touchmove", self.trackTouch);
+				self.el.emit("pause-interaction", { rotate: true }, true);
+				if (self.firstTime) {
+				  self.el.emit('stop-tooltip', null, true);
+				  self.firstTime = false;
+				}
+				self.canvas.addEventListener("touchend", self.endTouch);
+			  },
+			  trackTouch: function (event) {
+				this.touches.push(event.touches[0].clientX);
+				let currentTouchDifference, convertedDifference;
+				if (this.touches.length > 1) {
+				  currentTouchDifference =
+					this.touches[this.touches.length - 1] - this.touches[0];
+				  convertedDifference = (currentTouchDifference / 10).toFixed(0);
+				  this.pos = this.arrayPos - convertedDifference;
+				  if (this.pos > this.circlePos.length - 1) {
+					this.pos = this.pos - this.circlePos.length;
+				  } else if (this.pos < 0) {
+					this.pos = this.circlePos.length + this.pos;
+				  }
+
+				  //rotate container
+				  const containerEl = document.getElementById("ar-object-container");
+				  let rot = this.circlePos[this.pos].t;
+				  containerEl.object3D.rotation.y = -(rot - Math.PI / 2);
+				}
+			  },
+			  endTouch: function (event) {
+				this.canvas.removeEventListener("touchmove", this.trackTouch);
+				this.el.emit("play-interaction", { rotate: true }, true);
+				this.touches.length = 0;
+				this.arrayPos = this.pos;
+				const rotControl = document.getElementById('rotation-ring');
+				const rotHandle = document.getElementById('rot-handle');
+				rotControl.setAttribute('material', 'src', '#rotateArrows');
+				rotHandle.setAttribute('material', 'color', '#FAF0E6');
+
+				this.canvas.removeEventListener("touchend", this.endTouch);
+			  },
+			});
+
+			//GET-BOUNDING-BOX: after the model is loaded, it sets the size of the bounding-box and emits the radius of the rotation and the largest side
+			AFRAME.registerComponent("get-bounding-box", {
+			  init: function () {
+				let self = this;
+				const boundingBox = new THREE.Box3();
+				const size = new THREE.Vector3();
+				const ringEl = document.getElementById("rotation-ring");
+
+				//wait until gtlf model is loaded
+				self.el.addEventListener("model-loaded", function () {
+				  app.arViewer.originalObject.traverse(function (child) {
+					if (child.isMesh) {
+					  boundingBox.setFromObject(child);
+					  boundingBox.getSize(size);
+					  //get radius
+					  let radius = size.x > size.z ? size.x / 2 : size.z / 2;
+					  let radiusWide = radius + (radius / 6);
+					  let largest = Math.max(size.x, size.y, size.z);
+					  //set radius
+					  ringEl.setAttribute("geometry", {
+						radius: radiusWide,
+					  });
+					  ringEl.children[0].object3D.position.x = radiusWide;
+					  ringEl.children[0].setAttribute("geometry", "radius", radiusWide);
+					  ringEl.children[1].object3D.position.x = radiusWide;
+					  ringEl.children[1].setAttribute("geometry", "radius", radiusWide / 6);
+					  //emit radius to rotation handler
+					  self.el.emit(
+						"radius-set",
+						{ radius: radiusWide, maxSize: largest },
+						true
+					  );
+					}
+				  });
+				});
+			  },
+			});
+
+			/**
+				SPRITESHEET-ANIMATION: Plays a spritesheet-based animation.
+				Author: Lee Stemkoski
+			*/
+			AFRAME.registerComponent("spritesheet-animation", {
+			  schema: {
+				rows: { type: "number", default: 1 },
+				columns: { type: "number", default: 1 },
+
+				// set these values to play a (consecutive) subset of frames from spritesheet
+				firstFrameIndex: { type: "number", default: 0 },
+				lastFrameIndex: { type: "number", default: -1 }, // index is inclusive
+
+				// goes from top-left to bottom-right.
+				frameDuration: { type: "number", default: 1 }, // seconds to display each frame
+				loop: { type: "boolean", default: true },
+			  },
+
+			  init: function () {
+				this.repeatX = 1 / this.data.columns;
+				this.repeatY = 1 / this.data.rows;
+
+				if (this.data.lastFrameIndex == -1)
+				  // indicates value not set; default to full sheet
+				  this.data.lastFrameIndex = this.data.columns * this.data.rows - 1;
+
+				this.mesh = this.el.getObject3D("mesh");
+
+				this.frameTimer = 0;
+				this.currentFrameIndex = this.data.firstFrameIndex;
+				this.animationFinished = false;
+			  },
+
+			  tick: function (time, timeDelta) {
+				// return if animation finished.
+				if (this.animationFinished) return;
+
+				this.frameTimer += timeDelta / 1000;
+
+				while (this.frameTimer > this.data.frameDuration) {
+				  this.currentFrameIndex += 1;
+				  this.frameTimer -= this.data.frameDuration;
+
+				  if (this.currentFrameIndex > this.data.lastFrameIndex) {
+					if (this.data.loop) {
+					  this.currentFrameIndex = this.data.firstFrameIndex;
+					} else {
+					  this.animationFinished = true;
+					  return;
+					}
+				  }
+				}
+
+				let rowNumber = Math.floor(this.currentFrameIndex / this.data.columns);
+				let columnNumber = this.currentFrameIndex % this.data.columns;
+
+				let offsetY = (this.data.rows - rowNumber - 1) / this.data.rows;
+				let offsetX = columnNumber / this.data.columns;
+
+				if (this.mesh.material.map) {
+				  this.mesh.material.map.repeat.set(this.repeatX, this.repeatY);
+				  this.mesh.material.map.offset.set(offsetX, offsetY);
+				}
+			  },
+			  remove: function () {
+				this.mesh.material.map = null;
+			  },
+			});
+
+			/**
+			 * ANIMATION-MIXER
+			 *  from: https://github.com/c-frame/aframe-extras/blob/master/src/loaders/animation-mixer.js and edited
+			 * Player for animation clips. Intended to be compatible with any model format that supports
+			 * skeletal or morph animations through THREE.AnimationMixer.
+			 * See: https://threejs.org/docs/?q=animation#Reference/Animation/AnimationMixer
+			 */
+			const LoopMode = {
+			  once: THREE.LoopOnce,
+			  repeat: THREE.LoopRepeat,
+			  pingpong: THREE.LoopPingPong
+			};
+
+			AFRAME.registerComponent('animation-mixer', {
+			  schema: {
+				startClip: { default: null },
+				stopClip: { default: null },
+				stopAllClip: { default: false },
+				clampWhenFinished: { default: false, type: 'boolean' },
+				repetition: { default: false, type: 'boolean' },
+				startAt: { default: 0 }
+			  },
+
+			  init: function () {
+				/** @type {THREE.Mesh} */
+				this.model = null;
+				/** @type {THREE.AnimationMixer} */
+				this.mixer = null;
+				/** @type {Array<THREE.AnimationAction>} */
+				this.activeActions = [];
+
+				const model = this.el.getObject3D('mesh');
+
+
+				if (model) {
+				  this.load(model);
+				} else {
+				  this.el.addEventListener('model-loaded', (e) => {
+					this.load(e.detail.model);
+					//app.dev && console.log("dev --- model", e.detail.model);
+				  });
+				}
+			  },
+
+			  load: function (model) {
+				const el = this.el;
+				const self = this;
+				this.model = model;
+				this.mixer = new THREE.AnimationMixer(model);
+				this.animations = model.animations;
+				this.mixer.addEventListener('loop', (e) => {
+				  el.emit('animation-loop', { action: e.action, loopDelta: e.loopDelta });
+				});
+				this.mixer.addEventListener('finished', (e) => {
+				  el.emit('animation-finished', { action: e.action, direction: e.direction });
+				});
+				el.sceneEl.addEventListener('startPreparation', (e) => {
+				  self.stopAllAction();
+				  let animNames = e.detail.animNames;
+				  for (let anim of animNames) {
+					self.playAction(anim, false, 0, true);
+				  }
+
+
+				});
+				if (this.data.clip) this.update({});
+			  },
+
+			  remove: function () {
+				if (this.mixer) this.mixer.stopAllAction();
+			  },
+
+			  update: function (prevData) {
+				if (!prevData) return;
+				if (this.data.startClip) {
+				  this.playAction(this.data.startClip, this.data.repetition, this.data.startAt, this.data.clampWhenFinished);
+				}
+				if (this.data.stopClip) {
+				  this.stopAction(this.data.stopClip);
+				}
+				if (this.data.stopAllClip) {
+				  this.stopAllAction();
+				}
+
+			  },
+
+			  stopAction: function (animName) {
+				for (let i = 0; i < this.activeActions.length; i++) {
+				  if (this.activeActions[i].getClip().name == animName) {
+					this.activeActions[i].stop();
+				  }
+				}
+
+			  },
+			  stopAllAction: function () {
+				for (let i = 0; i < this.activeActions.length; i++) {
+				  this.activeActions[i].stop();
+				}
+				this.activeActions.length = 0;
+			  },
+
+			  playAction: function (animName, repetition, startAt, clamp) {
+				if (!this.mixer) return;
+
+				const model = this.model,
+				  clips = model.animations;
+
+				if (!clips.length) return;
+
+				for (let clip, i = 0; (clip = clips[i]); i++) {
+				  if (clip.name == animName) {
+					const action = this.mixer.clipAction(clip, model);
+					action.enabled = true;
+					action.clampWhenFinished = clamp;
+					// animation-mixer.startAt and AnimationAction.startAt have very different meanings.
+					// animation-mixer.startAt indicates which frame in the animation to start at, in msecs.
+					// AnimationAction.startAt indicates when to start the animation (from the 1st frame),
+					// measured in global mixer time, in seconds.
+					action.startAt(this.mixer.time - startAt / 1000);
+					let loopMode = repetition ? THREE.LoopRepeat : THREE.LoopOnce;
+					let rep = repetition ? Infinity : 1;
+					action
+					  .setLoop(LoopMode[loopMode], rep)
+					  .play();
+					this.activeActions.push(action);
+				  }
+				}
+			  },
+			  tick: function (t, dt) {
+				if (this.mixer && !isNaN(dt)) this.mixer.update(dt / 1000);
+			  }
+			});
+
+			//DRAG-DROP-TASK: Task with to points, one on the floor to drag and show an image and to drop the image at a point on the object
+			AFRAME.registerComponent("drag-drop-task", {
+			  schema: {
+				name: { type: "string", default: "" },
+				description_drag: {
+				  type: "string",
+				  default:
+					"",
+				},
+				src_image: {
+				  type: "string",
+				  default:
+					"",
+				},
+				copyright_image: {
+				  type: "string",
+				  default: "",
+				},
+				alt_image: {
+				  type: "string",
+				  default: "",
+				},
+				caption_image: {
+				  type: "string",
+				  default: "",
+				},
+				description_drop: {
+				  type: "string",
+				  default:
+					"",
+				},
+			  },
+			  init: function () {
+				let self = this;
+				this.showPopUp = this.showPopUp.bind(this);
+
+				this.el.sceneEl.addEventListener("point-to-play-trigger", function (evt) {
+				  if (evt.detail.point.classList[0] == self.el.classList[0]) {
+					if (evt.detail.point.classList.contains("drag")) {
+					  evt.detail.point.object3D.visible = false;
+					  evt.detail.point.classList.remove("collidable");
+					  evt.detail.tipPoint.classList.remove("toolidable");
+					  //show popup
+					  self.showPopUp(
+						self.data.name,
+						self.data.description_drag,
+						self.data.src_image,
+						self.data.copyright_image,
+						self.data.alt_image,
+						self.data.caption_image,
+						false
+					  );
+					  //set inventory
+					  self.addInventory(self.data.src_image);
+					} else if (evt.detail.point.classList.contains("drop")) {
+					  if (self.el.classList.contains("selected")) {
+
+						evt.detail.point.setAttribute("material", { src: "#book" });
+						evt.detail.point.setAttribute("collider-check", {
+						  description: app.arViewer.showBook,
+						});
+						evt.detail.tipPoint.setAttribute("collider-check", {
+						  description: app.arViewer.showBook,
+						});
+						evt.detail.point.setAttribute("distance-tracker", "");
+						//change class to book
+						evt.detail.point.classList.remove("drop");
+						evt.detail.tipPoint.classList.remove("tipDrop");
+						evt.detail.point.classList.add("book", "collidable");
+						evt.detail.tipPoint.classList.add("book", "toolidable");
+						self.removeInventory();
+
+						self.showPopUp(
+						  self.data.name,
+						  self.data.description_drop,
+						  self.data.src_image,
+						  self.data.copyright_image,
+						  self.data.alt_image,
+						  self.data.caption_image,
+						  true
+						);
+
+						//count points
+						self.el.emit("point-achieved", { pointID: self.el.classList[0] }, true);
+					  } else {
+						self.showFalseMessage();
+					  }
+					} else if (evt.detail.point.classList.contains("book")) {
+					  self.showPopUp(
+						self.data.name,
+						self.data.description_drop,
+						self.data.src_image,
+						self.data.copyright_image,
+						self.data.alt_image,
+						self.data.caption_image,
+						true
+					  );
+					}
+				  }
+				});
+				this.el.sceneEl.addEventListener("missions-reversed", function (e) {
+				  self.reverse(self);
+				});
+			  },
+			  showPopUp: function (name, desc, imgSrc, imgCr, imgAlt, imgCaption) {
+				let self = this;
+
+				let message = {
+				  type: app.arViewer.dragDropHead,
+				  content: getContent(),
+				  color: 'skyblue',
+				  shadow: null,
+				  buttonSetup: null,
+				  showClose: true,
+				}
+
+				function getContent() {
+				  let content = '';
+				  let headline = '<h3>' + name + '</h3>'
+				  let copyright = imgCr ? `<span class="copyright"> Foto: ${imgCr}</span>` : '';
+				  let image = `<div class="annotation-image"><div class = "annotation-image-box">
+					<img width="100px" height="100px" src="${imgSrc}" alt="${imgAlt}"></div>
+					<p class="annotation-image-caption">${imgCaption}${copyright}</p></div>`
+
+				  let description = `<p>${desc}</p>`
+				  return content + headline + image + description;
+
+				}
+				app.gui.message.setMessage(message);
+
+				self.el.sceneEl.setAttribute("controller", {
+				  raycaster: false,
+				  inventory: false,
+				  rotate: false,
+				});
+
+				app.gui.message.closeEl.addEventListener('click', function (e) {
+				  self.el.sceneEl.setAttribute("controller", {
+					raycaster: true,
+					inventory: true,
+					rotate: true,
+				  });
+				}, { once: true });
+
+			  },
+			  addInventory: function (src) {
+				this.el.emit("element-added-inventory", { origin: this.el, src: src }, true);
+			  },
+			  removeInventory: function () {
+				this.el.emit("element-dropped-inventory", { origin: this.el }, true);
+			  },
+			  showFalseMessage: function () {
+				const falseMessages = app.arViewer.falseMessages;
+				const randomIndex = Math.floor(Math.random() * falseMessages.length);
+				let message = {
+				  type: app.arViewer.dragDropHead,
+				  content: `<p>${falseMessages[randomIndex]}</p>`,
+				  color: 'smokegrey', 
+				  shadow: null,
+				  buttonSetup: null,
+				  showClose: true
+				}
+				app.gui.message.setMessage(message);
+
+			  },
+			  reverse: function (self) {
+				self.el.children[0].object3D.visible = true;
+				self.el.children[0].classList.add("collidable");
+				self.el.children[1].classList.add("toolidable");
+
+				self.el.children[2].object3D.visible = false;
+				self.el.children[2].classList.remove("book");
+				self.el.children[3].classList.remove("book");
+				self.el.children[2].classList.add("drop");
+				self.el.children[3].classList.add("tipDrop");
+				self.el.children[2].classList.remove("collidable");
+				self.el.children[3].classList.remove("toolidable");
+				self.el.children[2].setAttribute("material", { src: "#placer" });
+				self.el.children[2].setAttribute("collider-check", {
+				  description: app.arViewer.dropObject,
+				});
+				self.el.children[3].setAttribute("collider-check", {
+				  description: app.arViewer.dropObject,
+				});
+			  },
+			});
+
+			//POINT-TASK: task to activate point with popup (text + (image) + (audio))
+			AFRAME.registerComponent("point-task", {
+			  schema: {
+				name: { type: "string", default: "" },
+				description: {
+				  type: "string",
+				  default:
+					"",
+				},
+				src_audio: {
+				  type: "string",
+				  default: "",
+				},
+				copyright_audio: {
+				  type: "string",
+				  default: "",
+				},
+				src_image: {
+				  type: "string",
+				  default: "",
+				},
+				copyright_image: {
+				  type: "string",
+				  default: "",
+				},
+				alt_image: {
+				  type: "string",
+				  default: "",
+				},
+				caption_image: {
+				  type: "string",
+				  default: "",
+				},
+				searchable: {
+				  type: "int",
+				  default: 1,
+				}
+			  },
+			  init: function () {
+				let self = this;
+				this.firstTime = true;
+				this.showPopUp = this.showPopUp.bind(this);
+				this.el.sceneEl.addEventListener("point-to-play-trigger", function (evt) {
+				  if (evt.detail.point.classList[0] == self.el.classList[0]) {
+					evt.detail.point.removeAttribute("spritesheet-animation");
+					evt.detail.point.setAttribute("material", { src: "#book" });
+					evt.detail.point.setAttribute("collider-check", {
+					  description: app.arViewer.showBook,
+					});
+					evt.detail.tipPoint.setAttribute("collider-check", {
+					  description: app.arViewer.showBook,
+					});
+					//count points
+					if (self.firstTime) {
+					  self.el.emit("point-achieved", { pointID: self.el.classList[0] }, true);
+					  self.firstTime = false;
+					}
+					self.showPopUp(
+					  self.data.name,
+					  self.data.description,
+					  self.data.src_audio,
+					  self.data.copyright_audio,
+					  self.data.src_image,
+					  self.data.copyright_image,
+					  self.data.alt_image,
+					  self.data.caption_image
+					);
+				  }
+				});
+				this.el.sceneEl.addEventListener("missions-reversed", function (e) {
+				  self.reverse(self, it);
+				});
+			  },
+
+			  showPopUp: function (
+				name,
+				desc,
+				src_audio,
+				cr_audio,
+				src_image,
+				cr_image,
+				alt_image,
+				caption_image
+			  ) {
+				let self = this;
+				let message = {
+				  type: app.arViewer.pointHead,
+				  content: getContent(),
+				  color: 'duckyellow', 
+				  shadow: null,
+				  buttonSetup: null,
+				  showClose: true
+				}
+				function getContent() {
+				  let content = '';
+				  let image = '';
+				  let audioEl = '';
+				  let headline = '<h3>' + name + '</h3>'
+				  if (src_image != "") {
+					image = `<div class="annotation-image><div class = "annotation-image-box>
+					<img width="100px" height="100px" src="${src_image}" alt="${alt_image}></div>
+					<p class="annotation-image-caption">${caption_image}<span class="copyright">Foto: ${cr_image}</span></p></div>`
+				  }
+				  if (src_audio != "") {
+					audioEl = `<audio controls autoplay><source src="${src_audio}" type"audio/mpeg"></audio>`
+				  }
+				  let description = `<p>${desc}</p></div>`
+				  return content + headline + image + audioEl + description;
+				}
+				app.gui.message.setMessage(message);
+				self.el.sceneEl.setAttribute("controller", {
+				  raycaster: false,
+				  inventory: false,
+				  rotate: false,
+				});
+
+				app.gui.message.closeEl.addEventListener('click', function (e) {
+
+				  self.el.sceneEl.setAttribute("controller", {
+					raycaster: true,
+					inventory: true,
+					rotate: true,
+				  });
+				}, { once: true });
+			  },
+			  reverse: function (self, it) {
+				if (self.data.searchable == 0) {
+				  self.el.children[0].setAttribute("material", {
+					shader: "flat",
+					src: '#exclamation',
+					transparent: true,
+				  });
+				} else {
+				  self.el.children[0].setAttribute("spritesheet-animation", {
+					rows: 4,
+					columns: 4,
+					frameDuration: 0.08,
+					loop: true,
+				  });
+
+
+				  self.el.children[0].setAttribute("material", { src: "#sprite" });
+				}
+				self.el.children[0].setAttribute("collider-check", {
+				  description: app.arViewer.activatePoint,
+				});
+				self.el.children[1].setAttribute("collider-check", {
+				  description: app.arViewer.activatePoint,
+				});
+				self.firstTime = true;
+			  },
+			});
+
+			//QUIZ TASK: activate a point with single choice quiz
+			AFRAME.registerComponent("quiz-task", {
+			  schema: {
+				name: { type: "string", default: "Question" },
+				answers: { type: "array", default: ["", "", ""] },
+				rightAnswer: { type: "string", default: "" },
+				description: {
+				  type: "string",
+				  default:
+					"",
+				},
+				searchable: { type: 'int', default: 1 },
+			  },
+			  init: function () {
+				let self = this;
+				this.solved = false;
+
+
+				this.checkAnswer = this.checkAnswer.bind(this);
+				this.showPopUp = this.showPopUp.bind(this);
+
+
+				this.el.sceneEl.addEventListener("point-to-play-trigger", function (evt) {
+				  if (evt.detail.point.classList[0] == self.el.classList[0]) {
+					self.showPopUp(
+					  self.data.name,
+					  self.data.answers,
+					  self.data.answer,
+					  self.data.description
+					);
+				  }
+				});
+				this.el.sceneEl.addEventListener("missions-reversed", function (e) {
+				  self.reverse(self, it);
+				});
+			  },
+
+			  showPopUp: function (name, answers, rightAnswer, desc) {
+				let self = this;
+				let message = {
+				  type: app.arViewer.quizHead,
+				  content: getContent(),
+				  color: 'terracotta',
+				  shadow: null,
+				  buttonSetup: [
+					this.solved ? {} : { label: app.arViewer.quizButton, color: "pearlwhite", shadow: "coalgrey" }
+					],
+				  showClose: true
+				}
+				function getContent() {
+				  let content = '';
+				  let description = '';
+				  let headline = '<h3>' + name + '</h3>'
+				  let form = '<form id="quiz-form">' +
+					`<div class="answer-container"><input type="radio" id="answer1" name="answer" value="${answers[0].toLowerCase()}">
+					<label for="answer1" class="answer-option">${answers[0]}</label></div>` +
+					`<div class="answer-container"><input type="radio" id="answer2" name="answer" value="${answers[1].toLowerCase()}">
+					<label for="answer2" class="answer-option">${answers[1]}</label></div>` +
+					`<div class="answer-container"><input type="radio" id="answer3" name="answer" value="${answers[2].toLowerCase()}">
+					<label for="answer3" class="answer-option">${answers[2]}</label></div> </form>`
+
+				  if (self.solved) {
+					description = `<p id="quiz-text">${desc}</p>`;
+				  } else {
+					description = '<p id="quiz-text"></p>';
+				  }
+				  return content + headline + form + description;
+				}
+				app.gui.message.setMessage(message);
+				app.gui.message.buttons.button[0].element.addEventListener("click", this.checkAnswer);
+				if (this.solved) this.disableRadios();
+				self.el.sceneEl.setAttribute("controller", {
+				  raycaster: false,
+				  inventory: false,
+				  rotate: false,
+				});
+				app.gui.message.messageCloseEl.addEventListener('click', function (e) {
+				  self.el.sceneEl.setAttribute("controller", {
+					raycaster: true,
+					inventory: true,
+					rotate: true,
+				  });
+				}, { once: true });
+				self.el.sceneEl.setAttribute("controller", {
+				  raycaster: false,
+				  inventory: false,
+				  rotate: false,
+				});
+			  },
+			  checkAnswer: function (event) {
+				const form = document.getElementById("quiz-form");
+				const selectedOption = form.querySelector('input[name="answer"]:checked');
+				const text = document.querySelector("#quiz-text");
+				if (selectedOption) {
+				  if (selectedOption.value === this.data.rightAnswer.toLowerCase()) {
+					text.innerHTML = "Richtig!<br>" + this.data.description;
+					event.target.removeEventListener("click", this.checkAnswer);
+					app.gui.message.buttons.button[0].element.classList.add("hide");
+					//scroll to end
+					scrollToEnd()
+					// Prevent default click behavior on radio buttons
+					this.disableRadios();
+					this.el.children[0].setAttribute("material", { src: "#book" });
+					this.el.children[0].setAttribute("collider-check", {
+					  description: app.arViewer.showBook,
+					});
+					this.el.children[1].setAttribute("collider-check", {
+					  description: app.arViewer.showBook,
+					});
+					this.solved = true;
+					//count points
+					this.el.emit("point-achieved", { pointID: this.el.classList[0] }, true);
+				  } else {
+					text.textContent = app.arViewer.quizFalse;
+					scrollToEnd();
+				  }
+				  function scrollToEnd() {
+					app.gui.message.content.containerEl.scrollTo({
+					  top: app.gui.message.content.containerEl.scrollHeight,
+					  behavior: 'smooth'
+					});
+				  }
+				} else {
+				  text.textContent = app.arViewer.quizNull;
+				}
+			  },
+			  disableRadios: function () {
+				for (let i = 0; i < this.data.answers.length; i++) {
+				  let radio = document.getElementById("answer" + (i + 1));
+				  if (radio.value === this.data.rightAnswer.toLowerCase()) {
+					radio.checked = true;
+				  }
+				  // Prevent default click behavior on radio buttons
+				  radio.addEventListener("click", this.preventClick);
+				}
+			  },
+
+			  preventClick: function (event) {
+				event.preventDefault();
+			  },
+			  reverse: function (self, it) {
+				self.solved = false;
+				if (self.data.searchable == 0) {
+				  self.el.children[0].setAttribute("material", {
+					shader: "flat",
+					src: '#question',
+					transparent: true,
+				  });
+				} else {
+				  self.el.children[0].setAttribute("spritesheet-animation", {
+					rows: 4,
+					columns: 4,
+					frameDuration: 0.08,
+					loop: true,
+				  });
+				  self.el.children[0].setAttribute("material", { src: "#sprite" });
+				}
+				self.el.children[0].setAttribute("collider-check", {
+				  description: app.arViewer.activateQuiz,
+				});
+				self.el.children[1].setAttribute("collider-check", {
+				  description: app.arViewer.activateQuiz,
+				});
+			  },
+			});
+			//ANIMATION-TASK
+			AFRAME.registerComponent("animation-task", {
+			  schema: {
+				name: { type: "string", default: "Animation starten" },
+				animName: { type: "string", default: null },
+				repetition: { type: "boolean", default: true },
+				animFinished: { type: "int", default: 0 },
+				deactivatesAnimName: { type: "string", default: null },
+				descriptionStart: { type: "string", default: null },
+				descriptionEnd: { type: "string", default: null },
+			  },
+			  init: function () {
+				let self = this;
+				this.solved = false;
+				this.firstTime = true;
+				this.object = document.getElementById('ar-object');
+
+				if (self.data.descriptionStart) {
+				  this.el.sceneEl.addEventListener('mission-activated', function (evt) {
+					if (self.el.classList[0] === evt.detail.id) {
+					  self.showPopUp(self.data.descriptionStart);
+					}
+				  })
+				}
+				if (self.data.descriptionEnd) {
+				  self.el.sceneEl.addEventListener('animation-finished', function (evt) {
+					if (self.data.animName == evt.detail.action.getClip().name && !self.firstTime) {
+					  self.showPopUp(self.data.descriptionEnd);
+					}
+				  })
+				}
+				this.el.sceneEl.addEventListener("point-to-play-trigger", function (evt) {
+				  if (evt.detail.point.classList[0] == self.el.classList[0]) {
+					self.object.setAttribute('animation-mixer', `startClip:${self.data.animName}; stopClip:${self.data.deactivatesAnimName}; repetition:${self.data.repetition}; clampWhenFinished:true; startAt: ${self.data.animFinished}`);
+					if (self.firstTime || !app.arViewer.missionMode) {
+					  if (app.arViewer.missionMode) {
+						evt.detail.point.setAttribute("material", { src: "#book" });
+					  }
+					  //emit to mission or noMission list
+					  self.el.emit("point-achieved", { pointID: self.el.classList[0] }, true);
+					  self.firstTime = false;
+					}
+					if (!self.data.repetition) {
+					  evt.detail.point.classList.remove("collidable");
+					  evt.detail.tipPoint.classList.remove("toolidable");
+					  evt.detail.point.object3D.visible = false;
+					}
+				  }
+				});
+				this.el.sceneEl.addEventListener("missions-reversed", function (e) {
+				  self.reverse(self, it);
+				});
+			  },
+			  showPopUp: function (desc) {
+				let self = this;
+				let message = {
+				  type: app.arViewer.animationHead,
+				  content: getContent(),
+				  color: 'skyblue', 
+				  shadow: null,
+				  buttonSetup: null,
+				  showClose: true
+				}
+				function getContent() {
+				  let description = `<p>${desc}</p>`
+				  return description;
+
+				}
+				app.gui.message.setMessage(message);
+				self.el.sceneEl.setAttribute("controller", {
+				  raycaster: false,
+				  inventory: false,
+				  rotate: false,
+				});
+				app.gui.message.closeEl.addEventListener('click', function (e) {
+				  self.el.sceneEl.setAttribute("controller", {
+					raycaster: true,
+					inventory: true,
+					rotate: true,
+				  });
+				}, { once: true });
+
+			  },
+			  reverse: function (self, it) {
+				self.el.children[0].classList.add('collidable');
+				self.el.children[1].classList.add('toolidable');
+				self.el.children[0].object3D.visible = true;
+				self.el.children[0].setAttribute("material", { src: '#playAnim' });
+				self.firstTime = true;
+			  }
+			})
+			//TOOLS: creates a copy of the object and enables stencil clipping, showing or not showing the wireframe and texture
+			AFRAME.registerComponent("tools", {
+
+			  schema: {
+				object: { type: "string", default: "ar-object" },
+				enabled: { type: "boolean", default: false },
+				wireframe: { type: "boolean", default: false },
+				texture: { type: "boolean", default: true },
+				clipping: { type: "boolean", default: true },
+				shot: { type: "boolean", default: false },
+			  },
+
+			  init: function () {
+				const self = this;
+				this.scene = this.el.object3D;
+				this.el.addEventListener("radius-set", function (e) {
+				  //set start distance of the plane
+				  self.distance = e.detail.maxSize / 2;
+				  const distanceUI = document.getElementById('distance-slider');
+				  distanceUI.max = e.detail.maxSize;
+				  distanceUI.value = self.distance;
+
+				  self.el.addEventListener("distance-changed", function (e) {
+					self.distance = e.detail.dist;
+				  })
+
+				  //gltf model scene
+				  const objectEl = document.getElementById(self.data.object);
+				  self.oldObject = objectEl.object3D;
+				  //camera
+				  self.camera = self.el.camera;
+				  self.cameraPos = new THREE.Vector3();
+				  self.cameraDir = new THREE.Vector3();
+				  //objectOverlay, plane Object
+				  self.objectOverlay = new THREE.Group();
+				  self.poGroup = new THREE.Group();
+				  //plane
+				  self.planeOne = new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0);
+				  //plane helper
+				  self.planeHelper = new THREE.PlaneHelper(self.planeOne, 2, 0xffffff);
+				  self.planeHelper.visible = self.data.planeHelper;
+				  if (self.planeHelper.visible) self.scene.add(self.planeHelper);
+				  // Renderer
+				  self.renderer = self.el.renderer;
+				  self.renderer.shadowMap.enabled = true;
+				  self.renderer.setPixelRatio(window.devicePixelRatio);
+				  self.renderer.setSize(window.innerWidth, window.innerHeight);
+				  //object to be clipped
+				  self.object = new THREE.Group();
+				  self.objectOverlay.add(self.object);
+				  self.objectOverlay.name = "object_overlay";
+				  self.scene.add(self.objectOverlay);
+				  //gltf model to set object geometry and material
+				  let objectScene = app.arViewer.originalObject;
+				  let geometry;
+				  const plane = self.planeOne;
+				  objectScene.traverse(function (child) {
+					if (child.isMesh) {
+					  geometry = child.geometry;
+					  // Access the texture of the material
+					  self.texture = child.material.map;
+					  self.position = child.position;
+					  self.rotation = child.rotation;
+					}
+				  });
+				  const stencilGroup = createPlaneStencilGroup(geometry, plane, 1);
+				  const planeGeom = new THREE.PlaneGeometry(4, 4, 2, 2);
+
+				  // plane is clipped by the other clipping planes
+				  const planeMat = new THREE.MeshStandardMaterial({
+					side: THREE.DoubleSide,
+					color: 0xffc800,
+					metalness: 0.1,
+					roughness: 0.75,
+
+					stencilWrite: true,
+					stencilRef: 0,
+					stencilFunc: THREE.NotEqualStencilFunc,
+					stencilFail: THREE.ReplaceStencilOp,
+					stencilZFail: THREE.ReplaceStencilOp,
+					stencilZPass: THREE.ReplaceStencilOp,
+				  });
+				  const po = new THREE.Mesh(planeGeom, planeMat);
+				  po.onAfterRender = function () {
+					self.renderer.clearStencil();
+				  };
+
+				  po.renderOrder = 1.1;
+				  self.object.add(stencilGroup);
+				  self.poGroup.add(po);
+				  self.planeObject = po;
+				  self.poGroup.name = "po_group";
+				  self.scene.add(self.poGroup);
+				  let material = new THREE.MeshStandardMaterial({
+					metalness: 0.1,
+					roughness: 0.75,
+					clippingPlanes: [plane],
+					clipShadows: true,
+					shadowSide: THREE.DoubleSide,
+				  });
+
+				  // add the color
+				  self.clippedColorFront = new THREE.Mesh(geometry, material);
+				  self.clippedColorFront.castShadow = true;
+				  self.clippedColorFront.renderOrder = 6;
+				  self.object.add(self.clippedColorFront);
+
+				  function createPlaneStencilGroup(geometry, plane, renderOrder) {
+					const group = new THREE.Group();
+
+					const baseMat = new THREE.MeshBasicMaterial();
+
+					baseMat.depthWrite = false;
+					baseMat.depthTest = false;
+					baseMat.colorWrite = false;
+					baseMat.stencilWrite = true;
+					baseMat.stencilFunc = THREE.AlwaysStencilFunc;
+
+					// back faces
+					const mat0 = baseMat.clone();
+					mat0.side = THREE.BackSide;
+					mat0.clippingPlanes = [plane];
+					mat0.stencilFail = THREE.IncrementWrapStencilOp;
+					mat0.stencilZFail = THREE.IncrementWrapStencilOp;
+					mat0.stencilZPass = THREE.IncrementWrapStencilOp;
+
+					const mesh0 = new THREE.Mesh(geometry, mat0);
+					mesh0.renderOrder = renderOrder;
+					group.add(mesh0);
+
+					// front faces
+					const mat1 = baseMat.clone();
+					mat1.side = THREE.FrontSide;
+					mat1.clippingPlanes = [plane];
+					mat1.stencilFail = THREE.DecrementWrapStencilOp;
+					mat1.stencilZFail = THREE.DecrementWrapStencilOp;
+					mat1.stencilZPass = THREE.DecrementWrapStencilOp;
+
+					const mesh1 = new THREE.Mesh(geometry, mat1);
+					mesh1.renderOrder = renderOrder;
+
+					group.add(mesh1);
+
+					return group;
+				  }
+				  self.objectOverlay.visible = false;
+				  self.poGroup.visible = false;
+				  self.oldObject.visible = true;
+				});
+			  },
+
+			  update: function () {
+				this.enabled = this.data.enabled;
+				this.wireframe = this.data.wireframe;
+				this.textureBool = this.data.texture;
+				this.clipping = this.data.clipping;
+				this.shot = this.data.shot;
+
+				if (this.enabled) {
+				  if (this.clipping) {
+					this.renderer.localClippingEnabled = true;
+				  } else {
+					this.renderer.localClippingEnabled = false;
+				  }
+				  //get the position and rotation of the object in AR
+				  let arPos = this.oldObject.parent.position;
+				  let rotY = this.oldObject.parent.rotation.y;
+				  this.poGroup.visible = true;
+				  this.objectOverlay.visible = true;
+				  //make current object invisible
+				  this.oldObject.visible = false;
+
+				  //set position of the container
+				  this.objectOverlay.position.set(arPos.x, arPos.y, arPos.z);
+				  this.objectOverlay.rotation.y = rotY;
+
+				  this.object.rotation.set(
+					this.rotation.x,
+					this.rotation.y,
+					this.rotation.z
+				  );
+				  this.object.position.set(
+					this.position.x,
+					this.position.y,
+					this.position.z
+				  );
+
+				  if (this.textureBool) {
+					this.clippedColorFront.material.map = this.texture;
+				  } else {
+					this.clippedColorFront.material.map = null;
+				  }
+				  if (this.wireframe) {
+					this.clippedColorFront.material.wireframe = true;
+				  } else {
+					this.clippedColorFront.material.wireframe = false;
+				  }
+				  this.clippedColorFront.material.needsUpdate = true;
+				}
+				//if stencil clipping is not enabled
+				else {
+				  try {
+					this.objectOverlay.visible = false;
+					this.poGroup.visible = false;
+					this.oldObject.visible = true;
+				  } catch {
+					app.dev && console.info("dev --- waiting for init clipping objects")
+				  }
+
+				}
+			  },
+
+			  tick: function () {
+				if (!this.enabled || !this.clipping) {
+				  return;
+				}
+
+				if (!this.shot) {
+				  //vectors for camera position and direction
+				  this.camera.getWorldPosition(this.cameraPos);
+				  this.camera.getWorldDirection(this.cameraDir);
+				}
+
+				this.vectorInFrontOfCamera = this.cameraPos
+				  .clone()
+				  .add(this.cameraDir.clone().multiplyScalar(this.distance));
+
+				//set the plane with cameraDirection and a point in front of the camera
+
+				this.planeOne.setFromNormalAndCoplanarPoint(
+				  this.cameraDir,
+				  this.vectorInFrontOfCamera);
+				const plane = this.planeOne;
+
+				const po = this.planeObject;
+				plane.coplanarPoint(po.position);
+				po.lookAt(
+				  po.position.x - plane.normal.x,
+				  po.position.y - plane.normal.y,
+				  po.position.z - plane.normal.z
+				);
+			  },
+			});
 		}
 	}, //arViewer
 
@@ -4779,11 +7731,6 @@ const app = {
 		(this.viewerMode === 'mv' && !model) && this.errorHandler('mv-000');
 		(this.viewerMode === 'mv' && !regex.test(model)) && this.errorHandler('mv-001');
 		(this.viewerMode === 'mv' && regex.test(model)) ? this.primaryKey = model : '';
-
-		//handle ar model uuid
-		(this.viewerMode === 'ar' && !model) && this.errorHandler('ar-000');
-		(this.viewerMode === 'ar' && !regex.test(model)) && this.errorHandler('ar-001');
-		(this.viewerMode === 'ar' && regex.test(model)) ? this.primaryKey = model : '';
 
 		//handle gui
 		noGUI ? this.hideGUI = true : this.hideGUI = false;
@@ -4890,4 +7837,3 @@ const app = {
 
 app.init();
 app.dev && console.log('dev --- app: ', app)
-export { app };
