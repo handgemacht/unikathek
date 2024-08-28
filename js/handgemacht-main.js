@@ -3476,7 +3476,7 @@ const app = {
 		init() {
 			this.createElements();
 			this.setEventListeners();
-			this.getJSONData(app.filepaths.files + 'json/' + app.primaryKey + '.json')
+			this.getJSONData(app.filepaths.files + 'json/' + app.primaryKey + '.json');
 
 			app.gui.toolbar.setToolbar(this.toolBarSetup.color, this.toolBarSetup.shadowColor);
 
@@ -4021,8 +4021,9 @@ const app = {
 
 				if(app.isMobile && app.isWebXRCapable) {
 					buttonEl.setAttribute('data-webxr', true);
-					app.arViewer.init();
+					//app.arViewer.init();
 					buttonEl.addEventListener('click', (e) => {
+						app.arViewer.init();
 						app.arViewer.close.element.classList.remove('hide');
 						app.modelViewer.removeElements();
 					})
@@ -4302,6 +4303,10 @@ const app = {
 			this.element.setAttribute('field-of-view', '');
 			this.element.setAttribute('interpolation-decay', '150');
 			this.element.setAttribute('data-dimension', 'false');
+			app.hideGUI && this.element.setAttribute('auto-rotate', '');
+			app.hideGUI && this.element.setAttribute('rotation-per-second', '0.3rad');
+			app.hideGUI && this.element.setAttribute('disable-zoom', '');
+			app.hideGUI && this.element.setAttribute('interaction-prompt', 'none');
 
 			this.default = {};
 
@@ -5289,6 +5294,7 @@ const app = {
 				  .then((json) => {
 					self.loadModel(json);
 					// init mission if tasks is declared
+					if(!json.appData.tasks) { return; }
 					if (json.appData.tasks.length > 0) {
 					  self.loadMissions(json);
 					  self.missionExisting = true;

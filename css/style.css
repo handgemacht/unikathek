@@ -22,7 +22,7 @@ html {
 body {
   margin: 0;
   padding: 0;
-  background-color: #F7EBE3;
+  background-color: #FAF0E6;
   font-family: 'Roboto Slab', serif;
   font-weight: 356;
   font-size: 1.0em;
@@ -1329,6 +1329,7 @@ div.autocomplete-list-container > div.autocomplete-list > div.autocomplete-activ
 model-viewer {
   width: 100vw;
   height: 100dvh;
+  z-index: 1;
 }
 
 
