@@ -4,8 +4,8 @@
 
 //START app 
 const app = {
-	title: 'appTitle',
-	version: 'alpha 1.1 24/07/17',
+	title: 'Unikathek',
+	version: 'beta 1.2 24/09/02',
 	dev: false,
 	stats: false,
 	viewerMode: false,
@@ -871,7 +871,8 @@ const app = {
 				
 				this.content.buttons.project = {};
 				this.content.buttons['project'].linkEl = document.createElement('a');
-				this.content.buttons['project'].linkEl.href = '#'; //Links anpassen
+				this.content.buttons['project'].linkEl.href = 'https://handgemacht.bayern/projekt';
+				this.content.buttons['project'].linkEl.target = '_blank';
 				this.content.buttons.containerEl.appendChild(this.content.buttons['project'].linkEl);
 				this.content.buttons['project'].element = document.createElement('button');
 				this.content.buttons['project'].linkEl.appendChild(this.content.buttons['project'].element);
@@ -880,7 +881,8 @@ const app = {
 				
 				this.content.buttons.patronage = {};
 				this.content.buttons['patronage'].linkEl = document.createElement('a');
-				this.content.buttons['patronage'].linkEl.href = '#'; //Links anpassen
+				this.content.buttons['patronage'].linkEl.href = 'https://www.stmfh.bayern.de/heimat/regionale_identitaet/';
+				this.content.buttons['patronage'].linkEl.target = '_blank';
 				this.content.buttons.containerEl.appendChild(this.content.buttons['patronage'].linkEl);
 				this.content.buttons['patronage'].element = document.createElement('button');
 				this.content.buttons['patronage'].linkEl.appendChild(this.content.buttons['patronage'].element);
@@ -894,13 +896,15 @@ const app = {
 
 				this.content.links.contact = {};
 				this.content.links['contact'].element = document.createElement('a');
-				this.content.links['contact'].element.href = 'https://dev.handgemacht.bayern?mv=ar&model=00000000-0000-0000-0000-000000000001'; //Links anpassen
+				this.content.links['contact'].element.href = 'https://handgemacht.bayern/#Kontakt';
+				this.content.links['contact'].element.target = '_blank';
 				this.content.links.containerEl.appendChild(this.content.links['contact'].element);
 				this.content.links['contact'].element.textContent = 'Kontakt';
 	
 				this.content.links.imprint = {};
 				this.content.links['imprint'].element = document.createElement('a');
-				this.content.links['imprint'].element.href = '#'; //Links anpassen
+				this.content.links['imprint'].element.href = 'https://handgemacht.bayern/impressum';
+				this.content.links['imprint'].element.target = '_blank';
 				this.content.links.containerEl.appendChild(this.content.links['imprint'].element);
 				this.content.links['imprint'].element.textContent = 'Impressum';
 	
@@ -2000,7 +2004,7 @@ const app = {
 				element.classList.toggle(color);
 				element.classList.toggle('inactive');
 
-				this.filterUpdated = true;
+				app.collectionViewer.filter.filterUpdated = true;
 			},
 
 			selectAllCheckBoxList(id) {
@@ -2030,7 +2034,7 @@ const app = {
 
 				selected ? selectAllButton.setAttribute('data-selected', false) : selectAllButton.setAttribute('data-selected', true);
 
-				this.filterUpdated = true;
+				app.collectionViewer.filter.filterUpdated = true;
 			}, 
 
 			updateForcegraph() {
@@ -4039,8 +4043,8 @@ const app = {
 						app.gui.loadingScreen.hideLoadingScreen(10000);
 					})
 					iconElement.src = app.assets.icon[func].src['pearlwhite'];
-					arButtonEl.classList.add(colors.button.background);
-					arButtonEl.classList.remove('disabled');
+					buttonEl.classList.add(colors.button.background);
+					buttonEl.classList.remove('disabled');
 					return;
 				}
 			}
