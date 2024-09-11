@@ -70,6 +70,13 @@ const app = {
 						coalgrey: filepath + 'hand.gemacht WebApp icon arrow left coalgrey.svg' 
 					}
 				},
+				'topic': {
+					alt: 'Themen-Symbol',
+					src: {
+						pearlwhite: filepath + 'hand.gemacht WebApp icon category pearlwhite.svg',
+						coalgrey: filepath + 'hand.gemacht WebApp icon category coalgrey.svg' 
+					}
+				},
 				'category': {
 					alt: 'Kategorie-Symbol',
 					src: {
@@ -192,6 +199,10 @@ const app = {
 					'category': {
 						alt: 'Kategorie-Marker',
 						src: filepath + 'hand.gemacht WebApp cv marker category.svg'
+					},
+					'topic': {
+						alt: 'Themen-Marker',
+						src: filepath + 'hand.gemacht WebApp cv marker topic.svg'
 					}
 				}
 			},
@@ -326,9 +337,9 @@ const app = {
 				this.element.textContent = app.title;
 			}, 
 
-			set(title = app.title, showArrow = false, from = null) {
-				if(from){
-					from = '&from=' + from;
+			set(title = app.title, showArrow = false, node = null) {
+				if(node){
+					node = '&node=' + node;
 				}
 				this.element.innerHTML = title;
 				this.containerEl.className = 'gui-title-container';
@@ -339,7 +350,7 @@ const app = {
 				showArrow && this.containerEl.classList.add('clickable');
 
 				showArrow && this.containerEl.addEventListener('click', (e) => {
-					let url='?m=cv&' + from;
+					let url='?m=cv&' + node;
 					app.dev ? url+='&dev=true' : '';
 					app.stats ? url+='&dev=stats' : '';
 					window.location.href = url;
@@ -1276,40 +1287,59 @@ const app = {
 		),
 
 		elementColor: {
-			object: 'terracotta', 
+			object: 'duckyellow', 
+			topic: 'terracotta',
 			category: 'skyblue', 
-			tag: 'duckyellow'
+			tag: 'duckyellow', 
+			productionTag: 'smokegrey'
+		},
+
+		components: {
+			'load-json-models': {
+				ready: false
+			},
+			'camera-focus-target': {
+				ready: false
+			}, 
+			'highlight': {
+				ready: false
+			}, 
+			'forcegraph': {
+				first: false,
+				ready: false
+			}
 		},
 
 		init() {
 			this.createElements();
 			this.tooltip.init();
 			this.highlight.init();
+			this.info.init();
+			this.search.init();
+			this.filter.init();
+			this.resetView.init();
+			this.registerComponents();
+			this.setEventListeners();			
 
 			app.gui.toolbar.setToolbar(this.toolBarSetup.color, this.toolBarSetup.shadowColor);
 
 			app.gui.toolbar.setButton(this.info.buttonSetup);
-			this.info.init();
 
 			app.gui.toolbar.setButton(this.search.buttonSetup);
-			this.search.init();
 			app.gui.toolbar.button[1].icon.addEventListener('click', (e) => {
 				app.collectionViewer.search.resetSearchInput();
 			})
 
 			app.gui.toolbar.setButton(this.filter.buttonSetup);
-			this.filter.init();
 			app.gui.toolbar.button[2].icon.addEventListener('click', (e) => {
 				app.collectionViewer.filter.filterUpdated ? app.collectionViewer.filter.updateForcegraph() : '';
-			})
-
-			app.gui.toolbar.setButton(this.resetView.buttonSetup);
-			this.resetView.init();
-			app.gui.toolbar.button[3].icon.addEventListener('click', (e) => {
 				app.collectionViewer.resetView.resetCameraView();
 			})
 
-			this.registerComponents();
+			app.gui.toolbar.setButton(this.resetView.buttonSetup);
+			app.gui.toolbar.button[3].icon.addEventListener('click', (e) => {
+				app.collectionViewer.resetView.resetCameraView();
+			})
 		},
 
 		tooltip: {
@@ -1346,15 +1376,30 @@ const app = {
 					this.typeEl.classList.add(app.collectionViewer.elementColor.category);
 					this.contentEl.classList.add(app.collectionViewer.elementColor.category);
 				}
+				if(type === 'node-topic'){
+					typeText = 'Thema'
+					this.typeEl.classList.add(app.collectionViewer.elementColor.topic);
+					this.contentEl.classList.add(app.collectionViewer.elementColor.topic);
+				}
 				if(type === 'link-tag'){
 					typeText = 'Tag-Link'
 					this.typeEl.classList.add(app.collectionViewer.elementColor.tag);
 					this.contentEl.classList.add(app.collectionViewer.elementColor.tag);
 				}
+				if(type === 'link-productionTag'){
+					typeText = 'Herstellungs-Link'
+					this.typeEl.classList.add(app.collectionViewer.elementColor.productionTag);
+					this.contentEl.classList.add(app.collectionViewer.elementColor.productionTag);
+				}
 				if(type === 'link-category'){
 					typeText = 'Kategorie-Link'
 					this.typeEl.classList.add(app.collectionViewer.elementColor.category);
 					this.contentEl.classList.add(app.collectionViewer.elementColor.category);
+				}
+				if(type === 'link-topic'){
+					typeText = 'Themen-Link'
+					this.typeEl.classList.add(app.collectionViewer.elementColor.topic);
+					this.contentEl.classList.add(app.collectionViewer.elementColor.topic);
 				}
 				this.typeEl.textContent = typeText;
 				this.contentEl.textContent = content;
@@ -1406,11 +1451,11 @@ const app = {
 					return;
 				}
 
-				if (fgElement.type === 'link-tag' || fgElement.type === 'link-category') {
+				if (fgElement.type === 'link-tag' || fgElement.type === 'link-category' || fgElement.type === 'link-productionTag' || fgElement.type === 'link-topic' ) {
 					if (fgElement.material.visible === false) {
 						return;
 					}
-				}else if(fgElement.type === 'node-object' || fgElement.type === 'node-category'){
+				}else if(fgElement.type === 'node-object' || fgElement.type === 'node-category'|| fgElement.type === 'node-topic'){
 					if (fgElement.model.material.visible === false) {
 						return;
 					}
@@ -1472,6 +1517,24 @@ const app = {
 					if(categoryList !== '') {
 						categoryList = '<div class="categories"><h6 class="text-smokegrey">Kategorien: </h6>' + categoryList + '</div>';
 					}
+
+					let topicList = '';
+					for(let topic of fgNode.topics) {
+						if(topic === ''){ continue; }
+						let pillId = 'c-' + self.crypto.randomUUID();
+						topicList += '<div id="' + pillId +'" '
+										+ 'class="pill shadow-' + app.collectionViewer.elementColor.topic + ' text-coalgrey" '
+										+ 'data-model-id="' + fgNode.id +'" '
+										+ 'data-color="' + app.collectionViewer.elementColor.topic +'" '
+										+ 'data-name="' + topic.replace(/"/g, '&quot;') +'" '
+										+ 'data-type="topic" data-active="false">' 
+										+ topic 
+										+ '</div>';
+						this.pillArray.push('#'+pillId);
+					}
+					if(topicList !== '') {
+						topicList = '<div class="categories"><h6 class="text-smokegrey">Themen: </h6>' + topicList + '</div>';
+					}
 	
 					let tagList = '';
 					for(let tag of fgNode.tags) {
@@ -1491,12 +1554,33 @@ const app = {
 						tagList = '<div class="tags"><h6 class="text-smokegrey">Tags: </h6>' + tagList + '</div>';
 					}
 
+					let productionTagList = '';
+					for(let productionTag of fgNode.productionTags) {
+						if(productionTag === ''){ continue; }
+						let pillId = 't-' + self.crypto.randomUUID();
+						productionTagList += '<div id="' + pillId +'" '
+										+ 'class="pill shadow-' + app.collectionViewer.elementColor.productionTag + ' text-coalgrey" '
+										+ 'data-model-id="' + fgNode.id +'" '
+										+ 'data-color="' + app.collectionViewer.elementColor.productionTag +'" '
+										+ 'data-name="' + productionTag.replace(/"/g, '&quot;') +'" '
+										+ 'data-type="productionTag" data-active="false">' 
+										+ productionTag 
+										+ '</div>';
+						this.pillArray.push('#'+pillId);
+					}
+					if(productionTagList !== '') {
+						productionTagList = '<div class="tags"><h6 class="text-smokegrey">Herstellung: </h6>' + productionTagList + '</div>';
+					}
+
+					let objectContent = app.createHTMLContentFromJSON(fgNode.contents);
+
 					let message = {
 						type: 'Objekt',
-						content: '<h3>' + fgNode.name + '</h3>'
-								+ '<p>Hier steht später eine Objektbeschreibung</p>'
+						content: objectContent
+								+ topicList
 								+ categoryList
-								+ tagList,
+								+ tagList
+								+ productionTagList,
 						color: 'pearlwhite',
 						shadow: 'shadow-' + app.collectionViewer.elementColor.object,
 						buttonSetup: [
@@ -1530,14 +1614,42 @@ const app = {
 										+ '</div>';
 						this.pillArray.push('#'+pillId);
 					}
+
+					let categoryContent = app.createHTMLContentFromJSON(fgNode.contents);
 					
 					let message = {
 						type: 'Kategorie',
-						content: '<h3>' + fgNode.name + '</h3>'
-								+ '<p>Hier steht später eine Kategoriebeschreibung</p>'
-								+ objectList,
+						content: categoryContent + objectList,
 						color: 'pearlwhite',
 						shadow: 'shadow-' + app.collectionViewer.elementColor.category
+					}
+
+					app.gui.message.setMessage(message);
+				}
+
+				if(type === 'node-topic'){
+					let objectList = '<div class="objects"><h6 class="text-smokegrey">Verbundene Objekte: </h6>';
+					for(let node of app.collectionViewer.proxyfgData.data.nodes) {
+						if(!node.topics.includes(fgNode.name) || node.type === 'node-topic'){ continue; }
+						let pillId = 'c-' + self.crypto.randomUUID();;
+						objectList += '<div id="' + pillId +'" '
+										+ 'class="pill shadow-' + app.collectionViewer.elementColor.object + ' text-coalgrey" '
+										+ 'data-model-id="' + fgNode.id +'" '
+										+ 'data-color="' + app.collectionViewer.elementColor.object +'" '
+										+ 'data-name="' + node.name.replace(/"/g, '&quot;') +'" '
+										+ 'data-type="object" data-active="false">' 
+										+ node.name
+										+ '</div>';
+						this.pillArray.push('#'+pillId);
+					}
+					
+					let topicContent = app.createHTMLContentFromJSON(fgNode.contents)
+					
+					let message = {
+						type: 'Thema',
+						content: topicContent + objectList,
+						color: 'pearlwhite',
+						shadow: 'shadow-' + app.collectionViewer.elementColor.topic
 					}
 
 					app.gui.message.setMessage(message);
@@ -1546,11 +1658,13 @@ const app = {
 
 			setPillEventlisteners() {
 				let filteredTags = app.collectionViewer.filter.filteredData.tags;
+				let filteredProductionTags = app.collectionViewer.filter.filteredData.productionTags;
 				let filteredCategories = app.collectionViewer.filter.filteredData.categories;
+				let filteredTopics = app.collectionViewer.filter.filteredData.topics;
 				for(let pill of this.pillArray){
 					let element = document.querySelector(pill);
 					let name = element.getAttribute('data-name');
-					if(filteredTags.includes(name) || filteredCategories.includes(name)){
+					if(filteredTags.includes(name) || filteredProductionTags.includes(name) || filteredCategories.includes(name) || filteredTopics.includes(name)){
 						element.classList.remove('inactive');
 						element.classList.add('inactive');
 					}else{
@@ -1567,22 +1681,30 @@ const app = {
 				let type = pill.getAttribute('data-type');
 				let color = pill.getAttribute('data-color');
 				let active = (pill.getAttribute('data-active') === 'true');
+				let textColor = 'text-coalgrey';
+				let textColorNew = 'text-coalgrey';
 				
 				document.querySelector('#forcegraph').components.highlight.highlightFromPill(name, type, active, modelId);
 
+				if(color === 'terracotta' || color === 'skyblue' || color === 'smokegrey'){
+					textColorNew = 'text-pearlwhite';
+				}
+
 				for(let pill of app.collectionViewer.highlight.pillArray){
 					let element = document.querySelector(pill);
-					let color = element.getAttribute('data-color');
-					element.classList.remove(color);
+					let elementColor = element.getAttribute('data-color');
+					element.classList.remove(elementColor);
+					element.classList.remove('text-pearlwhite');
+					element.classList.remove('text-coalgrey');
 					element.setAttribute('data-active', false);
 				}
 
 				if(!active){
-					pill.classList.remove(color);
 					pill.classList.add(color);
+					pill.classList.add(textColorNew);
 					pill.setAttribute('data-active', true);
 				}else{
-					pill.classList.remove(color);
+					pill.classList.add(textColor);
 					pill.setAttribute('data-active', false);
 				}
 			}
@@ -1818,6 +1940,7 @@ const app = {
 				for(let n of fgNodes) {
 					if(n.name === name){
 						node = n;
+						app.dev && console.log('dev --- search model: ', node);
 					}
 				}
 
@@ -1858,7 +1981,9 @@ const app = {
 				title: 'Filter',
 				intro: 'Aktiviere oder deaktiviere Kategorien und Tags um deine Ergebnisse anzupassen.',
 				categoriesButton: 'Kategorien',
+				topicsButton: 'Themen',
 				tagsButton: 'Tags',
+				productionTagsButton: 'Herstellung',
 				selectAllButton: 'Alle aus-/abwählen'
 			},
 
@@ -1866,7 +1991,9 @@ const app = {
 
 			filteredData: {
 				tags: [], 
-				categories: []
+				productionTags: [], 
+				categories: [],
+				topics: []
 			},
 
 			init() {
@@ -1875,7 +2002,11 @@ const app = {
 				document.addEventListener('proxyfgData-update', (event) => {
 					//app.dev && console.log('dev --- cv > filter > proxyfgData-update: ', app.collectionViewer.proxyfgData.data);
 					this.generateCheckBoxList('#cv-filter-category-list', app.collectionViewer.proxyfgData.data.categorylist, app.collectionViewer.elementColor.category);
+					this.generateCheckBoxList('#cv-filter-topic-list', app.collectionViewer.proxyfgData.data.topiclist, app.collectionViewer.elementColor.topic);
 					this.generateCheckBoxList('#cv-filter-tag-list', app.collectionViewer.proxyfgData.data.taglist, app.collectionViewer.elementColor.tag);
+					this.generateCheckBoxList('#cv-filter-production-tag-list', app.collectionViewer.proxyfgData.data.productionTaglist, app.collectionViewer.elementColor.productionTag, false);
+
+					app.collectionViewer.filter.updateForcegraph();
 				});
 			},
 
@@ -1894,6 +2025,44 @@ const app = {
 				filterContainer.appendChild(filterText);
 				filterText.className = 'text-small';
 				filterText.textContent = this.texts.intro;
+
+				const topicListContainer = document.createElement('div');
+				filterContainer.appendChild(topicListContainer);
+				topicListContainer.className = 'list-container';
+
+				const topicListButton = document.createElement('button');
+				topicListContainer.appendChild(topicListButton);
+				topicListButton.className = 'button collapsible-button ' + this.buttonSetup.colors.tab.text;
+
+				const topicListButtonIcon = document.createElement('div');
+				topicListButton.appendChild(topicListButtonIcon);
+				topicListButtonIcon.className = 'icon ' + app.collectionViewer.elementColor.topic;
+
+				const topicIcon = document.createElement('img');
+				topicListButtonIcon.appendChild(topicIcon);
+				topicIcon.src = app.assets.icon['topic'].src.pearlwhite;
+				topicIcon.alt = app. assets.icon['topic'].alt;
+				topicIcon.width = 100;
+				topicIcon.height = 100;
+				topicIcon.setAttribute('loading', 'lazy');
+
+				topicListButton.textContent = this.texts.topicsButton;
+
+				const topicListButtonArrow = document.createElement('div');
+				topicListButton.appendChild(topicListButtonArrow);
+				topicListButtonArrow.className = 'arrow right ' + this.buttonSetup.colors.tab.icon;
+
+				const topicList = document.createElement('div');
+				topicListContainer.appendChild(topicList);
+				topicList.className = 'cv-filter-container collapsible-content';
+				topicList.setAttribute('id', 'cv-filter-topic-list');
+
+				const topicSelectAllButton = document.createElement('button');
+				topicList.appendChild(topicSelectAllButton);
+				topicSelectAllButton.className = 'button text-small';
+				topicSelectAllButton.setAttribute('data-selected', true);
+				topicSelectAllButton.setAttribute('id', 'cv-filter-topic-list-select-all');
+				topicSelectAllButton.textContent = this.texts.selectAllButton;
 
 				const categoryListContainer = document.createElement('div');
 				filterContainer.appendChild(categoryListContainer);
@@ -1970,12 +2139,51 @@ const app = {
 				tagSelectAllButton.setAttribute('data-selected', true);
 				tagSelectAllButton.setAttribute('id', 'cv-filter-tag-list-select-all');
 				tagSelectAllButton.textContent = this.texts.selectAllButton;
+
+				const productionTagListContainer = document.createElement('div');
+				filterContainer.appendChild(productionTagListContainer);
+				productionTagListContainer.className = 'list-container';
+
+				const productionTagListButton = document.createElement('button');
+				productionTagListContainer.appendChild(productionTagListButton);
+				productionTagListButton.className = 'button collapsible-button ' + this.buttonSetup.colors.tab.text;
+
+				const productionTagListButtonIcon = document.createElement('div');
+				productionTagListButton.appendChild(productionTagListButtonIcon);
+				productionTagListButtonIcon.className = 'icon ' + app.collectionViewer.elementColor.productionTag;
+
+				const productionTagIcon = document.createElement('img');
+				productionTagListButtonIcon.appendChild(productionTagIcon);
+				productionTagIcon.src = app.assets.icon['tag'].src.coalgrey;
+				productionTagIcon.alt = app. assets.icon['tag'].alt;
+				productionTagIcon.width = 100;
+				productionTagIcon.height = 100;
+				productionTagIcon.setAttribute('loading', 'lazy');
+
+				productionTagListButton.textContent = this.texts.productionTagsButton;
+
+				const productionTagListButtonArrow = document.createElement('div');
+				productionTagListButton.appendChild(productionTagListButtonArrow);
+				productionTagListButtonArrow.className = 'arrow right ' + this.buttonSetup.colors.tab.icon;
+
+				const productionTagList = document.createElement('div');
+				productionTagListContainer.appendChild(productionTagList);
+				productionTagList.className = 'cv-filter-container collapsible-content';
+				productionTagList.setAttribute('id', 'cv-filter-production-tag-list');
+
+				const productionTagSelectAllButton = document.createElement('button');
+				productionTagList.appendChild(productionTagSelectAllButton);
+				productionTagSelectAllButton.className = 'button text-small';
+				productionTagSelectAllButton.setAttribute('data-selected', true);
+				productionTagSelectAllButton.setAttribute('id', 'cv-filter-production-tag-list-select-all');
+				productionTagSelectAllButton.textContent = this.texts.selectAllButton;
 			}, 
 
-			generateCheckBoxList(id, dataArray, color){
+			generateCheckBoxList(id, dataArray, color, active = true){
 				let element = document.querySelector(id);
 				if(!element){return;}
 				let selectAllButton = document.querySelector(id+'-select-all');
+				!active ? selectAllButton.setAttribute('data-selected', false) : '';
 				selectAllButton.addEventListener('click', (e) => {
 					this.selectAllCheckBoxList(id)
 				});
@@ -1985,9 +2193,11 @@ const app = {
 				dataArray.forEach(function(data) {
 					let newPill = document.createElement('div');
 					element.appendChild(newPill);
-					newPill.className = 'pill ' + color + ' ' + shadowColor;
+					newPill.className = 'pill ' + ' ' + shadowColor;
 					newPill.setAttribute('data-color', color);
-					newPill.setAttribute('data-active', true);
+					active ? newPill.classList.add(color) : '';
+					!active ? newPill.classList.add('inactive') : '';
+					newPill.setAttribute('data-active', active);
 					newPill.textContent = data;
 
 					newPill.addEventListener('click', app.collectionViewer.filter.clickPillHandler);
@@ -2041,11 +2251,17 @@ const app = {
 				let loadJSONModelsComponent = document.querySelector('a-scene').components['load-json-models'];
 				let fgData = app.collectionViewer.proxyfgData.data;
 				let categoryListElement = document.querySelector('#cv-filter-category-list');
+				let topicListElement = document.querySelector('#cv-filter-topic-list');
 				let tagListElement = document.querySelector('#cv-filter-tag-list');
+				let productionTagListElement = document.querySelector('#cv-filter-production-tag-list');
 				let showCategoriesArray = [];
+				let showTopicsArray = [];
 				let showTabsArray = [];
+				let showProductionTabsArray = [];
 				app.collectionViewer.filter.filteredData.categories = [];
+				app.collectionViewer.filter.filteredData.topics = [];
 				app.collectionViewer.filter.filteredData.tags = [];
+				app.collectionViewer.filter.filteredData.productionTags = [];
 
 				//app.dev && console.log('dev --- cv > filter > updateForcegraph > loadJSONModelsComponent', loadJSONModelsComponent);
 
@@ -2055,15 +2271,27 @@ const app = {
 					active ? showCategoriesArray.push(name) : app.collectionViewer.filter.filteredData.categories.push(name);
 				}
 
+				for(let element of topicListElement.children) {
+					let active = (element.getAttribute('data-active') === 'true');
+					let name = element.innerHTML;
+					active ? showTopicsArray.push(name) : app.collectionViewer.filter.filteredData.topics.push(name);
+				}
+
 				for(let element of tagListElement.children) {
 					let active = (element.getAttribute('data-active') === 'true');
 					let name = element.innerHTML;
 					active ? showTabsArray.push(name) : app.collectionViewer.filter.filteredData.tags.push(name);
 				}
 
+				for(let element of productionTagListElement.children) {
+					let active = (element.getAttribute('data-active') === 'true');
+					let name = element.innerHTML;
+					active ? showProductionTabsArray.push(name) : app.collectionViewer.filter.filteredData.productionTags.push(name);
+				}
+
 				document.querySelector('a-scene').setAttribute('load-json-models', 'normFactor: 0')
 
-				loadJSONModelsComponent.filterFgData(fgData, showTabsArray, showCategoriesArray);
+				loadJSONModelsComponent.filterFgData(fgData, showTabsArray, showProductionTabsArray, showCategoriesArray, showTopicsArray);
 			}
 		},
 
@@ -2183,7 +2411,7 @@ const app = {
 					tick: function () {
 						if(this.nodeModelSet && this.fgComp){
 							for(let node of this.fgComp.nodes){
-								if(node.type === 'node-category' && node.__threeObj) {
+								if((node.type === 'node-category' || node.type === 'node-topic') && node.__threeObj) {
 									this.el.sceneEl.camera.getWorldPosition(this.cameraPos);
 									node.__threeObj.lookAt(this.cameraPos);
 								}
@@ -2206,19 +2434,19 @@ const app = {
 							comp.assignMaterialToLinks();
 							comp.normalizeScale(this.scaleFactor, this.normalization);
 							document.querySelector('#forcegraph').setAttribute('highlight', {noUpdate: false});
-							app.gui.loadingScreen.hideLoadingScreen();
+							let event = new Event('load-json-models-ready');
+							document.querySelector('a-scene').dispatchEvent(event);
 						});
 
 						//listen for JSON-models-loaded event
 						this.el.sceneEl.addEventListener('JSON-models-loaded', (e) => {
-							
 							if(comp.json) {
 								//prepare JSON data for forcegraph
 								comp.fgData = comp.getDataFromJSON(comp.json);
 								//parse forcegraph data to app.collectionViewer
 								app.collectionViewer.proxyfgData.data = comp.fgData;
 								//filter forcegraph data for default view
-								comp.filterFgData(comp.fgData, comp.fgData.taglist, comp.fgData.categorylist); //default: all tags, all categories
+								comp.filterFgData(comp.fgData, comp.fgData.taglist, [], comp.fgData.categorylist, comp.fgData.topiclist); //default: all tags, no production tags, all categories, all topics
 							}
 						}, {once: true});
 					},
@@ -2229,6 +2457,12 @@ const app = {
 						this.imgCategory.crossOrigin = 'anonymous';
 						this.imgCategory.src = app.assets.cv.marker['category'].src;
 						this.el.sceneEl.querySelector('a-assets').appendChild(this.imgCategory);
+
+						this.imgTopic = document.createElement('img');
+						this.imgTopic.id = 'icon-topic';
+						this.imgTopic.crossOrigin = 'anonymous';
+						this.imgTopic.src = app.assets.cv.marker['topic'].src;
+						this.el.sceneEl.querySelector('a-assets').appendChild(this.imgTopic);
 						
 						//create category model 
 						this.categoryModelEl = document.createElement('a-entity');
@@ -2238,6 +2472,14 @@ const app = {
 						this.categoryModelEl.setAttribute('visible', false);
 						this.el.sceneEl.querySelector('a-assets').appendChild(this.categoryModelEl);
 
+						//create topic model 
+						this.topicModelEl = document.createElement('a-entity');
+						this.topicModelEl.setAttribute('id', 'topic-model');
+						this.topicModelEl.setAttribute('geometry', 'primitive: circle; radius: 7');
+						this.topicModelEl.setAttribute('material', 'src: #icon-topic');
+						this.topicModelEl.setAttribute('visible', false);
+						this.el.sceneEl.querySelector('a-assets').appendChild(this.topicModelEl);
+
 						//create link category model 
 						this.linkCategoryModelEl = document.createElement('a-entity');
 						this.linkCategoryModelEl.setAttribute('id', 'link-category-model');
@@ -2246,6 +2488,14 @@ const app = {
 						this.linkCategoryModelEl.setAttribute('visible', false);
 						this.el.sceneEl.querySelector('a-assets').appendChild(this.linkCategoryModelEl);
 
+						//create link topic model 
+						this.linkTopicModelEl = document.createElement('a-entity');
+						this.linkTopicModelEl.setAttribute('id', 'link-topic-model');
+						this.linkTopicModelEl.setAttribute('geometry', 'primitive: sphere; radius: 1');			
+						this.linkTopicModelEl.setAttribute('material', 'color: #FF7850; shader: flat; opacity: 0.4, transparent: true');
+						this.linkTopicModelEl.setAttribute('visible', false);
+						this.el.sceneEl.querySelector('a-assets').appendChild(this.linkTopicModelEl);
+
 						//create link tag model 
 						this.linkTagModelEl = document.createElement('a-entity');
 						this.linkTagModelEl.setAttribute('id', 'link-tag-model');
@@ -2253,6 +2503,14 @@ const app = {
 						this.linkTagModelEl.setAttribute('material', 'color: #FFC800; shader: flat; opacity: 0.4, transparent: true');
 						this.linkTagModelEl.setAttribute('visible', false);
 						this.el.sceneEl.querySelector('a-assets').appendChild(this.linkTagModelEl);
+
+						//create production link tag model 
+						this.linkProductionTagModelEl = document.createElement('a-entity');
+						this.linkProductionTagModelEl.setAttribute('id', 'link-production-tag-model');
+						this.linkProductionTagModelEl.setAttribute('geometry', 'primitive: sphere; radius: 1');			
+						this.linkProductionTagModelEl.setAttribute('material', 'color: #9B9691; shader: flat; opacity: 0.4, transparent: true');
+						this.linkProductionTagModelEl.setAttribute('visible', false);
+						this.el.sceneEl.querySelector('a-assets').appendChild(this.linkProductionTagModelEl);
 					},
 
 					loadJSONModels: function () {
@@ -2291,13 +2549,14 @@ const app = {
 
 					getDataFromJSON: function (json) {
 						if(!this.json) {return;};
-						const fgData={ 'nodes': [], 'links': [], 'categorylist': [], 'taglist': [] };
+						const fgData={ 'nodes': [], 'links': [], 'categorylist': [], 'topiclist': [], 'taglist': [], 'productionTaglist': [] };
 
 						function filterEmptyTag(tag){
 							return tag !== '';
 						}
 
 						function containsObject(obj, list) {
+							if (list == null) { return false; };
 							for(let item of list){
 								if (item === obj) {
 									return true;
@@ -2307,18 +2566,38 @@ const app = {
 						}
 
 						function filterDoubles(link) {
-							return link.double == false || link.type == 'link-category';
+							return link.double == false || link.type == 'link-category' || link.type == 'link-topic';
 						}
 					
 						//create nodes from categories 
 						for(let category of json.categorylist){
 							if(category === '') { continue; }
 							const newNode = {}
-							newNode.id = category;
-							newNode.categories = [category];
-							newNode.name = category;
+							newNode.id = category.title;
+							newNode.categories = [category.title];
+							newNode.topics = [];
+							newNode.name = category.title;
+							newNode.contents = category.contents;
 							newNode.type = 'node-category';
 							newNode.tags = [];
+							newNode.productionTags = [];
+							newNode.size = 0;
+							newNode.model = '';
+							fgData.nodes.push(newNode);
+						}
+
+						//create nodes from topics 
+						for(let topic of json.topiclist){
+							if(topic === '') { continue; }
+							const newNode = {}
+							newNode.id = topic.title;
+							newNode.categories = [];
+							newNode.topics = [topic.title];
+							newNode.name = topic.title;
+							newNode.contents = topic.contents;
+							newNode.type = 'node-topic';
+							newNode.tags = [];
+							newNode.productionTags = [];
 							newNode.size = 0;
 							newNode.model = '';
 							fgData.nodes.push(newNode);
@@ -2329,9 +2608,12 @@ const app = {
 							const newNode = {}
 							newNode.id = object.primaryKey;
 							newNode.categories = object.categories;
+							newNode.topics = object.topics;
 							newNode.name = object.name;
+							newNode.contents = object.contents;
 							newNode.type = 'node-object';
 							newNode.tags = object.tags.filter(filterEmptyTag);
+							newNode.productionTags = object.productionTags.filter(filterEmptyTag);
 							newNode.size = 100;
 							newNode.model = ''
 							fgData.nodes.push(newNode);
@@ -2340,12 +2622,27 @@ const app = {
 						//create links for categories
 						for(let category of json.categorylist){
 							for(let object of json.objects){
-								if(containsObject(category, object.categories)){
+								if(containsObject(category.title, object.categories)){
 									const newLink = {};
-									newLink.source = category; 
+									newLink.source = category.title; 
 									newLink.target = object.primaryKey; 
-									newLink.name = category;
+									newLink.name = category.title;
 									newLink.type = 'link-category';
+									newLink.material = '';
+									fgData.links.push(newLink);
+								}
+							}
+						}
+
+						//create links for topics
+						for(let topic of json.topiclist){
+							for(let object of json.objects){
+								if(containsObject(topic.title, object.topics)){
+									const newLink = {};
+									newLink.source = topic.title; 
+									newLink.target = object.primaryKey; 
+									newLink.name = topic.title;
+									newLink.type = 'link-topic';
 									newLink.material = '';
 									fgData.links.push(newLink);
 								}
@@ -2354,6 +2651,7 @@ const app = {
 					
 						//create links for tags
 						for(let objectSource of json.objects){
+							if (objectSource.tags == null) { return false; }
 							for(let tag of objectSource.tags){
 								for(let objectTarget of json.objects){
 									if(objectSource !== objectTarget && tag !== '' && containsObject(tag, objectTarget.tags)) {
@@ -2368,6 +2666,24 @@ const app = {
 								}
 							}
 						}
+
+						//create links for production tags
+						for(let objectSource of json.objects){
+							if (objectSource.productionTags == null) { return false; }
+							for(let productionTag of objectSource.productionTags){
+								for(let objectTarget of json.objects){
+									if(objectSource !== objectTarget && productionTag !== '' && containsObject(productionTag, objectTarget.productionTags)) {
+										const newLink = {}; 
+										newLink.source = objectSource.primaryKey; 
+										newLink.target = objectTarget.primaryKey; 
+										newLink.name = productionTag;
+										newLink.type = 'link-productionTag';
+										newLink.material = '';
+										fgData.links.push(newLink);
+									}
+								}
+							}
+						}
 						
 						//mark doubled link
 						for(let linkA of fgData.links){
@@ -2376,7 +2692,7 @@ const app = {
 							for(let linkB of fgData.links){
 								let sourceB = linkB.source;
 								let targetB = linkB.target;
-								if(sourceA === targetB && targetA === sourceB){
+								if(sourceA === targetB && targetA === sourceB && linkA.type === linkB.type){
 									linkA.double = true;
 									linkB.double = false;
 								}
@@ -2386,35 +2702,52 @@ const app = {
 						//remove marked doubled links
 						fgData.links = fgData.links.filter(filterDoubles);
 
-						fgData.categorylist = json.categorylist;
+						for(let category of json.categorylist){
+							fgData.categorylist.push(category.title);
+						}
+						for(let topic of json.topiclist){
+							fgData.topiclist.push(topic.title);
+						}
+						//fgData.categorylist = json.categorylist;
+						//fgData.topiclist = json.topiclist;
 						fgData.taglist = json.taglist;
+						fgData.productionTaglist = json.productionTaglist;
 					
 						return fgData;
 					},
 
-					filterFgData: function(fgData, tags = [], categories = []) {
+					filterFgData: function(fgData, tags = [], productionTags = [], categories = [], topics = []) {
 						let filteredFgData = { 'nodes': [], 'links': [] };
 
+						app.dev && console.log('dev --- forcegraph filter fgData: ', fgData);
 						app.dev && console.log('dev --- forcegraph filter Data tags: ', tags);
+						app.dev && console.log('dev --- forcegraph filter Data production tags: ', productionTags);
 						app.dev && console.log('dev --- forcegraph filter Data categories: ', categories);
+						app.dev && console.log('dev --- forcegraph filter Data topics: ', topics);
 
-						for( let link in fgData.links ){
-							let thisLink = fgData.links[link];
-							if(tags.includes(thisLink.name) || categories.includes(thisLink.name)) {
-								filteredFgData.links.push(thisLink);
+						for( let link of fgData.links ){
+							if(tags.includes(link.name) || productionTags.includes(link.name) || categories.includes(link.name)|| topics.includes(link.name)) {
+								filteredFgData.links.push(link);
 							}
 						}
 
-						for( let node in fgData.nodes ){
-							let thisNode = fgData.nodes[node];
+						for( let node of fgData.nodes ){
 							let newNode = null;
-							let filteredTags = thisNode.tags.filter(value => tags.includes(value));
-							let filteredCategories = thisNode.categories.filter(value => categories.includes(value));
+							let filteredTags = node.tags.filter(value => tags.includes(value));
+							let filteredProductionTags = node.productionTags.filter(value => productionTags.includes(value));
+							let filteredCategories = node.categories.filter(value => categories.includes(value));
+							let filteredTopics = node.topics.filter(value => topics.includes(value));
 							if(typeof filteredTags !== 'undefined' && filteredTags.length > 0){
-								newNode = thisNode;
+								newNode = node;
+							}
+							if(typeof filteredProductionTags !== 'undefined' && filteredProductionTags.length > 0){
+								newNode = node;
 							}
 							if(typeof filteredCategories !== 'undefined' && filteredCategories.length > 0){
-								newNode = thisNode;
+								newNode = node;
+							}
+							if(typeof filteredTopics !== 'undefined' && filteredTopics.length > 0){
+								newNode = node;
 							}
 							if(newNode){
 								filteredFgData.nodes.push(newNode);
@@ -2443,6 +2776,10 @@ const app = {
 							forceEngine: 'd3', //'d3' (default) or 'ngraph'
 							warmupTicks: 2000,
 							cooldownTicks: 0,
+							onEngineStop: e => {
+								let event = new Event('forcegraph-ready');
+								document.querySelector('a-scene').dispatchEvent(event);
+							},
 							d3AlphaMin: 0.5,
 							d3AlphaDecay: 0.028,
 							d3VelocityDecay: 0.6,
@@ -2484,6 +2821,7 @@ const app = {
 						this.categoryArray = [];
 
 						const categoryModel = this.categoryModelEl.object3D;
+						const topicModel = this.topicModelEl.object3D;
 
 						//set JSON-model or category-model for each node
 						for(let node of fgComp.nodes){
@@ -2499,6 +2837,12 @@ const app = {
 									node.model = categoryModel.children[0].clone();
 									node.model.material = new THREE.MeshBasicMaterial();
 									node.model.material.copy(categoryModel.children[0].material);
+								}
+								//set model for topics
+								if(node.type === 'node-topic'){
+									node.model = topicModel.children[0].clone();
+									node.model.material = new THREE.MeshBasicMaterial();
+									node.model.material.copy(topicModel.children[0].material);
 								}
 								//skip if no model was set
 								if(!node.model) {continue;}
@@ -2518,20 +2862,30 @@ const app = {
 						const fgComp = this.fgComp;
 
 						let categoryMaterial = this.linkCategoryModelEl.object3D.children[0].material;
+						let topicMaterial = this.linkTopicModelEl.object3D.children[0].material;
 						let tagMaterial = this.linkTagModelEl.object3D.children[0].material;
+						let productionTagMaterial = this.linkProductionTagModelEl.object3D.children[0].material;
 
 						//set tag-material or category-material for each link
 						for(let link of fgComp.links){
+							link.material = new THREE.MeshBasicMaterial();
 							if(link.type === 'link-category'){
-								link.material = new THREE.MeshBasicMaterial();
 								link.material.copy(categoryMaterial);
+								link.curvature = 0.15;
 							}else if(link.type === 'link-tag'){
-								link.material = new THREE.MeshBasicMaterial();
 								link.material.copy(tagMaterial);
+								link.curvature = 0.15;
+							}else if(link.type === 'link-productionTag'){
+								link.material.copy(productionTagMaterial);
+								link.curvature = 0.2;
+							}else if(link.type === 'link-topic'){
+								link.material.copy(topicMaterial);
+								link.curvature = 0.15;
 							}
 						}
 
 						document.querySelector('#forcegraph').setAttribute('forcegraph', {
+							linkCurvature: link => { return link.curvature },
 							linkMaterial: link => { return link.material }
 						});
 
@@ -2572,7 +2926,7 @@ const app = {
 
 						//find mean, max and min sizes of every non category model bounding box
 						for(let node of fgComp.nodes){
-							if(node.type === 'node-category') { continue; };
+							if(node.type === 'node-category' || node.type === 'node-topic') { continue; };
 
 							node.model.scale.set(1, 1, 1);
 							node.boundingBox = new THREE.Box3();
@@ -2597,7 +2951,7 @@ const app = {
 
 						//calculate normalized scale for every node and set node size
 						for(let node of fgComp.nodes){
-							if(node.type === 'node-category') { 
+							if(node.type === 'node-category' || node.type === 'node-topic') { 
 								node.size = sizeLog.mean * 10 * scaleFactor;
 								continue;
 							};
@@ -2634,6 +2988,8 @@ const app = {
 
 				update: function () {
 					this.moveOrbitTarget();
+					let event = new Event('camera-focus-target-ready');
+					document.querySelector('a-scene').dispatchEvent(event);
 					//app.dev && console.log('dev --- camera-focus-target: ', this.data.target);
 				},
 
@@ -2648,7 +3004,7 @@ const app = {
 				moveOrbitTarget: function() {
 					if(!this.data.target){
 						this.target = document.querySelector('#forcegraph').object3D;
-					}else if(this.data.target.type === 'link-tag'){
+					}else if(this.data.target.type === 'link-tag' || this.data.target.type === 'link-productionTag'){
 						this.target = {};
 						this.target.position = this.data.target.__curve.v1;
 					}else{
@@ -2657,6 +3013,7 @@ const app = {
 
 					let newCameraPosition = new THREE.Vector3(); 
 					this.target.getWorldPosition(newCameraPosition);
+					app.dev && console.log('dev --- camera-focus-target position: ', newCameraPosition);
 
 					//animation orbitTarget move to target x
 					this.orbitTargetEl.setAttribute('animation__mot-x', {
@@ -2735,14 +3092,14 @@ const app = {
 						newDesiredCameraTilt = -5;
 					}
 
-					if(source.type === 'node-object' || source.type === 'node-category') {
+					if(source.type === 'node-object' || source.type === 'node-category' || source.type === 'node-topic' ) {
 						this.highlightModel(source);
 						newTarget = this.data.source.__threeObj.position;
 						newHighestDistance = this.data.highestDistance.value;
 						newDesiredCameraTilt = -12;
 					}
 
-					if(source.type === 'link-tag' || source.type === 'link-category') {
+					if(source.type === 'link-tag' || source.type === 'link-category' || source.type === 'link-topic' || source.type === 'link-productionTag' ) {
 						return;
 					}
 
@@ -2775,6 +3132,9 @@ const app = {
 					});
 
 					this.data.highestDistance.value = 0;
+
+					let event = new Event('highlight-ready');
+					document.querySelector('a-scene').dispatchEvent(event);
 				},
 
 				tick: function () {
@@ -2784,15 +3144,15 @@ const app = {
 
 						this.camera.children[0].updateMatrixWorld();
 
-						if(this.data.source.type === 'node-object' || this.data.source.type === 'node-category') {
+						if(this.data.source.type === 'node-object' || this.data.source.type === 'node-category' || this.data.source.type === 'node-topic' ) {
 							targetPosition.setFromMatrixPosition(this.data.source.__threeObj.matrixWorld);
 							targetPosition.project(this.camera.children[0])
 						}
-						if( this.data.source.type === 'link-tag') {
+						if( this.data.source.type === 'link-tag' || this.data.source.type === 'link-productionTag') {
 							targetPosition.set(this.data.source.__curve.v1.x, this.data.source.__curve.v1.y, this.data.source.__curve.v1.z);
 							targetPosition.project(this.camera.children[0])
 						}
-						if( this.data.source.type === 'link-category') {
+						if( this.data.source.type === 'link-category' || this.data.source.type === 'link-topic') {
 							targetPosition.setFromMatrixPosition(this.data.source.source.__threeObj.matrixWorld);
 							targetPosition.project(this.camera.children[0])
 						}
@@ -2821,7 +3181,7 @@ const app = {
 
 					for(let node of fgComp.nodes){
 						if (node.model.material) {
-							if(node.tags.includes(sourceLink.name)){
+							if(node.tags.includes(sourceLink.name) || node.productionTags.includes(sourceLink.name)){
 								node.model.material.opacity = 1;
 								node.model.material.visible = true;
 								node.__threeObj.visible = true;
@@ -2916,18 +3276,18 @@ const app = {
 
 					this.highlightLinks(pill);
 
-					if (type === 'category' || type === 'object') {
+					if (type === 'category' || type === 'object' || type === 'topic') {
 						for(let node of fgComp.nodes){
-							if ((node.type === 'node-category' || node.type === 'node-object') && node.name === name) {
+							if ((node.type === 'node-category' || node.type === 'node-object' || node.type === 'node-topic') && node.name === name) {
 								this.highlightModel(node);
 								return;
 							}
 						}
 					}
 
-					if (type === 'tag') {
+					if (type === 'tag' || type === 'productionTag') {
 						for(let link of fgComp.links){
-							if (link.type === 'link-tag' && link.name === name) {
+							if ((link.type === 'link-tag' || link.type === 'link-productionTag') && link.name === name) {
 								this.highlightLinks(link);
 								return;
 							}
@@ -3451,6 +3811,78 @@ const app = {
 				}
 			});
 			//END custom orbit-controls
+		}, 
+
+		setEventListeners() {
+
+			this.sceneEl.addEventListener('load-json-models-ready', (evt) => {
+				app.collectionViewer.components['load-json-models'].ready = true;
+				let event = new Event('collectionViewer-ready');
+				document.querySelector('a-scene').dispatchEvent(event);
+			}, {once:true});
+
+			this.sceneEl.addEventListener('camera-focus-target-ready', (evt) => {
+				app.collectionViewer.components['camera-focus-target'].ready = true;
+				let event = new Event('collectionViewer-ready');
+				document.querySelector('a-scene').dispatchEvent(event);
+			}, {once:true});
+
+			this.sceneEl.addEventListener('highlight-ready', (evt) => {
+				app.collectionViewer.components['highlight'].ready = true;
+				let event = new Event('collectionViewer-ready');
+				document.querySelector('a-scene').dispatchEvent(event);
+			}, {once:true});
+
+			this.sceneEl.addEventListener('forcegraph-ready', (evt) => {
+				if(!app.collectionViewer.components['forcegraph'].first) {
+					app.collectionViewer.components['forcegraph'].first = true;
+					return;
+				}
+				app.collectionViewer.components['forcegraph'].ready = true;
+				let event = new Event('collectionViewer-ready');
+				document.querySelector('a-scene').dispatchEvent(event);
+			});
+
+			this.sceneEl.addEventListener('collectionViewer-ready', (evt) => {
+				if( !app.collectionViewer.components['load-json-models'].ready || 
+					!app.collectionViewer.components['camera-focus-target'].ready || 
+					!app.collectionViewer.components['highlight'].ready ||
+					!app.collectionViewer.components['forcegraph'].ready
+					){
+
+					return;
+				}
+
+				if(app.collectionViewer.node) {
+					let nodeID = app.collectionViewer.node;
+					let fgElement = document.querySelector('#forcegraph');
+					let aCameraElement = document.querySelector('a-camera');
+					let fgComponent = document.querySelector('#forcegraph').components['forcegraph'];
+					let fgNodes = fgComponent.data.nodes;
+					let node = null;
+
+					for(let n of fgNodes) {
+						if(n.id === nodeID){
+							node = n;
+							app.dev && console.log('dev --- URL model: ', node)
+						}
+					}
+
+					if(node) { 
+						setTimeout(() => {
+							aCameraElement.setAttribute('camera-focus-target', {target: node, duration: 1200});
+						}, 0);					
+						app.collectionViewer.highlight.onclickHandler(node);
+						fgElement.setAttribute('highlight', {source: node});
+					}else {
+						app.collectionViewer.resetView.resetCameraView();
+					}					
+
+				}else {
+					app.collectionViewer.resetView.resetCameraView();
+				}
+				app.gui.loadingScreen.hideLoadingScreen();
+			});
 		}
 	}, //collectionViewer
 
@@ -4113,48 +4545,8 @@ const app = {
 
 					//annotation creation
 
-					//annotationContentHTML by type
-					let annotationContentHTML = '';
-					for(let annotationContent of annotation.contents) {
-						if(annotationContent.type === 'headline'){
-							const headlineHTML = '<h3>' + annotationContent.content + '</h3>';
-							annotationContentHTML = annotationContentHTML.concat(headlineHTML);
-						}else if(annotationContent.type === 'subheadline'){
-							const subHeadlineHTML = '<h5>' + annotationContent.content + '</h5>';
-							annotationContentHTML = annotationContentHTML.concat(subHeadlineHTML);
-						}else if(annotationContent.type === 'paragraph'){
-							const paragraphHTML = '<p class="annotation-text">' + annotationContent.content + '</p>';
-							annotationContentHTML = annotationContentHTML.concat(paragraphHTML);
-						}else if(annotationContent.type === 'paragraph+image'){
-							const imageHTML = '<img src="' + app.filepaths.files + app.filepaths.annotationMedia + annotationContent.filename + '" alt="' + annotationContent.imageAlt + '" width="100px" height="100px">' 
-							const captionHTML = '<span class="annotation-image-caption">' + annotationContent.imageCaption + '<span class="copyright"> Foto: ' + annotationContent.fileCopyright + '</span></span>';
-							const paragraphAndImageHTML = '<p class="annotation-text"><span class="annotation-image"><span class="annotation-image-box">' + imageHTML + '</span>' + captionHTML + '</span>' + annotationContent.content + '</p>';
-							annotationContentHTML = annotationContentHTML.concat(paragraphAndImageHTML);
-						}else if(annotationContent.type === 'paragraph+audio'){
-							
-						}else if(annotationContent.type === 'paragraph+video'){
-							
-						}else if(annotationContent.type === 'quote'){
-							const quoteHTML = '<p class="annotation-text quote">' + annotationContent.content + '</p>';
-							annotationContentHTML = annotationContentHTML.concat(quoteHTML);
-						}else if(annotationContent.type === 'image'){
-							const imageHTML = '<img src="' + app.filepaths.files + app.filepaths.annotationMedia + annotationContent.filename + '" alt="' + annotationContent.imageAlt + '" width="100px" height="100px">' 
-							const captionHTML = '<p class="annotation-image-caption">' + annotationContent.imageCaption + '<span class="copyright"> Foto: ' + annotationContent.fileCopyright + '</span></p>';
-							const imageAndCaptionHTML = '<div class="annotation-image"><div class="annotation-image-box">' + imageHTML + '</div>' + captionHTML + '</div>';
-							annotationContentHTML = annotationContentHTML.concat(imageAndCaptionHTML);
-						}else if(annotationContent.type === 'audio'){
-							const audioHTML = '<audio controls><source src="' + app.filepaths.files + app.filepaths.annotationMedia + annotationContent.filename + '" type="audio/mpeg"></audio>';
-							annotationContentHTML = annotationContentHTML.concat(audioHTML);
-						}else if(annotationContent.type === 'video'){
-							
-						}else if(annotationContent.type === 'link'){
-							const linkHTML = '<a class="annotation-link" href="">' + annotationContent.content + '</a>';
-							annotationContentHTML = annotationContentHTML.concat(linkHTML);
-						}
-					}
-
 					this.annotationArray[a].message = {
-						content: annotationContentHTML,
+						content: app.createHTMLContentFromJSON(annotation.contents),
 						color: this.annotationSetup.colors.messageColor,
 						shadow: this.annotationSetup.colors.messageShadowColor
 					}
@@ -4222,7 +4614,7 @@ const app = {
 						fullScreenImage.classList.add('hide');
 					});
 				});
-			}
+			}			
 		},
 
 		setEventListeners: function() {
@@ -4263,7 +4655,7 @@ const app = {
 		loadModel(modelJSON) {
 			const modelViewer = this.element;
 			//set title
-			app.gui.title.set(modelJSON.basicData.name, true, app.hasHistory, modelJSON.primaryKey)
+			app.gui.title.set(modelJSON.basicData.name, true, modelJSON.primaryKey)
 
 			//set modelViewer data
 			app.hideGUI ? modelViewer.src = app.filepaths.files + modelJSON.appData.model.quality1k : modelViewer.src = app.filepaths.files + modelJSON.appData.model.quality2k;
@@ -7702,6 +8094,48 @@ const app = {
 		}
 	}, //arViewer
 
+	createHTMLContentFromJSON(contents) {
+		let contentHTML = '';
+		for(let content of contents) {
+			if(content.type === 'headline'){
+				const headlineHTML = '<h3>' + content.content + '</h3>';
+				contentHTML = contentHTML.concat(headlineHTML);
+			}else if(content.type === 'subheadline'){
+				const subHeadlineHTML = '<h5>' + content.content + '</h5>';
+				contentHTML = contentHTML.concat(subHeadlineHTML);
+			}else if(content.type === 'paragraph'){
+				const paragraphHTML = '<p class="annotation-text">' + content.content + '</p>';
+				contentHTML = contentHTML.concat(paragraphHTML);
+			}else if(content.type === 'paragraph+image'){
+				const imageHTML = '<img src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px">' 
+				const captionHTML = '<span class="annotation-image-caption">' + content.imageCaption + '<span class="copyright"> Foto: ' + content.fileCopyright + '</span></span>';
+				const paragraphAndImageHTML = '<p class="annotation-text"><span class="annotation-image"><span class="annotation-image-box">' + imageHTML + '</span>' + captionHTML + '</span>' + content.content + '</p>';
+				contentHTML = contentHTML.concat(paragraphAndImageHTML);
+			}else if(content.type === 'paragraph+audio'){
+				
+			}else if(content.type === 'paragraph+video'){
+				
+			}else if(content.type === 'quote'){
+				const quoteHTML = '<p class="annotation-text quote">' + content.content + '</p>';
+				contentHTML = contentHTML.concat(quoteHTML);
+			}else if(content.type === 'image'){
+				const imageHTML = '<img src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px">' 
+				const captionHTML = '<p class="annotation-image-caption">' + content.imageCaption + '<span class="copyright"> Foto: ' + content.fileCopyright + '</span></p>';
+				const imageAndCaptionHTML = '<div class="annotation-image"><div class="annotation-image-box">' + imageHTML + '</div>' + captionHTML + '</div>';
+				contentHTML = contentHTML.concat(imageAndCaptionHTML);
+			}else if(content.type === 'audio'){
+				const audioHTML = '<audio controls><source src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" type="audio/mpeg"></audio>';
+				contentHTML = contentHTML.concat(audioHTML);
+			}else if(content.type === 'video'){
+				
+			}else if(content.type === 'link'){
+				const linkHTML = '<a class="annotation-link" href="">' + content.content + '</a>';
+				contentHTML = contentHTML.concat(linkHTML);
+			}
+		}
+		return contentHTML;
+	},
+
 	handleScreenOrientation(e) {
 		const forcegraph = document.querySelector('#forcegraph');
 		if(!forcegraph) { return; };
@@ -7724,6 +8158,7 @@ const app = {
 	handleURLParameter() {
 		const regex = new RegExp('^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$');
 		const mode = this.getURLParameter('m');
+		const node = this.getURLParameter('node');
 		const model = this.getURLParameter('model');
 		const noGUI = (this.getURLParameter('gui') === 'false');
 		const isFrom = this.getURLParameter('from');
@@ -7746,7 +8181,7 @@ const app = {
 		noGUI ? this.hideGUI = true : this.hideGUI = false;
 
 		//handle from parameter
-		(this.viewerMode === 'cv' && regex.test(model)) ? this.isFrom = isFrom : '';
+		(this.viewerMode === 'cv' && node) ? this.collectionViewer.node = node : '';
 	}, 
 
 	checkMobile() {
