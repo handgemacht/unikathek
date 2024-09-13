@@ -70,6 +70,20 @@ const app = {
 						coalgrey: filepath + 'hand.gemacht WebApp icon arrow left coalgrey.svg' 
 					}
 				},
+				'arrow wide up': {
+					alt: 'Breiter Pfeil nach oben',
+					src: {
+						pearlwhite: filepath + 'hand.gemacht WebApp icon arrow up wide pearlwhite.svg',
+						coalgrey: filepath + 'hand.gemacht WebApp icon arrow up wide coalgrey.svg' 
+					}
+				},
+				'arrow wide down': {
+					alt: 'Breiter Pfeil nach unten',
+					src: {
+						pearlwhite: filepath + 'hand.gemacht WebApp icon arrow down wide pearlwhite.svg',
+						coalgrey: filepath + 'hand.gemacht WebApp icon arrow down wide coalgrey.svg' 
+					}
+				},
 				'topic': {
 					alt: 'Themen-Symbol',
 					src: {
@@ -274,6 +288,7 @@ const app = {
 			let url='?m=cv';
 			this.dev ? url+='&dev=true' : '';
 			this.stats ? url+='&dev=stats' : '';
+			this.embedded ? url += '&embedded=true' : '';
 			window.location.href = url;
 		}
 
@@ -310,7 +325,8 @@ const app = {
 			
 			init() {
 				this.createElements();
-				app.hideGUI && this.containerEl.classList.add('hide');
+				this.set();
+				app.embedded ? this.set(app.title, true, null, 'https://handgemacht.bayern/objekte') : '';
 			},
 
 			createElements() {
@@ -334,25 +350,28 @@ const app = {
 				this.element = document.createElement('h1');
 				this.containerEl.appendChild(this.element);
 				this.element.className = 'title';
-				this.element.textContent = app.title;
 			}, 
 
-			set(title = app.title, showArrow = false, node = null) {
+			set(title = app.title, showArrow = false, node = null, newURL = null) {
+				let url = '?m=cv';
+				newURL ? url = newURL : '';
+
 				if(node){
 					node = '&node=' + node;
+					url += node;
 				}
+
 				this.element.innerHTML = title;
 				this.containerEl.className = 'gui-title-container';
-				app.hideGUI && this.containerEl.classList.add('hide');
 				this.arrowEl.className = 'arrow hide';
 
 				showArrow && this.arrowEl.classList.remove('hide');
 				showArrow && this.containerEl.classList.add('clickable');
 
 				showArrow && this.containerEl.addEventListener('click', (e) => {
-					let url='?m=cv&' + node;
-					app.dev ? url+='&dev=true' : '';
-					app.stats ? url+='&dev=stats' : '';
+					!newURL && app.dev ? url+='&dev=true' : '';
+					!newURL && app.stats ? url+='&dev=stats' : '';
+					!newURL && app.embedded ? url+='&embeddded=true' : '';
 					window.location.href = url;
 				})
 
@@ -480,6 +499,7 @@ const app = {
 			init() {
 				this.createElements();
 				this.setEventListener();
+				this.abortController = new AbortController();
 			}, 
 
 			createElements() {
@@ -498,6 +518,20 @@ const app = {
 				this.type.element = document.createElement('div');
 				this.containerEl.appendChild(this.type.element);
 				this.type.element.className = 'type hide';
+
+				this.sizeControlEl = document.createElement('button');
+				this.containerEl.appendChild(this.sizeControlEl);
+				this.sizeControlEl.className = 'size-control';
+				this.sizeControlEl.setAttribute('data-extended', 'false');
+
+				this.sizeControlEl.icon = document.createElement('img');
+				this.sizeControlEl.appendChild(this.sizeControlEl.icon);
+				this.sizeControlEl.icon.className = 'arrow-wide';
+				this.sizeControlEl.icon.src = app.assets.icon['arrow wide up'].src.coalgrey;
+				this.sizeControlEl.icon.alt = app.assets.icon['arrow wide up'].alt;
+				this.sizeControlEl.icon.width = 100;
+				this.sizeControlEl.icon.height = 100;
+				this.sizeControlEl.icon.setAttribute('loading', 'lazy');
 
 				this.closeEl = document.createElement('div');
 				this.element.appendChild(this.closeEl);
@@ -574,7 +608,7 @@ const app = {
 				app.gui.toolbar.toggleToolbar(false);
 			}, 
 
-			hideMessage() {
+			hideMessage(callAbortController = false) {
 				this.type.value = '';
 				this.content.value = 'default content';
 				this.color = 'smokegrey';
@@ -594,6 +628,14 @@ const app = {
 				this.element.className = 'gui-message';
 				this.containerEl.className = 'gui-message-container hide';
 				this.closeEl.className = 'close';
+				this.sizeControlEl.className = 'size-control';
+				this.sizeControlEl.setAttribute('data-extended', false);
+
+				//remove Eventlisteners
+				callAbortController ? this.abortController.abort() : '';
+				callAbortController ? this.abortController = new AbortController() : '';
+				//callAbortController && app.dev ? console.log('dev --- abortController: abort called') : '';
+
 				this.buttons.button[0].element.className = 'button hide';
 				this.buttons.button[1].element.className = 'button hide';
 				this.buttons.button[0].iconEl.className = 'button-icon hide';
@@ -611,13 +653,32 @@ const app = {
 
 				if(this.closeEl) {
 					this.closeEl.addEventListener('click', (evt) => {
-						self.hideMessage();
+						self.hideMessage(true);
+					});
+				}
+
+				if(this.sizeControlEl) {
+					this.sizeControlEl.addEventListener('click', (evt) => {
+						let isExtended = self.sizeControlEl.getAttribute('data-extended');
+						if(isExtended === 'true'){
+							app.dev && console.log('dev --- message isExtended (true): ', isExtended)
+							self.containerEl.classList.remove('extended');
+							self.sizeControlEl.setAttribute('data-extended', 'false');
+							
+						}else{
+							app.dev && console.log('dev --- message isExtended (false): ', isExtended)
+							self.containerEl.classList.remove('extended');
+							self.containerEl.classList.add('extended');
+							self.sizeControlEl.setAttribute('data-extended', 'true');
+							
+						}
+						
 					});
 				}
 			},
 
 			setMessage(message) {
-				this.hideMessage();
+				this.hideMessage(true);
 
 				let buttonsActive = false;
 
@@ -625,6 +686,7 @@ const app = {
 				Object.keys(message).includes("content") ? this.content.value = message.content : '';
 				Object.keys(message).includes("color") ? this.color = message.color : '';
 				Object.keys(message).includes("shadow") ? this.shadow = message.shadow : '';
+				Object.keys(message).includes("options") ? this.options = message.options : this.options = {};
 
 				if(Object.keys(message).includes("buttonSetup")){
 					buttonsActive = true;
@@ -640,8 +702,6 @@ const app = {
 				Object.keys(message).includes("showClose") ? this.showClose = message.showClose : this.showClose = true;
 
 				this.type.value && this.type.element.classList.remove('hide');
-
-				buttonsActive && this.element.classList.add('buttonsActive');
 
 				for(let s in this.buttonSetup){
 					const thisSetup = this.buttonSetup[s];
@@ -676,6 +736,15 @@ const app = {
 
 				this.shadow && this.type.element.classList.add(this.shadow.replace('shadow-', ''));
 				this.shadow && this.element.classList.add(this.shadow);
+
+				if(Object.keys(this.options).includes("extended")){
+					this.options.extended ? this.containerEl.classList.add('extended') : '';
+					this.sizeControlEl.setAttribute('data-extended', true);
+				}
+
+				if(Object.keys(this.options).includes("sizeControl")){
+					!this.options.sizeControl ? this.sizeControlEl.classList.add('hide') : '';
+				}
 
 				app.dev && console.log('dev --- message: ', this)
 				this.showMessage();
@@ -969,7 +1038,7 @@ const app = {
 		toolbar: {
 			init(){
 				this.createElements();
-				app.hideGUI && this.boxEl.classList.add('hide');
+				//app.hideGUI && this.boxEl.classList.add('hide');
 			},
 	
 			createElements() {
@@ -1310,6 +1379,19 @@ const app = {
 			}
 		},
 
+		onboardingMessage: {
+			content: 'Onboarding Message Content',
+			color: 'pearlwhite',
+			shadow: 'shadow-coalgrey',
+			buttonSetup: [
+				{ label: 'los geht´s', color: 'coalgrey', icon: 'arrow right' }
+				], 
+			options: {
+				extended: true, 
+				sizeControl: false
+			}
+		},
+
 		init() {
 			this.createElements();
 			this.tooltip.init();
@@ -1340,6 +1422,12 @@ const app = {
 			app.gui.toolbar.button[3].icon.addEventListener('click', (e) => {
 				app.collectionViewer.resetView.resetCameraView();
 			})
+
+			if(!app.node) {
+				app.gui.toolbar.toggleToolbar(false);
+				app.gui.message.setMessage(app.collectionViewer.onboardingMessage);
+				app.gui.message.buttons.button[0].element.addEventListener('click', (e) => app.gui.message.hideMessage(true), { signal: app.gui.message.abortController.signal });
+			}
 		},
 
 		tooltip: {
@@ -1488,7 +1576,7 @@ const app = {
 				fgNode ? type = fgNode.type : type = 'none';
 			
 				if(type !== 'none'){
-					app.gui.message.hideMessage();
+					app.gui.message.hideMessage(true);
 					app.collectionViewer.highlight.generateMessage(fgNode);
 				}
 			}, 
@@ -1591,12 +1679,10 @@ const app = {
 					app.gui.message.setMessage(message);
 
 					app.gui.message.buttons.button[0].element.addEventListener('click', (e) => {
-						let url = '?m=mv';
-						app.dev ? url += '&dev=true' : '';
-						app.stats ? url += '&stats=true' : '';
-						url += '&model=' + fgNode.id;
-						window.location.href = url;
-					})
+						app.collectionViewer.highlight.messageClickEvent(fgNode);
+						app.dev && console.log('dev --- button[0] click event: highlight', e);
+					}, { signal: app.gui.message.abortController.signal }); // 
+					app.dev && console.log('dev --- button[0] click event set');
 				}
 
 				if(type === 'node-category'){
@@ -1656,11 +1742,23 @@ const app = {
 				}
 			},
 
+			messageClickEvent(fgNode) {
+				let url = '?m=mv';
+				app.dev ? url += '&dev=true' : '';
+				app.stats ? url += '&stats=true' : '';
+				app.embedded ? url += '&embedded=true' : '';
+				url += '&model=' + fgNode.id;
+				window.location.href = url;
+			},
+
 			setPillEventlisteners() {
 				let filteredTags = app.collectionViewer.filter.filteredData.tags;
 				let filteredProductionTags = app.collectionViewer.filter.filteredData.productionTags;
 				let filteredCategories = app.collectionViewer.filter.filteredData.categories;
 				let filteredTopics = app.collectionViewer.filter.filteredData.topics;
+
+				if(this.pillArray.length >= 0) {return;}
+
 				for(let pill of this.pillArray){
 					let element = document.querySelector(pill);
 					let name = element.getAttribute('data-name');
@@ -1736,13 +1834,48 @@ const app = {
 			},
 
 			texts: {
-				title: '',
-				intro: '',
+				title: 'Informationen zur Sammlung',
+				intro: ''
 			},
 
 			init() {
-
+				this.createElements();
+				this.setEventlisteners();
 			},
+
+			createElements() {
+				let infoTabContent = app.gui.toolbar.tab.content.element;
+
+				const infoContainer = document.createElement('div');
+				infoTabContent.appendChild(infoContainer);
+				infoContainer.className = 'cv-info-container';
+
+				const infoHeadline = document.createElement('h3');
+				infoContainer.appendChild(infoHeadline);
+				infoHeadline.textContent = this.texts.title;
+
+				const infoText = document.createElement('p');
+				infoContainer.appendChild(infoText);
+				infoText.className = 'text-small';
+				infoText.textContent = this.texts.intro;
+
+				const onboardingButton = document.createElement('button');
+				this.onboardingButtonEl = onboardingButton;
+				infoContainer.appendChild(onboardingButton);
+				onboardingButton.className = 'button';
+				onboardingButton.textContent = 'Intro-Nachricht';
+			},			
+
+			setEventlisteners() {
+				this.onboardingButtonEl.addEventListener('click', (e) => {
+					app.gui.toolbar.toggleToolbar(false);
+					app.gui.toolbar.buttonActionTab(document.querySelector(this.buttonSetup.id));
+					app.gui.message.setMessage(app.collectionViewer.onboardingMessage);
+					app.gui.message.buttons.button[0].element.addEventListener('click', (e) => app.gui.message.hideMessage(true), { signal: app.gui.message.abortController.signal });
+				});
+
+
+			}
 		},
 
 		search: {
@@ -2359,6 +2492,7 @@ const app = {
 			this.cameraEl = document.createElement('a-camera');
 			this.sceneEl.appendChild(this.cameraEl);
 			this.cameraEl.setAttribute('orbit-controls', 'enabled: true; target: #orbit-target; autoRotate: true');
+			//app.hideGUI && this.cameraEl.setAttribute('orbit-controls', 'enableZoom: false');
 			this.cameraEl.setAttribute('wasd-controls', 'enabled: false');
 
 			this.ambientLightEl = document.createElement('a-entity');
@@ -3814,7 +3948,6 @@ const app = {
 		}, 
 
 		setEventListeners() {
-
 			this.sceneEl.addEventListener('load-json-models-ready', (evt) => {
 				app.collectionViewer.components['load-json-models'].ready = true;
 				let event = new Event('collectionViewer-ready');
@@ -5312,6 +5445,8 @@ const app = {
 			  cancelAR: function () {
 				let url = '?m=mv&model=' + app.primaryKey;
 				app.dev ? url += '&dev=true' : '';
+				app.stats ? url += '&stats=true' : '';
+				app.embedded ? url += '&embedded=true' : '';
 				window.location.href = url;
 			  },
 
@@ -5466,7 +5601,7 @@ const app = {
 						noMission: false
 					  });
 					  app.gui.message.buttons.button[0].element.addEventListener('click', () => {
-						app.gui.message.hideMessage();
+						app.gui.message.hideMessage(true);
 						self.el.setAttribute("controller", {
 						  mission: true,
 						  tool: false,
@@ -5534,7 +5669,7 @@ const app = {
 					  app.gui.message.setMessage(message);
 
 					  app.gui.message.buttons.button[0].element.addEventListener('click', () => {
-						app.gui.message.hideMessage();
+						app.gui.message.hideMessage(true);
 						self.el.setAttribute("controller", {
 						  mission: false,
 						  tool: true,
@@ -5677,7 +5812,7 @@ const app = {
 				  self.el.emit("pause-interaction", { rotate: false }, true);
 				  app.gui.message.setMessage(message);
 				  app.gui.message.closeEl.addEventListener('click', () => {
-					app.gui.message.hideMessage();
+					app.gui.message.hideMessage(true);
 					self.el.emit("play-interaction", { rotate: true }, false);
 				  }, { once: true });
 				})
@@ -6425,7 +6560,7 @@ const app = {
 
 			  restartMissions: function (event) {
 				app.gui.message.buttons.button[0].element.removeEventListener("click", this.restartMissions);
-				app.gui.message.hideMessage();
+				app.gui.message.hideMessage(true);
 				this.completed = false;
 				for (let mission of this.missions) {
 				  mission.done = false;
@@ -6617,7 +6752,7 @@ const app = {
 
 			  placeEnd: function (event) {
 				app.gui.message.buttons.button[1].element.removeEventListener("click", this.placeAgain);
-				app.gui.message.hideMessage()
+				app.gui.message.hideMessage(true)
 				this.el.emit("placingAchieved", this.firstTime, true);
 				this.showMenu();
 				this.firstTime = false;
@@ -8160,10 +8295,13 @@ const app = {
 		const mode = this.getURLParameter('m');
 		const node = this.getURLParameter('node');
 		const model = this.getURLParameter('model');
-		const noGUI = (this.getURLParameter('gui') === 'false');
 		const isFrom = this.getURLParameter('from');
 		this.dev = (this.getURLParameter('dev') === 'true');
 		this.stats = (this.getURLParameter('stats') === 'true');
+		this.hideGUI = (this.getURLParameter('gui') === 'false');
+		this.embedded = (this.getURLParameter('embedded') === 'true');
+
+		this.embedded ? this.hideGUI = true : '';
 
 		//set viewerMode
 		if(!this.viewerModes.includes(mode)){
@@ -8176,9 +8314,6 @@ const app = {
 		(this.viewerMode === 'mv' && !model) && this.errorHandler('mv-000');
 		(this.viewerMode === 'mv' && !regex.test(model)) && this.errorHandler('mv-001');
 		(this.viewerMode === 'mv' && regex.test(model)) ? this.primaryKey = model : '';
-
-		//handle gui
-		noGUI ? this.hideGUI = true : this.hideGUI = false;
 
 		//handle from parameter
 		(this.viewerMode === 'cv' && node) ? this.collectionViewer.node = node : '';
