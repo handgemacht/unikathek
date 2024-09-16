@@ -221,6 +221,35 @@ audio {
   color: #966400;
 }
 
+a.link {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+a.link.text-coalgrey:hover {
+  color: #41403F;
+}
+
+a.link.text-smokegrey:hover {
+  color: #41403F;
+}
+
+a.link.text-pearlwhite:hover {
+  color: #FAF0E6;
+}
+
+a.link.text-skyblue:hover {
+  color: #14647D;
+}
+
+a.link.text-terracotta:hover {
+  color: #A04B19;
+}
+
+a.link.text-duckyellow:hover {
+  color: #966400;
+}
+
 button {
   padding: 0;
   font-family: 'Roboto Slab', serif;
@@ -1342,6 +1371,44 @@ div.autocomplete-list-container > div.autocomplete-list > div.autocomplete-activ
   font-size: 1.1rem;
   font-weight: 700;
   margin-left: 5px;
+}
+
+
+
+
+/* ---------- search ---------- */
+
+div.cv-info-container {
+  padding: 15px 0 0 0;
+  margin: 0 0 20px 0;
+  overflow: hidden;
+}
+
+div.cv-info-container > div.collapsible-container {
+}
+
+div.cv-info-container > div.collapsible-container > button.button {
+  width: 100%;
+  background-color: initial;
+  text-align: left;
+}
+
+div.cv-info-container > div.collapsible-container > button.button.collapsible-button {
+}
+
+div.cv-info-container > div.collapsible-container > button.button.collapsible-button > div.arrow {
+  transition: all 0.25s;
+}
+
+div.cv-info-container > div.collapsible-container > button.button.collapsible-button.active > div.arrow {
+  transform: rotate(90deg);
+}
+
+div.cv-info-container > button.button.text-small {
+  margin: 0 0 10px 0;
+  width: 100%;
+  background-color: initial;
+  text-align: left;
 }
 
 

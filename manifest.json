@@ -1,7 +1,7 @@
 {
-  "name": "hand.gemacht 3D Viewer alpha",
-  "short_name": "hand.gemacht",
-  "description": "hand.gemacht 3D Viewer Web App Description",
+  "name": "hand.gemacht Unikathek",
+  "short_name": "Unikathek",
+  "description": "hand.gemacht Unikathek Description",
   "start_url": ".",
   "scope": "../",
   "display": "standalone",
@@ -32,8 +32,8 @@
       "purpose": "any"
     }
   ],
-  "theme_color": "#F7EBE3",
-  "background_color": "#F7EBE3",
+  "theme_color": "#FAF0E6",
+  "background_color": "#FAF0E6",
   "prefer_related_applications ": "false",
   "screenshots": [
     {
@@ -47,16 +47,6 @@
       "type": "image/png",
       "sizes": "623x969",
       "form_factor": "narrow"
-    }
-  ],
-  "protocol_handlers": [
-    {
-      "protocol": "web+model",
-      "url": "model?id=%s"
-    },
-    {
-      "protocol": "web+modelhotspot",
-      "url": "hotspot?id=%s&hotspot=%s"
     }
   ]
 }
