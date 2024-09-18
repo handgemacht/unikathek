@@ -10,6 +10,7 @@ const app = {
 	stats: false,
 	viewerMode: false,
 	viewerModes: [ 'cv', 'mv'],
+	showOnboarding: false,
 
 	filepaths: {
 		files: './files/',
@@ -87,8 +88,8 @@ const app = {
 				'topic': {
 					alt: 'Themen-Symbol',
 					src: {
-						pearlwhite: filepath + 'hand.gemacht WebApp icon category pearlwhite.svg',
-						coalgrey: filepath + 'hand.gemacht WebApp icon category coalgrey.svg' 
+						pearlwhite: filepath + 'hand.gemacht WebApp icon topic pearlwhite.svg',
+						coalgrey: filepath + 'hand.gemacht WebApp icon topic coalgrey.svg' 
 					}
 				},
 				'category': {
@@ -270,6 +271,8 @@ const app = {
 
 		this.handleURLParameter();
 
+		this.handleLocalStorage()
+
 		this.isMobile = this.checkMobile();
 		this.isWebXRCapable = this.checkWebXRSupport();
 		this.passiveSupported = this.checkEventlistenerPassiveSupport();
@@ -326,7 +329,6 @@ const app = {
 			init() {
 				this.createElements();
 				this.set();
-				app.embedded ? this.set(app.title, true, null, 'https://handgemacht.bayern/objekte') : '';
 			},
 
 			createElements() {
@@ -695,7 +697,7 @@ const app = {
 						Object.keys(thisSetup).includes("label") ? this.buttonSetup[s].label = thisSetup.label : '';
 						Object.keys(thisSetup).includes("color") ? this.buttonSetup[s].color = thisSetup.color : '';
 						Object.keys(thisSetup).includes("shadow") ? this.buttonSetup[s].shadow = thisSetup.shadow : '';
-						Object.keys(thisSetup).includes("icon") ? this.buttonSetup[s].iconEl = thisSetup.icon : '';
+						Object.keys(thisSetup).includes("icon") ? this.buttonSetup[s].icon = thisSetup.icon : '';
 					}
 				}
 
@@ -739,7 +741,7 @@ const app = {
 
 				if(Object.keys(this.options).includes("extended")){
 					this.options.extended ? this.containerEl.classList.add('extended') : '';
-					this.sizeControlEl.setAttribute('data-extended', true);
+					this.options.extended ? this.sizeControlEl.setAttribute('data-extended', true) : '';
 				}
 
 				if(Object.keys(this.options).includes("sizeControl")){
@@ -1379,89 +1381,6 @@ const app = {
 			}
 		},
 
-		onboardingContents: [
-			{
-				"content" : "Willkommen in der Unikathek",
-				"fileCopyright" : "",
-				"filename" : "",
-				"imageAlt" : "",
-				"imageCaption" : "",
-				"type" : "headline"
-			},
-			{
-				"content" : "In der Unikathek erzählen wir die Geschichten von mehr als 100 Oberpfälzer Objekten – und damit auch Geschichten über die Menschen, in deren Leben diese Objekte eine Rolle spiel(t)en.",
-				"fileCopyright" : "",
-				"filename" : "",
-				"imageAlt" : "",
-				"imageCaption" : "",
-				"type" : "paragraph"
-			},
-			{
-				"content" : "Sammlungsansicht",
-				"fileCopyright" : "",
-				"filename" : "",
-				"imageAlt" : "",
-				"imageCaption" : "",
-				"type" : "subheadline"
-			},
-			{
-				"content" : "Die Sammlungsansicht zeigt wie unsere Objekte untereinander verknüpft sind. Durch Themen (-terracotta), Kategorien (-himmelblau) und Tags (-entengelb und rauchgrau) entsteht so ein Netzwerk aus Deutungen und Kontexten. Ähnliche Gegenstände ziehen sich durch die Verbindungen an und schaffen so räumliche Gruppierungen.",
-				"fileCopyright" : "",
-				"filename" : "",
-				"imageAlt" : "",
-				"imageCaption" : "",
-				"type" : "paragraph"
-			},
-			{
-				"content" : "Hier kannst du die aus unserer Forschung heraus entstandenen Themen und Kategorien entdecken, durchsuchen, oder natürlich jedes Objekt für sich unter die Lupe nehmen.",
-				"fileCopyright" : "",
-				"filename" : "",
-				"imageAlt" : "",
-				"imageCaption" : "",
-				"type" : "paragraph"
-			},
-			{
-				"content" : "Filter",
-				"fileCopyright" : "",
-				"filename" : "",
-				"imageAlt" : "",
-				"imageCaption" : "",
-				"type" : "subheadline"
-			},
-			{
-				"content" : "Durch die Filterfunktion (-icon anzeigen) kannst du das Netzwerk deinen Interessen nach neu anordnen. Jedes an- oder abgewählte Thema, jede Kategorie und jeder Herstellungs- oder Kontext-Tag ändern dabei die räumliche Anordnung.",
-				"fileCopyright" : "",
-				"filename" : "",
-				"imageAlt" : "",
-				"imageCaption" : "",
-				"type" : "paragraph"
-			},
-			{
-				"content" : "Projekt und Förderung",
-				"fileCopyright" : "",
-				"filename" : "",
-				"imageAlt" : "",
-				"imageCaption" : "",
-				"type" : "subheadline"
-			},
-			{
-				"content" : "Die Unikathek entstand aus dem Projekt hand.gemacht heraus, welches von Juli 2022 bis Juli 2024 am Freilandmuseum Oberpfalz konzipiert und durchgeführt wurde. ",
-				"fileCopyright" : "",
-				"filename" : "",
-				"imageAlt" : "",
-				"imageCaption" : "",
-				"type" : "paragraph"
-			},
-			{
-				"content" : "Gefördert wurde das Projekt durch die Förderrichtlinie \'Heimat-Digital-Regional\' des Bayerischen Staatsministeriums der Finanzen und für Heimat. ",
-				"fileCopyright" : "",
-				"filename" : "",
-				"imageAlt" : "",
-				"imageCaption" : "",
-				"type" : "paragraph"
-			}
-		],		
-
 		init() {
 			this.createElements();
 			this.tooltip.init();
@@ -1493,23 +1412,232 @@ const app = {
 				app.collectionViewer.resetView.resetCameraView();
 			})
 
-			this.onboardingMessage = {
-				content: app.createHTMLContentFromJSON(this.onboardingContents),
-				color: 'pearlwhite',
-				shadow: 'shadow-coalgrey',
-				buttonSetup: [
-					{ label: 'los geht´s', color: 'coalgrey', icon: 'arrow right' }
-					], 
-				options: {
-					extended: true, 
-					sizeControl: false
-				}
-			}
+			this.onboarding.init();
+		},
 
-			if(!app.node) {
-				app.gui.toolbar.toggleToolbar(false);
-				app.gui.message.setMessage(this.onboardingMessage);
-				app.gui.message.buttons.button[0].element.addEventListener('click', (e) => app.gui.message.hideMessage(true), { signal: app.gui.message.abortController.signal });
+		onboarding: {
+
+			setSteps() {
+				this.steps = {
+					start: {
+						type: 'message',
+						buttons: [
+							{
+								label: 'los geht\'s',
+								color: 'coalgrey',
+								icon: 'arrow right'
+							}
+						],
+						options: {
+							extended: false,
+							sizeControl: true
+						},
+						content: [
+							{
+								"content" : "Dein Leitfaden zur Unikathek",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "headline"
+							},
+							{
+								"content" : "Willkommen in der Unikathek – einem faszinierenden Blick auf die Kultur der Oberpfalz. Unser Projekt präsentiert über 100 einzigartige Objekte aus der Region, jedes mit seiner eigenen Geschichte. Diese Alltagsgegenstände sind mehr als bloße 3D-Modelle; sie sind Zeugen des Lebens und der Kultur der Menschen, die sie besaßen und nutzten. In diesem Leitfaden führen wir Dich durch die Unikathek und zeigen Dir, wie diese Objekte die Vergangenheit lebendig werden lassen.",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "paragraph"
+							}
+						]
+					}, 
+					collection: {
+						type: 'message',
+						buttons: [
+							{
+								label: 'zurück',
+								color: 'smokegrey',
+								icon: ''
+							},
+							{
+								label: 'ausprobieren',
+								color: 'coalgrey',
+								icon: 'arrow right'
+							}
+						],
+						options: {
+							extended: true,
+							sizeControl: false
+						},
+						content: [
+							{
+								"content" : "Stöbern, Suchen, Filtern",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "headline"
+							},
+							{
+								"content" : "Sammlungsansicht",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "subheadline"
+							},
+							{
+								"content" : "Die Sammlungsansicht zeigt wie unsere Objekte untereinander verknüpft sind. Durch Themen <span class='icon terracotta'><img src='" + app.assets.icon['topic'].src.pearlwhite + "' alt='" + app.assets.icon['topic'].alt + "'></span>, Kategorien <span class='icon skyblue'><img src='" + app.assets.icon['category'].src.pearlwhite + "' alt='" + app.assets.icon['category'].alt + "'></span> und Tags <span class='icon duckyellow'><img src='" + app.assets.icon['tag'].src.coalgrey + "' alt='" + app.assets.icon['tag'].alt + "'></span> <span class='icon smokegrey'><img src='" + app.assets.icon['tag'].src.pearlwhite + "' alt='" + app.assets.icon['tag'].alt + "'></span> entsteht so ein Netzwerk aus Deutungen und Kontexten. Ähnliche Gegenstände ziehen sich durch die Verbindungen an und schaffen so räumliche Gruppierungen.",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "paragraph"
+							},
+							{
+								"content" : "Hier kannst du die aus unserer Forschung heraus entstandenen Themen und Kategorien entdecken, durchsuchen, oder natürlich jedes Objekt für sich unter die Lupe nehmen.",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "paragraph"
+							},
+							{
+								"content" : "Werkzeuge",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "headline"
+							},
+							{
+								"content" : "Suche",
+								"fileCopyright" : "",
+								"filename" : app.assets.icon['search'].src.pearlwhite,
+								"imageAlt" : app.assets.icon['search'].alt,
+								"iconBackgroundColor" : "terracotta",
+								"imageCaption" : "",
+								"type" : "subheadline"
+							},
+							{
+								"content" : "Suche Objekte und Knotenpunkte durch eine einfache Texteingabe. Nur die gefilterten Ergebnisse sind sichtbar. ",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "paragraph"
+							},
+							{
+								"content" : "Filter",
+								"fileCopyright" : "",
+								"filename" : app.assets.icon['filter'].src.coalgrey,
+								"imageAlt" : app.assets.icon['filter'].alt,
+								"iconBackgroundColor" : "duckyellow",
+								"imageCaption" : "",
+								"type" : "subheadline"
+							},
+							{
+								"content" : "Durch die Filterfunktion kannst du das Netzwerk deinen Interessen nach neu anordnen. Jedes an- oder abgewählte Thema, jede Kategorie und jeder Herstellungs- oder Kontext-Tag ändern dabei die räumliche Anordnung.",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "paragraph"
+							}, 
+							{
+								"content" : "Ansicht zurücksetzen",
+								"fileCopyright" : "",
+								"filename" : app.assets.icon['reset view'].src.pearlwhite,
+								"imageAlt" : app.assets.icon['reset view'].alt,
+								"iconBackgroundColor" : "coalgrey",
+								"imageCaption" : "",
+								"type" : "subheadline"
+							},
+							{
+								"content" : "Falls du dich mal nicht mehr zurecht findest, kannst du das gesamte Netzwerk anzeigen. ",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "paragraph"
+							}
+						]
+					}, 
+					object: {
+						type: 'excercise',
+						content: 'Klicke auf ein Objekt in der Sammlung'
+					}
+				}
+			},
+
+			init() {
+				this.setSteps();
+
+				if(app.showOnboarding) {
+					this.show('start');
+					app.dev && console.log('dev --- showing onboarding message! app.showOnboarding: ', app.showOnboarding)
+				}
+			}, 
+
+			show(step = 'start', type = 'message') {
+				if(!(step in this.steps)) {return;}
+
+				this.setOnboardingMessage(step);
+
+				app.dev && console.log('dev --- show onboarding: ', step)
+
+				if(step === 'start') {
+					app.gui.toolbar.toggleToolbar(false);
+					app.gui.message.setMessage(this.onboardingMessage);
+
+					app.gui.message.buttons.button[0].element.addEventListener('click', (e) => {
+						app.gui.message.hideMessage(true)
+						this.show('collection');
+					}, { signal: app.gui.message.abortController.signal });
+					return;
+				}
+
+				if(step === 'collection') {
+					app.gui.toolbar.toggleToolbar(false);
+					app.gui.message.setMessage(this.onboardingMessage);
+
+					app.gui.message.buttons.button[0].element.addEventListener('click', (e) => {
+						app.gui.message.hideMessage(true);
+						this.show('start');
+					}, { signal: app.gui.message.abortController.signal });
+
+					app.gui.message.buttons.button[1].element.addEventListener('click', (e) => {
+						app.gui.message.hideMessage(true);
+					}, { signal: app.gui.message.abortController.signal });
+					return;
+				}
+			}, 
+
+			setOnboardingMessage(step) {
+				this.onboardingMessage = {
+					content: app.createHTMLContentFromJSON(this.steps[step].content),
+					color: 'pearlwhite',
+					shadow: 'shadow-coalgrey',
+					buttonSetup: [
+						{ label: this.steps[step].buttons[0].label, color: this.steps[step].buttons[0].color, icon: this.steps[step].buttons[0].icon }
+					], 
+					options: {
+						extended: false, 
+						sizeControl: false
+					}
+				}
+
+				if(this.steps[step].buttons[1]) {
+					this.onboardingMessage.buttonSetup = [
+						{ label: this.steps[step].buttons[0].label, color: this.steps[step].buttons[0].color, icon: this.steps[step].buttons[0].icon },
+						{ label: this.steps[step].buttons[1].label, color: this.steps[step].buttons[1].color, icon: this.steps[step].buttons[1].icon }
+					]
+				}
+
+				if('options' in this.steps[step]) {
+					('extended' in this.steps[step].options) ? this.onboardingMessage.options.extended = this.steps[step].options.extended : '';
+					('sizeControl' in this.steps[step].options) ? this.onboardingMessage.options.sizeControl = this.steps[step].options.sizeControl : '';
+				}
 			}
 		},
 
@@ -1755,7 +1883,7 @@ const app = {
 						color: 'pearlwhite',
 						shadow: 'shadow-' + app.collectionViewer.elementColor.object,
 						buttonSetup: [
-							{ label: 'erkunden', color: app.collectionViewer.elementColor.object, icon: 'arrow right' }
+							{ label: 'mehr erfahren', color: app.collectionViewer.elementColor.object, icon: 'arrow right' }
 							]
 					}
 
@@ -1852,6 +1980,8 @@ const app = {
 						element.addEventListener('click', this.highlightFromPill);
 					}
 				}
+
+				this.pillArray = [];
 			},
 
 			highlightFromPill(e) {
@@ -1982,7 +2112,7 @@ const app = {
 				infoContainer.appendChild(onboardingLink);
 				onboardingLink.className = 'link text-smokegrey';
 
-				onboardingLink.textContent = 'Willkommen Mitteilung anzeigen';
+				onboardingLink.textContent = 'Leitfaden anzeigen';
 
 			},			
 
@@ -1990,8 +2120,7 @@ const app = {
 				this.onboardingLinkEl.addEventListener('click', (e) => {
 					app.gui.toolbar.toggleToolbar(false);
 					app.gui.toolbar.buttonActionTab(document.querySelector(this.buttonSetup.id));
-					app.gui.message.setMessage(app.collectionViewer.onboardingMessage);
-					app.gui.message.buttons.button[0].element.addEventListener('click', (e) => app.gui.message.hideMessage(true), { signal: app.gui.message.abortController.signal });
+					app.collectionViewer.onboarding.show();
 				});
 			}, 
 
@@ -2047,7 +2176,7 @@ const app = {
 					for( let index in fgData){
 						let object = fgData[index];
 						if(object.name){
-							this.nodeArray.push(object.name);
+							this.nodeArray.push(object);
 						}
 					}
 					//app.dev && console.log('dev --- cv > search > nodeArray: ', this.nodeArray);
@@ -2106,19 +2235,24 @@ const app = {
 					currentFocus = -1;
 	
 					for(let index in array){
-						let name = array[index];
+						let name = array[index].name;
 						if (name.substr(0, inputValue.length).toUpperCase() == inputValue.toUpperCase()) {
 							let listItemEl = document.createElement('div');
 							listItemEl.innerHTML = "<strong>" + name.substr(0, inputValue.length) + "</strong>";
 							listItemEl.innerHTML += name.substr(inputValue.length);
+							array[index].visibility === 'hidden' ? listItemEl.innerHTML += ' (gefiltert)' : '';
 							listItemEl.innerHTML += "<input type='hidden' value='" + name + "'>";
+							autocompleteList.appendChild(listItemEl);
+							if(array[index].visibility === 'hidden'){
+								listItemEl.classList.add('disabled');
+								continue;
+							}
 							listItemEl.addEventListener("click", function(e) {
 								element.value = this.getElementsByTagName("input")[0].value;
 								app.collectionViewer.search.removeAutoCompleteList();
 								app.gui.toolbar.buttonActionSlide(app.collectionViewer.search.button.element);
 								app.collectionViewer.search.executeRequest(name);
 							});
-							autocompleteList.appendChild(listItemEl);
 						}
 					}
 
@@ -2308,7 +2442,7 @@ const app = {
 				topicIcon.height = 100;
 				topicIcon.setAttribute('loading', 'lazy');
 
-				topicListButton.textContent = this.texts.topicsButton;
+				topicListButton.appendChild(document.createTextNode(this.texts.topicsButton));
 
 				const topicListButtonArrow = document.createElement('div');
 				topicListButton.appendChild(topicListButtonArrow);
@@ -2346,7 +2480,7 @@ const app = {
 				categoryIcon.height = 100;
 				categoryIcon.setAttribute('loading', 'lazy');
 
-				categoryListButton.textContent = this.texts.categoriesButton;
+				categoryListButton.appendChild(document.createTextNode(this.texts.categoriesButton));
 
 				const categoryListButtonArrow = document.createElement('div');
 				categoryListButton.appendChild(categoryListButtonArrow);
@@ -2384,7 +2518,7 @@ const app = {
 				tagIcon.height = 100;
 				tagIcon.setAttribute('loading', 'lazy');
 
-				tagListButton.textContent = this.texts.tagsButton;
+				tagListButton.appendChild(document.createTextNode(this.texts.tagsButton));
 
 				const tagListButtonArrow = document.createElement('div');
 				tagListButton.appendChild(tagListButtonArrow);
@@ -2416,13 +2550,13 @@ const app = {
 
 				const productionTagIcon = document.createElement('img');
 				productionTagListButtonIcon.appendChild(productionTagIcon);
-				productionTagIcon.src = app.assets.icon['tag'].src.coalgrey;
+				productionTagIcon.src = app.assets.icon['tag'].src.pearlwhite;
 				productionTagIcon.alt = app. assets.icon['tag'].alt;
 				productionTagIcon.width = 100;
 				productionTagIcon.height = 100;
 				productionTagIcon.setAttribute('loading', 'lazy');
 
-				productionTagListButton.textContent = this.texts.productionTagsButton;
+				productionTagListButton.appendChild(document.createTextNode(this.texts.productionTagsButton));
 
 				const productionTagListButtonArrow = document.createElement('div');
 				productionTagListButton.appendChild(productionTagListButtonArrow);
@@ -2596,7 +2730,7 @@ const app = {
 					// removed pitch reset due to user feedback
 					//pitchCamera: true, 
 					//desiredCameraPitch: 0,
-					desiredCameraTilt: -5,
+					desiredCameraTilt: -10,
 					forceUpdate: true
 				});
 			}
@@ -2848,6 +2982,7 @@ const app = {
 							newNode.productionTags = [];
 							newNode.size = 0;
 							newNode.model = '';
+							newNode.visibility = 'visible';
 							fgData.nodes.push(newNode);
 						}
 
@@ -2865,6 +3000,7 @@ const app = {
 							newNode.productionTags = [];
 							newNode.size = 0;
 							newNode.model = '';
+							newNode.visibility = 'visible';
 							fgData.nodes.push(newNode);
 						}
 					
@@ -2880,7 +3016,8 @@ const app = {
 							newNode.tags = object.tags.filter(filterEmptyTag);
 							newNode.productionTags = object.productionTags.filter(filterEmptyTag);
 							newNode.size = 100;
-							newNode.model = ''
+							newNode.model = '';
+							newNode.visibility = 'visible';
 							fgData.nodes.push(newNode);
 						}
 					
@@ -3002,6 +3139,7 @@ const app = {
 							let filteredProductionTags = node.productionTags.filter(value => productionTags.includes(value));
 							let filteredCategories = node.categories.filter(value => categories.includes(value));
 							let filteredTopics = node.topics.filter(value => topics.includes(value));
+							node.visibility = 'hidden';
 							if(typeof filteredTags !== 'undefined' && filteredTags.length > 0){
 								newNode = node;
 							}
@@ -3015,6 +3153,7 @@ const app = {
 								newNode = node;
 							}
 							if(newNode){
+								newNode.visibility = 'visible';
 								filteredFgData.nodes.push(newNode);
 							}
 						}
@@ -8367,7 +8506,14 @@ const app = {
 				const headlineHTML = '<h3>' + content.content + '</h3>';
 				contentHTML = contentHTML.concat(headlineHTML);
 			}else if(content.type === 'subheadline'){
-				const subHeadlineHTML = '<h5>' + content.content + '</h5>';
+				let imageHTML = '';
+				if(content.filename) {
+					let iconBackgroundColor = '';
+					('iconBackgroundColor' in content) ? iconBackgroundColor = content.iconBackgroundColor : '';
+					imageHTML = '<div class="icon ' + iconBackgroundColor + '"><img src="' + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px"></div>'
+					//contentHTML = contentHTML.concat(imageHTML);
+				}
+				const subHeadlineHTML = '<h5>' + imageHTML + content.content + '</h5>';
 				contentHTML = contentHTML.concat(subHeadlineHTML);
 			}else if(content.type === 'paragraph'){
 				const paragraphHTML = '<p class="annotation-text">' + content.content + '</p>';
@@ -8449,6 +8595,12 @@ const app = {
 		//handle from parameter
 		(this.viewerMode === 'cv' && node) ? this.collectionViewer.node = node : '';
 	}, 
+
+	handleLocalStorage() {
+		this.showOnboarding = (localStorage.getItem('onboardingComplete') !== 'true');
+		localStorage.setItem('onboardingComplete', 'true');
+		app.dev && console.log('dev --- handleLocalStorage > showOnboarding: ', this.showOnboarding);
+	},
 
 	checkMobile() {
 		// from: https://stackoverflow.com/questions/11381673/detecting-a-mobile-browser

@@ -372,16 +372,36 @@ div.icon {
   display: inline-block;
   position: relative;
   margin-right: 5px;
-  top: 0.4em;
+  padding: 0.1em;
+  top: 0.3em;
   width: 1.45em;
   height: 1.45em;
   border: none;
   border-radius: 100%;
+  overflow: hidden;
 }
 
 div.icon > img {
   width: 100%;
   height: 100%;
+  border-radius: 100%;
+}
+
+span.icon {
+  display: inline-block;
+  position: relative;
+  top: 0.1em;
+  width: auto;
+  height: 1.1em;
+  border: none;
+  border-radius: 100%;
+  overflow: hidden;
+}
+
+span.icon > img {
+  width: 100%;
+  height: 100%;
+  border-radius: 100%;
 }
 
 div.arrow {
@@ -694,7 +714,8 @@ div.gui-message-container.extended > div.type {
 div.gui-message-container > button.size-control {
   position: absolute;
   bottom: calc(5px + 40%);
-  width: 100%;
+  width: 20%;
+  margin: 0 40% 0 40%;
   height: 1.4rem;
   padding: 0;
   background-color: transparent;
@@ -750,6 +771,7 @@ div.gui-message > div.content-container::-webkit-scrollbar-button:end:decrement 
 }
 
 div.gui-message > div.content-container > div.content {
+  padding-top: 2em;
   text-align: left;
 }
 
@@ -801,9 +823,9 @@ div.gui-message > div.button-container > button.button > div.label {
 
 div.gui-message > div.button-container > button.button > img.button-icon {
   position: relative;
-  top: 0.3em;
-  width: 1.45em;
-  height: 1.45em;
+  top: 0.15em;
+  width: auto;
+  height: 1.2em;
 }
 
 
@@ -1367,6 +1389,11 @@ div.autocomplete-list-container > div.autocomplete-list {
 div.autocomplete-list-container > div.autocomplete-list > div {
   margin: 2px;
 }
+
+div.autocomplete-list-container > div.autocomplete-list > div.disabled {
+  opacity: 0.5;
+}
+
 div.autocomplete-list-container > div.autocomplete-list > div.autocomplete-active {
   font-size: 1.1rem;
   font-weight: 700;
