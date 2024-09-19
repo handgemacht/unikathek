@@ -1,7 +1,8 @@
 {
   "name": "hand.gemacht Unikathek",
   "short_name": "Unikathek",
-  "description": "hand.gemacht Unikathek Description",
+  "description": "Die hand.gemacht Unikathek bietet einem faszinierenden Blick auf die Kultur der Oberpfalz. Das Projekt präsentiert über 100 einzigartige Objekte aus der Region, jedes mit seiner eigenen Geschichte.",
+  "id": "/",
   "start_url": ".",
   "scope": "../",
   "display": "standalone",

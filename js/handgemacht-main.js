@@ -9,7 +9,7 @@ const app = {
 	dev: false,
 	stats: false,
 	viewerMode: false,
-	viewerModes: [ 'cv', 'mv'],
+	viewerModes: [ 'cv', 'mv' ],
 	showOnboarding: false,
 
 	filepaths: {
@@ -271,7 +271,7 @@ const app = {
 
 		this.handleURLParameter();
 
-		this.handleLocalStorage()
+		this.handleLocalStorage();
 
 		this.isMobile = this.checkMobile();
 		this.isWebXRCapable = this.checkWebXRSupport();
@@ -309,7 +309,7 @@ const app = {
 		}
 
 		this.gui.setupCollapsibles();
-	}, //init
+	}, 
 
 	gui: {
 			
@@ -1335,7 +1335,7 @@ const app = {
 				})
 			})
 		}
-	}, //gui
+	},
 
 	collectionViewer: {
 
@@ -1575,7 +1575,6 @@ const app = {
 
 				if(app.showOnboarding) {
 					this.show('start');
-					app.dev && console.log('dev --- showing onboarding message! app.showOnboarding: ', app.showOnboarding)
 				}
 			}, 
 
@@ -4287,7 +4286,7 @@ const app = {
 				app.gui.loadingScreen.hideLoadingScreen();
 			});
 		}
-	}, //collectionViewer
+	},
 
 	modelViewer: {
 
@@ -5051,7 +5050,7 @@ const app = {
 				});
 			} catch (e) {
 				app.dev && console.error('dev --- fetch error: ', e);
-				app.errorHandler('mv-002')
+				app.handleError('mv-002')
 			}
 		},
 
@@ -5125,7 +5124,7 @@ const app = {
 			app.gui.toolbar.button[1].removeEventListener('click', (e) => app.modelViewer.contextStory.setContextStory() );
 			app.gui.toolbar.button[2].removeEventListener('click', (e) => app.modelViewer.measurement.toggleMeasurements() );
 		}
-	}, //modelViewer
+	},
 
 	arViewer: {
 
@@ -8497,7 +8496,7 @@ const app = {
 			  },
 			});
 		}
-	}, //arViewer
+	},
 
 	createHTMLContentFromJSON(contents) {
 		let contentHTML = '';
@@ -8588,8 +8587,8 @@ const app = {
 		}
 
 		//handle mv model uuid
-		(this.viewerMode === 'mv' && !model) && this.errorHandler('mv-000');
-		(this.viewerMode === 'mv' && !regex.test(model)) && this.errorHandler('mv-001');
+		(this.viewerMode === 'mv' && !model) && this.handleError('mv-000');
+		(this.viewerMode === 'mv' && !regex.test(model)) && this.handleError('mv-001');
 		(this.viewerMode === 'mv' && regex.test(model)) ? this.primaryKey = model : '';
 
 		//handle from parameter
@@ -8647,7 +8646,7 @@ const app = {
 		}
 	},
 
-	errorHandler(error){
+	handleError(error){
 		let consoleOutput = null;
 
 		//collectionViewer errors
