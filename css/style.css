@@ -391,7 +391,7 @@ span.icon {
   display: inline-block;
   position: relative;
   top: 0.1em;
-  width: auto;
+  width: 1.1em;
   height: 1.1em;
   border: none;
   border-radius: 100%;
@@ -781,6 +781,7 @@ div.gui-message > div.content-container > div.content > .categories, .tags, .obj
 
 div.gui-message > div.content-container > div.content > h3 {
   font-size: 1.4em;
+  font-weight: 700;
   margin-block-start: 0;
   margin-block-end: 0.5em;
 }
@@ -826,6 +827,80 @@ div.gui-message > div.button-container > button.button > img.button-icon {
   top: 0.15em;
   width: auto;
   height: 1.2em;
+}
+
+
+
+
+/* --- content --- */
+
+p.content-text {
+  padding: 0px 30px 15px 0px;
+}
+
+p.content-text.quote {
+  padding: 0 30px 0 40px;
+  font-style: italic;
+}
+
+p.content-text.literature {
+  display: list-item;
+  margin-left : 1em;
+  font-style: italic;
+  font-size: 0.75em;
+}
+
+a.content-link {
+  display: block;
+  color: #FF7850;
+}
+
+a.content-link:visited {
+  color: #A04B19;
+}
+
+div.content-image, span.content-image {
+  float: right;
+  width: 80%;
+  margin: 15px 15px 15px 30px;
+  background-color: #FF7850;
+  border-radius: 0px 20px 0px 20px;
+}
+
+div.content-image, span.content-image > div.content-image-box, span.content-image-box {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  margin: -15px 0 0 -15px; 
+}
+
+div.content-image, span.content-image > div.content-image-box, span.content-image-box > img {
+  width: 100%;
+  height: auto;
+}
+
+div.content-image-caption, span.content-image-caption {
+  display: inline-block;
+  font-size: 0.75em;
+  font-weight: 700;
+  margin: 0;
+  padding: 10px 15px 15px 15px;
+  color: #FAF0E6;
+}
+
+div.content-image-caption, span.content-image-caption > .copyright {
+  display: block;
+  font-weight: 356;
+  white-space: nowrap;
+}
+
+img.content-close-icon {
+  display: block;
+  position: absolute;
+  right: 6px;
+  float: right;
+  width: 16px;
+  height: 16px;
 }
 
 
@@ -1561,73 +1636,6 @@ button.dim {
 
 
 
-/* --- annotations --- */
-
-p.annotation-text {
-  padding: 0px 30px 15px 0px;
-}
-
-p.annotation-text.quote {
-  padding: 0 30px 0 40px;
-  font-style: italic;
-}
-
-a.annotation-link {
-  display: block;
-  color: #FF7850;
-}
-
-a.annotation-link:visited {
-  color: #A04B19;
-}
-
-div.annotation-image, span.annotation-image {
-  float: right;
-  width: 80%;
-  margin: 15px 15px 15px 30px;
-  background-color: #FF7850;
-  border-radius: 0px 20px 0px 20px;
-}
-
-div.annotation-image, span.annotation-image > div.annotation-image-box, span.annotation-image-box {
-  display: inline-block;
-  width: 100%;
-  height: 100%;
-  margin: -15px 0 0 -15px; 
-}
-
-div.annotation-image, span.annotation-image > div.annotation-image-box, span.annotation-image-box > img {
-  width: 100%;
-  height: auto;
-}
-
-div.annotation-image-caption, span.annotation-image-caption {
-  display: inline-block;
-  font-size: 0.75em;
-  font-weight: 700;
-  margin: 0;
-  padding: 10px 15px 15px 15px;
-  color: #FAF0E6;
-}
-
-div.annotation-image-caption, span.annotation-image-caption > .copyright {
-  display: block;
-  font-weight: 356;
-  white-space: nowrap;
-}
-
-img.annotation-close-icon {
-  display: block;
-  position: absolute;
-  right: 6px;
-  float: right;
-  width: 16px;
-  height: 16px;
-}
-
-
-
-
 /* --- hotspots --- */
 
 button.hotspot {
@@ -2130,7 +2138,7 @@ img.help-symbol{
     width: calc(640px - 40px);
   }
 
-  div.annotation-image, span.annotation-image {
+  div.content-image, span.content-image {
   float: right;
   width: 40%;
 

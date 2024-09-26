@@ -86,14 +86,14 @@ const app = {
 					}
 				},
 				'topic': {
-					alt: 'Themen-Symbol',
+					alt: 'Merkmal-Symbol',
 					src: {
 						pearlwhite: filepath + 'hand.gemacht WebApp icon topic pearlwhite.svg',
 						coalgrey: filepath + 'hand.gemacht WebApp icon topic coalgrey.svg' 
 					}
 				},
 				'category': {
-					alt: 'Kategorie-Symbol',
+					alt: 'Kontext-Symbol',
 					src: {
 						pearlwhite: filepath + 'hand.gemacht WebApp icon category pearlwhite.svg',
 						coalgrey: filepath + 'hand.gemacht WebApp icon category coalgrey.svg' 
@@ -212,11 +212,11 @@ const app = {
 			cv: {
 				marker: {
 					'category': {
-						alt: 'Kategorie-Marker',
+						alt: 'Kontext-Marker',
 						src: filepath + 'hand.gemacht WebApp cv marker category.svg'
 					},
 					'topic': {
-						alt: 'Themen-Marker',
+						alt: 'Merkmal-Marker',
 						src: filepath + 'hand.gemacht WebApp cv marker topic.svg'
 					}
 				}
@@ -607,6 +607,8 @@ const app = {
 					app.collectionViewer.highlight.setPillEventlisteners();
 				}
 
+				app.contentImageHandler();
+
 				app.gui.toolbar.toggleToolbar(false);
 			}, 
 
@@ -840,6 +842,15 @@ const app = {
 
 			init() {
 				this.createElements();
+
+				const self = this;
+
+				this.containerEl.addEventListener('click', function(){
+					self.image.src = '';
+					self.image.alt = '';
+					self.containerEl.classList.add('hide'); 
+					self.image.classList.add('hide');
+				});
 			}, 
 
 			createElements() {
@@ -1487,7 +1498,7 @@ const app = {
 								"type" : "subheadline"
 							},
 							{
-								"content" : "Die Sammlungsansicht zeigt wie unsere Objekte untereinander verknüpft sind. Durch Themen <span class='icon terracotta'><img src='" + app.assets.icon['topic'].src.pearlwhite + "' alt='" + app.assets.icon['topic'].alt + "'></span>, Kategorien <span class='icon skyblue'><img src='" + app.assets.icon['category'].src.pearlwhite + "' alt='" + app.assets.icon['category'].alt + "'></span> und Tags <span class='icon duckyellow'><img src='" + app.assets.icon['tag'].src.coalgrey + "' alt='" + app.assets.icon['tag'].alt + "'></span> <span class='icon smokegrey'><img src='" + app.assets.icon['tag'].src.pearlwhite + "' alt='" + app.assets.icon['tag'].alt + "'></span> entsteht so ein Netzwerk aus Deutungen und Kontexten. Ähnliche Gegenstände ziehen sich durch die Verbindungen an und schaffen so räumliche Gruppierungen.",
+								"content" : "Die Sammlungsansicht zeigt wie unsere Objekte untereinander verknüpft sind. Durch Merkmale <span class='icon terracotta'><img src='" + app.assets.icon['topic'].src.pearlwhite + "' alt='" + app.assets.icon['topic'].alt + "'></span>, Kontexte <span class='icon skyblue'><img src='" + app.assets.icon['category'].src.pearlwhite + "' alt='" + app.assets.icon['category'].alt + "'></span> und Tags <span class='icon duckyellow'><img src='" + app.assets.icon['tag'].src.coalgrey + "' alt='" + app.assets.icon['tag'].alt + "'></span> <span class='icon smokegrey'><img src='" + app.assets.icon['tag'].src.pearlwhite + "' alt='" + app.assets.icon['tag'].alt + "'></span> entsteht so ein Netzwerk aus Deutungen und Gemeinsamkeiten. Ähnliche Gegenstände ziehen sich durch die Verbindungen an und schaffen so räumliche Gruppierungen.",
 								"fileCopyright" : "",
 								"filename" : "",
 								"imageAlt" : "",
@@ -1495,7 +1506,7 @@ const app = {
 								"type" : "paragraph"
 							},
 							{
-								"content" : "Hier kannst du die aus unserer Forschung heraus entstandenen Themen und Kategorien entdecken, durchsuchen, oder natürlich jedes Objekt für sich unter die Lupe nehmen.",
+								"content" : "Hier kannst du die aus unserer Forschung heraus entstandenen Merkmale und Kontexte entdecken, durchsuchen, oder natürlich jedes Objekt für sich unter die Lupe nehmen.",
 								"fileCopyright" : "",
 								"filename" : "",
 								"imageAlt" : "",
@@ -1520,7 +1531,7 @@ const app = {
 								"type" : "subheadline"
 							},
 							{
-								"content" : "Suche Objekte und Knotenpunkte durch eine einfache Texteingabe. Nur die gefilterten Ergebnisse sind sichtbar. ",
+								"content" : "Suche Objekte, Merkmale und Kontexte mit einer einfachen Texteingabe. Nur die gefilterten Ergebnisse sind sichtbar. ",
 								"fileCopyright" : "",
 								"filename" : "",
 								"imageAlt" : "",
@@ -1537,7 +1548,7 @@ const app = {
 								"type" : "subheadline"
 							},
 							{
-								"content" : "Durch die Filterfunktion kannst du das Netzwerk deinen Interessen nach neu anordnen. Jedes an- oder abgewählte Thema, jede Kategorie und jeder Herstellungs- oder Kontext-Tag ändern dabei die räumliche Anordnung.",
+								"content" : "Durch die Filterfunktion kannst du das Netzwerk deinen Interessen nach neu anordnen. Jedes an- oder abgewählte Merkmal, jeder Kontext und jeder Herstellungs- oder Themen-Tag ändern dabei die räumliche Anordnung.",
 								"fileCopyright" : "",
 								"filename" : "",
 								"imageAlt" : "",
@@ -1670,12 +1681,12 @@ const app = {
 					this.contentEl.classList.add(app.collectionViewer.elementColor.object);
 				}
 				if(type === 'node-category'){
-					typeText = 'Kategorie'
+					typeText = 'Kontext'
 					this.typeEl.classList.add(app.collectionViewer.elementColor.category);
 					this.contentEl.classList.add(app.collectionViewer.elementColor.category);
 				}
 				if(type === 'node-topic'){
-					typeText = 'Thema'
+					typeText = 'Merkmal'
 					this.typeEl.classList.add(app.collectionViewer.elementColor.topic);
 					this.contentEl.classList.add(app.collectionViewer.elementColor.topic);
 				}
@@ -1690,12 +1701,12 @@ const app = {
 					this.contentEl.classList.add(app.collectionViewer.elementColor.productionTag);
 				}
 				if(type === 'link-category'){
-					typeText = 'Kategorie-Link'
+					typeText = 'Kontext-Link'
 					this.typeEl.classList.add(app.collectionViewer.elementColor.category);
 					this.contentEl.classList.add(app.collectionViewer.elementColor.category);
 				}
 				if(type === 'link-topic'){
-					typeText = 'Themen-Link'
+					typeText = 'Merkmal-Link'
 					this.typeEl.classList.add(app.collectionViewer.elementColor.topic);
 					this.contentEl.classList.add(app.collectionViewer.elementColor.topic);
 				}
@@ -1813,7 +1824,7 @@ const app = {
 						this.pillArray.push('#'+pillId);
 					}
 					if(categoryList !== '') {
-						categoryList = '<div class="categories"><h6 class="text-smokegrey">Kategorien: </h6>' + categoryList + '</div>';
+						categoryList = '<div class="categories"><h6 class="text-smokegrey">Kontexte: </h6>' + categoryList + '</div>';
 					}
 
 					let topicList = '';
@@ -1831,7 +1842,7 @@ const app = {
 						this.pillArray.push('#'+pillId);
 					}
 					if(topicList !== '') {
-						topicList = '<div class="categories"><h6 class="text-smokegrey">Themen: </h6>' + topicList + '</div>';
+						topicList = '<div class="categories"><h6 class="text-smokegrey">Merkmale: </h6>' + topicList + '</div>';
 					}
 	
 					let tagList = '';
@@ -1914,7 +1925,7 @@ const app = {
 					let categoryContent = app.createHTMLContentFromJSON(fgNode.contents);
 					
 					let message = {
-						type: 'Kategorie',
+						type: 'Kontext',
 						content: categoryContent + objectList,
 						color: 'pearlwhite',
 						shadow: 'shadow-' + app.collectionViewer.elementColor.category
@@ -1942,7 +1953,7 @@ const app = {
 					let topicContent = app.createHTMLContentFromJSON(fgNode.contents)
 					
 					let message = {
-						type: 'Thema',
+						type: 'Merkmal',
 						content: topicContent + objectList,
 						color: 'pearlwhite',
 						shadow: 'shadow-' + app.collectionViewer.elementColor.topic
@@ -2374,9 +2385,9 @@ const app = {
 
 			texts: {
 				title: 'Filter',
-				intro: 'Aktiviere oder deaktiviere Kategorien und Tags um das Netzwerk anzupassen.',
-				categoriesButton: 'Kategorien',
-				topicsButton: 'Themen',
+				intro: 'Aktiviere oder deaktiviere Kontexte und Tags um das Netzwerk anzupassen.',
+				categoriesButton: 'Kontexte',
+				topicsButton: 'Merkmale',
 				tagsButton: 'Kontext',
 				productionTagsButton: 'Herstellung',
 				selectAllButton: 'Alle aus-/abwählen'
@@ -4398,7 +4409,7 @@ const app = {
 					descriptionListBasicEl.appendChild(categoryTermEl);
 					const categoryTermHeadline = document.createElement('h6');
 					categoryTermEl.appendChild(categoryTermHeadline);
-					categoryTermHeadline.textContent = 'Kategorien: ';
+					categoryTermHeadline.textContent = 'Kontexte: ';
 					categoryTermHeadline.className = 'text-smokegrey';
 	
 					const categoryValueEl = document.createElement('dd');
@@ -4986,37 +4997,12 @@ const app = {
 
 				app.gui.message.setMessage(this.annotationArray[arrayPos].message);
 
-				this.imageHandler();
+				app.contentImageHandler();
 
 				modelViewer.cameraTarget = button.dataset.target;
 				modelViewer.cameraOrbit = button.dataset.orbit;
 				modelViewer.fieldOfView = button.dataset.fov;
-			}, 
-
-			imageHandler() {
-				const modelViewer = app.modelViewer.element;
-				app.gui.message.content.element.querySelectorAll('.annotation-image').forEach( function(image){
-					const img = image.querySelector('img');
-					const box = image.querySelector('.annotation-image-box');
-					const fullScreenImageContainer = app.gui.fullScreen.containerEl;
-					const fullScreenImage = app.gui.fullScreen.image;
-					
-					//image Eventlisteners
-					//copies the src and alt from clicked image to the full-screen img-element and switches visibility
-					box.addEventListener('click', function(){
-						fullScreenImage.src = img.src;
-						fullScreenImage.alt = img.alt;
-						fullScreenImageContainer.classList.remove('hide'); 
-						fullScreenImage.classList.remove('hide');
-					});
-					fullScreenImageContainer.addEventListener('click', function(){
-						fullScreenImage.src = '';
-						fullScreenImage.alt = '';
-						fullScreenImageContainer.classList.add('hide'); 
-						fullScreenImage.classList.add('hide');
-					});
-				});
-			}			
+			}
 		},
 
 		setEventListeners: function() {
@@ -8500,51 +8486,81 @@ const app = {
 
 	createHTMLContentFromJSON(contents) {
 		let contentHTML = '';
+
 		for(let content of contents) {
+
 			if(content.type === 'headline'){
 				const headlineHTML = '<h3>' + content.content + '</h3>';
 				contentHTML = contentHTML.concat(headlineHTML);
+
 			}else if(content.type === 'subheadline'){
 				let imageHTML = '';
 				if(content.filename) {
 					let iconBackgroundColor = '';
 					('iconBackgroundColor' in content) ? iconBackgroundColor = content.iconBackgroundColor : '';
 					imageHTML = '<div class="icon ' + iconBackgroundColor + '"><img src="' + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px"></div>'
-					//contentHTML = contentHTML.concat(imageHTML);
 				}
 				const subHeadlineHTML = '<h5>' + imageHTML + content.content + '</h5>';
 				contentHTML = contentHTML.concat(subHeadlineHTML);
+
 			}else if(content.type === 'paragraph'){
-				const paragraphHTML = '<p class="annotation-text">' + content.content + '</p>';
+				const paragraphHTML = '<p class="content-text">' + content.content + '</p>';
 				contentHTML = contentHTML.concat(paragraphHTML);
+
 			}else if(content.type === 'paragraph+image'){
 				const imageHTML = '<img src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px">' 
-				const captionHTML = '<span class="annotation-image-caption">' + content.imageCaption + '<span class="copyright"> Foto: ' + content.fileCopyright + '</span></span>';
-				const paragraphAndImageHTML = '<p class="annotation-text"><span class="annotation-image"><span class="annotation-image-box">' + imageHTML + '</span>' + captionHTML + '</span>' + content.content + '</p>';
+				const captionHTML = '<span class="content-image-caption">' + content.imageCaption + '<span class="copyright"> Foto: ' + content.fileCopyright + '</span></span>';
+				const paragraphAndImageHTML = '<p class="content-text"><span class="content-image"><span class="content-image-box">' + imageHTML + '</span>' + captionHTML + '</span>' + content.content + '</p>';
 				contentHTML = contentHTML.concat(paragraphAndImageHTML);
+
 			}else if(content.type === 'paragraph+audio'){
 				
 			}else if(content.type === 'paragraph+video'){
 				
 			}else if(content.type === 'quote'){
-				const quoteHTML = '<p class="annotation-text quote">' + content.content + '</p>';
+				const quoteHTML = '<p class="content-text quote">' + content.content + '</p>';
 				contentHTML = contentHTML.concat(quoteHTML);
+
+			}else if(content.type === 'literature'){
+				const quoteHTML = '<p class="content-text literature">' + content.content + '</p>';
+				contentHTML = contentHTML.concat(quoteHTML);
+
 			}else if(content.type === 'image'){
 				const imageHTML = '<img src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px">' 
-				const captionHTML = '<p class="annotation-image-caption">' + content.imageCaption + '<span class="copyright"> Foto: ' + content.fileCopyright + '</span></p>';
-				const imageAndCaptionHTML = '<div class="annotation-image"><div class="annotation-image-box">' + imageHTML + '</div>' + captionHTML + '</div>';
+				const captionHTML = '<p class="content-image-caption">' + content.imageCaption + '<span class="copyright"> Foto: ' + content.fileCopyright + '</span></p>';
+				const imageAndCaptionHTML = '<div class="content-image"><div class="content-image-box">' + imageHTML + '</div>' + captionHTML + '</div>';
 				contentHTML = contentHTML.concat(imageAndCaptionHTML);
+
 			}else if(content.type === 'audio'){
 				const audioHTML = '<audio controls><source src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" type="audio/mpeg"></audio>';
 				contentHTML = contentHTML.concat(audioHTML);
+
 			}else if(content.type === 'video'){
 				
 			}else if(content.type === 'link'){
-				const linkHTML = '<a class="annotation-link" href="">' + content.content + '</a>';
+				const linkHTML = '<a class="content-link" href="">' + content.content + '</a>';
 				contentHTML = contentHTML.concat(linkHTML);
 			}
 		}
 		return contentHTML;
+	},
+
+	contentImageHandler() {
+		app.gui.message.content.element.querySelectorAll('.content-image').forEach( function(image){
+			const img = image.querySelector('img');
+			const box = image.querySelector('.content-image-box');
+			const fullScreenImageContainer = app.gui.fullScreen.containerEl;
+			const fullScreenImage = app.gui.fullScreen.image;
+			
+			//image Eventlisteners
+			//copies the src and alt from clicked image to the full-screen img-element and switches visibility
+			box.addEventListener('click', function(){
+				fullScreenImage.src = img.src;
+				fullScreenImage.alt = img.alt;
+				fullScreenImageContainer.classList.remove('hide'); 
+				fullScreenImage.classList.remove('hide');
+			});
+		});
 	},
 
 	handleScreenOrientation(e) {
