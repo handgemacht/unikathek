@@ -459,19 +459,12 @@ const app = {
 				this.animation.containerEl.classList.remove('hide');
 				this.element.classList.remove('transparent');
 				this.animation.textEl.innerHTML = text;
-				if(app.gui.title.element){
-					app.gui.title.element.classList.add('text-pearlwhite');
-				}
 			}, 
 
 			hideLoadingScreen(timeout = 0) {
 				setTimeout(() => {
 					this.element.classList.add('transparent');
 					this.animation.textEl.innerHTML = this.content.value;
-
-					if(app.gui.title.element){
-						app.gui.title.element.classList.remove('text-pearlwhite');
-					}
 
 					this.animation.containerEl.classList.add('hide');
 
@@ -2117,17 +2110,17 @@ const app = {
 				listBasicEl.appendChild(objectCountValueEl);
 				objectCountValueEl.textContent = this.collectionData.objectCount;
 
-				const onboardingLink = document.createElement('a');
-				this.onboardingLinkEl = onboardingLink;
-				infoContainer.appendChild(onboardingLink);
-				onboardingLink.className = 'link text-smokegrey';
+				const onboardingButton = document.createElement('button');
+				this.onboardingButtonEl = onboardingButton;
+				infoContainer.appendChild(onboardingButton);
+				onboardingButton.className = 'link text-smokegrey';
 
-				onboardingLink.textContent = 'Leitfaden anzeigen';
+				onboardingButton.textContent = 'Leitfaden anzeigen';
 
 			},			
 
 			setEventlisteners() {
-				this.onboardingLinkEl.addEventListener('click', (e) => {
+				this.onboardingButtonEl.addEventListener('click', (e) => {
 					app.gui.toolbar.toggleToolbar(false);
 					app.gui.toolbar.buttonActionTab(document.querySelector(this.buttonSetup.id));
 					app.collectionViewer.onboarding.show();
@@ -2388,8 +2381,8 @@ const app = {
 				intro: 'Aktiviere oder deaktiviere Kontexte und Tags um das Netzwerk anzupassen.',
 				categoriesButton: 'Kontexte',
 				topicsButton: 'Merkmale',
-				tagsButton: 'Kontext',
-				productionTagsButton: 'Herstellung',
+				tagsButton: 'Themen-Tags',
+				productionTagsButton: 'Herstellungs-Tags',
 				selectAllButton: 'Alle aus-/abwählen'
 			},
 

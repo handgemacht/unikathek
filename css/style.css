@@ -221,45 +221,13 @@ audio {
   color: #966400;
 }
 
-a.link {
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-a.link.text-coalgrey:hover {
-  color: #41403F;
-}
-
-a.link.text-smokegrey:hover {
-  color: #41403F;
-}
-
-a.link.text-pearlwhite:hover {
-  color: #FAF0E6;
-}
-
-a.link.text-skyblue:hover {
-  color: #14647D;
-}
-
-a.link.text-terracotta:hover {
-  color: #A04B19;
-}
-
-a.link.text-duckyellow:hover {
-  color: #966400;
-}
-
 button {
   padding: 0;
   font-family: 'Roboto Slab', serif;
   font-size: 1.0em;
   border: none;
+  background-color: transparent;
   border-radius: 0px 20px 0px 20px;
-  border-width: 2px;
-  border-color: #9B9691;
-  background-color: #41403F;
-  color: #9B9691;
   transition: box-shadow .3s;
   cursor:pointer;
 }
@@ -320,6 +288,35 @@ button.shadow-duckyellow {
 
 button.shadow-duckyellow:hover {
   box-shadow: 5px 5px #FFC800;
+}
+
+.link {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.link.text-coalgrey:hover {
+  color: #41403F;
+}
+
+.link.text-smokegrey:hover {
+  color: #41403F;
+}
+
+.link.text-pearlwhite:hover {
+  color: #FAF0E6;
+}
+
+.link.text-skyblue:hover {
+  color: #14647D;
+}
+
+.link.text-terracotta:hover {
+  color: #A04B19;
+}
+
+.link.text-duckyellow:hover {
+  color: #966400;
 }
 
 input {
