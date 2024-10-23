@@ -5,7 +5,7 @@
 //START app 
 const app = {
 	title: 'Unikathek',
-	version: 'beta 1.2 24/09/16',
+	version: 'beta 1.3 24/10/23',
 	dev: false,
 	stats: false,
 	viewerMode: false,
@@ -596,6 +596,17 @@ const app = {
 			showMessage() {
 				this.containerEl.classList.remove('hide');
 
+				if(document.querySelector('a-scene')){
+					document.querySelector('a-scene').classList.remove('active-message');
+					document.querySelector('a-scene').classList.add('active-message');
+				}
+
+				if(document.querySelector('model-viewer')){
+					document.querySelector('model-viewer').classList.remove('active-message');
+					document.querySelector('model-viewer').classList.add('active-message');
+				}
+				
+
 				if(app.collectionViewer.highlight.pillArray.length > 0) {
 					app.collectionViewer.highlight.setPillEventlisteners();
 				}
@@ -643,6 +654,14 @@ const app = {
 				this.buttons.button[1].labelEl.innerHTML = this.buttonSetup[1].label;
 
 				app.gui.toolbar.toggleToolbar(true);
+
+				if(document.querySelector('a-scene')){
+					document.querySelector('a-scene').classList.remove('active-message');
+				}
+
+				if(document.querySelector('model-viewer')){
+					document.querySelector('model-viewer').classList.remove('active-message');
+				}
 			},
 
 			setEventListener() {
@@ -1791,6 +1810,7 @@ const app = {
 			
 				if(type !== 'none'){
 					app.gui.message.hideMessage(true);
+					if(!fgNode.model.material.visible) {return;} 
 					app.collectionViewer.highlight.generateMessage(fgNode);
 				}
 			}, 
@@ -2731,9 +2751,9 @@ const app = {
 					desiredDistance: 300, 
 					autoRotate: true,
 					// removed pitch reset due to user feedback
-					//pitchCamera: true, 
+					//activeRotX: true, 
+					//desiredRotX: 0,
 					//desiredCameraPitch: 0,
-					desiredCameraTilt: -10,
 					forceUpdate: true
 				});
 			}
@@ -2748,12 +2768,16 @@ const app = {
 			this.sceneEl.setAttribute('xr-mode-ui', 'enabled: false');
 			this.sceneEl.setAttribute('device-orientation-permission-ui', 'enabled: false');
 			this.sceneEl.setAttribute('light', 'defaultLightsEnabled: false');
+			this.sceneEl.setAttribute('embedded', '');
 			app.stats && this.sceneEl.setAttribute('stats', '');
 
 			this.cursorEl = document.createElement('a-entity');
 			this.sceneEl.appendChild(this.cursorEl);
 			this.cursorEl.setAttribute('cursor', 'rayOrigin: mouse; mouseCursorStylesEnabled: true;');
 			this.cursorEl.setAttribute('raycaster', 'objects: #forcegraph;');
+			app.dev && this.cursorEl.setAttribute('raycaster', 'objects: #forcegraph; showLine: true;');
+			this.cursorEl.setAttribute('position', '0 0 -0.01');
+			this.cursorEl.setAttribute('id', 'cursor');
 
 			this.cameraEl = document.createElement('a-camera');
 			this.sceneEl.appendChild(this.cameraEl);
@@ -2984,7 +3008,7 @@ const app = {
 							newNode.tags = [];
 							newNode.productionTags = [];
 							newNode.size = 0;
-							newNode.model = '';
+							newNode.model = {material: {visible: false}};
 							newNode.visibility = 'visible';
 							fgData.nodes.push(newNode);
 						}
@@ -3002,7 +3026,7 @@ const app = {
 							newNode.tags = [];
 							newNode.productionTags = [];
 							newNode.size = 0;
-							newNode.model = '';
+							newNode.model = {material: {visible: false}};
 							newNode.visibility = 'visible';
 							fgData.nodes.push(newNode);
 						}
@@ -3019,7 +3043,7 @@ const app = {
 							newNode.tags = object.tags.filter(filterEmptyTag);
 							newNode.productionTags = object.productionTags.filter(filterEmptyTag);
 							newNode.size = 100;
-							newNode.model = '';
+							newNode.model = {material: {visible: false}};
 							newNode.visibility = 'visible';
 							fgData.nodes.push(newNode);
 						}
@@ -3196,23 +3220,24 @@ const app = {
 							nodeRelSize: 1,
 							nodeVal: node => { return node.size },
 							nodeThreeObject: node => {
-								node.material.visible = false;
+								node.model.material.visible = false;
 							},
 							nodeThreeObjectExtend: true,
 							nodeOpacity: 0,
 							onLinkHover: link => { 
+								app.dev && console.log('dev --- onLinkHover: ', link);
 								app.collectionViewer.tooltip.mouseoverHandler(link);
-								//app.dev && console.log('dev --- onLinkHover: ', link);
 							},
 							onLinkClick: link => { 
-								//app.dev && console.log('dev --- onLinkClick: ', link);
+								app.dev && console.log('dev --- onLinkClick: ', link);
 							},
 							onNodeHover: node => { 
+								app.dev && console.log('dev --- onNodeHover: ', node)
 								app.collectionViewer.tooltip.mouseoverHandler(node);
-								//app.dev && console.log('dev --- onNodeHover: ', node);
 							},
 							onNodeClick: node => { 
-								//app.dev && console.log('dev --- onNodeClick: ', node);
+								app.dev && console.log('dev --- onNodeClick: ', node);
+								app.dev && console.log('dev --- onNodeClick > hasUserInput: ', document.querySelector('a-camera').components['orbit-controls'].hasUserInput);
 								if(document.querySelector('a-camera').components['orbit-controls'].hasUserInput) {return;}
 								document.querySelector('a-camera').setAttribute('camera-focus-target', {target: node, duration: 1200});
 								app.collectionViewer.highlight.onclickHandler(node);
@@ -3487,7 +3512,7 @@ const app = {
 					this.data.noUpdate = null;
 
 					let newDistance = 0;
-					let newDesiredCameraTilt = 0;
+					let newDesiredCameraPitch = 0;
 					let newDesiredDistance = 0
 					let newTarget = '';
 					let newHighestDistance = 0;
@@ -3496,14 +3521,14 @@ const app = {
 						this.resetHighlight();
 						newTarget = document.querySelector('#forcegraph').object3D.position;
 						newHighestDistance = this.data.highestDistance.max;
-						newDesiredCameraTilt = -5;
+						newDesiredCameraPitch = -5;
 					}
 
 					if(source.type === 'node-object' || source.type === 'node-category' || source.type === 'node-topic' ) {
 						this.highlightModel(source);
 						newTarget = this.data.source.__threeObj.position;
 						newHighestDistance = this.data.highestDistance.value;
-						newDesiredCameraTilt = -12;
+						newDesiredCameraPitch = -10;
 					}
 
 					if(source.type === 'link-tag' || source.type === 'link-category' || source.type === 'link-topic' || source.type === 'link-productionTag' ) {
@@ -3532,9 +3557,9 @@ const app = {
 						autoRotate: false, 
 						distance: newDistance, 
 						desiredDistance: newDesiredDistance, 
-						pitchCamera: true, 
-						desiredCameraPitch: 0, 
-						desiredCameraTilt: newDesiredCameraTilt, 
+						activeRotX: true, 
+						desiredRotX: -5, 
+						desiredCameraPitch: newDesiredCameraPitch,
 						forceUpdate: true 
 					});
 
@@ -3549,19 +3574,21 @@ const app = {
 
 						let targetPosition = new THREE.Vector3();
 
-						this.camera.children[0].updateMatrixWorld();
+						let perspectiveCamera = this.camera.children[0];
+
+						perspectiveCamera.updateMatrixWorld();
 
 						if(this.data.source.type === 'node-object' || this.data.source.type === 'node-category' || this.data.source.type === 'node-topic' ) {
 							targetPosition.setFromMatrixPosition(this.data.source.__threeObj.matrixWorld);
-							targetPosition.project(this.camera.children[0])
+							targetPosition.project(perspectiveCamera)
 						}
 						if( this.data.source.type === 'link-tag' || this.data.source.type === 'link-productionTag') {
 							targetPosition.set(this.data.source.__curve.v1.x, this.data.source.__curve.v1.y, this.data.source.__curve.v1.z);
-							targetPosition.project(this.camera.children[0])
+							targetPosition.project(perspectiveCamera)
 						}
 						if( this.data.source.type === 'link-category' || this.data.source.type === 'link-topic') {
 							targetPosition.setFromMatrixPosition(this.data.source.source.__threeObj.matrixWorld);
-							targetPosition.project(this.camera.children[0])
+							targetPosition.project(perspectiveCamera)
 						}
 					}
 				},
@@ -3655,6 +3682,7 @@ const app = {
 							node.__threeObj.visible = true;
 						}
 					}
+
 					document.querySelector('a-camera').setAttribute('camera-focus-target', {target: '', duration: 1200});
 				}, 
 
@@ -3700,7 +3728,7 @@ const app = {
 							}
 						}
 					}
-				}
+				} 
 			});
 			//END highlight
 
@@ -3721,10 +3749,10 @@ const app = {
 					maxDistance: { default: 700 }, 
 					autoRotate: { default: true }, 
 					autoRotateSpeed: { default: 10 },
-					pitchCamera: { default: false },
-					desiredCameraPitch: { default: 0 }, 
-					cameraTilt: { default: 0 },
-					desiredCameraTilt: { default: -5 }, 
+					activeRotX: { default: false },
+					desiredRotX: { default: -5 }, 
+					cameraPitch: { default: 0 },
+					desiredCameraPitch: { default: 0 },
 					forceUpdate: { default: false }
 				},
 
@@ -3797,7 +3825,7 @@ const app = {
 						//this.controls.update();
 						this.updateOrientation();
 						this.updatePosition();
-						this.updateCameraTilt();
+						this.updateCameraPitch();
 					}
 				},
 
@@ -3901,7 +3929,7 @@ const app = {
 					return function () {
 						var pitchObject = this.pitchObject;
 						var yawObject = this.yawObject;
-						var desiredCameraPitch = (this.data.desiredCameraPitch * 0.01745);
+						var desiredRotX = (this.data.desiredRotX * 0.01745);
 						var hmdQuaternion = this.calculateHMDQuaternion();
 						hmdEuler.setFromQuaternion(hmdQuaternion);
 				
@@ -3909,23 +3937,25 @@ const app = {
 							yawObject.rotation.y += this.data.autoRotateSpeed * 0.0001;
 						}
 
-						if((pitchObject.rotation.x > desiredCameraPitch) && this.data.pitchCamera) {
+						if((pitchObject.rotation.x > desiredRotX) && this.data.activeRotX) {
 							pitchObject.rotation.x -= 0.005;
 						}
 				
-						if((pitchObject.rotation.x < desiredCameraPitch) && this.data.pitchCamera) {
+						if((pitchObject.rotation.x < desiredRotX) && this.data.activeRotX) {
 							pitchObject.rotation.x += 0.005;
 						}
 
-						if((pitchObject.rotation.x < (desiredCameraPitch + 0.01)) && (pitchObject.rotation.x > (desiredCameraPitch - 0.01))) {
-							this.data.pitchCamera = false;
+						if((pitchObject.rotation.x < (desiredRotX + 0.01)) && (pitchObject.rotation.x > (desiredRotX - 0.01))) {
+							this.data.activeRotX = false;
 						}
 				
 						this.el.setAttribute('rotation', {
-						x: (hmdEuler.x * 114.59155903) + (pitchObject.rotation.x * 114.59155903),
-						y: (hmdEuler.y * 114.59155903) + (yawObject.rotation.y * 114.59155903),
-						z: (hmdEuler.z * 114.59155903) + (yawObject.rotation.z * 114.59155903)
+							x: (hmdEuler.x * 114.59155903) + (pitchObject.rotation.x * 114.59155903),
+							y: (hmdEuler.y * 114.59155903) + (yawObject.rotation.y * 114.59155903),
+							z: (hmdEuler.z * 114.59155903) + (yawObject.rotation.z * 114.59155903)
 						});
+
+						this.hasUserInput = false;
 					};
 				})(),
 
@@ -3989,19 +4019,25 @@ const app = {
 							y: targetCameraPosition.y,
 							z: targetCameraPosition.z
 						});
+
+						document.querySelector('#cursor').setAttribute('position', {
+							x: targetCameraPosition.x,
+							y: targetCameraPosition.y,
+							z: targetCameraPosition.z
+						});
 					};
 				})(),
 
-				updateCameraTilt: function () {
-					if(this.data.cameraTilt > this.data.desiredCameraTilt) {
-						this.data.cameraTilt -= 0.3;
+				updateCameraPitch: function () {
+					if(this.data.cameraPitch > this.data.desiredCameraPitch) {
+						this.data.cameraPitch -= 0.3;
 					}
 					
-					if(this.data.cameraTilt < this.data.desiredCameraTilt) {
-						this.data.cameraTilt += 0.3;
+					if(this.data.cameraPitch < this.data.desiredCameraPitch) {
+						this.data.cameraPitch += 0.3;
 					}
 					
-					this.el.object3D.rotation.x += (this.data.cameraTilt * 0.01745);
+					this.el.object3D.rotation.x += (this.data.cameraPitch * 0.01745);
 				},
 
 				calculateDeltaPosition: function () {

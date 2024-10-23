@@ -1300,6 +1300,15 @@ div.tab > div.content-container > div.content {
 
 
 
+a-scene {
+  position: absolute !important;
+  height: 100% !important;
+  width: 100% !important;
+}
+
+
+
+
 /* ---------- tooltip ---------- */
 
 div.cv-tooltip {
@@ -2128,11 +2137,11 @@ img.help-symbol{
 @media only screen and (min-width: 768px) {
 
   body {
-    font-size: 1.15em;
+    font-size: 1.0em;
   }
 
   div.gui-message-container {
-    width: calc(640px - 40px);
+    width: calc(540px - 40px);
   }
 
   div.content-image, span.content-image {
@@ -2142,7 +2151,7 @@ img.help-symbol{
 }
 
 /* large  */
-@media only screen and (min-width: 1024px) {
+@media only screen and (min-width: 1024px) and (orientation: landscape) {
 
   div.gui-version {
     display: initial;
@@ -2177,6 +2186,36 @@ img.help-symbol{
     max-height: 75%;
     top: 5%;
     left: initial;
+  }
+
+  a-scene.active-message {
+    left: 0%;
+  }
+
+  model-viewer.active-message {
+    left: 0%;
+  }
+
+  div.gui-message-container {
+    width: calc(40% - 40px);
+  }
+
+  div.gui-message {
+    height: 90%;
+  }
+
+  div.gui-message-container > div.type {
+    bottom: calc(5px + 90%);
+  }
+
+  div.gui-message-container > button.size-control {
+    display: none;
+    bottom: calc(5px + 90%);
+  }
+
+  div.gui-message-box {
+    justify-content: initial;
+    left: 2rem;
   }
 
 }
