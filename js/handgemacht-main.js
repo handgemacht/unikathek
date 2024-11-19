@@ -2998,6 +2998,7 @@ const app = {
 						//create nodes from categories 
 						for(let category of json.categorylist){
 							if(category === '') { continue; }
+							if(category.type === 'Merkmal') { continue; }
 							const newNode = {}
 							newNode.id = category.title;
 							newNode.categories = [category.title];
@@ -3014,8 +3015,9 @@ const app = {
 						}
 
 						//create nodes from topics 
-						for(let topic of json.topiclist){
+						for(let topic of json.categorylist){
 							if(topic === '') { continue; }
+							if(topic.type === 'Kategorie') { continue; }
 							const newNode = {}
 							newNode.id = topic.title;
 							newNode.categories = [];
@@ -3050,6 +3052,7 @@ const app = {
 					
 						//create links for categories
 						for(let category of json.categorylist){
+							if(category.type === 'Merkmal') { continue; }
 							for(let object of json.objects){
 								if(containsObject(category.title, object.categories)){
 									const newLink = {};
@@ -3064,7 +3067,8 @@ const app = {
 						}
 
 						//create links for topics
-						for(let topic of json.topiclist){
+						for(let topic of json.categorylist){
+							if(topic.type === 'Kategorie') { continue; }
 							for(let object of json.objects){
 								if(containsObject(topic.title, object.topics)){
 									const newLink = {};
@@ -3132,9 +3136,11 @@ const app = {
 						fgData.links = fgData.links.filter(filterDoubles);
 
 						for(let category of json.categorylist){
+							if(category.type === 'Merkmal') { continue; }
 							fgData.categorylist.push(category.title);
 						}
-						for(let topic of json.topiclist){
+						for(let topic of json.categorylist){
+							if(topic.type === 'Kategorie') { continue; }
 							fgData.topiclist.push(topic.title);
 						}
 						//fgData.categorylist = json.categorylist;
