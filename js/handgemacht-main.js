@@ -2708,7 +2708,7 @@ const app = {
 					active ? showProductionTabsArray.push(name) : app.collectionViewer.filter.filteredData.productionTags.push(name);
 				}
 
-				document.querySelector('a-scene').setAttribute('load-json-models', 'normFactor: 0')
+				document.querySelector('a-scene').setAttribute('load-json-models', 'normalization: 1')
 
 				loadJSONModelsComponent.filterFgData(fgData, showTabsArray, showProductionTabsArray, showCategoriesArray, showTopicsArray);
 			}
@@ -2764,7 +2764,7 @@ const app = {
 			this.sceneEl = document.createElement('a-scene');
 			document.body.appendChild(this.sceneEl);
 			this.sceneEl.setAttribute('gltf-model', 'dracoDecoderPath: ' + app.filepaths.draco);
-			this.sceneEl.setAttribute('load-json-models', 'scaleFactor: 0.05; normalization: 0.65');
+			this.sceneEl.setAttribute('load-json-models', 'scaleFactor: 30; normalization: 1');
 			this.sceneEl.setAttribute('xr-mode-ui', 'enabled: false');
 			this.sceneEl.setAttribute('device-orientation-permission-ui', 'enabled: false');
 			this.sceneEl.setAttribute('light', 'defaultLightsEnabled: false');
@@ -2804,7 +2804,7 @@ const app = {
 					
 					schema: { 
 						scaleFactor: { default: 1 }, 
-						normalization: { default: 0 } 
+						normalization: { default: 1 } 
 					},
 
 					init: function () {
@@ -3037,10 +3037,26 @@ const app = {
 						for(let object of json.objects){
 							const newNode = {}
 							newNode.id = object.primaryKey;
-							newNode.categories = object.categories;
-							newNode.topics = object.topics;
+							let filteredCategoryList = Array.from(json.categorylist.filter((c) => c.type === "Kategorie"), (category) => category.title);
+							let filteredTopicList = Array.from(json.categorylist.filter((c) => c.type === "Merkmal"), (category) => category.title);
+							newNode.categories = object.categories.filter((c) => filteredCategoryList.includes(c));
+							newNode.topics = object.categories.filter((c) => filteredTopicList.includes(c));
 							newNode.name = object.name;
-							newNode.contents = object.contents;
+							newNode.contents = [{
+												"content" : object.name,
+												"fileCopyright" : "",
+												"filename" : "",
+												"imageAlt" : "",
+												"imageCaption" : "",
+												"type" : "headline"
+							},{
+												"content" : object.description,
+												"fileCopyright" : "",
+												"filename" : "",
+												"imageAlt" : "",
+												"imageCaption" : "",
+												"type" : "paragraph"
+							}];
 							newNode.type = 'node-object';
 							newNode.tags = object.tags.filter(filterEmptyTag);
 							newNode.productionTags = object.productionTags.filter(filterEmptyTag);
@@ -3070,7 +3086,7 @@ const app = {
 						for(let topic of json.categorylist){
 							if(topic.type === 'Kategorie') { continue; }
 							for(let object of json.objects){
-								if(containsObject(topic.title, object.topics)){
+								if(containsObject(topic.title, object.categories)){
 									const newLink = {};
 									newLink.source = topic.title; 
 									newLink.target = object.primaryKey; 
@@ -3147,7 +3163,7 @@ const app = {
 						//fgData.topiclist = json.topiclist;
 						fgData.taglist = json.taglist;
 						fgData.productionTaglist = json.productionTaglist;
-					
+
 						return fgData;
 					},
 
@@ -3344,7 +3360,7 @@ const app = {
 						if(normalization > 1){
 							normalization = 1;
 						}else if( normalization < 0) {
-							normalization = 1;
+							normalization = 0;
 						}
 
 						const mapToRange = (number, [inputMinRange, inputMaxRange], [outputMinRange, outputMaxRange]) => {
@@ -3359,7 +3375,8 @@ const app = {
 							min: Infinity, 
 							minObject: '',
 							max: 0, 
-							maxObject: ''
+							maxObject: '', 
+							scaleList: []
 						}
 
 						//find mean, max and min sizes of every non category model bounding box
@@ -3394,13 +3411,17 @@ const app = {
 								continue;
 							};
 							const sizeDeviation = sizeLog.mean - node.boundingBox.size.max;
-							const sizeFactor = 1 + mapToRange(sizeDeviation, [sizeLog.min, sizeLog.max], [0, 1]); // range from 0 to 2 with 1 as median
-							const normFactor = normalization * sizeFactor;
-							const normalizedScale = scaleFactor * ((1 + normFactor) - normalization);
+							const maxSizeDeviation = sizeLog.mean - sizeLog.max;
+							const minSizeDeviation = sizeLog.mean - sizeLog.min;
+							const sizeFactor = 1 + mapToRange(sizeDeviation, [minSizeDeviation, maxSizeDeviation], [1, 0]); 
+							const normFactor = normalization * (0.25 + Math.pow(sizeFactor, 4) / 10);
+							const normalizedScale = scaleFactor * (((1 + normFactor) - normalization));
+							sizeLog.scaleList.push({'name': node.name, 'sizeFactor': sizeFactor,'normalizedScale': normalizedScale, 'node': node})
 							//app.dev && console.log(`dev --- normalizeScale node: ${node.name} > \nnormalization: ${normalization}, \nsizeFactor: ${sizeFactor}, \nnormFactor: ${normFactor}, \nscaleFactor: ${scaleFactor}, \nnormalizedScale: ${normalizedScale}`);
 							node.model.scale.set(normalizedScale, normalizedScale, normalizedScale);
 						}
 
+						app.dev && console.log(`dev --- fgComp.nodes: \n`, fgComp.nodes);
 						app.dev && console.log(`dev --- normalizeScale > \nsizeLog: `, sizeLog);
 					}
 			});
