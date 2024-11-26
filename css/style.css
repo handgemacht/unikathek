@@ -2145,8 +2145,9 @@ img.help-symbol{
   }
 
   div.content-image, span.content-image {
-  float: right;
-  width: 40%;
+    float: right;
+    width: 40%;
+  }
 
 }
 
@@ -2197,7 +2198,7 @@ img.help-symbol{
   }
 
   div.gui-message-container {
-    width: calc(40% - 40px);
+    width: calc(35% - 40px);
   }
 
   div.gui-message {
@@ -2216,6 +2217,17 @@ img.help-symbol{
   div.gui-message-box {
     justify-content: initial;
     left: 2rem;
+  }
+
+}
+
+
+
+
+@media only screen and (min-width: 1280px) and (orientation: landscape) {
+
+  div.gui-message-container {
+    width: calc(35% - 40px);
   }
 
 }

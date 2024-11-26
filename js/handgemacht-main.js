@@ -1873,7 +1873,7 @@ const app = {
 						this.pillArray.push('#'+pillId);
 					}
 					if(tagList !== '') {
-						tagList = '<div class="tags"><h6 class="text-smokegrey">Kontext: </h6>' + tagList + '</div>';
+						tagList = '<div class="tags"><h6 class="text-smokegrey">Tags: </h6>' + tagList + '</div>';
 					}
 
 					let productionTagList = '';
@@ -1891,7 +1891,7 @@ const app = {
 						this.pillArray.push('#'+pillId);
 					}
 					if(productionTagList !== '') {
-						productionTagList = '<div class="tags"><h6 class="text-smokegrey">Herstellung: </h6>' + productionTagList + '</div>';
+						productionTagList = '<div class="tags"><h6 class="text-smokegrey">Tags (Herstellung): </h6>' + productionTagList + '</div>';
 					}
 
 					let objectContent = app.createHTMLContentFromJSON(fgNode.contents);
