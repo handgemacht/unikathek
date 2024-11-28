@@ -605,7 +605,6 @@ const app = {
 					document.querySelector('model-viewer').classList.remove('active-message');
 					document.querySelector('model-viewer').classList.add('active-message');
 				}
-				
 
 				if(app.collectionViewer.highlight.pillArray.length > 0) {
 					app.collectionViewer.highlight.setPillEventlisteners();
@@ -1832,7 +1831,7 @@ const app = {
 						this.pillArray.push('#'+pillId);
 					}
 					if(categoryList !== '') {
-						categoryList = '<div class="categories"><h6 class="text-smokegrey">Kontexte: </h6>' + categoryList + '</div>';
+						categoryList = '<div class="pill-container categories"><h6 class="text-smokegrey">Kontexte: </h6>' + categoryList + '</div>';
 					}
 
 					let topicList = '';
@@ -1850,7 +1849,7 @@ const app = {
 						this.pillArray.push('#'+pillId);
 					}
 					if(topicList !== '') {
-						topicList = '<div class="categories"><h6 class="text-smokegrey">Merkmale: </h6>' + topicList + '</div>';
+						topicList = '<div class="pill-container topics"><h6 class="text-smokegrey">Merkmale: </h6>' + topicList + '</div>';
 					}
 	
 					let tagList = '';
@@ -1868,7 +1867,7 @@ const app = {
 						this.pillArray.push('#'+pillId);
 					}
 					if(tagList !== '') {
-						tagList = '<div class="tags"><h6 class="text-smokegrey">Tags: </h6>' + tagList + '</div>';
+						tagList = '<div class="pill-container tags"><h6 class="text-smokegrey">Tags: </h6>' + tagList + '</div>';
 					}
 
 					let productionTagList = '';
@@ -1886,7 +1885,7 @@ const app = {
 						this.pillArray.push('#'+pillId);
 					}
 					if(productionTagList !== '') {
-						productionTagList = '<div class="tags"><h6 class="text-smokegrey">Tags zur Herstellung: </h6>' + productionTagList + '</div>';
+						productionTagList = '<div class="pill-container production-tags"><h6 class="text-smokegrey">Tags zur Herstellung: </h6>' + productionTagList + '</div>';
 					}
 
 					let objectContent = app.createHTMLContentFromJSON(fgNode.contents);
@@ -1997,12 +1996,13 @@ const app = {
 					}
 				}
 
-				//this.pillArray = []; //maybe important, works without for now
+				this.pillArray = [];
 			},
 
 			highlightFromPill(e) {
 				
 				let pill = e.srcElement;
+				let pillArray = document.querySelectorAll('.pill-container > div')
 				let modelId = pill.getAttribute('data-model-id');
 				let name = pill.getAttribute('data-name');
 				let type = pill.getAttribute('data-type');
@@ -2013,20 +2013,17 @@ const app = {
 				
 				document.querySelector('#forcegraph').components.highlight.highlightFromPill(name, type, active, modelId);
 
-				app.dev && console.log(this.pillArray)
-
 				if(color === 'terracotta' || color === 'skyblue' || color === 'smokegrey'){
 					textColorNew = 'text-pearlwhite';
 				}
 
-				for(let pill of app.collectionViewer.highlight.pillArray){
-					let element = document.querySelector(pill);
+				for(let pill of pillArray){
+					let element = pill;
 					let elementColor = element.getAttribute('data-color');
 					element.classList.remove(elementColor);
 					element.classList.remove('text-pearlwhite');
 					element.classList.remove('text-coalgrey');
 					element.setAttribute('data-active', false);
-
 				}
 
 				if(!active){
@@ -3386,7 +3383,7 @@ const app = {
 						//find mean, max and min sizes of every non category model bounding box
 						for(let node of fgComp.nodes){
 							if(node.type === 'node-category' || node.type === 'node-topic') { continue; };
-							app.dev && console.log(`dev --- normalizeScale > node: \n`, node);							
+							//app.dev && console.log(`dev --- normalizeScale > node: \n`, node);							
 
 							node.model.scale.set(1, 1, 1);
 							node.boundingBox = new THREE.Box3();

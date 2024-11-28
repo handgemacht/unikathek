@@ -711,14 +711,14 @@ div.gui-message-box {
   justify-content: center;
   width: 90vw;
   height: 90dvh;
-  margin: 5dvh 5dvw;
+  margin: 5dvh 5vw;
   pointer-events: none;
 }
 
 div.gui-message-container {
   position: relative;
-  width: calc(100vw - 40px);
-  height: calc(100dvh - 40px);
+  width: calc(100% - 40px);
+  height: calc(100% - 40px);
   margin: 0;
   pointer-events: none;
   z-index: 4;
@@ -845,7 +845,7 @@ div.gui-message > div.content-container > div.content {
   text-align: left;
 }
 
-div.gui-message > div.content-container > div.content > .categories, .tags, .objects {
+div.gui-message > div.content-container > div.content > div.pill-container {
   margin-bottom: 15px;
 }
 
