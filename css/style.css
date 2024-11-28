@@ -445,17 +445,73 @@ div.arrow.left.coalgrey {
 
 .pill {
   display: inline-block;
+  position: relative;
   font-size: 0.75em;
+  text-decoration: none;
   padding: 2px 12px 2px 12px;
   margin: 2px 5px 2px 0;
   border: none;
   border-radius: 20px;
   cursor: pointer;
   white-space: nowrap;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
 }
 
 .pill.inactive {
   opacity: 0.3;
+
+}
+
+.pill.inactive:before {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-top: 20px solid #9B9691;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  -webkit-transition: all 0.4s ease;
+  -moz-transition : all 0.4s ease;
+  transition : all 0.4s ease;
+  opacity: 0;
+  left: 30%;
+  bottom: 90%;
+}
+
+.pill.inactive:after {
+  content: "In der Filterfunktion ausgeblendet";
+  position: absolute;
+  bottom: 130%;
+  left: 20%;
+  background: #9B9691;
+  padding: 5px 10px;
+  color: #FAF0E6;
+  -webkit-border-radius: 5px 0 5px 0;
+  -moz-border-radius : 5px 0 5px 0;
+  border-radius : 5px 0 5px 0;
+  white-space: nowrap;
+  opacity: 0;
+  -webkit-transition: all 0.4s ease;
+  -moz-transition : all 0.4s ease;
+  transition : all 0.4s ease;
+}
+
+.pill.inactive:hover {
+  opacity: 1;
+}
+
+.pill.inactive:hover:before, .pill.inactive:hover:after {
+  opacity: 1;
+}
+
+.pill.inactive:hover:before {
+  bottom: 90%;
+}
+
+.pill.inactive:hover:after {
+  bottom: 120%;
 }
 
 .pill.shadow-coalgrey {
@@ -653,8 +709,9 @@ div.gui-message-box {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100vw;
-  height: 100dvh;
+  width: 90vw;
+  height: 90dvh;
+  margin: 5dvh 5dvw;
   pointer-events: none;
 }
 
@@ -667,63 +724,79 @@ div.gui-message-container {
   z-index: 4;
 }
 
+div.gui-message-container.object {
+  padding: 0 0 2.5% 2.5%;
+}
+
 div.gui-message {
-  position: absolute;
+  position: relative;
   width: 100%;
   height: 40%;
-  bottom: 5px;
+  top: 45%;
   border-radius: 0px 20px 0px 20px;
   pointer-events: all;
   text-align: right;
-  transition: height 1s;
 }
+
+div.gui-message-container.object > div.gui-message {
+  height: 30%;
+  top: 55%;
+}
+
 
 div.gui-message-container.extended > div.gui-message {
   position: absolute;
   width: 100%;
-  height: 90%;
-  bottom: 5px;
+  height: 85%;
+  top: inherit;
   border-radius: 0px 20px 0px 20px;
   pointer-events: all;
   text-align: right;
 }
 
 div.gui-message-container > div.type {
-  position: absolute;
-  bottom: calc(5px + 40%);
+  display: inline-block;
+  position: relative;
+  top: calc(45% + 2.2rem);
   left: 0;
-  height: 1.4rem;
+  height: 1.6rem;
   padding: 2px 15px 1px 12px;
-  border-radius: 0px 7px 0px 0px;
+  border-radius: 0px 10px 0px 0px;
   border: none;
   box-shadow: none;
   font-size: 0.75em;
   font-weight: 356;
   letter-spacing: .6px;
   pointer-events: all;
-  transition: bottom 1s;
+}
+
+div.gui-message-container.object > div.type {
+  top: calc(55% + 2.2rem)
 }
 
 div.gui-message-container.extended > div.type {
-  bottom: calc(5px + 90%);
+  top: calc(0% + 2.2rem);
 }
 
 div.gui-message-container > button.size-control {
-  position: absolute;
-  bottom: calc(5px + 40%);
-  width: 20%;
-  margin: 0 40% 0 40%;
-  height: 1.4rem;
+  display: inline-block;
+  position: relative;
+  top: 45%;
+  margin: 0 40% 0 45%;
+  height: 1.6rem;
   padding: 0;
   background-color: transparent;
   border: none;
   box-shadow: none;
   pointer-events: all;
-  transition: bottom 1s;
+}
+
+div.gui-message-container.object > button.size-control {
+  top: 55%;
 }
 
 div.gui-message-container.extended > button.size-control {
-  bottom: calc(5px + 90%);
+  top: inherit;
 }
 
 div.gui-message-container > button.size-control > img.arrow-wide {
@@ -768,7 +841,7 @@ div.gui-message > div.content-container::-webkit-scrollbar-button:end:decrement 
 }
 
 div.gui-message > div.content-container > div.content {
-  padding-top: 2em;
+  padding-top: 1em;
   text-align: left;
 }
 
@@ -804,6 +877,7 @@ div.gui-message > div.button-container > button.button {
 
 div.gui-message > div.button-container > button.button > * {
   display: inline;
+  font-weight: 700;
 }
 
 div.gui-message > div.button-container > button.button:first-child {
@@ -2154,6 +2228,10 @@ img.help-symbol{
 /* large  */
 @media only screen and (min-width: 1024px) and (orientation: landscape) {
 
+  body {
+    font-size: 1.0em;
+  }
+
   div.gui-version {
     display: initial;
     bottom: 20px;
@@ -2201,22 +2279,8 @@ img.help-symbol{
     width: calc(35% - 40px);
   }
 
-  div.gui-message {
-    height: 90%;
-  }
-
-  div.gui-message-container > div.type {
-    bottom: calc(5px + 90%);
-  }
-
-  div.gui-message-container > button.size-control {
-    display: none;
-    bottom: calc(5px + 90%);
-  }
-
   div.gui-message-box {
     justify-content: initial;
-    left: 2rem;
   }
 
 }
@@ -2228,6 +2292,14 @@ img.help-symbol{
 
   div.gui-message-container {
     width: calc(35% - 40px);
+  }
+
+  div.gui-message-container.object {
+    padding: 0 0 7.5% 7.5%;
+  }
+
+  div.gui-message-container.object.extended {
+    padding: 0 0 7.5% 0;
   }
 
 }

@@ -5,7 +5,7 @@
 //START app 
 const app = {
 	title: 'Unikathek',
-	version: 'beta 1.3 24/10/23',
+	version: 'beta 1.4 24/12/05',
 	dev: false,
 	stats: false,
 	viewerMode: false,
@@ -506,10 +506,6 @@ const app = {
 				this.boxEl.appendChild(this.containerEl);
 				this.containerEl.className = 'gui-message-container hide';
 
-				this.element = document.createElement('div');
-				this.containerEl.appendChild(this.element);
-				this.element.className = 'gui-message';
-
 				this.type.element = document.createElement('div');
 				this.containerEl.appendChild(this.type.element);
 				this.type.element.className = 'type hide';
@@ -518,6 +514,10 @@ const app = {
 				this.containerEl.appendChild(this.sizeControlEl);
 				this.sizeControlEl.className = 'size-control';
 				this.sizeControlEl.setAttribute('data-extended', 'false');
+
+				this.element = document.createElement('div');
+				this.containerEl.appendChild(this.element);
+				this.element.className = 'gui-message';
 
 				this.sizeControlEl.icon = document.createElement('img');
 				this.sizeControlEl.appendChild(this.sizeControlEl.icon);
@@ -718,6 +718,7 @@ const app = {
 				Object.keys(message).includes("showClose") ? this.showClose = message.showClose : this.showClose = true;
 
 				this.type.value && this.type.element.classList.remove('hide');
+				this.type.value === 'Objekt' ? this.containerEl.classList.add('object') : '';
 
 				for(let s in this.buttonSetup){
 					const thisSetup = this.buttonSetup[s];
@@ -1457,7 +1458,7 @@ const app = {
 						},
 						content: [
 							{
-								"content" : "Dein Leitfaden zur Unikathek",
+								"content" : "Willkommen in der Unikathek!",
 								"fileCopyright" : "",
 								"filename" : "",
 								"imageAlt" : "",
@@ -1465,7 +1466,7 @@ const app = {
 								"type" : "headline"
 							},
 							{
-								"content" : "Willkommen in der Unikathek – einem faszinierenden Blick auf die Kultur der Oberpfalz. Unser Projekt präsentiert über 100 einzigartige Objekte aus der Region, jedes mit seiner eigenen Geschichte. Diese Alltagsgegenstände sind mehr als bloße 3D-Modelle; sie sind Zeugen des Lebens und der Kultur der Menschen, die sie besaßen und nutzten. In diesem Leitfaden führen wir Dich durch die Unikathek und zeigen Dir, wie diese Objekte die Vergangenheit lebendig werden lassen.",
+								"content" : "Mehr als 100 handgemachte Oberpfälzer Objekte kannst du hier mitsamt ihren Geschichten entdecken. Erfahre anhand der Gegenstände, was die Menschen in der Oberpfalz in den letzten 80 Jahren beschäftigte – und was sie immer wieder dazu antrieb und antreibt, Dinge selbst in die Hand zu nehmen.",
 								"fileCopyright" : "",
 								"filename" : "",
 								"imageAlt" : "",
@@ -1772,16 +1773,10 @@ const app = {
 					return;
 				}
 
-				if (fgElement.type === 'link-tag' || fgElement.type === 'link-category' || fgElement.type === 'link-productionTag' || fgElement.type === 'link-topic' ) {
-					if (fgElement.material.visible === false) {
-						return;
-					}
-				}else if(fgElement.type === 'node-object' || fgElement.type === 'node-category'|| fgElement.type === 'node-topic'){
-					if (fgElement.model.material.visible === false) {
-						return;
-					}
+				if (fgElement.visibility === 'hidden') {
+					return;
 				}
-
+				
 				if(isTouchDevice()) { return; }
 
 				this.showTooltip(fgElement.type, fgElement.name);
@@ -1891,7 +1886,7 @@ const app = {
 						this.pillArray.push('#'+pillId);
 					}
 					if(productionTagList !== '') {
-						productionTagList = '<div class="tags"><h6 class="text-smokegrey">Tags (Herstellung): </h6>' + productionTagList + '</div>';
+						productionTagList = '<div class="tags"><h6 class="text-smokegrey">Tags zur Herstellung: </h6>' + productionTagList + '</div>';
 					}
 
 					let objectContent = app.createHTMLContentFromJSON(fgNode.contents);
@@ -1914,9 +1909,7 @@ const app = {
 
 					app.gui.message.buttons.button[0].element.addEventListener('click', (e) => {
 						app.collectionViewer.highlight.messageClickEvent(fgNode);
-						app.dev && console.log('dev --- button[0] click event: highlight', e);
 					}, { signal: app.gui.message.abortController.signal }); // 
-					app.dev && console.log('dev --- button[0] click event set');
 				}
 
 				if(type === 'node-category'){
@@ -2004,7 +1997,7 @@ const app = {
 					}
 				}
 
-				this.pillArray = [];
+				//this.pillArray = []; //maybe important, works without for now
 			},
 
 			highlightFromPill(e) {
@@ -2020,6 +2013,8 @@ const app = {
 				
 				document.querySelector('#forcegraph').components.highlight.highlightFromPill(name, type, active, modelId);
 
+				app.dev && console.log(this.pillArray)
+
 				if(color === 'terracotta' || color === 'skyblue' || color === 'smokegrey'){
 					textColorNew = 'text-pearlwhite';
 				}
@@ -2031,6 +2026,7 @@ const app = {
 					element.classList.remove('text-pearlwhite');
 					element.classList.remove('text-coalgrey');
 					element.setAttribute('data-active', false);
+
 				}
 
 				if(!active){
@@ -2764,7 +2760,7 @@ const app = {
 			this.sceneEl = document.createElement('a-scene');
 			document.body.appendChild(this.sceneEl);
 			this.sceneEl.setAttribute('gltf-model', 'dracoDecoderPath: ' + app.filepaths.draco);
-			this.sceneEl.setAttribute('load-json-models', 'scaleFactor: 30; normalization: 1');
+			this.sceneEl.setAttribute('load-json-models', 'scaleFactor: 20; normalization: 1');
 			this.sceneEl.setAttribute('xr-mode-ui', 'enabled: false');
 			this.sceneEl.setAttribute('device-orientation-permission-ui', 'enabled: false');
 			this.sceneEl.setAttribute('light', 'defaultLightsEnabled: false');
@@ -2787,7 +2783,7 @@ const app = {
 
 			this.ambientLightEl = document.createElement('a-entity');
 			this.sceneEl.appendChild(this.ambientLightEl);
-			this.ambientLightEl.setAttribute('light', 'type: ambient; color: #FAF0E6; intensity: 2');
+			this.ambientLightEl.setAttribute('light', 'type: ambient; color: #FAF0E6; intensity: 3');
 
 			this.directionalLightEl = document.createElement('a-entity');
 			this.sceneEl.appendChild(this.directionalLightEl);
@@ -2899,7 +2895,7 @@ const app = {
 						//create topic model 
 						this.topicModelEl = document.createElement('a-entity');
 						this.topicModelEl.setAttribute('id', 'topic-model');
-						this.topicModelEl.setAttribute('geometry', 'primitive: circle; radius: 7');
+						this.topicModelEl.setAttribute('geometry', 'primitive: circle; radius: 8');
 						this.topicModelEl.setAttribute('material', 'src: #icon-topic');
 						this.topicModelEl.setAttribute('visible', false);
 						this.el.sceneEl.querySelector('a-assets').appendChild(this.topicModelEl);
@@ -3247,19 +3243,20 @@ const app = {
 							nodeThreeObjectExtend: true,
 							nodeOpacity: 0,
 							onLinkHover: link => { 
-								app.dev && console.log('dev --- onLinkHover: ', link);
+								//app.dev && console.log('dev --- onLinkHover: ', link);
 								app.collectionViewer.tooltip.mouseoverHandler(link);
 							},
 							onLinkClick: link => { 
-								app.dev && console.log('dev --- onLinkClick: ', link);
+								//app.dev && console.log('dev --- onLinkClick: ', link);
 							},
 							onNodeHover: node => { 
-								app.dev && console.log('dev --- onNodeHover: ', node)
+								app.dev && console.log('dev --- onNodeHover > node: ', node)
 								app.collectionViewer.tooltip.mouseoverHandler(node);
 							},
 							onNodeClick: node => { 
 								app.dev && console.log('dev --- onNodeClick: ', node);
-								app.dev && console.log('dev --- onNodeClick > hasUserInput: ', document.querySelector('a-camera').components['orbit-controls'].hasUserInput);
+								app.dev && console.log('dev --- onNodeClick: ', node);
+								if(node.visibility === 'hidden'){ return; };
 								if(document.querySelector('a-camera').components['orbit-controls'].hasUserInput) {return;}
 								document.querySelector('a-camera').setAttribute('camera-focus-target', {target: node, duration: 1200});
 								app.collectionViewer.highlight.onclickHandler(node);
@@ -3326,20 +3323,25 @@ const app = {
 							if(link.type === 'link-category'){
 								link.material.copy(categoryMaterial);
 								link.curvature = 0.15;
+								link.width = 0.8;
 							}else if(link.type === 'link-tag'){
 								link.material.copy(tagMaterial);
 								link.curvature = 0.15;
+								link.width = 0.4;
 							}else if(link.type === 'link-productionTag'){
 								link.material.copy(productionTagMaterial);
 								link.curvature = 0.2;
+								link.width = 0.2;
 							}else if(link.type === 'link-topic'){
 								link.material.copy(topicMaterial);
 								link.curvature = 0.15;
+								link.width = 1.2;
 							}
 						}
 
 						document.querySelector('#forcegraph').setAttribute('forcegraph', {
 							linkCurvature: link => { return link.curvature },
+							linkWidth: link => { return link.width },
 							linkMaterial: link => { return link.material }
 						});
 
@@ -3632,9 +3634,11 @@ const app = {
 					for(let link of fgComp.links){
 						if (link.material) {
 							if(link.name === sourceLink.name){
+								link.visibility = 'visible';
 								link.material.opacity = 1;
 								link.material.visible = true;
 							}else{
+								link.visibility = 'hidden';
 								link.material.visible = false;
 							}
 						}
@@ -3643,10 +3647,12 @@ const app = {
 					for(let node of fgComp.nodes){
 						if (node.model.material) {
 							if(node.tags.includes(sourceLink.name) || node.productionTags.includes(sourceLink.name)){
+								node.visibility = 'visible';
 								node.model.material.opacity = 1;
 								node.model.material.visible = true;
 								node.__threeObj.visible = true;
 							}else{
+								node.visibility = 'hidden';
 								node.model.material.visible = false;
 								node.__threeObj.visible = false;
 							}
@@ -3663,11 +3669,13 @@ const app = {
 					for(let link of fgComp.links){
 						if (link.material) {
 							if(link.source.id === sourceNode.id || link.target.id === sourceNode.id){
+								link.visibility = 'visible';
 								link.material.opacity = 1;
 								link.material.visible = true;
 								modelArray.push(link.source.id);
 								modelArray.push(link.target.id);
 							}else{
+								link.visibility = 'hidden';
 								link.material.visible = false;
 							}
 						}
@@ -3677,12 +3685,14 @@ const app = {
 						if (node.model.material && typeof node.__threeObj !== 'undefined') {
 							typeof sourceNode.__threeObj !== 'undefined' ? distance = node.__threeObj.position.distanceTo(sourceNode.__threeObj.position) : distance = 0;
 							if(modelArray.includes(node.id)){
+								node.visibility = 'visible';
 								node.model.material.opacity = 1;
 								node.model.material.visible = true;
 								this.setHighestDistance(distance);
 								node.__threeObj.visible = true;
 								//app.dev && console.log('dev --- node: ', node)
 							}else{
+								node.visibility = 'hidden';
 								node.model.material.visible = false;
 								node.__threeObj.visible = false;
 							}
@@ -3695,6 +3705,7 @@ const app = {
 
 					for(let link of fgComp.links){
 						if(link.material){
+							link.visibility = 'visible';
 							link.material.opacity = 0.4;
 							link.material.visible = true;
 						}
@@ -3702,6 +3713,7 @@ const app = {
 
 					for(let node of fgComp.nodes){
 						if (node.id != '' && node.model.material && typeof node.__threeObj !== 'undefined') {
+							node.visibility = 'visible';
 							node.model.material.opacity = 1;
 							node.model.material.visible = true;
 							let distance = this.data.highestDistance.max;
@@ -4658,7 +4670,7 @@ const app = {
 			loadContextStory(modelJSON) {
 				const modelViewer = app.modelViewer.element;
 
-				let contentHTML = '<h3>Headline</h3><p>' + modelJSON.objectData.usageContext + '</p>';
+				let contentHTML = '<h3>' + modelJSON.basicData.name + '</h3><p>' + modelJSON.objectData.usageContext + '</p>';
 
 				this.message = {
 					content: contentHTML,
