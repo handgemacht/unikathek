@@ -3331,11 +3331,11 @@ const app = {
 							}else if(link.type === 'link-productionTag'){
 								link.material.copy(productionTagMaterial);
 								link.curvature = 0.2;
-								link.width = 0.2;
+								link.width = 0.4;
 							}else if(link.type === 'link-topic'){
 								link.material.copy(topicMaterial);
 								link.curvature = 0.15;
-								link.width = 1.2;
+								link.width = 0.8;
 							}
 						}
 
@@ -3372,6 +3372,8 @@ const app = {
 						if(!this.fgComp.nodes){ return; }
 						const fgComp = this.fgComp;
 
+						app.dev && console.log(`dev --- normalizeScale > fgComp.nodes: \n`, fgComp.nodes);
+
 						let sizeLog = {
 							mean: 0,
 							min: Infinity, 
@@ -3384,6 +3386,7 @@ const app = {
 						//find mean, max and min sizes of every non category model bounding box
 						for(let node of fgComp.nodes){
 							if(node.type === 'node-category' || node.type === 'node-topic') { continue; };
+							app.dev && console.log(`dev --- normalizeScale > node: \n`, node);							
 
 							node.model.scale.set(1, 1, 1);
 							node.boundingBox = new THREE.Box3();
@@ -3423,7 +3426,6 @@ const app = {
 							node.model.scale.set(normalizedScale, normalizedScale, normalizedScale);
 						}
 
-						app.dev && console.log(`dev --- fgComp.nodes: \n`, fgComp.nodes);
 						app.dev && console.log(`dev --- normalizeScale > \nsizeLog: `, sizeLog);
 					}
 			});
