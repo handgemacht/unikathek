@@ -10,7 +10,6 @@ const app = {
 	stats: false,
 	viewerMode: false,
 	viewerModes: [ 'cv', 'mv' ],
-	showOnboarding: false,
 
 	filepaths: {
 		files: './files/',
@@ -1819,7 +1818,7 @@ const app = {
 					let categoryList = '';
 					for(let category of fgNode.categories) {
 						if(category === ''){ continue; }
-						let pillId = 'c-' + self.crypto.randomUUID();
+						let pillId = 'category-' + self.crypto.randomUUID();
 						categoryList += '<div id="' + pillId +'" '
 										+ 'class="pill shadow-' + app.collectionViewer.elementColor.category + ' text-coalgrey" '
 										+ 'data-model-id="' + fgNode.id +'" '
@@ -1837,7 +1836,7 @@ const app = {
 					let topicList = '';
 					for(let topic of fgNode.topics) {
 						if(topic === ''){ continue; }
-						let pillId = 'c-' + self.crypto.randomUUID();
+						let pillId = 'topic-' + self.crypto.randomUUID();
 						topicList += '<div id="' + pillId +'" '
 										+ 'class="pill shadow-' + app.collectionViewer.elementColor.topic + ' text-coalgrey" '
 										+ 'data-model-id="' + fgNode.id +'" '
@@ -1855,7 +1854,7 @@ const app = {
 					let tagList = '';
 					for(let tag of fgNode.tags) {
 						if(tag === ''){ continue; }
-						let pillId = 't-' + self.crypto.randomUUID();
+						let pillId = 'tag-' + self.crypto.randomUUID();
 						tagList += '<div id="' + pillId +'" '
 										+ 'class="pill shadow-' + app.collectionViewer.elementColor.tag + ' text-coalgrey" '
 										+ 'data-model-id="' + fgNode.id +'" '
@@ -1873,7 +1872,7 @@ const app = {
 					let productionTagList = '';
 					for(let productionTag of fgNode.productionTags) {
 						if(productionTag === ''){ continue; }
-						let pillId = 't-' + self.crypto.randomUUID();
+						let pillId = 'ptag-' + self.crypto.randomUUID();
 						productionTagList += '<div id="' + pillId +'" '
 										+ 'class="pill shadow-' + app.collectionViewer.elementColor.productionTag + ' text-coalgrey" '
 										+ 'data-model-id="' + fgNode.id +'" '
@@ -1893,8 +1892,8 @@ const app = {
 					let message = {
 						type: 'Objekt',
 						content: objectContent
-								+ topicList
 								+ categoryList
+								+ topicList
 								+ tagList
 								+ productionTagList,
 						color: 'pearlwhite',
@@ -2198,6 +2197,11 @@ const app = {
 					//app.dev && console.log('dev --- cv > search > nodeArray: ', this.nodeArray);
 					this.autocomplete(this.inputEl, this.nodeArray);
 				});
+
+				this.button.closeEl.addEventListener('click', (e) => {
+					app.gui.toolbar.buttonClickHandler(e);
+					app.collectionViewer.search.resetSearchInput();
+				});
 			}, 
 
 			createElements() {
@@ -2219,6 +2223,19 @@ const app = {
 				this.button.input.element.setAttribute('type', 'text');
 				this.button.input.element.setAttribute('name', 'searchBar');
 				this.button.input.element.setAttribute('placeholder', this.texts.placeholder);
+
+				this.button.closeEl = document.createElement('div');
+				this.button.element.appendChild(this.button.closeEl);
+				this.button.closeEl.className = 'close';
+				
+				this.button.closeEl.icon = document.createElement('img');
+				this.button.closeEl.appendChild(this.button.closeEl.icon);
+				this.button.closeEl.icon.className = 'close-icon';
+				this.button.closeEl.icon.src = app.assets.icon.small['close'].src.pearlwhite;
+				this.button.closeEl.icon.alt = app.assets.icon.small['close'].alt;
+				this.button.closeEl.icon.width = 100;
+				this.button.closeEl.icon.height = 100;
+				this.button.closeEl.icon.setAttribute('loading', 'lazy');
 
 				this.button.autocomplete = {};
 				this.button.autocomplete.list = {};
@@ -2390,13 +2407,24 @@ const app = {
 			},
 
 			texts: {
-				title: 'Filter',
-				intro: 'Aktiviere oder deaktiviere Kontexte und Tags um das Netzwerk anzupassen.',
-				categoriesButton: 'Kontexte',
-				topicsButton: 'Merkmale',
-				tagsButton: 'Themen-Tags',
-				productionTagsButton: 'Herstellungs-Tags',
-				selectAllButton: 'Alle aus-/abwählen'
+				changeButton: {
+					label: 'anwenden'
+				},
+				filter: {
+					title: 'Filter',
+					intro: 'Aktiviere oder deaktiviere Kontexte, Merkmale und Tags um das Netzwerk anzupassen.',
+					categoriesButton: 'Kontexte',
+					topicsButton: 'Merkmale',
+					tagsButton: 'Themen-Tags',
+					productionTagsButton: 'Herstellungs-Tags',
+					selectAllButton: 'Alle aus-/abwählen'
+				},
+				settings: {
+					title: 'Einstellungen',
+					intro: '',
+					normalizeCheckbox: 'Modellgrößen normalisieren'
+				}
+				
 			},
 
 			filterUpdated: false,
@@ -2408,8 +2436,24 @@ const app = {
 				topics: []
 			},
 
+			settingsData: {
+				normalize: true
+			},
+
 			init() {
+				let self = this;
 				this.createElements();
+
+				document.querySelector('#cv-settings-normalize').parentElement.addEventListener('click', (e) => {
+					let checked = document.querySelector('#cv-settings-normalize').checked;
+					self.settingsData.normalize === checked ? '' : app.collectionViewer.filter.filterUpdated = true;
+				})
+
+				document.querySelector('.filter-change').addEventListener('click', (e) => {
+					app.collectionViewer.filter.filterUpdated ? app.collectionViewer.filter.updateForcegraph() : '';
+					app.collectionViewer.resetView.resetCameraView();
+					app.gui.toolbar.buttonActionTab(document.querySelector(self.buttonSetup.id))
+				})
 
 				document.addEventListener('proxyfgData-update', (event) => {
 					//app.dev && console.log('dev --- cv > filter > proxyfgData-update: ', app.collectionViewer.proxyfgData.data);
@@ -2429,52 +2473,21 @@ const app = {
 				toolBarTabContent.appendChild(filterContainer);
 				filterContainer.className = 'cv-filter-container';
 
+				const filterChangeButton = document.createElement('button');
+				filterContainer.appendChild(filterChangeButton);
+				filterChangeButton.className = 'button filter-change ' + this.buttonSetup.colors.tab.text + ' ' + this.buttonSetup.colors.button.background;
+				filterChangeButton.appendChild(document.createTextNode(this.texts.changeButton.label));
+
 				const filterHeadline = document.createElement('h3');
 				filterContainer.appendChild(filterHeadline);
-				filterHeadline.textContent = this.texts.title;
+				filterHeadline.textContent = this.texts.filter.title;
 
 				const filterText = document.createElement('p');
 				filterContainer.appendChild(filterText);
 				filterText.className = 'text-small';
-				filterText.textContent = this.texts.intro;
+				filterText.textContent = this.texts.filter.intro;
 
-				const topicListContainer = document.createElement('div');
-				filterContainer.appendChild(topicListContainer);
-				topicListContainer.className = 'list-container';
-
-				const topicListButton = document.createElement('button');
-				topicListContainer.appendChild(topicListButton);
-				topicListButton.className = 'button collapsible-button ' + this.buttonSetup.colors.tab.text;
-
-				const topicListButtonIcon = document.createElement('div');
-				topicListButton.appendChild(topicListButtonIcon);
-				topicListButtonIcon.className = 'icon ' + app.collectionViewer.elementColor.topic;
-
-				const topicIcon = document.createElement('img');
-				topicListButtonIcon.appendChild(topicIcon);
-				topicIcon.src = app.assets.icon['topic'].src.pearlwhite;
-				topicIcon.alt = app. assets.icon['topic'].alt;
-				topicIcon.width = 100;
-				topicIcon.height = 100;
-				topicIcon.setAttribute('loading', 'lazy');
-
-				topicListButton.appendChild(document.createTextNode(this.texts.topicsButton));
-
-				const topicListButtonArrow = document.createElement('div');
-				topicListButton.appendChild(topicListButtonArrow);
-				topicListButtonArrow.className = 'arrow right ' + this.buttonSetup.colors.tab.icon;
-
-				const topicList = document.createElement('div');
-				topicListContainer.appendChild(topicList);
-				topicList.className = 'cv-filter-container collapsible-content';
-				topicList.setAttribute('id', 'cv-filter-topic-list');
-
-				const topicSelectAllButton = document.createElement('button');
-				topicList.appendChild(topicSelectAllButton);
-				topicSelectAllButton.className = 'button text-small';
-				topicSelectAllButton.setAttribute('data-selected', true);
-				topicSelectAllButton.setAttribute('id', 'cv-filter-topic-list-select-all');
-				topicSelectAllButton.textContent = this.texts.selectAllButton;
+				//Categories
 
 				const categoryListContainer = document.createElement('div');
 				filterContainer.appendChild(categoryListContainer);
@@ -2496,7 +2509,7 @@ const app = {
 				categoryIcon.height = 100;
 				categoryIcon.setAttribute('loading', 'lazy');
 
-				categoryListButton.appendChild(document.createTextNode(this.texts.categoriesButton));
+				categoryListButton.appendChild(document.createTextNode(this.texts.filter.categoriesButton));
 
 				const categoryListButtonArrow = document.createElement('div');
 				categoryListButton.appendChild(categoryListButtonArrow);
@@ -2512,7 +2525,49 @@ const app = {
 				categorySelectAllButton.className = 'button text-small';
 				categorySelectAllButton.setAttribute('data-selected', true);
 				categorySelectAllButton.setAttribute('id', 'cv-filter-category-list-select-all');
-				categorySelectAllButton.textContent = this.texts.selectAllButton;
+				categorySelectAllButton.textContent = this.texts.filter.selectAllButton;
+
+				//Topics
+
+				const topicListContainer = document.createElement('div');
+				filterContainer.appendChild(topicListContainer);
+				topicListContainer.className = 'list-container';
+
+				const topicListButton = document.createElement('button');
+				topicListContainer.appendChild(topicListButton);
+				topicListButton.className = 'button collapsible-button ' + this.buttonSetup.colors.tab.text;
+
+				const topicListButtonIcon = document.createElement('div');
+				topicListButton.appendChild(topicListButtonIcon);
+				topicListButtonIcon.className = 'icon ' + app.collectionViewer.elementColor.topic;
+
+				const topicIcon = document.createElement('img');
+				topicListButtonIcon.appendChild(topicIcon);
+				topicIcon.src = app.assets.icon['topic'].src.pearlwhite;
+				topicIcon.alt = app. assets.icon['topic'].alt;
+				topicIcon.width = 100;
+				topicIcon.height = 100;
+				topicIcon.setAttribute('loading', 'lazy');
+
+				topicListButton.appendChild(document.createTextNode(this.texts.filter.topicsButton));
+
+				const topicListButtonArrow = document.createElement('div');
+				topicListButton.appendChild(topicListButtonArrow);
+				topicListButtonArrow.className = 'arrow right ' + this.buttonSetup.colors.tab.icon;
+
+				const topicList = document.createElement('div');
+				topicListContainer.appendChild(topicList);
+				topicList.className = 'cv-filter-container collapsible-content';
+				topicList.setAttribute('id', 'cv-filter-topic-list');
+
+				const topicSelectAllButton = document.createElement('button');
+				topicList.appendChild(topicSelectAllButton);
+				topicSelectAllButton.className = 'button text-small';
+				topicSelectAllButton.setAttribute('data-selected', true);
+				topicSelectAllButton.setAttribute('id', 'cv-filter-topic-list-select-all');
+				topicSelectAllButton.textContent = this.texts.filter.selectAllButton;
+
+				//Tags
 
 				const tagListContainer = document.createElement('div');
 				filterContainer.appendChild(tagListContainer);
@@ -2534,7 +2589,7 @@ const app = {
 				tagIcon.height = 100;
 				tagIcon.setAttribute('loading', 'lazy');
 
-				tagListButton.appendChild(document.createTextNode(this.texts.tagsButton));
+				tagListButton.appendChild(document.createTextNode(this.texts.filter.tagsButton));
 
 				const tagListButtonArrow = document.createElement('div');
 				tagListButton.appendChild(tagListButtonArrow);
@@ -2550,7 +2605,9 @@ const app = {
 				tagSelectAllButton.className = 'button text-small';
 				tagSelectAllButton.setAttribute('data-selected', true);
 				tagSelectAllButton.setAttribute('id', 'cv-filter-tag-list-select-all');
-				tagSelectAllButton.textContent = this.texts.selectAllButton;
+				tagSelectAllButton.textContent = this.texts.filter.selectAllButton;
+
+				//ProductionTags
 
 				const productionTagListContainer = document.createElement('div');
 				filterContainer.appendChild(productionTagListContainer);
@@ -2572,7 +2629,7 @@ const app = {
 				productionTagIcon.height = 100;
 				productionTagIcon.setAttribute('loading', 'lazy');
 
-				productionTagListButton.appendChild(document.createTextNode(this.texts.productionTagsButton));
+				productionTagListButton.appendChild(document.createTextNode(this.texts.filter.productionTagsButton));
 
 				const productionTagListButtonArrow = document.createElement('div');
 				productionTagListButton.appendChild(productionTagListButtonArrow);
@@ -2588,7 +2645,40 @@ const app = {
 				productionTagSelectAllButton.className = 'button text-small';
 				productionTagSelectAllButton.setAttribute('data-selected', true);
 				productionTagSelectAllButton.setAttribute('id', 'cv-filter-production-tag-list-select-all');
-				productionTagSelectAllButton.textContent = this.texts.selectAllButton;
+				productionTagSelectAllButton.textContent = this.texts.filter.selectAllButton;
+
+				//Settings
+
+				const settingsHeadline = document.createElement('h3');
+				filterContainer.appendChild(settingsHeadline);
+				settingsHeadline.textContent = this.texts.settings.title;
+
+				const settingsText = document.createElement('p');
+				filterContainer.appendChild(settingsText);
+				settingsText.className = 'text-small';
+				settingsText.textContent = this.texts.settings.intro;
+
+				const normalizeContainer = document.createElement('div');
+				filterContainer.appendChild(normalizeContainer);
+				normalizeContainer.className = 'normalize-container';
+
+				const normalizeLabel = document.createElement('label');
+				normalizeContainer.appendChild(normalizeLabel);
+				normalizeLabel.className = 'checkbox-container';	
+
+				const normalizeInput = document.createElement('input');
+				normalizeLabel.appendChild(normalizeInput);
+				normalizeInput.setAttribute('id', 'cv-settings-normalize');
+				normalizeInput.setAttribute('type', 'checkbox');
+				normalizeInput.setAttribute('checked', 'checked');
+				normalizeInput.className = 'checkbox';
+
+				const normalizeInputSpan = document.createElement('span');
+				normalizeLabel.appendChild(normalizeInputSpan);
+				normalizeInputSpan.className = 'checkmark';	
+
+				normalizeLabel.appendChild(document.createTextNode(this.texts.settings.normalizeCheckbox));			
+
 			}, 
 
 			generateCheckBoxList(id, dataArray, color, active = true){
@@ -2660,6 +2750,8 @@ const app = {
 			}, 
 
 			updateForcegraph() {
+				let normalizeCheckboxValue = document.querySelector('#cv-settings-normalize').checked;
+				let normalizeValue = null;
 				let loadJSONModelsComponent = document.querySelector('a-scene').components['load-json-models'];
 				let fgData = app.collectionViewer.proxyfgData.data;
 				let categoryListElement = document.querySelector('#cv-filter-category-list');
@@ -2701,7 +2793,13 @@ const app = {
 					active ? showProductionTabsArray.push(name) : app.collectionViewer.filter.filteredData.productionTags.push(name);
 				}
 
-				document.querySelector('a-scene').setAttribute('load-json-models', 'normalization: 1')
+				normalizeCheckboxValue === true ? normalizeValue = '1' : normalizeValue = '0';
+				this.settingsData.normalize = normalizeCheckboxValue;
+
+				app.dev && console.log('dev --- updateForcegraph > normalizeCheckboxValue: ', normalizeCheckboxValue);
+				app.dev && console.log('dev --- updateForcegraph > normalizeValue: ', normalizeValue);
+
+				document.querySelector('a-scene').setAttribute('load-json-models', 'normalization: ' + normalizeValue)
 
 				loadJSONModelsComponent.filterFgData(fgData, showTabsArray, showProductionTabsArray, showCategoriesArray, showTopicsArray);
 			}
@@ -2884,7 +2982,7 @@ const app = {
 						//create category model 
 						this.categoryModelEl = document.createElement('a-entity');
 						this.categoryModelEl.setAttribute('id', 'category-model');
-						this.categoryModelEl.setAttribute('geometry', 'primitive: circle; radius: 5');
+						this.categoryModelEl.setAttribute('geometry', 'primitive: circle; radius: 4');
 						this.categoryModelEl.setAttribute('material', 'src: #icon-category');
 						this.categoryModelEl.setAttribute('visible', false);
 						this.el.sceneEl.querySelector('a-assets').appendChild(this.categoryModelEl);
@@ -2892,7 +2990,7 @@ const app = {
 						//create topic model 
 						this.topicModelEl = document.createElement('a-entity');
 						this.topicModelEl.setAttribute('id', 'topic-model');
-						this.topicModelEl.setAttribute('geometry', 'primitive: circle; radius: 8');
+						this.topicModelEl.setAttribute('geometry', 'primitive: circle; radius: 3');
 						this.topicModelEl.setAttribute('material', 'src: #icon-topic');
 						this.topicModelEl.setAttribute('visible', false);
 						this.el.sceneEl.querySelector('a-assets').appendChild(this.topicModelEl);
@@ -3170,7 +3268,16 @@ const app = {
 						app.dev && console.log('dev --- forcegraph filter Data topics: ', topics);
 
 						for( let link of fgData.links ){
-							if(tags.includes(link.name) || productionTags.includes(link.name) || categories.includes(link.name)|| topics.includes(link.name)) {
+							if(link.type === 'link-tag' && tags.includes(link.name)){
+								filteredFgData.links.push(link);
+							}
+							if(link.type === 'link-productionTag' && productionTags.includes(link.name)){
+								filteredFgData.links.push(link);
+							}
+							if(link.type === 'link-category' && categories.includes(link.name)){
+								filteredFgData.links.push(link);
+							}
+							if(link.type === 'link-topic' && topics.includes(link.name)){
 								filteredFgData.links.push(link);
 							}
 						}
@@ -3220,8 +3327,9 @@ const app = {
 						forcegraphEntity.setAttribute('highlight', { noUpdate: true });
 						forcegraphEntity.setAttribute('forcegraph', {
 							forceEngine: 'd3', //'d3' (default) or 'ngraph'
-							warmupTicks: 2000,
+							warmupTicks: 15000,
 							cooldownTicks: 0,
+							cooldownTime: 0,
 							onEngineStop: e => {
 								let event = new Event('forcegraph-ready');
 								document.querySelector('a-scene').dispatchEvent(event);
@@ -3251,7 +3359,6 @@ const app = {
 								app.collectionViewer.tooltip.mouseoverHandler(node);
 							},
 							onNodeClick: node => { 
-								app.dev && console.log('dev --- onNodeClick: ', node);
 								app.dev && console.log('dev --- onNodeClick: ', node);
 								if(node.visibility === 'hidden'){ return; };
 								if(document.querySelector('a-camera').components['orbit-controls'].hasUserInput) {return;}
@@ -3327,7 +3434,7 @@ const app = {
 								link.width = 0.4;
 							}else if(link.type === 'link-productionTag'){
 								link.material.copy(productionTagMaterial);
-								link.curvature = 0.2;
+								link.curvature = 0.25;
 								link.width = 0.4;
 							}else if(link.type === 'link-topic'){
 								link.material.copy(topicMaterial);
@@ -3369,7 +3476,7 @@ const app = {
 						if(!this.fgComp.nodes){ return; }
 						const fgComp = this.fgComp;
 
-						app.dev && console.log(`dev --- normalizeScale > fgComp.nodes: \n`, fgComp.nodes);
+						//app.dev && console.log(`dev --- normalizeScale > fgComp.nodes: \n`, fgComp.nodes);
 
 						let sizeLog = {
 							mean: 0,
@@ -3423,7 +3530,7 @@ const app = {
 							node.model.scale.set(normalizedScale, normalizedScale, normalizedScale);
 						}
 
-						app.dev && console.log(`dev --- normalizeScale > \nsizeLog: `, sizeLog);
+						//app.dev && console.log(`dev --- normalizeScale > \nsizeLog: `, sizeLog);
 					}
 			});
 			//END A-Frame load-json-objects
@@ -4354,6 +4461,7 @@ const app = {
 						}, 0);					
 						app.collectionViewer.highlight.onclickHandler(node);
 						fgElement.setAttribute('highlight', {source: node});
+						app.collectionViewer.node = null;
 					}else {
 						app.collectionViewer.resetView.resetCameraView();
 					}					
