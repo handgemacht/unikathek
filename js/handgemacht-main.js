@@ -1139,6 +1139,7 @@ const app = {
 				}
 				if(forceShow === false) {
 					this.element.classList.remove('active');
+					this.setToolbarTab();
 					return;
 				}
 				this.element.classList.toggle('active');
@@ -1157,6 +1158,8 @@ const app = {
 					}
 
 					fadeBar.className = 'bar';	
+
+					if(!colors) { return; }
 
 					toolbarTab.classList.add(colors.tab.text);
 					toolbarTab.classList.add(colors.tab.background);
@@ -2795,9 +2798,6 @@ const app = {
 
 				normalizeCheckboxValue === true ? normalizeValue = '1' : normalizeValue = '0';
 				this.settingsData.normalize = normalizeCheckboxValue;
-
-				app.dev && console.log('dev --- updateForcegraph > normalizeCheckboxValue: ', normalizeCheckboxValue);
-				app.dev && console.log('dev --- updateForcegraph > normalizeValue: ', normalizeValue);
 
 				document.querySelector('a-scene').setAttribute('load-json-models', 'normalization: ' + normalizeValue)
 
