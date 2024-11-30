@@ -1512,7 +1512,7 @@ const app = {
 								"type" : "subheadline"
 							},
 							{
-								"content" : "Die Sammlungsansicht zeigt wie unsere Objekte untereinander verknüpft sind. Durch Merkmale <span class='icon terracotta'><img src='" + app.assets.icon['topic'].src.pearlwhite + "' alt='" + app.assets.icon['topic'].alt + "'></span>, Kontexte <span class='icon skyblue'><img src='" + app.assets.icon['category'].src.pearlwhite + "' alt='" + app.assets.icon['category'].alt + "'></span> und Tags <span class='icon duckyellow'><img src='" + app.assets.icon['tag'].src.coalgrey + "' alt='" + app.assets.icon['tag'].alt + "'></span> <span class='icon smokegrey'><img src='" + app.assets.icon['tag'].src.pearlwhite + "' alt='" + app.assets.icon['tag'].alt + "'></span> entsteht so ein Netzwerk aus Deutungen und Gemeinsamkeiten. Ähnliche Gegenstände ziehen sich durch die Verbindungen an und schaffen so räumliche Gruppierungen.",
+								"content" : "Die Sammlungsansicht zeigt wie unsere Objekte untereinander verknüpft sind. Durch Kontexte <span class='icon skyblue'><img src='" + app.assets.icon['category'].src.pearlwhite + "' alt='" + app.assets.icon['category'].alt + "'></span>, Merkmale <span class='icon terracotta'><img src='" + app.assets.icon['topic'].src.pearlwhite + "' alt='" + app.assets.icon['topic'].alt + "'></span> und Tags <span class='icon duckyellow'><img src='" + app.assets.icon['tag'].src.coalgrey + "' alt='" + app.assets.icon['tag'].alt + "'></span> <span class='icon smokegrey'><img src='" + app.assets.icon['tag'].src.pearlwhite + "' alt='" + app.assets.icon['tag'].alt + "'></span> entsteht so ein Netzwerk aus Deutungen und Gemeinsamkeiten. Ähnliche Gegenstände ziehen sich durch die Verbindungen an und schaffen so räumliche Gruppierungen.",
 								"fileCopyright" : "",
 								"filename" : "",
 								"imageAlt" : "",
@@ -2860,6 +2860,7 @@ const app = {
 			this.sceneEl.setAttribute('device-orientation-permission-ui', 'enabled: false');
 			this.sceneEl.setAttribute('light', 'defaultLightsEnabled: false');
 			this.sceneEl.setAttribute('embedded', '');
+			this.sceneEl.setAttribute('renderer', 'logarithmicDepthBuffer: true');
 			app.stats && this.sceneEl.setAttribute('stats', '');
 
 			this.cursorEl = document.createElement('a-entity');
@@ -2878,12 +2879,22 @@ const app = {
 
 			this.ambientLightEl = document.createElement('a-entity');
 			this.sceneEl.appendChild(this.ambientLightEl);
-			this.ambientLightEl.setAttribute('light', 'type: ambient; color: #FAF0E6; intensity: 3');
+			this.ambientLightEl.setAttribute('light', 'type: hemisphere; color: #FAF0E6; groundColor: #9B9691; intensity: 2');
 
 			this.directionalLightEl = document.createElement('a-entity');
-			this.sceneEl.appendChild(this.directionalLightEl);
+			this.sceneEl.appendChild(this.directionalLightEl); //scene light
 			this.directionalLightEl.setAttribute('light', 'type: directional; color: #FAF0E6; intensity: 4');
-			this.directionalLightEl.setAttribute('position', '-2 0 2');
+			this.directionalLightEl.setAttribute('position', '-10 1 10');
+
+			this.directionalLight2El = document.createElement('a-entity');
+			this.sceneEl.appendChild(this.directionalLight2El); //scene light 2
+			this.directionalLight2El.setAttribute('light', 'type: directional; color: #FAF0E6; intensity: 4');
+			this.directionalLight2El.setAttribute('position', '10 -5 -5');
+
+			this.cameraLightEl = document.createElement('a-entity');
+			this.cameraEl.appendChild(this.cameraLightEl); //camera light
+			this.cameraLightEl.setAttribute('light', 'type: point; color: #FAF0E6; intensity: 10; distance: 150; decay: 0.5');
+			this.cameraLightEl.setAttribute('position', '0 0 0');
 
 			this.assetsEl = document.createElement('a-assets');
 			this.sceneEl.appendChild(this.assetsEl);
@@ -3089,6 +3100,8 @@ const app = {
 						//create nodes from categories 
 						for(let category of json.categorylist){
 							if(category === '') { continue; }
+							if(category.title === '') { continue; }
+							if(category.type === '') { continue; }
 							if(category.type === 'Merkmal') { continue; }
 							const newNode = {}
 							newNode.id = category.title;
@@ -3108,6 +3121,8 @@ const app = {
 						//create nodes from topics 
 						for(let topic of json.categorylist){
 							if(topic === '') { continue; }
+							if(topic.title === '') { continue; }
+							if(topic.type === '') { continue; }
 							if(topic.type === 'Kategorie') { continue; }
 							const newNode = {}
 							newNode.id = topic.title;
@@ -3243,15 +3258,19 @@ const app = {
 						fgData.links = fgData.links.filter(filterDoubles);
 
 						for(let category of json.categorylist){
+							if(category.title === '') { continue; }
+							if(category.type === '') { continue; }
 							if(category.type === 'Merkmal') { continue; }
 							fgData.categorylist.push(category.title);
 						}
+
 						for(let topic of json.categorylist){
+							if(topic.title === '') { continue; }
+							if(topic.type === '') { continue; }
 							if(topic.type === 'Kategorie') { continue; }
 							fgData.topiclist.push(topic.title);
 						}
-						//fgData.categorylist = json.categorylist;
-						//fgData.topiclist = json.topiclist;
+
 						fgData.taglist = json.taglist;
 						fgData.productionTaglist = json.productionTaglist;
 
@@ -3523,14 +3542,20 @@ const app = {
 							const maxSizeDeviation = sizeLog.mean - sizeLog.max;
 							const minSizeDeviation = sizeLog.mean - sizeLog.min;
 							const sizeFactor = 1 + mapToRange(sizeDeviation, [minSizeDeviation, maxSizeDeviation], [1, 0]); 
-							const normFactor = normalization * (0.25 + Math.pow(sizeFactor, 4) / 10);
+							let normFactor = normalization * (0.25 + Math.pow(sizeFactor, 4) / 10);
+
+							const threshold = 1.95; //boost size of small objects
+							if(sizeFactor > threshold) {
+								let boostFactor = 1 + sizeFactor - threshold;
+								normFactor = normFactor * (Math.pow(boostFactor, 4)*2);
+							} 
 							const normalizedScale = scaleFactor * (((1 + normFactor) - normalization));
 							sizeLog.scaleList.push({'name': node.name, 'sizeFactor': sizeFactor,'normalizedScale': normalizedScale, 'node': node})
 							//app.dev && console.log(`dev --- normalizeScale node: ${node.name} > \nnormalization: ${normalization}, \nsizeFactor: ${sizeFactor}, \nnormFactor: ${normFactor}, \nscaleFactor: ${scaleFactor}, \nnormalizedScale: ${normalizedScale}`);
 							node.model.scale.set(normalizedScale, normalizedScale, normalizedScale);
 						}
 
-						//app.dev && console.log(`dev --- normalizeScale > \nsizeLog: `, sizeLog);
+						app.dev && console.log(`dev --- normalizeScale > \nsizeLog: `, sizeLog);
 					}
 			});
 			//END A-Frame load-json-objects
@@ -3709,7 +3734,7 @@ const app = {
 
 						let targetPosition = new THREE.Vector3();
 
-						let perspectiveCamera = this.camera.children[0];
+						let perspectiveCamera = this.camera.children[1];
 
 						perspectiveCamera.updateMatrixWorld();
 
@@ -4469,6 +4494,7 @@ const app = {
 				}else {
 					app.collectionViewer.resetView.resetCameraView();
 				}
+
 				app.gui.loadingScreen.hideLoadingScreen();
 			});
 		}
@@ -4579,7 +4605,7 @@ const app = {
 					keyValueEl.textContent = basicData.key;
 				}
 
-				if(basicData.categorys.length > 0) {
+				if(basicData.categories.length > 0) {
 					const categoryTermEl = document.createElement('dt');
 					descriptionListBasicEl.appendChild(categoryTermEl);
 					const categoryTermHeadline = document.createElement('h6');
@@ -4589,7 +4615,7 @@ const app = {
 	
 					const categoryValueEl = document.createElement('dd');
 					descriptionListBasicEl.appendChild(categoryValueEl);
-					for(let category of basicData.categorys) {
+					for(let category of basicData.categories) {
 						if(category === ''){ continue; }
 						const categoryEl = document.createElement('span');
 						categoryEl.textContent = category;
