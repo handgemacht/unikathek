@@ -595,6 +595,12 @@ const app = {
 			showMessage() {
 				this.containerEl.classList.remove('hide');
 
+				//auto extend message
+				if(this.content.containerEl.offsetHeight*1.5 < this.content.element.offsetHeight) {
+					this.containerEl.classList.add('extended');
+					this.sizeControlEl.setAttribute('data-extended', true);
+				}
+
 				if(document.querySelector('a-scene')){
 					document.querySelector('a-scene').classList.remove('active-message');
 					document.querySelector('a-scene').classList.add('active-message');
@@ -1062,6 +1068,11 @@ const app = {
 		toolbar: {
 			init(){
 				this.createElements();
+
+				this.overlay.addEventListener('click', (e) => {
+					const button = document.querySelector('#'+app.gui.toolbar.overlay.getAttribute('data-button'));
+					app.gui.toolbar.buttonActionTab(button);
+				})
 				//app.hideGUI && this.boxEl.classList.add('hide');
 			},
 	
@@ -1069,6 +1080,10 @@ const app = {
 				this.boxEl = document.createElement('div');
 				document.body.appendChild(this.boxEl);
 				this.boxEl.className = 'gui-toolbar-box';
+
+				this.overlay = document.createElement('div');
+				this.boxEl.appendChild(this.overlay);
+				this.overlay.className = 'gui-toolbar-overlay hide';
 
 				this.containerEl = document.createElement('div');
 				this.boxEl.appendChild(this.containerEl);
@@ -1318,6 +1333,8 @@ const app = {
 					let iconElement = button.children[0];
 					let colors = JSON.parse(button.getAttribute('data-colors'));
 
+					this.overlay.setAttribute('data-button', button.id);
+
 					for(let child of toolbarTabContent.children){
 						child.classList.add('hide');
 					}
@@ -1344,6 +1361,12 @@ const app = {
 					button.classList.toggle('inactive');
 					iconElement.classList.toggle('tab');
 				}	
+				if(toolbarTab.classList.contains('active')){
+					this.overlay.classList.remove('hide');
+				}else{
+					this.overlay.classList.add('hide');
+					this.overlay.setAttribute('data-button', '');
+				}
 			},
 		}, 
 
@@ -1428,8 +1451,7 @@ const app = {
 
 			app.gui.toolbar.setButton(this.filter.buttonSetup);
 			app.gui.toolbar.button[2].icon.addEventListener('click', (e) => {
-				app.collectionViewer.filter.filterUpdated ? app.collectionViewer.filter.updateForcegraph() : '';
-				app.collectionViewer.resetView.resetCameraView();
+				//app.collectionViewer.filter.filterUpdated ? app.collectionViewer.filter.updateForcegraph() : '';
 			})
 
 			app.gui.toolbar.setButton(this.resetView.buttonSetup);
@@ -2388,7 +2410,7 @@ const app = {
 
 			buttonSetup: {
 				id: '#toolbar-button-2',
-				name: 'Filter',
+				name: 'Filter und Einstellungen',
 				colors: {
 					button: {
 						background: 'duckyellow',
@@ -2413,9 +2435,13 @@ const app = {
 				changeButton: {
 					label: 'anwenden'
 				},
+				intro: {
+					title: 'Filter und Einstellungen',
+					description: 'Die Unikathek',
+				},
 				filter: {
 					title: 'Filter',
-					intro: 'Aktiviere oder deaktiviere Kontexte, Merkmale und Tags um das Netzwerk anzupassen.',
+					description: 'Die Unikathek besteht aus vielen Objekten, Kontexten, Merkmalen und den entsprechenden Verbindungen, die sich aus ihnen ergeben. Hier kannst du einzelne Elemente ein- bzw. ausblenden um die Unikathek deinen Interessen nach zu filtern. ',
 					categoriesButton: 'Kontexte',
 					topicsButton: 'Merkmale',
 					tagsButton: 'Themen-Tags',
@@ -2424,7 +2450,7 @@ const app = {
 				},
 				settings: {
 					title: 'Einstellungen',
-					intro: '',
+					description: '',
 					normalizeCheckbox: 'Modellgrößen normalisieren'
 				}
 				
@@ -2481,16 +2507,24 @@ const app = {
 				filterChangeButton.className = 'button filter-change ' + this.buttonSetup.colors.tab.text + ' ' + this.buttonSetup.colors.button.background;
 				filterChangeButton.appendChild(document.createTextNode(this.texts.changeButton.label));
 
-				const filterHeadline = document.createElement('h3');
+				//Intro
+
+				const introHeadline = document.createElement('h3');
+				filterContainer.appendChild(introHeadline);
+				introHeadline.textContent = this.texts.intro.title;
+
+				//Filter
+
+				const filterHeadline = document.createElement('h5');
 				filterContainer.appendChild(filterHeadline);
 				filterHeadline.textContent = this.texts.filter.title;
 
 				const filterText = document.createElement('p');
 				filterContainer.appendChild(filterText);
 				filterText.className = 'text-small';
-				filterText.textContent = this.texts.filter.intro;
+				filterText.textContent = this.texts.filter.description;
 
-				//Categories
+				//Filter > Categories
 
 				const categoryListContainer = document.createElement('div');
 				filterContainer.appendChild(categoryListContainer);
@@ -2530,7 +2564,7 @@ const app = {
 				categorySelectAllButton.setAttribute('id', 'cv-filter-category-list-select-all');
 				categorySelectAllButton.textContent = this.texts.filter.selectAllButton;
 
-				//Topics
+				//Filter > Topics
 
 				const topicListContainer = document.createElement('div');
 				filterContainer.appendChild(topicListContainer);
@@ -2570,7 +2604,7 @@ const app = {
 				topicSelectAllButton.setAttribute('id', 'cv-filter-topic-list-select-all');
 				topicSelectAllButton.textContent = this.texts.filter.selectAllButton;
 
-				//Tags
+				//Filter > Tags
 
 				const tagListContainer = document.createElement('div');
 				filterContainer.appendChild(tagListContainer);
@@ -2610,7 +2644,7 @@ const app = {
 				tagSelectAllButton.setAttribute('id', 'cv-filter-tag-list-select-all');
 				tagSelectAllButton.textContent = this.texts.filter.selectAllButton;
 
-				//ProductionTags
+				//Filter > ProductionTags
 
 				const productionTagListContainer = document.createElement('div');
 				filterContainer.appendChild(productionTagListContainer);
@@ -2652,14 +2686,14 @@ const app = {
 
 				//Settings
 
-				const settingsHeadline = document.createElement('h3');
+				const settingsHeadline = document.createElement('h5');
 				filterContainer.appendChild(settingsHeadline);
 				settingsHeadline.textContent = this.texts.settings.title;
 
 				const settingsText = document.createElement('p');
 				filterContainer.appendChild(settingsText);
 				settingsText.className = 'text-small';
-				settingsText.textContent = this.texts.settings.intro;
+				settingsText.textContent = this.texts.settings.description;
 
 				const normalizeContainer = document.createElement('div');
 				filterContainer.appendChild(normalizeContainer);
@@ -2681,7 +2715,6 @@ const app = {
 				normalizeInputSpan.className = 'checkmark';	
 
 				normalizeLabel.appendChild(document.createTextNode(this.texts.settings.normalizeCheckbox));			
-
 			}, 
 
 			generateCheckBoxList(id, dataArray, color, active = true){
@@ -2839,7 +2872,7 @@ const app = {
 				document.querySelector('a-camera').setAttribute('orbit-controls', {
 					enabled: true, 
 					target: '#orbit-target', 
-					desiredDistance: 300, 
+					desiredDistance: 175, 
 					autoRotate: true,
 					// removed pitch reset due to user feedback
 					//activeRotX: true, 
@@ -2867,14 +2900,13 @@ const app = {
 			this.sceneEl.appendChild(this.cursorEl);
 			this.cursorEl.setAttribute('cursor', 'rayOrigin: mouse; mouseCursorStylesEnabled: true;');
 			this.cursorEl.setAttribute('raycaster', 'objects: #forcegraph;');
-			app.dev && this.cursorEl.setAttribute('raycaster', 'objects: #forcegraph; showLine: true;');
+			//app.dev && this.cursorEl.setAttribute('raycaster', 'objects: #forcegraph; showLine: true;');
 			this.cursorEl.setAttribute('position', '0 0 -0.01');
 			this.cursorEl.setAttribute('id', 'cursor');
 
 			this.cameraEl = document.createElement('a-camera');
 			this.sceneEl.appendChild(this.cameraEl);
 			this.cameraEl.setAttribute('orbit-controls', 'enabled: true; target: #orbit-target; autoRotate: true');
-			//app.hideGUI && this.cameraEl.setAttribute('orbit-controls', 'enableZoom: false');
 			this.cameraEl.setAttribute('wasd-controls', 'enabled: false');
 
 			this.ambientLightEl = document.createElement('a-entity');
@@ -3711,7 +3743,7 @@ const app = {
 						windowInnerWidth: window.innerWidth
 					}
 
-					app.dev && console.log('dev -- camera-focus-target > distanceLog: ', distanceLog)
+					app.dev && console.log('dev -- highlight > distanceLog: ', distanceLog)
 
 					this.cameraEl.setAttribute('orbit-controls', { 
 						autoRotate: false, 
@@ -3914,7 +3946,7 @@ const app = {
 					enabled: { default: false },
 					target: { default: '#orbit-target' }, 
 					distance: { default: 50 }, 
-					desiredDistance: { default: 300 },
+					desiredDistance: { default: 200 },
 					minDistance: { default: 30 },
 					maxDistance: { default: 700 }, 
 					autoRotate: { default: true }, 
@@ -4181,6 +4213,8 @@ const app = {
 							this.distance = this.data.maxDistance;
 							this.desiredDistance = this.data.maxDistance; 
 						};
+
+						//app.dev && console.log('orbit-controls > distance: ', {distance: this.distance, desiredDistance: this.desiredDistance})
 
 						var targetCameraPosition = this.el.object3D.translateOnAxis( new THREE.Vector3(0,0,1), this.distance ).position;
 				
