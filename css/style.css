@@ -910,7 +910,7 @@ div.gui-message > div.button-container {
 div.gui-message > div.button-container > button.button {
   min-width: 70px;
   min-height: 30px;
-  padding: 0 15px 0 25px;
+  padding: 0 25px 0 25px;
   border-radius: 0px;
 }
 
@@ -1440,10 +1440,14 @@ div.cv-tooltip {
   z-index: 1;
 }
 
+div.cv-tooltip.cta {
+  transform: translate(0, -15px);
+}
+
 div.cv-tooltip > div.type {
   position: absolute;
-  top: 0px;
-  left: 0px;
+  top: 0;
+  left: 0;
   padding: 2px 15px 1px 12px;
   border-radius: 0px 7px 0px 0px;
   font-size: 0.75em;
@@ -1461,6 +1465,12 @@ div.cv-tooltip > div.content {
   font-size: 1.2em;
   white-space: nowrap;
   user-select: none;
+}
+
+div.cv-tooltip.cta > div.content {
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 3px 15px 5px 15px;
 }
 
 

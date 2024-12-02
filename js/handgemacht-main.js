@@ -353,29 +353,42 @@ const app = {
 				this.element.className = 'title';
 			}, 
 
-			set(title = app.title, showArrow = false, node = null, newURL = null) {
+			set(title = app.title, showArrow = false, node = null, breadcrumb = null, breadcrumbType = null, customURL = null) {
 				let url = '?m=cv';
-				newURL ? url = newURL : '';
-
+				
 				if(node){
 					node = '&node=' + node;
 					url += node;
 				}
 
-				this.element.innerHTML = title;
+				customURL ? url = customURL : '';
+
+				this.element.innerHTML = '<span>' + title + '</span>';
+				breadcrumb ? this.element.innerHTML += ' <span>/</span> ' + '<span>' + breadcrumb + '</span>' : '';
 				this.containerEl.className = 'gui-title-container';
 				this.arrowEl.className = 'arrow hide';
 
 				showArrow && this.arrowEl.classList.remove('hide');
-				showArrow && this.containerEl.classList.add('clickable');
+				this.containerEl.classList.add('clickable');
 
-				showArrow && this.containerEl.addEventListener('click', (e) => {
-					!newURL && app.dev ? url+='&dev=true' : '';
-					!newURL && app.stats ? url+='&dev=stats' : '';
-					!newURL && app.embedded ? url+='&embeddded=true' : '';
+				this.containerEl.setAttribute('data-url', url);
+				this.containerEl.addEventListener('click', app.gui.title.titleClickHandler);
+
+			}, 
+
+			titleClickHandler() {
+				app.gui.title.containerEl.removeEventListener('click', app.gui.title.titleClickHandler);
+				let url = app.gui.title.containerEl.getAttribute('data-url');
+				app.dev ? url+='&dev=true' : '';
+				app.stats ? url+='&dev=stats' : '';
+				app.embedded ? url+='&embeddded=true' : '';
+				if(app.collectionViewer.highlight.focusedNode) {
+					app.collectionViewer.resetView.resetCameraView();
+					app.gui.message.hideMessage(true);
+					app.gui.title.set(app.title);
+				}else{
 					window.location.href = url;
-				})
-
+				}
 			}
 		},
 
@@ -674,6 +687,7 @@ const app = {
 				if(this.closeEl) {
 					this.closeEl.addEventListener('click', (evt) => {
 						self.hideMessage(true);
+						app.gui.title.set(app.title);
 					});
 				}
 
@@ -1689,8 +1703,19 @@ const app = {
 
 		tooltip: {
 
+			mouseDown: false,
+
 			init() {
 				this.createElements();
+
+				document.addEventListener("mousedown", (e) => {
+					this.mouseDown = true;
+					this.pointerStyleHandler(null, e);
+				});
+				document.addEventListener("mouseup", (e) => {
+					this.mouseDown = false;
+					this.pointerStyleHandler(null, e);
+				});
 			},
 
 			createElements() {
@@ -1709,7 +1734,7 @@ const app = {
 				this.contentEl.className = 'content';
 			}, 
 
-			showTooltip(type, content) {
+			showTooltip(type, content, id = null) {
 				let typeText = '';
 				if(type === 'node-object'){
 					typeText = 'Objekt'
@@ -1748,7 +1773,17 @@ const app = {
 				}
 				this.typeEl.textContent = typeText;
 				this.contentEl.textContent = content;
+				
+				this.typeEl.classList.remove('hide');
+				this.element.classList.remove('cta');
 				this.element.classList.remove('hide');
+
+				if(type === 'node-object' && app.collectionViewer.highlight.focusedNode === id){
+					this.contentEl.textContent = 'ansehen';
+
+					this.element.classList.add('cta');
+					this.typeEl.classList.add('hide');
+				}
 			}, 
 
 			hideTooltip() {
@@ -1777,16 +1812,19 @@ const app = {
 						var y = !isTouchDevice() ? e.pageY : e.touches[0].pageY;
 					} catch (e) {}
 			
-					this.element.style.left = x + 25 + 'px';
-					this.element.style.top = y + 25 + 'px';
-				};
+					this.element.style.left = x + 12 + 'px';
+					this.element.style.top = y + 24 + 'px';
+				}
 			
 				document.addEventListener('mousemove', (e) => {
 					move(e);
 				});
+
 				document.addEventListener('touchmove', (e) => {
 					move(e);
 				});
+
+				this.pointerStyleHandler(null)
 
 				let type = '';
 
@@ -1802,11 +1840,33 @@ const app = {
 				
 				if(isTouchDevice()) { return; }
 
-				this.showTooltip(fgElement.type, fgElement.name);
-			} 
+				this.showTooltip(fgElement.type, fgElement.name, fgElement.id);
+
+				this.pointerStyleHandler(fgElement.type);
+
+			},
+
+			pointerStyleHandler(fgType = null, event = null) {
+				fgType === null ? document.querySelector('canvas.a-canvas').style.cursor = 'grab' : '';
+				if(this.mouseDown){
+					document.querySelector('canvas.a-canvas').style.cursor = 'grabbing';
+					event && event.preventDefault();
+					event && event.stopPropagation();
+					return;
+				}
+
+				fgType === 'node-object' ? document.querySelector('canvas.a-canvas').style.cursor = 'pointer' : '';
+				fgType === 'node-category' ? document.querySelector('canvas.a-canvas').style.cursor = 'pointer' : '';
+				fgType === 'node-topic' ? document.querySelector('canvas.a-canvas').style.cursor = 'pointer' : '';
+				fgType === 'link-object' ? document.querySelector('canvas.a-canvas').style.cursor = 'default' : '';
+				fgType === 'link-category' ? document.querySelector('canvas.a-canvas').style.cursor = 'default' : '';
+				fgType === 'link-topic' ? document.querySelector('canvas.a-canvas').style.cursor = 'default' : '';
+			}
 		},
 
 		highlight: {
+
+			focusedNode: null,
 
 			pillArray: [],
 
@@ -1828,7 +1888,8 @@ const app = {
 			
 				if(type !== 'none'){
 					app.gui.message.hideMessage(true);
-					if(!fgNode.model.material.visible) {return;} 
+					if(!fgNode.model.material.visible) {return;}
+					app.gui.title.set(app.title, false, null, fgNode.name);
 					app.collectionViewer.highlight.generateMessage(fgNode);
 				}
 			}, 
@@ -1924,7 +1985,7 @@ const app = {
 						color: 'pearlwhite',
 						shadow: 'shadow-' + app.collectionViewer.elementColor.object,
 						buttonSetup: [
-							{ label: 'mehr erfahren', color: app.collectionViewer.elementColor.object, icon: 'arrow right' }
+							{ label: 'ansehen', color: app.collectionViewer.elementColor.object, icon: 'arrow right' }
 							]
 					}
 
@@ -2898,7 +2959,7 @@ const app = {
 
 			this.cursorEl = document.createElement('a-entity');
 			this.sceneEl.appendChild(this.cursorEl);
-			this.cursorEl.setAttribute('cursor', 'rayOrigin: mouse; mouseCursorStylesEnabled: true;');
+			this.cursorEl.setAttribute('cursor', 'rayOrigin: mouse; mouseCursorStylesEnabled: false;');
 			this.cursorEl.setAttribute('raycaster', 'objects: #forcegraph;');
 			//app.dev && this.cursorEl.setAttribute('raycaster', 'objects: #forcegraph; showLine: true;');
 			this.cursorEl.setAttribute('position', '0 0 -0.01');
@@ -3406,12 +3467,16 @@ const app = {
 								//app.dev && console.log('dev --- onLinkClick: ', link);
 							},
 							onNodeHover: node => { 
-								app.dev && console.log('dev --- onNodeHover > node: ', node)
+								//app.dev && console.log('dev --- onNodeHover > node: ', node);
 								app.collectionViewer.tooltip.mouseoverHandler(node);
 							},
 							onNodeClick: node => { 
 								app.dev && console.log('dev --- onNodeClick: ', node);
 								if(node.visibility === 'hidden'){ return; };
+								if(node.id === app.collectionViewer.highlight.focusedNode) {
+									window.location.href = '?m=mv&model=' + node.id;
+									return;
+								}
 								if(document.querySelector('a-camera').components['orbit-controls'].hasUserInput) {return;}
 								document.querySelector('a-camera').setAttribute('camera-focus-target', {target: node, duration: 1200});
 								app.collectionViewer.highlight.onclickHandler(node);
@@ -3715,6 +3780,8 @@ const app = {
 						newHighestDistance = this.data.highestDistance.max;
 						newDesiredCameraPitch = -5;
 					}
+
+					source ? app.collectionViewer.highlight.focusedNode = source.id : app.collectionViewer.highlight.focusedNode = null;
 
 					if(source.type === 'node-object' || source.type === 'node-category' || source.type === 'node-topic' ) {
 						this.highlightModel(source);
