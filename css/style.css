@@ -842,7 +842,8 @@ div.gui-message-container > button.size-control > img.arrow-wide {
   display: block;
   margin: auto;
   width: 100%;
-  height: 1.6rem;
+  height: 1.2rem;
+  margin-top: 10px;
 }
 
 div.gui-message-container.extended > button.size-control > img.arrow-wide {
@@ -860,9 +861,23 @@ div.gui-message > div.close > img.close-icon {
   position: absolute;
   top: 15px;
   right: 15px;
-  float: right;
   width: 16px;
   height: 16px;
+}
+
+div.gui-message > div.back {
+  position: relative;
+  cursor: pointer;
+  z-index: 1;
+}
+
+div.gui-message > div.back > img.back-icon {
+  display: block;
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 20px;
+  height: 20px;
 }
 
 div.gui-message > div.content-container {
@@ -946,6 +961,9 @@ div.gui-message > div.button-container > button.button > img.button-icon {
 
 p.content-text {
   padding: 0px 30px 15px 0px;
+  hyphens: auto;
+  hyphenate-character: "-";
+  hyphenate-limit-chars: 6 3 2;
 }
 
 p.content-text.quote {
@@ -970,17 +988,17 @@ a.content-link:visited {
 }
 
 .content-image {
-  float: right;
-  width: 80%;
-  margin: 15px 15px 15px 30px;
+  width: 90%;
+  min-width: 175px;
+  margin: 15px 15px 15px 10%;
   background-color: #FF7850;
   border-radius: 0px 20px 0px 20px;
+  float: right;
 }
 
 .content-image > .content-image-box {
   display: inline-block;
   width: 100%;
-  height: 100%;
   margin: -15px 0 0 -15px; 
 }
 
@@ -1002,15 +1020,6 @@ a.content-link:visited {
   display: block;
   font-weight: 356;
   white-space: wrap;
-}
-
-img.content-close-icon {
-  display: block;
-  position: absolute;
-  right: 6px;
-  float: right;
-  width: 16px;
-  height: 16px;
 }
 
 
@@ -2314,8 +2323,7 @@ img.help-symbol{
     width: 540px;
   }
 
-  div.content-image, span.content-image {
-    float: right;
+  .content-image {
     width: 40%;
   }
 
@@ -2383,6 +2391,10 @@ img.help-symbol{
     justify-content: initial;
   }
 
+  .content-image {
+    width: 90%;
+  }
+
 }
 
 @media only screen and (min-width: 1024px) and (orientation: landscape) {
@@ -2403,6 +2415,14 @@ img.help-symbol{
   div.gui-message-container.object {
     left: 7.5%;
     margin-bottom: 7.5%;
+  }
+
+}
+
+@media only screen and (min-width: 1600px) and (orientation: landscape) {
+
+  .content-image {
+    width: 40%;
   }
 
 }

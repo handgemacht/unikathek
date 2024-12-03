@@ -187,21 +187,21 @@ const app = {
 					'close': {
 						alt: 'Schließen-Symbol',
 						src: {
-								pearlwhite: filepath + 'hand.gemacht WebApp icon small close pearlwhite.svg',
+							pearlwhite: filepath + 'hand.gemacht WebApp icon small close pearlwhite.svg',
 							coalgrey: filepath + 'hand.gemacht WebApp icon small close coalgrey.svg' 
 						}
 					},
 					'pause': {
 						alt: 'Pause-Symbol',
 						src: {
-								pearlwhite: filepath + 'hand.gemacht WebApp icon small pause pearlwhite.svg',
+							pearlwhite: filepath + 'hand.gemacht WebApp icon small pause pearlwhite.svg',
 							coalgrey: filepath + 'hand.gemacht WebApp icon small pause coalgrey.svg' 
 						}
 					},
 					'play': {
 						alt: 'Abspielen-Symbol',
 						src: {
-								pearlwhite: filepath + 'hand.gemacht WebApp icon small play pearlwhite.svg',
+							pearlwhite: filepath + 'hand.gemacht WebApp icon small play pearlwhite.svg',
 							coalgrey: filepath + 'hand.gemacht WebApp icon small play coalgrey.svg' 
 						}
 					},
@@ -553,6 +553,19 @@ const app = {
 				this.closeEl.icon.height = 100;
 				this.closeEl.icon.setAttribute('loading', 'lazy');
 
+				this.backEl = document.createElement('div');
+				this.element.appendChild(this.backEl);
+				this.backEl.className = 'back';
+
+				this.backEl.icon = document.createElement('img');
+				this.backEl.appendChild(this.backEl.icon);
+				this.backEl.icon.className = 'back-icon';
+				this.backEl.icon.src = app.assets.icon['arrow left'].src.coalgrey;
+				this.backEl.icon.alt = app.assets.icon['arrow left'].alt;
+				this.backEl.icon.width = 100;
+				this.backEl.icon.height = 100;
+				this.backEl.icon.setAttribute('loading', 'lazy');
+
 				this.content.containerEl = document.createElement('div');
 				this.element.appendChild(this.content.containerEl);
 				this.content.containerEl.className = 'content-container';
@@ -684,10 +697,16 @@ const app = {
 			setEventListener() {
 				const self = this;
 
+				if(this.backEl) {
+					this.backEl.addEventListener('click', (evt) => {
+						self.hideMessage(true);
+						app.gui.title.set(app.title);
+					});
+				}
+
 				if(this.closeEl) {
 					this.closeEl.addEventListener('click', (evt) => {
 						self.hideMessage(true);
-						app.gui.title.set(app.title);
 					});
 				}
 
@@ -734,6 +753,7 @@ const app = {
 				}
 
 				Object.keys(message).includes("showClose") ? this.showClose = message.showClose : this.showClose = true;
+				Object.keys(message).includes("showBack") ? this.showBack = message.showBack : this.showBack = false;
 
 				this.type.value && this.type.element.classList.remove('hide');
 				this.type.value === 'Objekt' ? this.containerEl.classList.add('object') : '';
@@ -760,6 +780,8 @@ const app = {
 				this.content.element.innerHTML = this.content.value;
 			
 				!this.showClose && this.closeEl.classList.add('hide');
+
+				!this.showBack && this.backEl.classList.add('hide');
 
 				this.color && this.element.classList.add(this.color);
 
@@ -1875,8 +1897,8 @@ const app = {
 			},
 
 			setEventListener(){
-				if(app.gui.message.closeEl) {
-					app.gui.message.closeEl.addEventListener('click', (evt) => {
+				if(app.gui.message.backEl) {
+					app.gui.message.backEl.addEventListener('click', (evt) => {
 						app.collectionViewer.resetView.resetCameraView();
 					});
 				}
@@ -1986,7 +2008,9 @@ const app = {
 						shadow: 'shadow-' + app.collectionViewer.elementColor.object,
 						buttonSetup: [
 							{ label: 'ansehen', color: app.collectionViewer.elementColor.object, icon: 'arrow right' }
-							]
+							], 
+						showClose: false, 
+						showBack: true
 					}
 
 					app.gui.message.setMessage(message);
@@ -2018,7 +2042,9 @@ const app = {
 						type: 'Kontext',
 						content: categoryContent + objectList,
 						color: 'pearlwhite',
-						shadow: 'shadow-' + app.collectionViewer.elementColor.category
+						shadow: 'shadow-' + app.collectionViewer.elementColor.category,
+						showClose: false, 
+						showBack: true
 					}
 
 					app.gui.message.setMessage(message);
@@ -2046,7 +2072,9 @@ const app = {
 						type: 'Merkmal',
 						content: topicContent + objectList,
 						color: 'pearlwhite',
-						shadow: 'shadow-' + app.collectionViewer.elementColor.topic
+						shadow: 'shadow-' + app.collectionViewer.elementColor.topic,
+						showClose: false, 
+						showBack: true
 					}
 
 					app.gui.message.setMessage(message);
@@ -4907,6 +4935,7 @@ const app = {
 				let contentHTML = '<h3>' + modelJSON.basicData.name + '</h3><p>' + modelJSON.objectData.usageContext + '</p>';
 
 				this.message = {
+					type: 'Objekt-Kontext',
 					content: contentHTML,
 					color: this.messageSetup.colors.background,
 					shadow: this.messageSetup.colors.shadow
@@ -5261,6 +5290,7 @@ const app = {
 					//annotation creation
 
 					this.annotationArray[a].message = {
+						type: 'Annotation',
 						content: app.createHTMLContentFromJSON(annotation.contents),
 						color: this.annotationSetup.colors.messageColor,
 						shadow: this.annotationSetup.colors.messageShadowColor
