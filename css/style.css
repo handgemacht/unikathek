@@ -876,7 +876,7 @@ div.gui-message > div.back > img.back-icon {
   position: absolute;
   top: 15px;
   right: 15px;
-  width: 20px;
+  width: 40px;
   height: 20px;
 }
 
@@ -895,7 +895,7 @@ div.gui-message > div.content-container::-webkit-scrollbar-button:end:decrement 
 }
 
 div.gui-message > div.content-container > div.content {
-  padding-top: 1em;
+  padding-top: 2em;
   text-align: left;
 }
 
@@ -1699,6 +1699,18 @@ div.cv-info-container > button.button.text-small {
 }
 
 
+
+
+/* ---------- object names ---------- */
+
+.object-name {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, 20px);
+  font-size: 0.8rem;
+  pointer-events: none;
+}
 
 
 

@@ -70,6 +70,13 @@ const app = {
 						coalgrey: filepath + 'hand.gemacht WebApp icon arrow left coalgrey.svg' 
 					}
 				},
+				'arrow back': {
+					alt: 'Pfeil zurück',
+					src: {
+						pearlwhite: filepath + 'hand.gemacht WebApp icon arrow back pearlwhite.svg',
+						coalgrey: filepath + 'hand.gemacht WebApp icon arrow back coalgrey.svg' 
+					}
+				},
 				'arrow wide up': {
 					alt: 'Breiter Pfeil nach oben',
 					src: {
@@ -560,8 +567,8 @@ const app = {
 				this.backEl.icon = document.createElement('img');
 				this.backEl.appendChild(this.backEl.icon);
 				this.backEl.icon.className = 'back-icon';
-				this.backEl.icon.src = app.assets.icon['arrow left'].src.coalgrey;
-				this.backEl.icon.alt = app.assets.icon['arrow left'].alt;
+				this.backEl.icon.src = app.assets.icon['arrow back'].src.coalgrey;
+				this.backEl.icon.alt = app.assets.icon['arrow back'].alt;
 				this.backEl.icon.width = 100;
 				this.backEl.icon.height = 100;
 				this.backEl.icon.setAttribute('loading', 'lazy');
@@ -1864,12 +1871,12 @@ const app = {
 
 				this.showTooltip(fgElement.type, fgElement.name, fgElement.id);
 
-				this.pointerStyleHandler(fgElement.type);
-
+				this.pointerStyleHandler(fgElement);
 			},
 
-			pointerStyleHandler(fgType = null, event = null) {
-				fgType === null ? document.querySelector('canvas.a-canvas').style.cursor = 'grab' : '';
+			pointerStyleHandler(fgElement = null, event = null) {
+				fgElement === null ? document.querySelector('canvas.a-canvas').style.cursor = 'grab' : '';
+				
 				if(this.mouseDown){
 					document.querySelector('canvas.a-canvas').style.cursor = 'grabbing';
 					event && event.preventDefault();
@@ -1877,12 +1884,22 @@ const app = {
 					return;
 				}
 
+				if(!fgElement) { return; }
+
+				let fgType = null;
+
+				fgElement ? fgType = fgElement.type : '';
+
 				fgType === 'node-object' ? document.querySelector('canvas.a-canvas').style.cursor = 'pointer' : '';
 				fgType === 'node-category' ? document.querySelector('canvas.a-canvas').style.cursor = 'pointer' : '';
 				fgType === 'node-topic' ? document.querySelector('canvas.a-canvas').style.cursor = 'pointer' : '';
 				fgType === 'link-object' ? document.querySelector('canvas.a-canvas').style.cursor = 'default' : '';
 				fgType === 'link-category' ? document.querySelector('canvas.a-canvas').style.cursor = 'default' : '';
 				fgType === 'link-topic' ? document.querySelector('canvas.a-canvas').style.cursor = 'default' : '';
+
+				if(fgElement.id !== app.collectionViewer.highlight.focusedNode) { return; }
+				if(fgType !== 'node-category' && fgType !== 'node-topic') { return; }
+				document.querySelector('canvas.a-canvas').style.cursor = 'default';
 			}
 		},
 
@@ -3048,11 +3065,6 @@ const app = {
 						this.fgComp = document.querySelector('#forcegraph').getAttribute('forcegraph');
 						this.scaleFactor = this.data.scaleFactor;
 						this.normalization = this.data.normalization;
-						//app.dev && console.log('dev --- scaleFactor: ', this.scaleFactor);
-						//app.dev && console.log('dev --- normalization: ', this.normalization);
-						if(this.nodeModelSet){
-							this.normalizeScale(this.scaleFactor, this.normalization);
-						}
 					},
 
 					tick: function () {
@@ -3061,6 +3073,7 @@ const app = {
 								if((node.type === 'node-category' || node.type === 'node-topic') && node.__threeObj) {
 									this.el.sceneEl.camera.getWorldPosition(this.cameraPos);
 									node.__threeObj.lookAt(this.cameraPos);
+									this.positionObjectNames(node);
 								}
 							}
 						}
@@ -3080,6 +3093,7 @@ const app = {
 							comp.assignModelsToNodes();	
 							comp.assignMaterialToLinks();
 							comp.normalizeScale(this.scaleFactor, this.normalization);
+							comp.setObjectNames(comp.fgComp.nodes);
 							document.querySelector('#forcegraph').setAttribute('highlight', {noUpdate: false});
 							let event = new Event('load-json-models-ready');
 							document.querySelector('a-scene').dispatchEvent(event);
@@ -3110,7 +3124,7 @@ const app = {
 						this.imgTopic.crossOrigin = 'anonymous';
 						this.imgTopic.src = app.assets.cv.marker['topic'].src;
 						this.el.sceneEl.querySelector('a-assets').appendChild(this.imgTopic);
-						
+
 						//create category model 
 						this.categoryModelEl = document.createElement('a-entity');
 						this.categoryModelEl.setAttribute('id', 'category-model');
@@ -3502,6 +3516,7 @@ const app = {
 								app.dev && console.log('dev --- onNodeClick: ', node);
 								if(node.visibility === 'hidden'){ return; };
 								if(node.id === app.collectionViewer.highlight.focusedNode) {
+									if(node.type !== 'node-object' && node.type !== 'node-topic'){ return; }
 									window.location.href = '?m=mv&model=' + node.id;
 									return;
 								}
@@ -3681,6 +3696,75 @@ const app = {
 						}
 
 						app.dev && console.log(`dev --- normalizeScale > \nsizeLog: `, sizeLog);
+					}, 
+
+					setObjectNames(nodes){
+						if(typeof nodes === 'undefined'){ return; };
+
+						let container = document.querySelector('#objectNamesContainer');
+
+						if(!container) {
+							container = document.createElement('div');
+							container.setAttribute('id', 'objectNamesContainer');
+							document.body.appendChild(container);
+						}
+
+						container.innerHTML = '';
+
+						for(let node of nodes){
+							if(node.type !== 'node-category' && node.type !== 'node-topic'){ return; }
+							let objectNameEl = document.createElement('div');
+							objectNameEl.setAttribute('id', node.id);
+							objectNameEl.className = 'object-name hide';
+							container.appendChild(objectNameEl);
+							objectNameEl.appendChild(document.createTextNode(node.name))
+							node.type === 'node-category' ? objectNameEl.classList.add('text-' + app.collectionViewer.elementColor.category) : objectNameEl.classList.add('text-' + app.collectionViewer.elementColor.topic);
+						}
+					},
+
+					positionObjectNames(node){
+
+						const mapToRange = (number, [inputMinRange, inputMaxRange], [outputMinRange, outputMaxRange]) => {
+							let output = (number - inputMinRange) / (inputMaxRange - inputMinRange) * (outputMaxRange - outputMinRange) + outputMinRange;
+							output > 1 ? output = 1 : '';
+							output < 0 ? output = 0 : '';
+							return output;
+						}
+
+						const container = document.querySelector('#objectNamesContainer');
+						const camera = document.querySelector('a-camera').object3D;
+						const threeCamera = document.querySelector('a-camera').components['camera'].camera;
+						if(!container || !threeCamera) { return; }
+
+						for(let element of container.children){
+							let elementId = element.getAttribute('id');
+							if(elementId === node.id){
+								element.classList.add('hide');
+								app.dev && console.log('dev --- positionObjectNames > node.visibility: ', node.visibility)
+								if(node.visibility === 'hidden'){ continue; };
+
+								const nodeObject = node.__threeObj;
+								const width = window.innerWidth;
+								const height = window.innerHeight;
+								const widthHalf = width / 2;
+								const heightHalf = height / 2;
+
+								const vector = new THREE.Vector3();
+								vector.copy(nodeObject.position);
+								vector.project(threeCamera);
+
+								vector.x = ( vector.x * widthHalf ) + widthHalf;
+								vector.y = - ( vector.y * heightHalf ) + heightHalf;
+
+								element.style.top = vector.y + 'px';
+								element.style.left = vector.x + 'px';
+
+								const meshDistance = camera.position.distanceTo(nodeObject.position);
+								const opacity = mapToRange(meshDistance, [250,150], [0,1]);
+								element.style.opacity = opacity;
+								element.classList.remove('hide');
+							}
+						}
 					}
 			});
 			//END A-Frame load-json-objects
