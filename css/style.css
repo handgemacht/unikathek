@@ -911,7 +911,7 @@ div.gui-message > div.content-container > div.content > h3 {
 }
 
 div.gui-message > div.content-container > div.content > ul, p {
-    font-size: 1.1em;
+    font-size: 1.0em;
 }
 
 div.gui-message > div.button-container {
@@ -1602,6 +1602,7 @@ input.cv-search-input {
   border: none;
   background-color: transparent;
   padding: 0 20px 0 10px;
+  user-select: initial;
 }
 
 input.cv-search-input:focus {
@@ -1710,6 +1711,7 @@ div.cv-info-container > button.button.text-small {
   transform: translate(-50%, 20px);
   font-size: 0.8rem;
   pointer-events: none;
+  white-space: nowrap;
 }
 
 

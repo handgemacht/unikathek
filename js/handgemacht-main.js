@@ -304,14 +304,14 @@ const app = {
 		if (this.viewerMode === 'cv') {
 			this.collectionViewer.init();
 			this.gui.title.init();
-			this.gui.loadingScreen.showLoadingScreen('loading collection viewer');
+			this.gui.loadingScreen.showLoadingScreen('Unikathek wird geladen');
 		}
 
 		if (this.viewerMode === 'mv') {
 			this.modelViewer.init();
 			this.arViewer.registerComponents();
 			this.gui.title.init();
-			this.gui.loadingScreen.showLoadingScreen('loading model viewer');
+			this.gui.loadingScreen.showLoadingScreen('Modelviewer wird geladen');
 		}
 
 		this.gui.setupCollapsibles();
@@ -629,7 +629,7 @@ const app = {
 				this.containerEl.classList.remove('hide');
 
 				//auto extend message
-				if(this.content.containerEl.offsetHeight*1.5 < this.content.element.offsetHeight) {
+				if(this.content.containerEl.offsetHeight*1.5 < this.content.element.offsetHeight && app.isMobile === false) {
 					this.containerEl.classList.add('extended');
 					this.sizeControlEl.setAttribute('data-extended', true);
 				}
@@ -1550,7 +1550,7 @@ const app = {
 								icon: ''
 							},
 							{
-								label: 'ausprobieren',
+								label: 'weiter',
 								color: 'coalgrey',
 								icon: 'arrow right'
 							}
@@ -1569,15 +1569,7 @@ const app = {
 								"type" : "headline"
 							},
 							{
-								"content" : "Sammlungsansicht",
-								"fileCopyright" : "",
-								"filename" : "",
-								"imageAlt" : "",
-								"imageCaption" : "",
-								"type" : "subheadline"
-							},
-							{
-								"content" : "Die Sammlungsansicht zeigt wie unsere Objekte untereinander verknüpft sind. Durch Kontexte <span class='icon skyblue'><img src='" + app.assets.icon['category'].src.pearlwhite + "' alt='" + app.assets.icon['category'].alt + "'></span>, Merkmale <span class='icon terracotta'><img src='" + app.assets.icon['topic'].src.pearlwhite + "' alt='" + app.assets.icon['topic'].alt + "'></span> und Tags <span class='icon duckyellow'><img src='" + app.assets.icon['tag'].src.coalgrey + "' alt='" + app.assets.icon['tag'].alt + "'></span> <span class='icon smokegrey'><img src='" + app.assets.icon['tag'].src.pearlwhite + "' alt='" + app.assets.icon['tag'].alt + "'></span> entsteht so ein Netzwerk aus Deutungen und Gemeinsamkeiten. Ähnliche Gegenstände ziehen sich durch die Verbindungen an und schaffen so räumliche Gruppierungen.",
+								"content" : "Die Objekte in unserer Sammlung haben zwei Gemeinsamkeiten: Sie sind selbstgemacht – und sie haben Beziehungen zur Oberpfalz. Doch was können uns die handgemachten Oberpfälzer Gegenstände über die Region und die Menschen hier erzählen? Was vereint die Unikate? Was trennt sie? Das kannst du in der Unikathek herausfinden.",
 								"fileCopyright" : "",
 								"filename" : "",
 								"imageAlt" : "",
@@ -1585,7 +1577,61 @@ const app = {
 								"type" : "paragraph"
 							},
 							{
-								"content" : "Hier kannst du die aus unserer Forschung heraus entstandenen Merkmale und Kontexte entdecken, durchsuchen, oder natürlich jedes Objekt für sich unter die Lupe nehmen.",
+								"content" : "<strong>Die blauen Felder</strong> (Kontexte <span class='icon skyblue'><img src='" + app.assets.icon['category'].src.pearlwhite + "' alt='" + app.assets.icon['category'].alt + "'></span>) fassen zusammen, zu welchen Zwecken und vor welchen Hintergründen die Einzelstücke hergestellt und verwendet worden sind – und werden.<br> <strong>Die roten Felder</strong> (Merkmale <span class='icon terracotta'><img src='" + app.assets.icon['topic'].src.pearlwhite + "' alt='" + app.assets.icon['topic'].alt + "'></span>) veranschaulichen dagegen, welche Eigenschaften speziell die handgemachten Oberpfälzer Gegenstände besitzen. Dabei kann es sich sowohl um Motivationen als auch um Effekte des Selbermachens handeln.<br> <strong>Die grauen Linien</strong> (Herstellungs-Tags <span class='icon smokegrey'><img src='" + app.assets.icon['tag'].src.pearlwhite + "' alt='" + app.assets.icon['tag'].alt + "'></span>) geben Hinweise auf verwendete Materialien und Herstellungstechniken, während <strong>die gelben Linien</strong> (Themen-Tags <span class='icon duckyellow'><img src='" + app.assets.icon['tag'].src.coalgrey + "' alt='" + app.assets.icon['tag'].alt + "'></span>) spezifische Kontexte anzeigen.",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "paragraph"
+							},
+							{
+								"content" : "Übrigens: Je mehr die Gegenstände gemeinsam haben, desto näher stehen sie sich auch in unserer interaktiven Sammlungsansicht!",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "paragraph"
+							},
+							{
+								"content" : "In der Unikathek kannst du freilich nicht nur die Zusammenhänge zwischen einzelnen Objekten entdecken, sondern auch die individuelle Geschichte eines jeden Gegenstandes unter die Lupe nehmen.",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "paragraph"
+							}
+						]
+					}, 
+					tools: {
+						type: 'message',
+						buttons: [
+							{
+								label: 'zurück',
+								color: 'smokegrey',
+								icon: ''
+							},
+							{
+								label: 'ausprobieren',
+								color: 'coalgrey',
+								icon: 'arrow right'
+							}
+						],
+						options: {
+							extended: true,
+							sizeControl: false
+						},
+						content: [
+							{
+								"content" : "Durch die Unikathek navigieren",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"iconBackgroundColor" : "",
+								"imageCaption" : "",
+								"type" : "headline"
+							},
+							{
+								"content" : "<strong>Bewegung</strong>: Klicken/Tippen und eine Zieh-Bewegung drehen die Ansicht um den Fokuspunkt in der Mitte des Bildschirms herum. Gerade ist die gesamte Unikathek im Fokus.<br> <strong>Zoom</strong>: Mit dem Mausrad oder entsprechenden Gesten auf Trackpads oder mobilen Geräten kann die Ansicht näher heran oder weiter weg vom Fokuspunkt gesetzt werden.<br> <strong>Fokussieren</strong>: Um einen Gegenstand, ein Merkmal oder einen Kontext in den Fokus zu nehmen tippe oder klicke ihn einfach an. ",
 								"fileCopyright" : "",
 								"filename" : "",
 								"imageAlt" : "",
@@ -1599,6 +1645,14 @@ const app = {
 								"imageAlt" : "",
 								"imageCaption" : "",
 								"type" : "headline"
+							},
+							{
+								"content" : "Die Werkzeuge am unteren Bildschirmrand verändern die Anordnung und das Aussehen der Unikathek. Mit ihnen kannst du sie deinen Wünschen und Interessen nach anpassen oder durchsuchen.",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "paragraph"
 							},
 							{
 								"content" : "Suche",
@@ -1618,7 +1672,7 @@ const app = {
 								"type" : "paragraph"
 							},
 							{
-								"content" : "Filter",
+								"content" : "Filter und Einstellungen",
 								"fileCopyright" : "",
 								"filename" : app.assets.icon['filter'].src.coalgrey,
 								"imageAlt" : app.assets.icon['filter'].alt,
@@ -1652,10 +1706,6 @@ const app = {
 								"type" : "paragraph"
 							}
 						]
-					}, 
-					object: {
-						type: 'excercise',
-						content: 'Klicke auf ein Objekt in der Sammlung'
 					}
 				}
 			},
@@ -1693,6 +1743,22 @@ const app = {
 					app.gui.message.buttons.button[0].element.addEventListener('click', (e) => {
 						app.gui.message.hideMessage(true);
 						this.show('start');
+					}, { signal: app.gui.message.abortController.signal });
+
+					app.gui.message.buttons.button[1].element.addEventListener('click', (e) => {
+						app.gui.message.hideMessage(true);
+						this.show('tools');
+					}, { signal: app.gui.message.abortController.signal });
+					return;
+				}
+
+				if(step === 'tools') {
+					app.gui.message.setMessage(this.onboardingMessage);
+					app.gui.toolbar.toggleToolbar(true);
+
+					app.gui.message.buttons.button[0].element.addEventListener('click', (e) => {
+						app.gui.message.hideMessage(true);
+						this.show('collection');
 					}, { signal: app.gui.message.abortController.signal });
 
 					app.gui.message.buttons.button[1].element.addEventListener('click', (e) => {
@@ -1879,8 +1945,8 @@ const app = {
 				
 				if(this.mouseDown){
 					document.querySelector('canvas.a-canvas').style.cursor = 'grabbing';
-					event && event.preventDefault();
-					event && event.stopPropagation();
+					//event && event.preventDefault();
+					//event && event.stopPropagation();
 					return;
 				}
 
@@ -2194,7 +2260,7 @@ const app = {
 
 			texts: {
 				title: 'Sammlung',
-				intro: 'Detailierte und nützliche Informationen zur Sammlung und Erhebung. '
+				intro: 'Informationen zur Sammlung und Erhebung. '
 			},
 
 			collectionData: {
@@ -2483,9 +2549,9 @@ const app = {
 			}, 
 
 			resetSearchInput() {
-				window.setTimeout( () => {
+				window.setTimeout( (e) => {
 					app.collectionViewer.search.inputEl.focus({ focusVisible: true });
-				}, 10)
+				}, 100)
 				this.button.input.element.value = null;
 				this.removeAutoCompleteList();
 			}, 
@@ -2547,7 +2613,7 @@ const app = {
 				},
 				filter: {
 					title: 'Filter',
-					description: 'Die Unikathek besteht aus vielen Objekten, Kontexten, Merkmalen und den entsprechenden Verbindungen, die sich aus ihnen ergeben. Hier kannst du einzelne Elemente ein- bzw. ausblenden um die Unikathek deinen Interessen nach zu filtern. ',
+					description: 'Die Unikathek versammelt Objekte, die aus verschiedenen Kontexten stammen und unterschiedliche Merkmale aufweisen. Daraus ergeben sich vielfältige Verbindungen. Hier kannst du einzelne Elemente ein- oder ausblenden, um die Unikathek nach deinen Interessen zu filtern. ',
 					categoriesButton: 'Kontexte',
 					topicsButton: 'Merkmale',
 					tagsButton: 'Themen-Tags',
@@ -3740,7 +3806,7 @@ const app = {
 							let elementId = element.getAttribute('id');
 							if(elementId === node.id){
 								element.classList.add('hide');
-								app.dev && console.log('dev --- positionObjectNames > node.visibility: ', node.visibility)
+								//app.dev && console.log('dev --- positionObjectNames > node.visibility: ', node.visibility)
 								if(node.visibility === 'hidden'){ continue; };
 
 								const nodeObject = node.__threeObj;
@@ -3763,6 +3829,9 @@ const app = {
 								const opacity = mapToRange(meshDistance, [250,150], [0,1]);
 								element.style.opacity = opacity;
 								element.classList.remove('hide');
+
+								const scale = mapToRange(opacity, [0, 1], [0.6, 1]);
+								element.style.scale = scale;
 							}
 						}
 					}
@@ -3908,11 +3977,7 @@ const app = {
 
 					newDistance = this.camera.position.distanceTo(newTarget);
 
-					if(screen.orientation.type === 'landscape-primary') {
-						newDesiredDistance = newHighestDistance * (2 * (newHighestDistance / window.innerWidth)) + newHighestDistance;
-					}else{
-						newDesiredDistance = newHighestDistance * (5 * (newHighestDistance / window.innerWidth)) + newHighestDistance;
-					}
+					newDesiredDistance = newHighestDistance * (2 * (newHighestDistance / window.innerWidth)) + newHighestDistance;
 
 					const distanceLog = {
 						newDistance: newDistance,
@@ -4180,6 +4245,13 @@ const app = {
 
 					if(this.data.desiredDistance){
 						this.desiredDistance = this.data.desiredDistance;
+
+						//app.dev && console.log('dev --- orbit-controls > screen.orientation: ', screen.orientation.type);
+						if(screen.orientation.type === 'portrait-primary'){
+							this.desiredDistance = this.desiredDistance * 1.5;
+						}
+						//app.dev && console.log('dev --- orbit-controls > this.distance: ', this.desiredDistance);
+
 						this.data.desiredDistance = null;
 					}
 					
@@ -5297,7 +5369,7 @@ const app = {
 				if(app.isMobile && app.isARCapable) {
 					buttonEl.setAttribute('data-webxr', false);
 					buttonEl.addEventListener('click', (e) => {
-						app.gui.loadingScreen.showLoadingScreen('loading augmented reality');
+						app.gui.loadingScreen.showLoadingScreen('Augmented Reality wird geladen');
 						modelViewer.activateAR();
 						//hide loading screen with 10s delay
 						app.gui.loadingScreen.hideLoadingScreen(10000);
@@ -5436,6 +5508,7 @@ const app = {
 				app.isARCapable = app.modelViewer.checkARSupport();
 				app.modelViewer.ar.setARButton();
 				app.gui.loadingScreen.hideLoadingScreen();
+				app.modelViewer.contextStory.setContextStory()
 			});
 		},
 
@@ -5459,7 +5532,7 @@ const app = {
 		loadModel(modelJSON) {
 			const modelViewer = this.element;
 			//set title
-			app.gui.title.set(modelJSON.basicData.name, true, modelJSON.primaryKey)
+			app.gui.title.set('Modelviewer / ' + modelJSON.basicData.name, true, modelJSON.primaryKey)
 
 			//set modelViewer data
 			app.hideGUI ? modelViewer.src = app.filepaths.files + modelJSON.appData.model.quality1k : modelViewer.src = app.filepaths.files + modelJSON.appData.model.quality2k;
@@ -9025,6 +9098,14 @@ const app = {
 
 		//handle from parameter
 		(this.viewerMode === 'cv' && node) ? this.collectionViewer.node = node : '';
+
+		//reset URL with pushState if node is set
+		let url = '?m=' + this.viewerMode;
+		this.dev ? url += '&dev=true' : '';
+		this.stats ? url += '&stats=true' : '';
+		this.hideGUI ? url += '&gui=false' : '';
+		this.embedded ? url += '&embedded=true' : '';
+		(this.viewerMode === 'cv' && node) ? window.history.pushState(null, null, url) : '';
 	}, 
 
 	handleLocalStorage() {
