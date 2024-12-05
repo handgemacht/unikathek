@@ -321,7 +321,7 @@ const app = {
 			
 		init() {
 			this.logo.init();
-			this.version.init();
+			//this.version.init();
 			this.loadingScreen.init();
 			this.message.init();
 			this.error.init();
@@ -2104,10 +2104,10 @@ const app = {
 				}
 
 				if(type === 'node-category'){
-					let objectList = '<div class="objects"><h6 class="text-smokegrey">Verbundene Objekte: </h6>';
+					let objectList = '';
 					for(let node of app.collectionViewer.proxyfgData.data.nodes) {
 						if(!node.categories.includes(fgNode.name) || node.type === 'node-category'){ continue; }
-						let pillId = 'c-' + self.crypto.randomUUID();;
+						let pillId = 'object-' + self.crypto.randomUUID();;
 						objectList += '<div id="' + pillId +'" '
 										+ 'class="pill shadow-' + app.collectionViewer.elementColor.object + ' text-coalgrey" '
 										+ 'data-model-id="' + fgNode.id +'" '
@@ -2117,6 +2117,10 @@ const app = {
 										+ node.name
 										+ '</div>';
 						this.pillArray.push('#'+pillId);
+					}
+
+					if(objectList !== '') {
+						objectList = '<div class="pill-container objects"><h6 class="text-smokegrey">Verbundene Objekte: </h6>' + objectList + '</div>';
 					}
 
 					let categoryContent = app.createHTMLContentFromJSON(fgNode.contents);
@@ -2134,10 +2138,10 @@ const app = {
 				}
 
 				if(type === 'node-topic'){
-					let objectList = '<div class="objects"><h6 class="text-smokegrey">Verbundene Objekte: </h6>';
+					let objectList = '';
 					for(let node of app.collectionViewer.proxyfgData.data.nodes) {
 						if(!node.topics.includes(fgNode.name) || node.type === 'node-topic'){ continue; }
-						let pillId = 'c-' + self.crypto.randomUUID();;
+						let pillId = 'object-' + self.crypto.randomUUID();;
 						objectList += '<div id="' + pillId +'" '
 										+ 'class="pill shadow-' + app.collectionViewer.elementColor.object + ' text-coalgrey" '
 										+ 'data-model-id="' + fgNode.id +'" '
@@ -2147,6 +2151,10 @@ const app = {
 										+ node.name
 										+ '</div>';
 						this.pillArray.push('#'+pillId);
+					}
+
+					if(objectList !== '') {
+						objectList = '<div class="pill-container objects"><h6 class="text-smokegrey">Verbundene Objekte: </h6>' + objectList + '</div>';
 					}
 					
 					let topicContent = app.createHTMLContentFromJSON(fgNode.contents)
@@ -4067,7 +4075,7 @@ const app = {
 					}
 				}, 
 
-				highlightModel: function (sourceNode) {
+				highlightModel: function (sourceNode, focusTarget = null) {
 					let fgComp = this.fgComp;
 					let distance = 0;
 
@@ -4081,6 +4089,8 @@ const app = {
 								link.material.visible = true;
 								modelArray.push(link.source.id);
 								modelArray.push(link.target.id);
+							}else if(link.source.name === focusTarget){
+								app.dev && console.log('dev --- highlightModel > link to focusTarget? ', modelArray.includes(link.target.id))
 							}else{
 								link.visibility = 'hidden';
 								link.material.visible = false;
@@ -4157,19 +4167,21 @@ const app = {
 
 					this.highlightLinks(pill);
 
+					//highlight pill target model
 					if (type === 'category' || type === 'object' || type === 'topic') {
 						for(let node of fgComp.nodes){
 							if ((node.type === 'node-category' || node.type === 'node-object' || node.type === 'node-topic') && node.name === name) {
-								this.highlightModel(node);
+								this.highlightModel(node, pill.id);
 								return;
 							}
 						}
 					}
 
+					//highlight pill target links
 					if (type === 'tag' || type === 'productionTag') {
 						for(let link of fgComp.links){
 							if ((link.type === 'link-tag' || link.type === 'link-productionTag') && link.name === name) {
-								this.highlightLinks(link);
+								this.highlightLinks(link, pill.id);
 								return;
 							}
 						}
@@ -5508,7 +5520,7 @@ const app = {
 				app.isARCapable = app.modelViewer.checkARSupport();
 				app.modelViewer.ar.setARButton();
 				app.gui.loadingScreen.hideLoadingScreen();
-				app.modelViewer.contextStory.setContextStory()
+				app.modelViewer.contextStory.setContextStory();
 			});
 		},
 
