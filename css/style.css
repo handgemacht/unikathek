@@ -636,39 +636,39 @@ div.arrow.left.coalgrey {
 div.gui-title-container {
   display: flex;
   position: fixed;
+  max-width: 70%;
   top: 12px;
   left: 20px;
   margin: 0;
   padding: 0;
+  cursor: pointer;
   z-index: 6;
 }
 
-div.gui-title-container.clickable {
-  cursor: pointer;
-  z-index: 2;
-}
-
 div.gui-title-container > h1.title {
-  display: inline;
+  display: inline-block;
+  font-size: 1.2em;
+  line-height: 1.25em;
   position: relative;
   align-self: center;
-  margin-block: 0;
 }
 
-div.gui-title-container > div.arrow {
-  display: inline;
-  width: auto;
-  height: auto;
-  top: initial;
+div.gui-title-container > * > div.arrow {
+  top: 0.15em;
+  width: 1.0em;
+  height: 1.0em;
 }
 
-div.gui-title-container > div.arrow > img.icon {
+div.gui-title-container > * > div.arrow > img.icon {
   position: relative;
   display: block;
-  width: 2.25em;
-  height: 2.25em;
+  width: 100%;
+  height: 100%;
   aspect-ratio: auto;
-  z-index: 1;
+}
+
+div.gui-title-container:hover > * > div.arrow:last-of-type > img.icon {
+  transform: rotate(180deg);
 }
 
 
@@ -781,8 +781,8 @@ div.gui-message-container {
   display: block;
   position: relative;
   width: 100%;
-  height: 50%;
-  top: 20%;
+  height: 35%;
+  top: 30%;
   margin: 0;
   pointer-events: none;
   z-index: 4;
@@ -799,7 +799,7 @@ div.gui-message {
 
 div.gui-message-container.object{
   width: 90%;
-  height: 40%;
+  height: 30%;
 }
 
 div.gui-message-container.object.extended{
@@ -807,15 +807,15 @@ div.gui-message-container.object.extended{
 }
 
 div.gui-message-container.extended {
-  top: 0;
-  height: 90%;
+  top: 5%;
+  height: 85%;
 }
 
 div.gui-message-container > div.type {
   display: inline-block;
   position: relative;
-  height: 1.6rem;
-  padding: 2px 15px 1px 12px;
+  height: 2em;
+  padding: 4px 15px 0px 12px;
   border-radius: 0px 10px 0px 0px;
   border: none;
   box-shadow: none;
@@ -830,9 +830,8 @@ div.gui-message-container > button.size-control {
   position: absolute;
   left: 0;
   width: 100%;
-  height: 1.6rem;
+  height: 2em;
   padding: 0;
-  background-color: transparent;
   border: none;
   box-shadow: none;
   pointer-events: all;
@@ -841,13 +840,15 @@ div.gui-message-container > button.size-control {
 div.gui-message-container > button.size-control > img.arrow-wide {
   display: block;
   margin: auto;
-  width: 100%;
-  height: 1.2rem;
-  margin-top: 10px;
+  border-radius: 5px 5px 0 0;
+  background-color: rgba(250, 240, 230, 0.6);
+  width: 3em;
+  height: 1.2em;
 }
 
 div.gui-message-container.extended > button.size-control > img.arrow-wide {
-  transform: rotate(180deg);  
+  transform: rotate(180deg); 
+  border-radius: 0 0 5px 5px; 
 }
 
 div.gui-message > div.close {
@@ -990,7 +991,7 @@ a.content-link:visited {
 .content-image {
   width: 90%;
   min-width: 175px;
-  margin: 15px 15px 15px 10%;
+  margin: 15px 15px 60px 10%;
   background-color: #FF7850;
   border-radius: 0px 20px 0px 20px;
   float: right;
@@ -1020,6 +1021,10 @@ a.content-link:visited {
   display: block;
   font-weight: 356;
   white-space: wrap;
+}
+
+.content-footer {
+  visibility: hidden;
 }
 
 
@@ -1129,12 +1134,12 @@ div.gui-menu-container {
   color: #FAF0E6;
   border-radius: 0px 20px 0px 20px;
   overflow: hidden;
-  z-index: 6;
+  z-index: 7;
 }
 
 div.gui-menu-container > div.close {
   position: relative;
-  z-index: 6;
+  z-index: 7;
 }
 
 div.gui-menu-container > div.close > img.close-icon {
@@ -1477,7 +1482,7 @@ div.cv-tooltip > div.content {
 }
 
 div.cv-tooltip.cta > div.content {
-  font-size: 1rem;
+  font-size: 1em;
   font-weight: 700;
   padding: 3px 15px 5px 15px;
 }
@@ -1518,6 +1523,47 @@ img.cv-highlight-arrow {
   transform: translateY(3px);
   width: 20px;
   height: 20px;
+}
+
+
+
+
+/* ---------- highlight marker ---------- */
+
+div.cv-highlight-marker-container {
+
+}
+
+div.cv-highlight-marker {
+  position: absolute;
+  top: 0;
+  left: 0; 
+  width: 7em;
+  height: 7em;
+  opacity: 0.2;
+  transform-origin: center;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+div.cv-highlight-marker > .bracket {
+  position: relative;
+  width: 30%;
+  height: 30%;
+  border: 3px solid #41403F;
+  border-radius: 20px 0;
+}
+
+div.cv-highlight-marker > .bracket.upper {
+  border-right: none;
+  border-bottom: none;
+}
+
+div.cv-highlight-marker > .bracket.lower {
+  top: 40%;
+  left: 70%;
+  border-top: none;
+  border-left: none;
 }
 
 
@@ -1633,7 +1679,7 @@ div.autocomplete-list-container > div.autocomplete-list > div.disabled {
 }
 
 div.autocomplete-list-container > div.autocomplete-list > div.autocomplete-active {
-  font-size: 1.1rem;
+  font-size: 1.1em;
   font-weight: 700;
   margin-left: 5px;
 }
@@ -1702,14 +1748,14 @@ div.cv-info-container > button.button.text-small {
 
 
 
-/* ---------- object names ---------- */
+/* ---------- object-names ---------- */
 
 .object-name {
   position: absolute;
   top: 0;
   left: 0;
   transform: translate(-50%, 20px);
-  font-size: 0.8rem;
+  font-size: 0.8em;
   pointer-events: none;
   white-space: nowrap;
 }
@@ -2329,15 +2375,16 @@ img.help-symbol{
 /* medium  */
 @media only screen and (min-width: 768px) {
 
-  body {
+  html {
     font-size: 1.0em;
   }
+
 
   div.gui-message-container {
     width: 540px;
   }
 
-  .content-image {
+  .content-image.in-paragraph {
     width: 40%;
   }
 
@@ -2346,7 +2393,7 @@ img.help-symbol{
 /* large  */
 @media only screen and (min-width: 1024px) {
 
-  body {
+  html {
     font-size: 1.0em;
   }
 
@@ -2364,6 +2411,10 @@ img.help-symbol{
     right: 20px;
     left: initial;
     transform: none;
+  }
+
+  div.gui-title-container > h1.title {
+    font-size: 1.6em;
   }
 
   div.annotation {
@@ -2435,7 +2486,7 @@ img.help-symbol{
 
 @media only screen and (min-width: 1600px) and (orientation: landscape) {
 
-  .content-image {
+  .content-image.in-paragraph {
     width: 40%;
   }
 

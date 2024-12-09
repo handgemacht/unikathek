@@ -5,7 +5,7 @@
 //START app 
 const app = {
 	title: 'Unikathek',
-	version: 'beta 1.4 24/12/05',
+	version: 'beta 1.5 24/12/09',
 	dev: false,
 	stats: false,
 	viewerMode: false,
@@ -342,9 +342,8 @@ const app = {
 				document.body.appendChild(this.containerEl);
 				this.containerEl.className = 'gui-title-container';
 
-				this.arrowEl = document.createElement('div');
-				this.containerEl.appendChild(this.arrowEl);
-				this.arrowEl.className = 'arrow hide';
+				this.arrowEl = document.createElement('span');
+				this.arrowEl.className = 'arrow';
 
 				this.arrowEl.icon = document.createElement('img');
 				this.arrowEl.appendChild(this.arrowEl.icon);
@@ -360,27 +359,33 @@ const app = {
 				this.element.className = 'title';
 			}, 
 
-			set(title = app.title, showArrow = false, node = null, breadcrumb = null, breadcrumbType = null, customURL = null) {
+			set(breadcrumb = null, breadcrumbType = null, nodeId = null, modelViewer = false) {
 				let url = '?m=cv';
 				
-				if(node){
-					node = '&node=' + node;
-					url += node;
+				if(nodeId){
+					nodeId = '&node=' + nodeId;
+					url += nodeId;
 				}
 
-				customURL ? url = customURL : '';
+				this.element.innerHTML = '<span>' + app.title + '</span>';
 
-				this.element.innerHTML = '<span>' + title + '</span>';
-				breadcrumb ? this.element.innerHTML += ' <span>/</span> ' + '<span>' + breadcrumb + '</span>' : '';
+				if(breadcrumb) {
+					this.element.innerHTML += '<div class="arrow"><img class="icon" src="' + app.assets.icon['arrow right'].src.coalgrey + '" alt="' + app.assets.icon['arrow right'].alt + '" width="100" height="100" loading="lazy"></div>'
+					this.element.innerHTML += '<span>' + breadcrumb + '</span>';
+				}
+
+				if(modelViewer) {
+					this.element.innerHTML += '<div class="arrow"><img class="icon" src="' + app.assets.icon['arrow right'].src.coalgrey + '" alt="' + app.assets.icon['arrow right'].alt + '" width="100" height="100" loading="lazy"></div>'
+					this.element.innerHTML += '<span>Modelviewer</span>';
+				}
+
 				this.containerEl.className = 'gui-title-container';
-				this.arrowEl.className = 'arrow hide';
 
-				showArrow && this.arrowEl.classList.remove('hide');
 				this.containerEl.classList.add('clickable');
 
 				this.containerEl.setAttribute('data-url', url);
+				this.containerEl.removeEventListener('click', app.gui.title.titleClickHandler);
 				this.containerEl.addEventListener('click', app.gui.title.titleClickHandler);
-
 			}, 
 
 			titleClickHandler() {
@@ -392,7 +397,7 @@ const app = {
 				if(app.collectionViewer.highlight.focusedNode) {
 					app.collectionViewer.resetView.resetCameraView();
 					app.gui.message.hideMessage(true);
-					app.gui.title.set(app.title);
+					app.gui.title.set();
 				}else{
 					window.location.href = url;
 				}
@@ -707,7 +712,7 @@ const app = {
 				if(this.backEl) {
 					this.backEl.addEventListener('click', (evt) => {
 						self.hideMessage(true);
-						app.gui.title.set(app.title);
+						app.gui.title.set();
 					});
 				}
 
@@ -785,7 +790,9 @@ const app = {
 				this.type.element.innerHTML = this.type.value;
 
 				this.content.element.innerHTML = this.content.value;
-			
+
+				this.content.element.innerHTML += '<div class="content-footer">footer</div>';
+
 				!this.showClose && this.closeEl.classList.add('hide');
 
 				!this.showBack && this.backEl.classList.add('hide');
@@ -1994,7 +2001,7 @@ const app = {
 				if(type !== 'none'){
 					app.gui.message.hideMessage(true);
 					if(!fgNode.model.material.visible) {return;}
-					app.gui.title.set(app.title, false, null, fgNode.name);
+					app.gui.title.set(fgNode.name, fgNode.type);
 					app.collectionViewer.highlight.generateMessage(fgNode);
 				}
 			}, 
@@ -3267,7 +3274,7 @@ const app = {
 											gltf.scene.visible = false;
 											scene.add( gltf.scene );
 										}, (xhr) =>{ 
-											//app.dev && console.log( ( 'dev --- load model: ' + object.name + ' - ' + xhr.loaded / xhr.total * 100 ) + '% loaded' );
+											app.dev && console.log( ( 'dev --- load model: ' + object.name + ' - ' + xhr.loaded / xhr.total * 100 ) + '% loaded' );
 										}, (error) => {		
 											console.log( 'An error happened: ', error );
 										});
@@ -3589,12 +3596,13 @@ const app = {
 							onNodeClick: node => { 
 								app.dev && console.log('dev --- onNodeClick: ', node);
 								if(node.visibility === 'hidden'){ return; };
-								if(node.id === app.collectionViewer.highlight.focusedNode) {
-									if(node.type !== 'node-object' && node.type !== 'node-topic'){ return; }
-									window.location.href = '?m=mv&model=' + node.id;
-									return;
-								}
 								if(document.querySelector('a-camera').components['orbit-controls'].hasUserInput) {return;}
+								if(node.id === app.collectionViewer.highlight.focusedNode) {
+									if(node.type === 'node-object'){
+										window.location.href = '?m=mv&model=' + node.id;
+										return;
+									}
+								}								
 								document.querySelector('a-camera').setAttribute('camera-focus-target', {target: node, duration: 1200});
 								app.collectionViewer.highlight.onclickHandler(node);
 								forcegraphEntity.setAttribute('highlight', {source: node});
@@ -3775,11 +3783,11 @@ const app = {
 					setObjectNames(nodes){
 						if(typeof nodes === 'undefined'){ return; };
 
-						let container = document.querySelector('#objectNamesContainer');
+						let container = document.querySelector('.cv-object-names-container');
 
 						if(!container) {
 							container = document.createElement('div');
-							container.setAttribute('id', 'objectNamesContainer');
+							container.className = 'cv-object-names-container';
 							document.body.appendChild(container);
 						}
 
@@ -3805,7 +3813,7 @@ const app = {
 							return output;
 						}
 
-						const container = document.querySelector('#objectNamesContainer');
+						const container = document.querySelector('.cv-object-names-container');
 						const camera = document.querySelector('a-camera').object3D;
 						const threeCamera = document.querySelector('a-camera').components['camera'].camera;
 						if(!container || !threeCamera) { return; }
@@ -3946,6 +3954,28 @@ const app = {
 						max: 110,
 						value: 0
 					}
+
+					this.containerEl = document.createElement('div');
+					document.body.appendChild(this.containerEl);
+					this.containerEl.className = 'cv-highlight-marker-container';
+
+					this.highlightMarker = {};
+					this.highlightMarker.element = document.createElement('div');
+					this.containerEl.appendChild(this.highlightMarker.element);
+					this.highlightMarker.element.className = 'cv-highlight-marker';
+					this.highlightMarker.element.setAttribute('id', 'cv-highlight-marker');
+
+					this.highlightMarker.bracket = {};
+
+					this.highlightMarker.bracket.upper = {};
+					this.highlightMarker.bracket.upper.element = document.createElement('div');
+					this.highlightMarker.element.appendChild(this.highlightMarker.bracket.upper.element);
+					this.highlightMarker.bracket.upper.element.className = 'bracket upper';
+
+					this.highlightMarker.bracket.lower = {};
+					this.highlightMarker.bracket.lower.element = document.createElement('div');
+					this.highlightMarker.element.appendChild(this.highlightMarker.bracket.lower.element);
+					this.highlightMarker.bracket.lower.element.className = 'bracket lower';
 				},
 
 				update: function () {
@@ -4035,6 +4065,7 @@ const app = {
 							targetPosition.project(perspectiveCamera)
 						}
 					}
+					this.positionHighlightMarker()
 				},
 
 				remove: function () {},
@@ -4081,6 +4112,7 @@ const app = {
 
 					let modelArray = [];
 
+					//show links connecting the sourceNode
 					for(let link of fgComp.links){
 						if (link.material) {
 							if(link.source.id === sourceNode.id || link.target.id === sourceNode.id){
@@ -4089,8 +4121,6 @@ const app = {
 								link.material.visible = true;
 								modelArray.push(link.source.id);
 								modelArray.push(link.target.id);
-							}else if(link.source.name === focusTarget){
-								app.dev && console.log('dev --- highlightModel > link to focusTarget? ', modelArray.includes(link.target.id))
 							}else{
 								link.visibility = 'hidden';
 								link.material.visible = false;
@@ -4098,6 +4128,16 @@ const app = {
 						}
 					}
 
+					//show links connecting the focusTarget with objects in modelArray
+					for(let link of fgComp.links){
+						if(link.source.name === focusTarget && modelArray.includes(link.target.id)){
+							link.visibility = 'visible';
+							link.material.opacity = 1;
+							link.material.visible = true;
+						}
+					}
+
+					//show nodes in modelArray 
 					for(let node of fgComp.nodes){
 						if (node.model.material && typeof node.__threeObj !== 'undefined') {
 							typeof sourceNode.__threeObj !== 'undefined' ? distance = node.__threeObj.position.distanceTo(sourceNode.__threeObj.position) : distance = 0;
@@ -4186,7 +4226,51 @@ const app = {
 							}
 						}
 					}
-				} 
+				}, 
+
+				positionHighlightMarker: function() {
+
+					const mapToRange = (number, [inputMinRange, inputMaxRange], [outputMinRange, outputMaxRange]) => {
+						let output = (number - inputMinRange) / (inputMaxRange - inputMinRange) * (outputMaxRange - outputMinRange) + outputMinRange;
+						output > 1 ? output = 1 : '';
+						output < 0 ? output = 0 : '';
+						return output;
+					}
+
+					const width = window.innerWidth;
+					const height = window.innerHeight;
+					const widthHalf = width / 2;
+					const heightHalf = height / 2;
+
+					this.highlightMarker.element.classList.add('hide');
+
+					//check if target highlighted
+					if(!this.data.source) { return; }
+
+					const camera = document.querySelector('a-camera').object3D;
+					const threeCamera = document.querySelector('a-camera').components['camera'].camera;
+					const vector = new THREE.Vector3();
+					vector.copy(this.data.source.__threeObj.position);
+					vector.project(threeCamera);
+
+					vector.x = ( vector.x * widthHalf ) + widthHalf;
+					vector.y = - ( vector.y * heightHalf ) + heightHalf;
+
+					this.highlightMarker.element.classList.remove('hide');
+					this.highlightMarker.element.style.top = vector.y + 'px';
+					this.highlightMarker.element.style.left = vector.x + 'px';
+
+					const meshDistance = camera.position.distanceTo(this.data.source.__threeObj.position);
+					const scale = mapToRange(meshDistance, [150,0], [0.4,1]);
+					const radius = mapToRange(meshDistance, [250,0], [0.8,1]);
+					const opacity = mapToRange(meshDistance, [450,50], [1,0]);
+					this.highlightMarker.element.style.width = (scale * 200) + 30 + 'px';
+					this.highlightMarker.element.style.height = (scale * 200) + 30 + 'px';
+					this.highlightMarker.element.style.opacity = opacity;
+					this.highlightMarker.bracket.upper.element.style.borderRadius = (radius * 20) + 'px 0';
+					this.highlightMarker.bracket.lower.element.style.borderRadius = (radius * 20) + 'px 0';
+
+				}
 			});
 			//END highlight
 
@@ -4420,6 +4504,8 @@ const app = {
 							z: (hmdEuler.z * 114.59155903) + (yawObject.rotation.z * 114.59155903)
 						});
 
+						if(this.touchStarted) { return; }
+						if(this.mouseDown){ return; }
 						this.hasUserInput = false;
 					};
 				})(),
@@ -4671,12 +4757,6 @@ const app = {
 						this.touchEventCache = [];
 					}
 					this.touchEventCache.push(e);
-
-					if(!this.hasUserInput) {
-						setTimeout(() => {
-							this.hasUserInput = true;
-						}, 100)
-					}
 				},
 
 				pointermoveHandler: function (e) {
@@ -4712,12 +4792,6 @@ const app = {
 					if (this.touchEventCache.length < 2) {
 						this.previousDistance = -1;
 					}	
-
-					if(this.hasUserInput) {
-						setTimeout(() => {
-							this.hasUserInput = false;
-						}, 300)
-					}
 				}
 			});
 			//END custom orbit-controls
@@ -5099,15 +5173,33 @@ const app = {
 
 			loadContextStory(modelJSON) {
 				const modelViewer = app.modelViewer.element;
+				let contentHTML = '';
 
-				let contentHTML = '<h3>' + modelJSON.basicData.name + '</h3><p>' + modelJSON.objectData.usageContext + '</p>';
+				app.dev && console.log('dev--- loadContextStory > typeof: ', typeof modelJSON.objectData.usageContext)
 
-				this.message = {
-					type: 'Objekt-Kontext',
-					content: contentHTML,
-					color: this.messageSetup.colors.background,
-					shadow: this.messageSetup.colors.shadow
+				if(typeof modelJSON.objectData.usageContext === 'object') {
+					contentHTML = app.createHTMLContentFromJSON(modelJSON.objectData.usageContext)
+					this.message = {
+						type: 'Objekt-Kontext',
+						content: contentHTML,
+						color: this.messageSetup.colors.background,
+						shadow: this.messageSetup.colors.shadow
+					}
 				}
+
+				if(typeof modelJSON.objectData.usageContext === 'string') { 
+					contentHTML = '<h3>' + modelJSON.basicData.name + '</h3><p>' + modelJSON.objectData.usageContext + '</p>';
+					this.message = {
+						type: 'Objekt-Kontext',
+						content: contentHTML,
+						color: this.messageSetup.colors.background,
+						shadow: this.messageSetup.colors.shadow
+					}
+				}
+
+				
+
+				
 			}, 
 
 			setContextStory() {
@@ -5544,7 +5636,7 @@ const app = {
 		loadModel(modelJSON) {
 			const modelViewer = this.element;
 			//set title
-			app.gui.title.set('Modelviewer / ' + modelJSON.basicData.name, true, modelJSON.primaryKey)
+			app.gui.title.set(modelJSON.basicData.name, 'node-object', modelJSON.primaryKey, true)
 
 			//set modelViewer data
 			app.hideGUI ? modelViewer.src = app.filepaths.files + modelJSON.appData.model.quality1k : modelViewer.src = app.filepaths.files + modelJSON.appData.model.quality2k;
@@ -5578,12 +5670,12 @@ const app = {
 			this.element.setAttribute('src', '');
 			this.element.setAttribute('shadow-intensity', '1');
 			this.element.setAttribute('camera-controls', '');
-			this.element.setAttribute('touch-action', 'pan-y');
+			//this.element.setAttribute('touch-action', 'pan-y');
 			this.element.setAttribute('disable-tap', '');
 			this.element.setAttribute('camera-orbit', '');
 			this.element.setAttribute('orbit-sensitivity', '2');
 			this.element.setAttribute('min-camera-orbit', '-Infinity 15deg 0.1m');
-			this.element.setAttribute('max-camera-orbit', '-Infinity 165ddeg 5.5m');
+			this.element.setAttribute('max-camera-orbit', '-Infinity 165ddeg 12.5m');
 			this.element.setAttribute('camera-target', '');
 			this.element.setAttribute('field-of-view', '');
 			this.element.setAttribute('interpolation-decay', '150');
@@ -9011,7 +9103,7 @@ const app = {
 			}else if(content.type === 'paragraph+image'){
 				const imageHTML = '<img src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px">' 
 				const captionHTML = '<span class="content-image-caption">' + content.imageCaption + '<span class="copyright"> Foto: ' + content.fileCopyright + '</span></span>';
-				const paragraphAndImageHTML = '<p class="content-text"><span class="content-image"><span class="content-image-box">' + imageHTML + '</span>' + captionHTML + '</span>' + content.content + '</p>';
+				const paragraphAndImageHTML = '<div class="content-image in-paragraph"><div class="content-image-box">' + imageHTML + '</div>' + captionHTML + '</div><p class="content-text">' + content.content + '</p>';
 				contentHTML = contentHTML.concat(paragraphAndImageHTML);
 
 			}else if(content.type === 'paragraph+audio'){
