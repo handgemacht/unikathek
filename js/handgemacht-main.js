@@ -9162,7 +9162,7 @@ const app = {
 				contentHTML = contentHTML.concat(linkHTML);
 
 			}else if(content.type === 'button'){
-				const linkHTML = '<a href="' + content.filename + '" target="_blank"><button class="button duckyellow">' + content.content + '</button></a>';
+				const linkHTML = '<a href="' + content.filename + '"><button class="button duckyellow">' + content.content + '</button></a>';
 				contentHTML = contentHTML.concat(linkHTML);
 			}
 		}
