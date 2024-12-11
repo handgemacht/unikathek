@@ -1630,6 +1630,7 @@ const app = {
 								icon: 'arrow right'
 							}
 						],
+						showClose: false,
 						options: {
 							extended: true,
 							sizeControl: false
@@ -1790,6 +1791,7 @@ const app = {
 					buttonSetup: [
 						{ label: this.steps[step].buttons[0].label, color: this.steps[step].buttons[0].color, icon: this.steps[step].buttons[0].icon }
 					], 
+					showClose: false,
 					options: {
 						extended: false, 
 						sizeControl: false
