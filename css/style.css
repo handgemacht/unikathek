@@ -228,6 +228,7 @@ button {
   border: none;
   background-color: transparent;
   border-radius: 0px 20px 0px 20px;
+  padding: 10px 15px;
   transition: box-shadow .3s;
   cursor:pointer;
 }
@@ -1914,6 +1915,12 @@ button.hotspot.focus {
 
 button.hotspot.focus > .hotspot.border {
   border: 5px solid #FAF0E6;
+  background-color: transparent;
+  pointer-events: none;
+}
+
+button.hotspot.focus > .hotspot.border.contact {
+  border: 5px solid transparent;
   background-color: transparent;
   pointer-events: none;
 }

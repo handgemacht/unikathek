@@ -189,6 +189,13 @@ const app = {
 						coalgrey: filepath + 'hand.gemacht WebApp icon watch coalgrey.svg' 
 					}
 				},
+				'quiz': {
+					alt: 'Quiz-Symbol',
+					src: {
+						pearlwhite: filepath + 'hand.gemacht WebApp icon quiz pearlwhite.svg',
+						coalgrey: filepath + 'hand.gemacht WebApp icon quiz coalgrey.svg' 
+					}
+				},
 
 				small: {
 					'close': {
@@ -5489,11 +5496,30 @@ const app = {
 		annotations: {
 
 			annotationSetup: {
-				colors: {
-					buttonColor: 'skyblue', 
-					messageColor: 'pearlwhite', 
-					messageShadowColor: 'shadow-skyblue' 
-				}
+					read: {
+						icon: 'read',
+						buttonColor: 'skyblue', 
+						messageColor: 'pearlwhite', 
+						messageShadowColor: 'shadow-skyblue'
+					}, 
+					listen: {
+						icon: 'listen',
+						buttonColor: 'skyblue', 
+						messageColor: 'pearlwhite', 
+						messageShadowColor: 'shadow-skyblue'
+					}, 
+					watch: {
+						icon: 'watch',
+						buttonColor: 'skyblue', 
+						messageColor: 'pearlwhite', 
+						messageShadowColor: 'shadow-skyblue'
+					}, 
+					contact: {
+						icon: 'quiz',
+						buttonColor: 'smokegrey', 
+						messageColor: 'pearlwhite', 
+						messageShadowColor: 'shadow-smokegrey'
+					}
 			},
 
 			annotationArray: [], 
@@ -5531,7 +5557,8 @@ const app = {
 					const iconContainer = this.annotationArray[a].button.icon.containerEl;
 					button.appendChild(iconContainer);
 					iconContainer.className = 'hotspot border';
-					iconContainer.classList.add(this.annotationSetup.colors.buttonColor)
+					iconContainer.classList.add(this.annotationSetup[annotation.mediaType].buttonColor);
+					iconContainer.classList.add(annotation.mediaType);
 
 					this.annotationArray[a].button.icon.image = document.createElement('img');
 					const image = this.annotationArray[a].button.icon.image;
@@ -5539,8 +5566,8 @@ const app = {
 					image.className = 'hotspot-icon';
 					image.width = 100;
 					image.height = 100;
-					image.src = app.assets.icon[annotation.mediaType].src.pearlwhite;
-					image.alt = app.assets.icon[annotation.mediaType].alt;
+					image.src = app.assets.icon[this.annotationSetup[annotation.mediaType].icon].src.pearlwhite;
+					image.alt = app.assets.icon[this.annotationSetup[annotation.mediaType].icon].alt;
 
 					//button eventlistener
 					button.addEventListener('click', () => this.clickHandler(a));
@@ -5552,8 +5579,8 @@ const app = {
 					this.annotationArray[a].message = {
 						type: 'Annotation',
 						content: app.createHTMLContentFromJSON(annotation.contents),
-						color: this.annotationSetup.colors.messageColor,
-						shadow: this.annotationSetup.colors.messageShadowColor
+						color: this.annotationSetup[annotation.mediaType].messageColor,
+						shadow: this.annotationSetup[annotation.mediaType].messageShadowColor
 					}
 				}  
 
@@ -9132,6 +9159,10 @@ const app = {
 				
 			}else if(content.type === 'link'){
 				const linkHTML = '<a class="content-link" href="">' + content.content + '</a>';
+				contentHTML = contentHTML.concat(linkHTML);
+
+			}else if(content.type === 'button'){
+				const linkHTML = '<a href="' + content.filename + '" target="_blank"><button class="button duckyellow">' + content.content + '</button></a>';
 				contentHTML = contentHTML.concat(linkHTML);
 			}
 		}
