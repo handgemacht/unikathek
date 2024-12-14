@@ -5518,9 +5518,9 @@ const app = {
 					}, 
 					contact: {
 						icon: 'quiz',
-						buttonColor: 'smokegrey', 
+						buttonColor: 'terracotta', 
 						messageColor: 'pearlwhite', 
-						messageShadowColor: 'shadow-smokegrey'
+						messageShadowColor: 'shadow-terracotta'
 					}
 			},
 
