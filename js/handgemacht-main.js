@@ -5,7 +5,7 @@
 //START app 
 const app = {
 	title: 'Unikathek',
-	version: 'beta 1.5 24/12/09',
+	version: 'beta 1.6 25/01/07',
 	dev: false,
 	stats: false,
 	viewerMode: false,
@@ -4954,6 +4954,10 @@ const app = {
 				tabContentEl.appendChild(mvInfoContainerEl);
 				mvInfoContainerEl.className = 'mv-info-container';
 
+				const objectDataHeadline = document.createElement('h3');
+				mvInfoContainerEl.appendChild(objectDataHeadline);
+				objectDataHeadline.textContent = 'Objektdaten: ';
+
 				const descriptionListBasicEl = document.createElement('dl');
 				mvInfoContainerEl.appendChild(descriptionListBasicEl);
 
@@ -4967,7 +4971,7 @@ const app = {
 	
 					const nameValueEl = document.createElement('dd');
 					descriptionListBasicEl.appendChild(nameValueEl);
-					const nameValueHeadline = document.createElement('h3');
+					const nameValueHeadline = document.createElement('h4');
 					nameValueEl.appendChild(nameValueHeadline);
 					nameValueHeadline.textContent = basicData.name;
 				}
@@ -5031,10 +5035,6 @@ const app = {
 						tagTermEl.remove();
 					}
 				}
-
-				const objectDataHeadline = document.createElement('h3');
-				mvInfoContainerEl.appendChild(objectDataHeadline);
-				objectDataHeadline.textContent = 'Objektdaten: ';
 
 				const descriptionListObjectEl = document.createElement('dl');
 				mvInfoContainerEl.appendChild(descriptionListObjectEl);

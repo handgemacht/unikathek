@@ -812,6 +812,11 @@ div.gui-message-container.extended {
   height: 85%;
 }
 
+div.gui-message-container.extended > div.gui-message {
+  height: initial;
+  max-height: 100%;
+}
+
 div.gui-message-container > div.type {
   display: inline-block;
   position: relative;
@@ -1805,6 +1810,10 @@ div.mv-info-container {
 div.mv-info-container > h3 {
   margin-block-start: 1.5em;
   margin-block-end: 0.5em;
+}
+
+div.mv-info-container > h3:first-of-type {
+  margin-block-start: 0;
 }
 
 div.mv-info-container > dl {
