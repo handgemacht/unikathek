@@ -31,7 +31,7 @@ body {
 }
 
 ::-webkit-scrollbar {
-  width: 5px;
+  width: 9px;
 }
 
 ::-webkit-scrollbar-track {
@@ -55,6 +55,7 @@ body {
 ::-webkit-scrollbar-thumb {
   background: #41403F;
   border-radius: 5px 5px 5px 5px;
+  border: 2px solid #FAF0E6;
 }
 
 .hide{
@@ -796,6 +797,8 @@ div.gui-message {
   border-radius: 0px 20px 0px 20px;
   pointer-events: all;
   text-align: right;
+  overflow: hidden;
+  overflow-y: scroll;
 }
 
 div.gui-message-container.object{
@@ -857,32 +860,28 @@ div.gui-message-container.extended > button.size-control > img.arrow-wide {
   border-radius: 0 0 5px 5px; 
 }
 
-div.gui-message > div.close {
-  position: relative;
-  cursor: pointer;
-  z-index: 1;
+div.gui-message-container > button.close {
+  position: absolute;
+  top: 35px;
+  right: 15px;
+  padding: 0;
+  pointer-events: all
 }
 
-div.gui-message > div.close > img.close-icon {
-  display: block;
-  position: absolute;
-  top: 15px;
-  right: 15px;
+div.gui-message-container > button.close > img.close-icon {
   width: 16px;
   height: 16px;
 }
 
-div.gui-message > div.back {
-  position: relative;
-  cursor: pointer;
-  z-index: 1;
+div.gui-message-container > button.back {
+  position: absolute;
+  top: 35px;
+  right: 15px;
+  padding: 0;
+  pointer-events: all
 }
 
-div.gui-message > div.back > img.back-icon {
-  display: block;
-  position: absolute;
-  top: 15px;
-  right: 15px;
+div.gui-message-container > button.back > img.back-icon {
   width: 40px;
   height: 20px;
 }
@@ -891,13 +890,12 @@ div.gui-message > div.content-container {
   position: relative;
   margin-right: 5px;
   padding: 3px 20px 60px 12px;
-  height: 100%;
   overflow: hidden;
   overflow-y: scroll;
 }
 
-div.gui-message > div.content-container::-webkit-scrollbar-button:end:decrement {
-  height: 45px;
+div.gui-message::-webkit-scrollbar-button:end:decrement {
+  height: 40px;
   display: block;
 }
 

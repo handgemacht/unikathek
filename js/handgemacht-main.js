@@ -559,8 +559,8 @@ const app = {
 				this.sizeControlEl.icon.height = 100;
 				this.sizeControlEl.icon.setAttribute('loading', 'lazy');
 
-				this.closeEl = document.createElement('div');
-				this.element.appendChild(this.closeEl);
+				this.closeEl = document.createElement('button');
+				this.containerEl.appendChild(this.closeEl);
 				this.closeEl.className = 'close';
 	
 				this.closeEl.icon = document.createElement('img');
@@ -572,8 +572,8 @@ const app = {
 				this.closeEl.icon.height = 100;
 				this.closeEl.icon.setAttribute('loading', 'lazy');
 
-				this.backEl = document.createElement('div');
-				this.element.appendChild(this.backEl);
+				this.backEl = document.createElement('button');
+				this.containerEl.appendChild(this.backEl);
 				this.backEl.className = 'back';
 
 				this.backEl.icon = document.createElement('img');
