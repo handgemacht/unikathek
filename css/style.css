@@ -813,7 +813,7 @@ div.gui-message-container.extended {
 }
 
 div.gui-message-container.extended > div.gui-message {
-  height: initial;
+  height: auto;
   max-height: 100%;
 }
 
