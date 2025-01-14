@@ -400,6 +400,8 @@ const app = {
 				let url = app.gui.title.containerEl.getAttribute('data-url');
 				app.dev ? url+='&dev=true' : '';
 				app.stats ? url+='&dev=stats' : '';
+				app.tour ? url+='&tour=' + app.tour : '';
+				app.step ? url+='&step=' + app.step : '';
 				app.embedded ? url+='&embeddded=true' : '';
 				if(app.collectionViewer.highlight.focusedNode) {
 					app.collectionViewer.resetView.resetCameraView();
@@ -501,6 +503,7 @@ const app = {
 
 					setTimeout(() => {
 						this.element.classList.add('hide');
+						app.dev && console.log('dev --- loadingScreen > hidden');
 					}, 1500)
 
 				}, timeout);
@@ -1494,6 +1497,8 @@ const app = {
 			this.search.init();
 			this.filter.init();
 			this.resetView.init();
+			this.onboarding.init();
+			this.tour.init();
 			this.registerComponents();
 			this.setEventListeners();			
 
@@ -1515,8 +1520,6 @@ const app = {
 			app.gui.toolbar.button[3].icon.addEventListener('click', (e) => {
 				app.collectionViewer.resetView.resetCameraView();
 			})
-
-			this.onboarding.init();
 		},
 
 		onboarding: {
@@ -1731,6 +1734,7 @@ const app = {
 				if(app.showOnboarding) {
 					this.show('start');
 				}
+				app.dev && console.log('dev --- cv > onboarding: initialized');
 			}, 
 
 			show(step = 'start', type = 'message') {
@@ -1778,6 +1782,7 @@ const app = {
 
 					app.gui.message.buttons.button[1].element.addEventListener('click', (e) => {
 						app.gui.message.hideMessage(true);
+						localStorage.setItem('onboardingComplete', 'true');
 					}, { signal: app.gui.message.abortController.signal });
 					return;
 				}
@@ -1827,6 +1832,7 @@ const app = {
 					this.mouseDown = false;
 					this.pointerStyleHandler(null, e);
 				});
+				app.dev && console.log('dev --- cv > tooltip: initialized');
 			},
 
 			createElements() {
@@ -1992,10 +1998,11 @@ const app = {
 			pillArray: [],
 
 			init() {
-				this.setEventListener();
+				this.setEventListeners();
+				app.dev && console.log('dev --- cv > highlight: initialized');
 			},
 
-			setEventListener(){
+			setEventListeners(){
 				if(app.gui.message.backEl) {
 					app.gui.message.backEl.addEventListener('click', (evt) => {
 						app.collectionViewer.resetView.resetCameraView();
@@ -2003,15 +2010,15 @@ const app = {
 				}
 			},
 
-			onclickHandler(fgNode) {
+			onclickHandler(fgNode, showMessage = true) {
 				let type = '';
 				fgNode ? type = fgNode.type : type = 'none';
 			
 				if(type !== 'none'){
-					app.gui.message.hideMessage(true);
+					showMessage && app.gui.message.hideMessage(true);
 					if(!fgNode.model.material.visible) {return;}
 					app.gui.title.set(fgNode.name, fgNode.type);
-					app.collectionViewer.highlight.generateMessage(fgNode);
+					showMessage && app.collectionViewer.highlight.generateMessage(fgNode);
 				}
 			}, 
 
@@ -2301,7 +2308,7 @@ const app = {
 					self.createElements();
 					self.setEventlisteners();
 				});
-				
+				app.dev && console.log('dev --- cv > info: initialized');
 			},
 
 			createElements() {
@@ -2423,6 +2430,7 @@ const app = {
 					app.gui.toolbar.buttonClickHandler(e);
 					app.collectionViewer.search.resetSearchInput();
 				});
+				app.dev && console.log('dev --- cv > search: initialized');
 			}, 
 
 			createElements() {
@@ -2689,6 +2697,7 @@ const app = {
 
 					app.collectionViewer.filter.updateForcegraph();
 				});
+				app.dev && console.log('dev --- cv > filter: initialized');
 			},
 
 			createElements() {
@@ -2992,8 +3001,8 @@ const app = {
 				let productionTagListElement = document.querySelector('#cv-filter-production-tag-list');
 				let showCategoriesArray = [];
 				let showTopicsArray = [];
-				let showTabsArray = [];
-				let showProductionTabsArray = [];
+				let showTagsArray = [];
+				let showProductionTagsArray = [];
 				app.collectionViewer.filter.filteredData.categories = [];
 				app.collectionViewer.filter.filteredData.topics = [];
 				app.collectionViewer.filter.filteredData.tags = [];
@@ -3004,25 +3013,29 @@ const app = {
 				for(let element of categoryListElement.children) {
 					let active = (element.getAttribute('data-active') === 'true');
 					let name = element.innerHTML;
+					if(name === 'Alle aus-/abwählen') {continue;};
 					active ? showCategoriesArray.push(name) : app.collectionViewer.filter.filteredData.categories.push(name);
 				}
 
 				for(let element of topicListElement.children) {
 					let active = (element.getAttribute('data-active') === 'true');
 					let name = element.innerHTML;
+					if(name === 'Alle aus-/abwählen') {continue;};
 					active ? showTopicsArray.push(name) : app.collectionViewer.filter.filteredData.topics.push(name);
 				}
 
 				for(let element of tagListElement.children) {
 					let active = (element.getAttribute('data-active') === 'true');
 					let name = element.innerHTML;
-					active ? showTabsArray.push(name) : app.collectionViewer.filter.filteredData.tags.push(name);
+					if(name === 'Alle aus-/abwählen') {continue;};
+					active ? showTagsArray.push(name) : app.collectionViewer.filter.filteredData.tags.push(name);
 				}
 
 				for(let element of productionTagListElement.children) {
 					let active = (element.getAttribute('data-active') === 'true');
 					let name = element.innerHTML;
-					active ? showProductionTabsArray.push(name) : app.collectionViewer.filter.filteredData.productionTags.push(name);
+					if(name === 'Alle aus-/abwählen') {continue;};
+					active ? showProductionTagsArray.push(name) : app.collectionViewer.filter.filteredData.productionTags.push(name);
 				}
 
 				normalizeCheckboxValue === true ? normalizeValue = '1' : normalizeValue = '0';
@@ -3030,7 +3043,68 @@ const app = {
 
 				document.querySelector('a-scene').setAttribute('load-json-models', 'normalization: ' + normalizeValue)
 
-				loadJSONModelsComponent.filterFgData(fgData, showTabsArray, showProductionTabsArray, showCategoriesArray, showTopicsArray);
+				loadJSONModelsComponent.filterFgData(fgData, showTagsArray, showProductionTagsArray, showCategoriesArray, showTopicsArray);
+			}, 
+
+			updateCheckboxList() {
+				let categoryListElement = document.querySelector('#cv-filter-category-list');
+				let topicListElement = document.querySelector('#cv-filter-topic-list');
+				let tagListElement = document.querySelector('#cv-filter-tag-list');
+				let productionTagListElement = document.querySelector('#cv-filter-production-tag-list');
+
+				app.dev && console.log('dev --- filteredData: ', this.filteredData);
+
+				for(let element of categoryListElement.children) {
+					let name = element.innerHTML;
+					let color = element.getAttribute('data-color');
+					element.classList.remove(color);
+					element.classList.add('inactive');
+					element.setAttribute('data-active', false);
+					if(this.filteredData.categories.includes(name)){
+						element.classList.add(color);
+						element.classList.remove('inactive');
+						element.setAttribute('data-active', true);
+					}
+				}
+
+				for(let element of topicListElement.children) {
+					let name = element.innerHTML;
+					let color = element.getAttribute('data-color');
+					element.classList.remove(color);
+					element.classList.add('inactive');
+					element.setAttribute('data-active', false);
+					if(this.filteredData.topics.includes(name)){
+						element.classList.add(color);
+						element.classList.remove('inactive');
+						element.setAttribute('data-active', true);
+					}
+				}
+
+				for(let element of tagListElement.children) {
+					let name = element.innerHTML;
+					let color = element.getAttribute('data-color');
+					element.classList.remove(color);
+					element.classList.add('inactive');
+					element.setAttribute('data-active', false);
+					if(this.filteredData.tags.includes(name)){
+						element.classList.add(color);
+						element.classList.remove('inactive');
+						element.setAttribute('data-active', true);
+					}
+				}
+
+				for(let element of productionTagListElement.children) {
+					let name = element.innerHTML;
+					let color = element.getAttribute('data-color');
+					element.classList.remove(color);
+					element.classList.add('inactive');
+					element.setAttribute('data-active', false);
+					if(this.filteredData.productionTags.includes(name)){
+						element.classList.add(color);
+						element.classList.remove('inactive');
+						element.setAttribute('data-active', true);
+					}
+				}
 			}
 		},
 
@@ -3060,7 +3134,7 @@ const app = {
 			},
 
 			init() {
-
+				app.dev && console.log('dev --- cv > resetView: initialized');
 			}, 
 
 			resetCameraView() {
@@ -3075,6 +3149,428 @@ const app = {
 					//desiredRotX: 0,
 					//desiredCameraPitch: 0,
 					forceUpdate: true
+				});
+			}
+		},
+
+		tour: {
+
+			fgFilterUpdated: false,
+
+			list: [
+				{
+					title: 'WAA Wackersdorf',
+					short: 'waa'
+				},
+			],
+
+			setSteps(tour) {
+
+				if(tour === 'waa'){
+					this.fgFilter = {
+								tags: ['WAA Wackersdorf'],
+								productionTags: [''],
+								categories: [''],
+								topics: ['']
+							}
+
+					this.steps = [
+						{
+							highlightObject: '',
+							message: {
+								type: 'Titel',
+								buttons: [
+									{
+										label: 'los geht\'s',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								content: [
+									{
+										"content" : "Überschrift",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Text-Paragraph",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									}
+								]
+							}
+						}, 
+						{
+							highlightObject: '6379EA32-A534-C246-8D96-4BFCE2179CF2',
+							message: {
+								type: 'Titel',
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'nächster Gegenstand',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								content: [
+									{
+										"content" : "Überschrift",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Text-Paragraph",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									}, 
+									{
+										"content" : "Anstecker \"WAA Nein\"",
+										"fileCopyright" : "",
+										"filename" : "6379EA32-A534-C246-8D96-4BFCE2179CF2",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "object-link"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: 'F07C89FE-D514-6148-9480-457DD951729D',
+							message: {
+								type: 'Titel',
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'nächster Gegenstand',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								content: [
+									{
+										"content" : "Überschrift",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Text-Paragraph",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									}, 
+									{
+										"content" : "Franziskusmarterl",
+										"fileCopyright" : "",
+										"filename" : "F07C89FE-D514-6148-9480-457DD951729D",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "object-link"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '64AB9AAE-ABA6-E043-94D0-EC5CE4450E7C',
+							message: {
+								type: 'Titel',
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'nächster Gegenstand',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								content: [
+									{
+										"content" : "Überschrift",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Text-Paragraph",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									}, 
+									{
+										"content" : "Widerstandssocken",
+										"fileCopyright" : "",
+										"filename" : "64AB9AAE-ABA6-E043-94D0-EC5CE4450E7C",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "object-link"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '732C44A9-308C-454C-9A2F-1C1599CE5A48',
+							message: {
+								type: 'Titel',
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'weiter',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								content: [
+									{
+										"content" : "Überschrift",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Text-Paragraph",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									}, 
+									{
+										"content" : "Bauzaun WAA-Gelände",
+										"fileCopyright" : "",
+										"filename" : "732C44A9-308C-454C-9A2F-1C1599CE5A48",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "object-link"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '',
+							message: {
+								type: 'Titel',
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'Tour beenden',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								content: [
+									{
+										"content" : "Überschrift",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Text-Paragraph",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									}
+								]
+							}
+						}
+					]
+					return true;
+				}
+				return false;
+			},
+
+			init() {
+				this.setEventListeners();
+				app.dev && console.log('dev --- cv > tour: initialized');
+			}, 
+
+			show(step) {
+				if(0 > step || this.steps.length <= step) {return;}
+				app.step = step;
+				this.setTourMessage(step);
+
+				if(this.fgFilter && this.fgFilterUpdated === false){
+					let fgData = app.collectionViewer.proxyfgData.data
+					let loadJSONModelsComponent = document.querySelector('a-scene').components['load-json-models'];
+					loadJSONModelsComponent.filterFgData(fgData, this.fgFilter.tags, this.fgFilter.productionTags, this.fgFilter.categories, this.fgFilter.topics);
+					
+					app.collectionViewer.filter.filteredData.tags = [];
+					app.collectionViewer.filter.filteredData.productionTags = [];
+					app.collectionViewer.filter.filteredData.categories = [];
+					app.collectionViewer.filter.filteredData.topics = [];
+
+					for(let e of this.fgFilter.tags){
+						app.collectionViewer.filter.filteredData.tags.push(e)
+					}
+					for(let e of this.fgFilter.productionTags){
+						app.collectionViewer.filter.filteredData.productionTags.push(e)
+					}
+					for(let e of this.fgFilter.categories){
+						app.collectionViewer.filter.filteredData.categories.push(e)
+					}
+					for(let e of this.fgFilter.topics){
+						app.collectionViewer.filter.filteredData.topics.push(e)
+					}
+					app.collectionViewer.filter.updateCheckboxList();
+
+					this.fgFilterUpdated = true;
+				}
+
+				setTimeout(() => {
+					this.highlightObject(this.steps[step].highlightObject)
+				}, 100);
+
+				let url = '?m=cv';
+				app.dev ? url += '&dev=true' : '';
+				app.stats ? url += '&stats=true' : '';
+				url += '&tour=' + app.tour;
+				url += '&step=' + app.step;
+				window.history.pushState(null, null, url)
+
+				if(step === 0) {
+					app.gui.toolbar.toggleToolbar(false);
+					app.gui.message.setMessage(this.tourMessage);
+
+					app.gui.message.buttons.button[0].element.addEventListener('click', (e) => {
+						app.gui.message.hideMessage(true)
+						this.show(step+1);
+					}, { signal: app.gui.message.abortController.signal });
+					return;
+				}
+
+				if(step > 0 && step < this.steps.length) {
+					app.gui.toolbar.toggleToolbar(false);
+					app.gui.message.setMessage(this.tourMessage);
+
+					app.gui.message.buttons.button[0].element.addEventListener('click', (e) => {
+						app.gui.message.hideMessage(true);
+						this.show(step-1);
+					}, { signal: app.gui.message.abortController.signal });
+
+					app.gui.message.buttons.button[1].element.addEventListener('click', (e) => {
+						app.gui.message.hideMessage(true);
+						this.show(step+1);
+					}, { signal: app.gui.message.abortController.signal });
+					return;
+				}
+			}, 
+
+			setTourMessage(step) {
+				this.tourMessage = {
+					type: this.steps[step].message.type,
+					content: app.createHTMLContentFromJSON(this.steps[step].message.content),
+					color: 'pearlwhite',
+					shadow: 'shadow-coalgrey',
+					buttonSetup: [
+						{ label: this.steps[step].message.buttons[0].label, color: this.steps[step].message.buttons[0].color, icon: this.steps[step].message.buttons[0].icon }
+					], 
+					showClose: true,
+					options: {
+						extended: false, 
+						sizeControl: true
+					}
+				}
+
+				if(this.steps[step].message.buttons[1]) {
+					this.tourMessage.buttonSetup = [
+						{ label: this.steps[step].message.buttons[0].label, color: this.steps[step].message.buttons[0].color, icon: this.steps[step].message.buttons[0].icon },
+						{ label: this.steps[step].message.buttons[1].label, color: this.steps[step].message.buttons[1].color, icon: this.steps[step].message.buttons[1].icon }
+					]
+				}
+
+				if('options' in this.steps[step].message) {
+					('extended' in this.steps[step].message.options) ? this.tourMessage.options.extended = this.steps[step].message.options.extended : '';
+					('sizeControl' in this.steps[step].message.options) ? this.tourMessage.options.sizeControl = this.steps[step].message.options.sizeControl : '';
+				}
+			}, 
+
+			highlightObject(id) {
+				if(!app.collectionViewer.components['forcegraph'].ready) {return;}
+				let fgElement = document.querySelector('#forcegraph');
+				let aCameraElement = document.querySelector('a-camera');
+				let fgComponent = document.querySelector('#forcegraph').components['forcegraph'];
+				let fgNodes = fgComponent.data.nodes;
+				let node = null;
+
+				for(let n of fgNodes) {
+					if(n.id === id){
+						node = n;
+						app.dev && console.log('dev --- tour highlight model: ', node);
+					}
+				}
+
+				if(!node) { 
+					app.collectionViewer.resetView.resetCameraView();
+					app.gui.title.set();
+					return;
+				 }
+
+				aCameraElement.setAttribute('camera-focus-target', {target: node, duration: 1200});
+				app.collectionViewer.highlight.onclickHandler(node, false);
+				fgElement.setAttribute('highlight', {source: node});
+			}, 
+
+			setEventListeners() {
+				document.addEventListener('loadingScreen-ready', (event) => {
+					if(app.tour){
+						const tourFound = this.setSteps(app.tour);
+						const stepFound = (typeof this.steps[app.step] === 'object');
+
+						if(tourFound) {
+							app.dev && console.log('dev --- tour found: ', app.tour);
+							app.dev && console.log('dev --- tour found > step found: ', app.step);
+							stepFound ? '' : app.step = 0;
+							stepFound ? this.show(app.step) : this.show(0);
+						}else{
+							app.dev && console.log('dev --- tour not found: ', app.tour);
+							app.tour = null;
+						}
+					}
 				});
 			}
 		},
@@ -3882,10 +4378,10 @@ const app = {
 				},
 
 				update: function () {
+					//app.dev && console.log('dev --- camera-focus-target: ', this.data.target);
 					this.moveOrbitTarget();
 					let event = new Event('camera-focus-target-ready');
 					document.querySelector('a-scene').dispatchEvent(event);
-					//app.dev && console.log('dev --- camera-focus-target: ', this.data.target);
 				},
 
 				tick: function () {},
@@ -3899,11 +4395,14 @@ const app = {
 				moveOrbitTarget: function() {
 					if(!this.data.target){
 						this.target = document.querySelector('#forcegraph').object3D;
+						app.dev && console.log('dev --- camera-focus-target > target > forcegraph: ', this.target);
 					}else if(this.data.target.type === 'link-tag' || this.data.target.type === 'link-productionTag'){
 						this.target = {};
 						this.target.position = this.data.target.__curve.v1;
+						app.dev && console.log('dev --- camera-focus-target > target > link: ', this.target);
 					}else{
 						this.target = this.data.target.__threeObj;
+						app.dev && console.log('dev --- camera-focus-target > target > object: ', this.target);
 					}
 
 					let newCameraPosition = new THREE.Vector3(); 
@@ -4840,12 +5339,9 @@ const app = {
 					!app.collectionViewer.components['camera-focus-target'].ready || 
 					!app.collectionViewer.components['highlight'].ready ||
 					!app.collectionViewer.components['forcegraph'].ready
-					){
+					){return;}
 
-					return;
-				}
-
-				if(app.collectionViewer.node) {
+				if(app.collectionViewer.node && !app.tour) {
 					let nodeID = app.collectionViewer.node;
 					let fgElement = document.querySelector('#forcegraph');
 					let aCameraElement = document.querySelector('a-camera');
@@ -4870,12 +5366,13 @@ const app = {
 					}else {
 						app.collectionViewer.resetView.resetCameraView();
 					}					
-
 				}else {
 					app.collectionViewer.resetView.resetCameraView();
 				}
 
 				app.gui.loadingScreen.hideLoadingScreen();
+				let event = new Event('loadingScreen-ready');
+				document.dispatchEvent(event);
 			});
 		}
 	},
@@ -9166,6 +9663,19 @@ const app = {
 			}else if(content.type === 'button'){
 				const linkHTML = '<a href="' + content.filename + '"><button class="button duckyellow">' + content.content + '</button></a>';
 				contentHTML = contentHTML.concat(linkHTML);
+
+			}else if(content.type === 'object-link'){
+				let href = '?m=mv';
+				app.dev ? href += '&dev=true': '';
+				if(app.tour) {
+					href += '&tour=' + app.tour;
+					href += '&step=' + app.step;
+				}
+				href += '&model=' + content.filename;
+
+				const linkHTML = '<a href="' + href + '"><button class="button content-object-link duckyellow"><img src="' + app.assets.icon['watch'].src.coalgrey + '" alt="' + app.assets.icon['watch'].alt + '" width="100" height="100">' + content.content + '</button></a>';
+				contentHTML = contentHTML.concat(linkHTML);
+
 			}
 		}
 		return contentHTML;
@@ -9214,6 +9724,8 @@ const app = {
 		const node = this.getURLParameter('node');
 		const model = this.getURLParameter('model');
 		const isFrom = this.getURLParameter('from');
+		this.tour = this.getURLParameter('tour');
+		this.step = Number(this.getURLParameter('step'));
 		this.dev = (this.getURLParameter('dev') === 'true');
 		this.stats = (this.getURLParameter('stats') === 'true');
 		this.hideGUI = (this.getURLParameter('gui') === 'false');
@@ -9247,7 +9759,6 @@ const app = {
 
 	handleLocalStorage() {
 		this.showOnboarding = (localStorage.getItem('onboardingComplete') !== 'true');
-		localStorage.setItem('onboardingComplete', 'true');
 		app.dev && console.log('dev --- handleLocalStorage > showOnboarding: ', this.showOnboarding);
 	},
 
