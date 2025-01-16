@@ -771,7 +771,6 @@ div.animation-container > object.animation {
 div.gui-message-box {
   position: absolute;
   display: flex;
-  align-items: center;
   justify-content: center;
   width: 90vw;
   height: 90dvh;
@@ -783,17 +782,27 @@ div.gui-message-container {
   display: block;
   position: relative;
   width: 100%;
-  height: 35%;
-  top: 30%;
+  height: fit-content;
+  max-height: 40%;
+  top: 50%;
   margin: 0;
   pointer-events: none;
   z-index: 4;
 }
 
-div.gui-message {
-  position: absolute;
+div.gui-message-container.extended {
+  top: 5%;
+}
+
+div.gui-message-container.object {
+  width: 85%;
+}
+
+div.gui-message-container > div.gui-message {
   width: 100%;
-  height: 100%;
+  min-height: 35%;
+  height: fit-content;
+  max-height: 40dvh;
   border-radius: 0px 20px 0px 20px;
   pointer-events: all;
   text-align: right;
@@ -801,23 +810,19 @@ div.gui-message {
   overflow-y: scroll;
 }
 
-div.gui-message-container.object{
-  width: 90%;
-  height: 30%;
+div.gui-message-container > div.gui-message::-webkit-scrollbar-button:end:decrement {
+  height: 40px;
+  display: block;
 }
 
-div.gui-message-container.object.extended{
-  height: 80%;
-}
-
-div.gui-message-container.extended {
-  top: 5%;
-  height: 85%;
+div.gui-message-container.object > div.gui-message {
+  height: fit-content;
+  max-height: 25dvh;
 }
 
 div.gui-message-container.extended > div.gui-message {
-  height: auto;
-  max-height: 100%;
+  height: fit-content;
+  max-height: 85dvh;
 }
 
 div.gui-message-container > div.type {
@@ -825,7 +830,7 @@ div.gui-message-container > div.type {
   position: relative;
   height: 2em;
   padding: 4px 15px 0px 12px;
-  border-radius: 0px 10px 0px 0px;
+  border-radius: 0px 15px 0px 0px;
   border: none;
   box-shadow: none;
   font-size: 0.75em;
@@ -837,6 +842,7 @@ div.gui-message-container > div.type {
 div.gui-message-container > button.size-control {
   display: inline-block;
   position: absolute;
+  top: -1.6em;
   left: 0;
   width: 100%;
   height: 2em;
@@ -890,14 +896,9 @@ div.gui-message > div.content-container {
   position: relative;
   margin-right: 5px;
   padding: 3px 20px 60px 12px;
-  overflow: hidden;
-  overflow-y: scroll;
 }
 
-div.gui-message::-webkit-scrollbar-button:end:decrement {
-  height: 40px;
-  display: block;
-}
+
 
 div.gui-message > div.content-container > div.content {
   padding-top: 2em;
@@ -921,35 +922,47 @@ div.gui-message > div.content-container > div.content > ul, p {
 
 div.gui-message > div.button-container {
   display: flex;
-  position: absolute;
-  right: 0;
-  bottom: 0;
+  position: sticky;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: flex-end;
+  right: 15px;
+  bottom: -1px;
+  border-radius: 0;
   pointer-events: all;
+}
+
+div.gui-message > div.button-container > div.button-fade {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(180deg, rgba(0, 0, 0, 0), #FAF0E6, #FAF0E6);
+  pointer-events: none;
 }
 
 div.gui-message > div.button-container > button.button {
   min-width: 70px;
   min-height: 30px;
   padding: 0 25px 0 25px;
-  border-radius: 0px;
+  border-radius: 20px 20px 0 0;
+  white-space: nowrap;
+  z-index: 1;
+}
+
+div.gui-message > div.button-container > button.button:last-child {
+  margin-left: 5px;
 }
 
 div.gui-message > div.button-container > button.button > * {
   display: inline;
-  font-weight: 700;
-}
-
-div.gui-message > div.button-container > button.button:first-child {
-  border-radius: 20px 0 0 0;
-}
-
-div.gui-message > div.button-container > button.button:last-child {
-  border-radius: 0 0 0 0;
-  margin: 0 0 0 1px;
 }
 
 div.gui-message > div.button-container > button.button > div.label {
   vertical-align: 1px;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 div.gui-message > div.button-container > button.button > img.button-icon {
@@ -2482,6 +2495,10 @@ img.help-symbol{
     justify-content: initial;
   }
 
+  div.gui-message-box.first-contact {
+    justify-content: center;
+  }
+
   .content-image {
     width: 90%;
   }
@@ -2498,15 +2515,14 @@ img.help-symbol{
     width: 30%;
   }
 
+  div.gui-message-box.first-contact > div.gui-message-container {
+    width: 50%;
+  }
+
 }
 
 /* very large  */
 @media only screen and (min-width: 1280px) {
-
-  div.gui-message-container.object {
-    left: 7.5%;
-    margin-bottom: 7.5%;
-  }
 
 }
 

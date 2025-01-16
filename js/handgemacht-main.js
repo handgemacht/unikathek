@@ -603,6 +603,10 @@ const app = {
 				this.element.appendChild(this.buttons.containerEl);
 				this.buttons.containerEl.className = 'button-container';
 
+				this.buttons.fadeEl = document.createElement('div');
+				this.buttons.containerEl.appendChild(this.buttons.fadeEl)
+				this.buttons.fadeEl.className = 'button-fade';
+
 				this.buttons.button = [{},{}];
 
 				this.buttons.button[0].element = document.createElement('button');
@@ -687,6 +691,7 @@ const app = {
 				this.type.element.className = 'type hide';
 				this.element.className = 'gui-message';
 				this.containerEl.className = 'gui-message-container hide';
+				this.boxEl.className = 'gui-message-box';
 				this.closeEl.className = 'close';
 				this.sizeControlEl.className = 'size-control';
 				this.sizeControlEl.setAttribute('data-extended', false);
@@ -1536,7 +1541,7 @@ const app = {
 							}
 						],
 						options: {
-							extended: false,
+							extended: true,
 							sizeControl: true
 						},
 						content: [
@@ -1747,6 +1752,7 @@ const app = {
 				if(step === 'start') {
 					app.gui.toolbar.toggleToolbar(false);
 					app.gui.message.setMessage(this.onboardingMessage);
+					app.gui.message.boxEl.classList.add('first-contact');
 
 					app.gui.message.buttons.button[0].element.addEventListener('click', (e) => {
 						app.gui.message.hideMessage(true)
@@ -3157,12 +3163,12 @@ const app = {
 
 			fgFilterUpdated: false,
 
-			list: [
-				{
+			list: {
+				waa: {
 					title: 'WAA Wackersdorf',
 					short: 'waa'
 				},
-			],
+			},
 
 			setSteps(tour) {
 
@@ -3178,7 +3184,7 @@ const app = {
 						{
 							highlightObject: '',
 							message: {
-								type: 'Titel',
+								type: 'Thema: ' + this.list[tour].title,
 								buttons: [
 									{
 										label: 'los geht\'s',
@@ -3186,9 +3192,12 @@ const app = {
 										icon: 'arrow right'
 									}
 								],
+								options: {
+									extended: true
+								},
 								content: [
 									{
-										"content" : "Überschrift",
+										"content" : "WAA Wackersdorf",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -3196,7 +3205,7 @@ const app = {
 										"type" : "headline"
 									},
 									{
-										"content" : "Text-Paragraph",
+										"content" : "Anfang der 1980er-Jahre. In der „beschaulichen“ Oberpfalz macht sich Unruhe breit. Da soll etwas Großes gebaut werden: eine Wiederaufbereitungsanlage für Kernbrennstäbe aus Atomkraftwerken. Während sich einige Bürger davon einen wirtschaftlichen Aufschwung erhoffen und das Großprojekt befürworten, sind andere skeptisch. Einer davon ist der 27-jährige Wolfgang. Begleite ihn auf seiner Reise!",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -3209,7 +3218,7 @@ const app = {
 						{
 							highlightObject: '6379EA32-A534-C246-8D96-4BFCE2179CF2',
 							message: {
-								type: 'Titel',
+								type: 'Thema: ' + this.list[tour].title,
 								buttons: [
 									{
 										label: 'zurück',
@@ -3217,14 +3226,14 @@ const app = {
 										icon: ''
 									},
 									{
-										label: 'nächster Gegenstand',
+										label: 'nächstes Objekt',
 										color: 'coalgrey',
 										icon: 'arrow right'
 									}
 								],
 								content: [
 									{
-										"content" : "Überschrift",
+										"content" : "Anstecker \"WAA Nein\"",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -3232,7 +3241,7 @@ const app = {
 										"type" : "headline"
 									},
 									{
-										"content" : "Text-Paragraph",
+										"content" : "1981 nimmt Wolfgang an einem Treffen der neu gegründeten Bürgerinitiative Schwandorf teil – und wird flugs zum Kassier ernannt. Zwar gibt Wolfgang diesen Posten aus Angst, seine Arbeitsstelle zu verlieren, bald darauf ab und übernimmt stattdessen die Funktion des Kassenprüfers. Dennoch treibt ihn in den folgenden Jahren die Frage um, wie sich der friedliche Protest gegen die WAA finanzieren lässt. Die Aktivisten sind froh um jede Mark, die in die Kasse der Bürgerinitiative fließt, und schlagen mitunter kreative Wege ein. So werden bei Demonstrationen zum Beispiel selbstgemachte Buttons verkauft - und gehen weg wie warme Semmeln.",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -3253,7 +3262,7 @@ const app = {
 						{
 							highlightObject: 'F07C89FE-D514-6148-9480-457DD951729D',
 							message: {
-								type: 'Titel',
+								type: 'Thema: ' + this.list[tour].title,
 								buttons: [
 									{
 										label: 'zurück',
@@ -3261,14 +3270,14 @@ const app = {
 										icon: ''
 									},
 									{
-										label: 'nächster Gegenstand',
+										label: 'nächstes Objekt',
 										color: 'coalgrey',
 										icon: 'arrow right'
 									}
 								],
 								content: [
 									{
-										"content" : "Überschrift",
+										"content" : "Franziskusmarterl",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -3276,7 +3285,7 @@ const app = {
 										"type" : "headline"
 									},
 									{
-										"content" : "Text-Paragraph",
+										"content" : "Es ist der finanziellen Situation der Bürgerinitiative geschuldet, dass in jeglichen Bereichen des Widerstands selbst Hand angelegt wird. Besonders eindrücklich führt das die Geschichte des Franziskus-Marterls vor Augen. Aus der Intention heraus, einen Treffpunkt zu schaffen, wird dieses genehmigungsfreie Kleindenkmal errichtet. Auch Wolfgang macht mit und steuert Material und Werkzeug bei, das beim Bau seines Hauses übrig geblieben ist.",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -3297,7 +3306,7 @@ const app = {
 						{
 							highlightObject: '64AB9AAE-ABA6-E043-94D0-EC5CE4450E7C',
 							message: {
-								type: 'Titel',
+								type: 'Thema: ' + this.list[tour].title,
 								buttons: [
 									{
 										label: 'zurück',
@@ -3305,14 +3314,14 @@ const app = {
 										icon: ''
 									},
 									{
-										label: 'nächster Gegenstand',
+										label: 'nächstes Objekt',
 										color: 'coalgrey',
 										icon: 'arrow right'
 									}
 								],
 								content: [
 									{
-										"content" : "Überschrift",
+										"content" : "Widerstandssocken",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -3320,7 +3329,7 @@ const app = {
 										"type" : "headline"
 									},
 									{
-										"content" : "Text-Paragraph",
+										"content" : "Beim Engagement gegen den Bau der WAA trägt jeder bei, was er kann. Frauen sorgen zum Beispiel für die Verpflegung der Demonstrierenden, so auch Irmgard Gietl. Sie leistet darüber hinaus einen ganz besonderen Beitrag: Als leidenschaftliche Strickerin verteilt sie selbstgemachte Socken an die Teilnehmer der Demonstrationen, damit diese keine kalten Füße bekommen. Ein Paar dieser “Widerstandssocken” erhält Wolfgang. Ebenso wird Landrat Hans Schuierer damit beschenkt.",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -3341,7 +3350,7 @@ const app = {
 						{
 							highlightObject: '732C44A9-308C-454C-9A2F-1C1599CE5A48',
 							message: {
-								type: 'Titel',
+								type: 'Thema: ' + this.list[tour].title,
 								buttons: [
 									{
 										label: 'zurück',
@@ -3356,7 +3365,7 @@ const app = {
 								],
 								content: [
 									{
-										"content" : "Überschrift",
+										"content" : "Bauzaun",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -3364,7 +3373,7 @@ const app = {
 										"type" : "headline"
 									},
 									{
-										"content" : "Text-Paragraph",
+										"content" : "Der Widerstand gegen das Großprojekt hat viele Menschen geprägt. Manche von ihnen haben Erinnerungsstücke an diese Zeit geschaffen. Jahrzehnte später ist Wolfgangs Alltag davon bestimmt, die Erinnerung an das bürgerliche Engagement und den Einsatz für die Demokratie zu hüten und weiterzugeben.",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -3385,7 +3394,7 @@ const app = {
 						{
 							highlightObject: '',
 							message: {
-								type: 'Titel',
+								type: 'Thema: ' + this.list[tour].title,
 								buttons: [
 									{
 										label: 'zurück',
@@ -3395,20 +3404,12 @@ const app = {
 									{
 										label: 'Tour beenden',
 										color: 'coalgrey',
-										icon: 'arrow right'
+										icon: ''
 									}
 								],
 								content: [
 									{
-										"content" : "Überschrift",
-										"fileCopyright" : "",
-										"filename" : "",
-										"imageAlt" : "",
-										"imageCaption" : "",
-										"type" : "headline"
-									},
-									{
-										"content" : "Text-Paragraph",
+										"content" : "Gemeinschaft und Zusammenhalt; Erfindergeist und Kreativität; outside the box-Denken; selbstgemachte Gegenstände zeugen von Tatendrang; Akteure entwickelten Selbstbewusstsein; prägte sie ihr Leben lang und bestimmt teilweise noch immer einen Großteil des Alltags",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -3475,6 +3476,7 @@ const app = {
 				if(step === 0) {
 					app.gui.toolbar.toggleToolbar(false);
 					app.gui.message.setMessage(this.tourMessage);
+					app.gui.message.boxEl.classList.add('first-contact');
 
 					app.gui.message.buttons.button[0].element.addEventListener('click', (e) => {
 						app.gui.message.hideMessage(true)
@@ -3501,6 +3503,20 @@ const app = {
 			}, 
 
 			setTourMessage(step) {
+				let thisMessageExtended = false;
+				let thisMessageSizeControl = false;
+				let thisMessageShowClose = true;
+				if(Object.keys(this.steps[step].message).includes('showClose')){
+					thisMessageShowClose = this.steps[step].message.showClose;
+				}
+				if(Object.keys(this.steps[step].message).includes('options')){
+					if(Object.keys(this.steps[step].message.options).includes('extended')) {
+						thisMessageExtended = this.steps[step].message.options.extended;
+					}
+					if(Object.keys(this.steps[step].message.options).includes('sizeControl')) {
+						thisMessageSizeControl = this.steps[step].message.options.sizeControl;
+					}
+				}
 				this.tourMessage = {
 					type: this.steps[step].message.type,
 					content: app.createHTMLContentFromJSON(this.steps[step].message.content),
@@ -3509,10 +3525,10 @@ const app = {
 					buttonSetup: [
 						{ label: this.steps[step].message.buttons[0].label, color: this.steps[step].message.buttons[0].color, icon: this.steps[step].message.buttons[0].icon }
 					], 
-					showClose: true,
+					showClose: thisMessageShowClose,
 					options: {
-						extended: false, 
-						sizeControl: true
+						extended: thisMessageExtended, 
+						sizeControl: thisMessageSizeControl
 					}
 				}
 
