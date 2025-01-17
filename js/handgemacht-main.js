@@ -735,7 +735,9 @@ const app = {
 				if(this.backEl) {
 					this.backEl.addEventListener('click', (evt) => {
 						self.hideMessage(true);
+						if(!app.collectionViewer.initialized) { return; }
 						app.gui.title.set();
+						app.collectionViewer.resetView.resetCameraView();
 					});
 				}
 
@@ -1462,6 +1464,8 @@ const app = {
 
 	collectionViewer: {
 
+		initialized: false,
+
 		toolBarSetup: {
 			color: 'pearlwhite', 
 			shadowColor: 'shadow-smokegrey'
@@ -1536,6 +1540,9 @@ const app = {
 			app.gui.toolbar.button[3].icon.addEventListener('click', (e) => {
 				app.collectionViewer.resetView.resetCameraView();
 			})
+
+			this.initialized = true;
+			app.dev && console.log('dev --- collectionViewer initialized');
 		},
 
 		onboarding: {
@@ -2015,16 +2022,7 @@ const app = {
 			pillArray: [],
 
 			init() {
-				this.setEventListeners();
 				app.dev && console.log('dev --- cv > highlight: initialized');
-			},
-
-			setEventListeners(){
-				if(app.gui.message.backEl) {
-					app.gui.message.backEl.addEventListener('click', (evt) => {
-						app.collectionViewer.resetView.resetCameraView();
-					});
-				}
 			},
 
 			onclickHandler(fgNode, showMessage = true) {
@@ -3291,10 +3289,10 @@ const app = {
 			fgFilterUpdated: false,
 
 			list: {
-				waa: {
-					title: 'WAA Wackersdorf',
-					short: 'waa'
-				},
+				// testwaa: {
+				// 	title: 'WAA Wackersdorf',
+				// 	short: 'waa'
+				// },
 			},
 
 			setSteps(tour) {
@@ -3701,6 +3699,7 @@ const app = {
 			setEventListeners() {
 				document.addEventListener('loadingScreen-ready', (event) => {
 					if(app.tour){
+						if(typeof this.list[app.tour] !== 'object'){ return; }
 						const tourFound = this.setSteps(app.tour);
 						const stepFound = (typeof this.steps[app.step] === 'object');
 
@@ -5537,6 +5536,8 @@ const app = {
 
 	modelViewer: {
 
+		initialized: false,
+
 		toolBarSetup: {
 			color: 'pearlwhite', 
 			shadowColor: 'shadow-smokegrey'
@@ -5572,6 +5573,9 @@ const app = {
 			this.measurement.init();
 			app.gui.toolbar.button[2].addEventListener('click', (e) => app.modelViewer.measurement.toggleMeasurements() );
 			app.gui.toolbar.setButton(this.ar.buttonSetup);
+
+			this.initialized = true;
+			app.dev && console.log('dev --- modelViewer initialized');
 		},
 
 		info: {
