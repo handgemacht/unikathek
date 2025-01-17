@@ -374,6 +374,13 @@ const app = {
 					url += nodeId;
 				}
 
+				if(app.embedded){
+					this.element.innerHTML = '<span></span>';
+					this.containerEl.className = 'gui-title-container';
+					this.containerEl.removeEventListener('click', app.gui.title.titleClickHandler);
+					return;
+				}
+
 				this.element.innerHTML = '<span>' + app.title + '</span>';
 
 				if(breadcrumb) {
@@ -693,6 +700,7 @@ const app = {
 				this.containerEl.className = 'gui-message-container hide';
 				this.boxEl.className = 'gui-message-box';
 				this.closeEl.className = 'close';
+				this.backEl.className = 'back';
 				this.sizeControlEl.className = 'size-control';
 				this.sizeControlEl.setAttribute('data-extended', false);
 
@@ -5697,8 +5705,6 @@ const app = {
 				const modelViewer = app.modelViewer.element;
 				let contentHTML = '';
 
-				app.dev && console.log('dev--- loadContextStory > typeof: ', typeof modelJSON.objectData.usageContext)
-
 				if(typeof modelJSON.objectData.usageContext === 'object') {
 					contentHTML = app.createHTMLContentFromJSON(modelJSON.objectData.usageContext)
 					this.message = {
@@ -5725,6 +5731,7 @@ const app = {
 			}, 
 
 			setContextStory() {
+				if(app.embedded){ return; }
 				app.gui.message.setMessage(this.message);
 			}
 		},
@@ -6181,7 +6188,7 @@ const app = {
 			app.gui.title.set(modelJSON.basicData.name, 'node-object', modelJSON.primaryKey, true)
 
 			//set modelViewer data
-			app.hideGUI ? modelViewer.src = app.filepaths.files + modelJSON.appData.model.quality1k : modelViewer.src = app.filepaths.files + modelJSON.appData.model.quality2k;
+			app.hideGUI ? modelViewer.src = app.filepaths.files + modelJSON.appData.model.quality512 : modelViewer.src = app.filepaths.files + modelJSON.appData.model.quality2k;
 			modelViewer.cameraOrbit = modelJSON.appData.modelViewer.cameraOrbit;
 			modelViewer.cameraTarget = modelJSON.appData.modelViewer.cameraTarget;
 			modelViewer.fieldOfView = modelJSON.appData.modelViewer.cameraField;
