@@ -1475,6 +1475,7 @@ const app = {
 				set: function(target, prop, value){
 					target[prop] = value;
 					document.dispatchEvent(app.collectionViewer.proxyfgData.update);
+					app.dev && console.log('event --- proxyfgData-update')
 					return true;
 				}
 			}
@@ -2313,7 +2314,18 @@ const app = {
 
 			collectionData: {
 				releaseDate: 'noDate', 
-				objectCount: 'noCount'
+				objectCount: 'noCount',
+				objectVisibleCount: 'noCount',
+				linkCount: 'noCount',
+				linkVisibleCount: 'noCount',
+				categoryCount: 'noCount',
+				categoryVisibleCount: 'noCount',
+				topicCount: 'noCount',
+				topicVisibleCount: 'noCount',
+				tagCount: 'noCount',
+				tagVisibleCount: 'noCount',
+				productionTagCount: 'noCount',
+				productionTagVisibleCount: 'noCount',
 			},
 
 			init() {
@@ -2323,13 +2335,26 @@ const app = {
 					let collectionCounts = self.setCollectionCounts(app.collectionViewer.proxyfgData.data);
 					self.collectionData.releaseDate = app.collectionViewer.proxyfgData.data.releaseDate;
 					self.collectionData.objectCount = collectionCounts.objects;
+					self.collectionData.objectVisibleCount = collectionCounts.objectsVisible;
 					self.collectionData.linkCount = collectionCounts.links;
+					self.collectionData.linkVisibleCount = collectionCounts.linksVisible;
 					self.collectionData.categoryCount = collectionCounts.categories;
 					self.collectionData.topicCount = collectionCounts.topics;
 					self.collectionData.tagCount = collectionCounts.tags;
 					self.collectionData.productionTagCount = collectionCounts.productionTags;
 					self.createElements();
 					self.setEventlisteners();
+				});
+
+				document.addEventListener('loadingScreen-ready', (event) => {
+					let collectionCounts = self.setCollectionCounts(app.collectionViewer.proxyfgData.data);
+					self.collectionData.objectVisibleCount = collectionCounts.objectsVisible;
+					self.collectionData.linkVisibleCount = collectionCounts.linksVisible;
+					self.collectionData.categoryVisibleCount = app.collectionViewer.filter.filteredData.categories.length;
+					self.collectionData.topicVisibleCount = app.collectionViewer.filter.filteredData.topics.length;
+					self.collectionData.tagVisibleCount = app.collectionViewer.filter.filteredData.tags.length;
+					self.collectionData.productionTagVisibleCount = app.collectionViewer.filter.filteredData.productionTags.length;
+					self.updateCollectionInfo()
 				});
 				app.dev && console.log('dev --- cv > info: initialized');
 			},
@@ -2380,9 +2405,9 @@ const app = {
 				objectCountEl.appendChild(objectCountHeadline);
 				objectCountHeadline.textContent = 'Objekte: ';
 				objectCountHeadline.className = 'text-smokegrey';
-				const objectCountValueEl = document.createElement('dd');
-				listBasicEl.appendChild(objectCountValueEl);
-				objectCountValueEl.textContent = this.collectionData.objectCount;
+				this.objectCountValueEl = document.createElement('dd');
+				listBasicEl.appendChild(this.objectCountValueEl);
+				this.objectCountValueEl.textContent = this.collectionData.objectCount + ' (' + this.collectionData.objectVisibleCount + ' gefiltert)';
 
 				const linkCountEl = document.createElement('dt');
 				listBasicEl.appendChild(linkCountEl);
@@ -2390,9 +2415,9 @@ const app = {
 				linkCountEl.appendChild(linkCountHeadline);
 				linkCountHeadline.textContent = 'Verknüpfungen: ';
 				linkCountHeadline.className = 'text-smokegrey';
-				const linkCountValueEl = document.createElement('dd');
-				listBasicEl.appendChild(linkCountValueEl);
-				linkCountValueEl.textContent = this.collectionData.linkCount;
+				this.linkCountValueEl = document.createElement('dd');
+				listBasicEl.appendChild(this.linkCountValueEl);
+				this.linkCountValueEl.textContent = this.collectionData.linkCount + ' (' + this.collectionData.linkVisibleCount + ' gefiltert)';
 
 				const categoryCountEl = document.createElement('dt');
 				listBasicEl.appendChild(categoryCountEl);
@@ -2400,9 +2425,9 @@ const app = {
 				categoryCountEl.appendChild(categoryCountHeadline);
 				categoryCountHeadline.textContent = 'Kontexte: ';
 				categoryCountHeadline.className = 'text-smokegrey';
-				const categoryCountValueEl = document.createElement('dd');
-				listBasicEl.appendChild(categoryCountValueEl);
-				categoryCountValueEl.textContent = this.collectionData.categoryCount;
+				this.categoryCountValueEl = document.createElement('dd');
+				listBasicEl.appendChild(this.categoryCountValueEl);
+				this.categoryCountValueEl.textContent = this.collectionData.categoryCount + ' (' + this.collectionData.categoryVisibleCount + ' gefiltert)';
 
 				const topicCountEl = document.createElement('dt');
 				listBasicEl.appendChild(topicCountEl);
@@ -2410,9 +2435,9 @@ const app = {
 				topicCountEl.appendChild(topicCountHeadline);
 				topicCountHeadline.textContent = 'Merkmale: ';
 				topicCountHeadline.className = 'text-smokegrey';
-				const topicCountValueEl = document.createElement('dd');
-				listBasicEl.appendChild(topicCountValueEl);
-				topicCountValueEl.textContent = this.collectionData.topicCount;
+				this.topicCountValueEl = document.createElement('dd');
+				listBasicEl.appendChild(this.topicCountValueEl);
+				this.topicCountValueEl.textContent = this.collectionData.topicCount + ' (' + this.collectionData.topicVisibleCount + ' gefiltert)';
 
 				const tagCountEl = document.createElement('dt');
 				listBasicEl.appendChild(tagCountEl);
@@ -2420,9 +2445,9 @@ const app = {
 				tagCountEl.appendChild(tagCountHeadline);
 				tagCountHeadline.textContent = 'Themen-Tags: ';
 				tagCountHeadline.className = 'text-smokegrey';
-				const tagCountValueEl = document.createElement('dd');
-				listBasicEl.appendChild(tagCountValueEl);
-				tagCountValueEl.textContent = this.collectionData.tagCount;
+				this.tagCountValueEl = document.createElement('dd');
+				listBasicEl.appendChild(this.tagCountValueEl);
+				this.tagCountValueEl.textContent = this.collectionData.tagCount + ' (' + this.collectionData.tagVisibleCount + ' gefiltert)';
 
 				const productionTagCountEl = document.createElement('dt');
 				listBasicEl.appendChild(productionTagCountEl);
@@ -2430,10 +2455,9 @@ const app = {
 				productionTagCountEl.appendChild(productionTagCountHeadline);
 				productionTagCountHeadline.textContent = 'Herstellungs-Tags: ';
 				productionTagCountHeadline.className = 'text-smokegrey';
-				const productionTagCountValueEl = document.createElement('dd');
-				listBasicEl.appendChild(productionTagCountValueEl);
-				productionTagCountValueEl.textContent = this.collectionData.productionTagCount;
-
+				this.productionTagCountValueEl = document.createElement('dd');
+				listBasicEl.appendChild(this.productionTagCountValueEl);
+				this.productionTagCountValueEl.textContent = this.collectionData.productionTagCount + ' (' + this.collectionData.productionTagVisibleCount + ' gefiltert)';
 			},			
 
 			setEventlisteners() {
@@ -2446,22 +2470,45 @@ const app = {
 
 			setCollectionCounts(fgData) {
 				let objectCount = 0;
-				if(typeof fgData.nodes === 'Array') {
+				let objectVisibleCount = 0;
+				if(typeof fgData.nodes === 'object') {
 					for(let node of fgData.nodes) {
-						if(node.type === 'node-object'){
-							objectCount++;
+						if(node.type === 'node-object'){ 
+							objectCount++; 
+							if(node.visibility === 'hidden'){ objectVisibleCount++; }
 						}
 					}
 				}
 
+				let linkCount = 0;
+				let linkVisibleCount = 0;
+				if(typeof fgData.links === 'object') {
+					for(let link of fgData.links) {
+						linkCount++; 
+						if(link.visibility === 'hidden'){ linkVisibleCount++; }
+					}
+				}
+
+
 				return { 
 							objects: objectCount,
-							links: fgData.links.length,
+							objectsVisible: objectVisibleCount,
+							links: linkCount,
+							linksVisible: linkVisibleCount,
 							categories: fgData.categorylist.length,
 							topics: fgData.topiclist.length,
 							tags: fgData.taglist.length,
 							productionTags: fgData.productionTaglist.length 
 						}
+			}, 
+
+			updateCollectionInfo() {
+				this.objectCountValueEl.textContent = this.collectionData.objectCount + ' (' + this.collectionData.objectVisibleCount + ' gefiltert)';
+				this.linkCountValueEl.textContent = this.collectionData.linkCount + ' (' + this.collectionData.linkVisibleCount + ' gefiltert)';
+				this.categoryCountValueEl.textContent = this.collectionData.categoryCount + ' (' + this.collectionData.categoryVisibleCount + ' gefiltert)';
+				this.topicCountValueEl.textContent = this.collectionData.topicCount + ' (' + this.collectionData.topicVisibleCount + ' gefiltert)';
+				this.tagCountValueEl.textContent = this.collectionData.tagCount + ' (' + this.collectionData.tagVisibleCount + ' gefiltert)';
+				this.productionTagCountValueEl.textContent = this.collectionData.productionTagCount + ' (' + this.collectionData.productionTagVisibleCount + ' gefiltert)';
 			}
 		},
 
@@ -3779,6 +3826,7 @@ const app = {
 							document.querySelector('#forcegraph').setAttribute('highlight', {noUpdate: false});
 							let event = new Event('load-json-models-ready');
 							document.querySelector('a-scene').dispatchEvent(event);
+							app.dev && console.log('event --- load-json-models-ready')
 						});
 
 						//listen for JSON-models-loaded event
@@ -3886,6 +3934,7 @@ const app = {
 								THREE.DefaultLoadingManager.onLoad = function () {
 									let event = new Event('JSON-models-loaded');
 									document.querySelector('a-scene').dispatchEvent(event);
+									app.dev && console.log('event --- JSON-models-loaded')
 								};
 							});
 					},
@@ -4000,6 +4049,7 @@ const app = {
 									newLink.name = category.title;
 									newLink.type = 'link-category';
 									newLink.material = '';
+									newLink.visibility = 'visible';
 									fgData.links.push(newLink);
 								}
 							}
@@ -4016,6 +4066,7 @@ const app = {
 									newLink.name = topic.title;
 									newLink.type = 'link-topic';
 									newLink.material = '';
+									newLink.visibility = 'visible';
 									fgData.links.push(newLink);
 								}
 							}
@@ -4033,6 +4084,7 @@ const app = {
 										newLink.name = tag;
 										newLink.type = 'link-tag';
 										newLink.material = '';
+										newLink.visibility = 'visible';
 										fgData.links.push(newLink);
 									}
 								}
@@ -4051,6 +4103,7 @@ const app = {
 										newLink.name = productionTag;
 										newLink.type = 'link-productionTag';
 										newLink.material = '';
+										newLink.visibility = 'hidden';
 										fgData.links.push(newLink);
 									}
 								}
@@ -4153,6 +4206,7 @@ const app = {
 
 						let event = new Event('filter-updated');
 						document.querySelector('a-scene').dispatchEvent(event);
+						app.dev && console.log('event --- filter-updated')
 					},
 
 					createForceGraph: function() {
@@ -4169,6 +4223,7 @@ const app = {
 							onEngineStop: e => {
 								let event = new Event('forcegraph-ready');
 								document.querySelector('a-scene').dispatchEvent(event);
+								app.dev && console.log('event --- forcegraph-ready')
 							},
 							d3AlphaMin: 0.5,
 							d3AlphaDecay: 0.028,
@@ -4478,6 +4533,7 @@ const app = {
 					this.moveOrbitTarget();
 					let event = new Event('camera-focus-target-ready');
 					document.querySelector('a-scene').dispatchEvent(event);
+					app.dev && console.log('event --- lcamera-focus-target-ready')
 				},
 
 				tick: function () {},
@@ -4645,6 +4701,7 @@ const app = {
 
 					let event = new Event('highlight-ready');
 					document.querySelector('a-scene').dispatchEvent(event);
+					app.dev && console.log('event --- highlight-ready')
 				},
 
 				tick: function () {
@@ -5406,18 +5463,21 @@ const app = {
 				app.collectionViewer.components['load-json-models'].ready = true;
 				let event = new Event('collectionViewer-ready');
 				document.querySelector('a-scene').dispatchEvent(event);
+				app.dev && console.log('event --- collectionViewer-ready')
 			}, {once:true});
 
 			this.sceneEl.addEventListener('camera-focus-target-ready', (evt) => {
 				app.collectionViewer.components['camera-focus-target'].ready = true;
 				let event = new Event('collectionViewer-ready');
 				document.querySelector('a-scene').dispatchEvent(event);
+				app.dev && console.log('event --- collectionViewer-ready')
 			}, {once:true});
 
 			this.sceneEl.addEventListener('highlight-ready', (evt) => {
 				app.collectionViewer.components['highlight'].ready = true;
 				let event = new Event('collectionViewer-ready');
 				document.querySelector('a-scene').dispatchEvent(event);
+				app.dev && console.log('event --- collectionViewer-ready')
 			}, {once:true});
 
 			this.sceneEl.addEventListener('forcegraph-ready', (evt) => {
@@ -5428,6 +5488,7 @@ const app = {
 				app.collectionViewer.components['forcegraph'].ready = true;
 				let event = new Event('collectionViewer-ready');
 				document.querySelector('a-scene').dispatchEvent(event);
+				app.dev && console.log('event --- collectionViewer-ready')
 			});
 
 			this.sceneEl.addEventListener('collectionViewer-ready', (evt) => {
@@ -5469,6 +5530,7 @@ const app = {
 				app.gui.loadingScreen.hideLoadingScreen();
 				let event = new Event('loadingScreen-ready');
 				document.dispatchEvent(event);
+				app.dev && console.log('event --- loadingScreen-ready')
 			});
 		}
 	},
@@ -5489,8 +5551,8 @@ const app = {
 					target[prop] = value;
 					if(typeof app.modelViewer.proxyJSON === 'undefined') { return false; };
 					if(!app.modelViewer.proxyJSON.data) { return false; };
-					app.dev && console.log('dev --- proxyJSON-update', app.modelViewer.proxyJSON);
 					document.dispatchEvent(app.modelViewer.proxyJSON.update);
+					app.dev && console.log('dev --- proxyJSON-update', app.modelViewer.proxyJSON);
 					return true;
 				}
 			}
