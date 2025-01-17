@@ -824,8 +824,10 @@ const app = {
 
 				if(this.color === 'pearlwhite'){
 					this.closeEl.icon.src = app.assets.icon.small['close'].src.coalgrey;
+					this.backEl.icon.src = app.assets.icon['arrow back'].src.coalgrey;
 				}else{
 					this.closeEl.icon.src = app.assets.icon.small['close'].src.pearlwhite;
+					this.backEl.icon.src = app.assets.icon['arrow back'].src.pearlwhite;
 				}
 
 				this.shadow && this.type.element.classList.add(this.shadow.replace('shadow-', ''));
@@ -6172,11 +6174,13 @@ const app = {
 						type: 'Annotation',
 						content: app.createHTMLContentFromJSON(annotation.contents),
 						color: this.annotationSetup[annotation.mediaType].messageColor,
-						shadow: this.annotationSetup[annotation.mediaType].messageShadowColor
+						shadow: this.annotationSetup[annotation.mediaType].messageShadowColor,
+						showClose: false,
+						showBack: true
 					}
 				}  
 
-				app.gui.message.closeEl.addEventListener('click', () => {
+				app.gui.message.backEl.addEventListener('click', () => {
 					for(let a in this.annotationArray){
 						const thisButton = this.annotationArray[a].button.element;
 						thisButton.classList.remove('focus');
