@@ -2304,8 +2304,9 @@ const app = {
 			},
 
 			texts: {
-				title: 'Sammlung',
-				intro: 'Informationen zur Sammlung und Erhebung. '
+				title: 'Die Unikathek',
+				intro: 'Mehr als 100 handgemachte Oberpfälzer Objekte kannst du hier mitsamt ihren Geschichten entdecken. Erfahre anhand der Gegenstände, was die Menschen in der Oberpfalz in den letzten 80 Jahren beschäftigte – und was sie immer wieder dazu antrieb und antreibt, Dinge selbst in die Hand zu nehmen. ',
+				collectionTitle: 'Sammlungsinformation'
 			},
 
 			collectionData: {
@@ -2317,8 +2318,14 @@ const app = {
 				let self = this;
 				
 				document.addEventListener('proxyfgData-update', (event) => {
+					let collectionCounts = self.setCollectionCounts(app.collectionViewer.proxyfgData.data);
 					self.collectionData.releaseDate = app.collectionViewer.proxyfgData.data.releaseDate;
-					self.collectionData.objectCount = self.setCollectionCounts(app.collectionViewer.proxyfgData.data.nodes).objects;
+					self.collectionData.objectCount = collectionCounts.objects;
+					self.collectionData.linkCount = collectionCounts.links;
+					self.collectionData.categoryCount = collectionCounts.categories;
+					self.collectionData.topicCount = collectionCounts.topics;
+					self.collectionData.tagCount = collectionCounts.tags;
+					self.collectionData.productionTagCount = collectionCounts.productionTags;
 					self.createElements();
 					self.setEventlisteners();
 				});
@@ -2341,6 +2348,17 @@ const app = {
 				infoText.className = 'text-small';
 				infoText.textContent = this.texts.intro;
 
+				const onboardingButton = document.createElement('button');
+				this.onboardingButtonEl = onboardingButton;
+				infoContainer.appendChild(onboardingButton);
+				onboardingButton.className = 'link text-smokegrey';
+
+				onboardingButton.textContent = 'Leitfaden anzeigen';
+
+				const collectionHeadline = document.createElement('h3');
+				infoContainer.appendChild(collectionHeadline);
+				collectionHeadline.textContent = this.texts.collectionTitle;
+
 				const listBasicEl = document.createElement('dl');
 				infoContainer.appendChild(listBasicEl);
 
@@ -2358,18 +2376,61 @@ const app = {
 				listBasicEl.appendChild(objectCountEl);
 				const objectCountHeadline = document.createElement('h6');
 				objectCountEl.appendChild(objectCountHeadline);
-				objectCountHeadline.textContent = 'Objektanzahl: ';
+				objectCountHeadline.textContent = 'Objekte: ';
 				objectCountHeadline.className = 'text-smokegrey';
 				const objectCountValueEl = document.createElement('dd');
 				listBasicEl.appendChild(objectCountValueEl);
 				objectCountValueEl.textContent = this.collectionData.objectCount;
 
-				const onboardingButton = document.createElement('button');
-				this.onboardingButtonEl = onboardingButton;
-				infoContainer.appendChild(onboardingButton);
-				onboardingButton.className = 'link text-smokegrey';
+				const linkCountEl = document.createElement('dt');
+				listBasicEl.appendChild(linkCountEl);
+				const linkCountHeadline = document.createElement('h6');
+				linkCountEl.appendChild(linkCountHeadline);
+				linkCountHeadline.textContent = 'Verknüpfungen: ';
+				linkCountHeadline.className = 'text-smokegrey';
+				const linkCountValueEl = document.createElement('dd');
+				listBasicEl.appendChild(linkCountValueEl);
+				linkCountValueEl.textContent = this.collectionData.linkCount;
 
-				onboardingButton.textContent = 'Leitfaden anzeigen';
+				const categoryCountEl = document.createElement('dt');
+				listBasicEl.appendChild(categoryCountEl);
+				const categoryCountHeadline = document.createElement('h6');
+				categoryCountEl.appendChild(categoryCountHeadline);
+				categoryCountHeadline.textContent = 'Kontexte: ';
+				categoryCountHeadline.className = 'text-smokegrey';
+				const categoryCountValueEl = document.createElement('dd');
+				listBasicEl.appendChild(categoryCountValueEl);
+				categoryCountValueEl.textContent = this.collectionData.categoryCount;
+
+				const topicCountEl = document.createElement('dt');
+				listBasicEl.appendChild(topicCountEl);
+				const topicCountHeadline = document.createElement('h6');
+				topicCountEl.appendChild(topicCountHeadline);
+				topicCountHeadline.textContent = 'Merkmale: ';
+				topicCountHeadline.className = 'text-smokegrey';
+				const topicCountValueEl = document.createElement('dd');
+				listBasicEl.appendChild(topicCountValueEl);
+				topicCountValueEl.textContent = this.collectionData.topicCount;
+
+				const tagCountEl = document.createElement('dt');
+				listBasicEl.appendChild(tagCountEl);
+				const tagCountHeadline = document.createElement('h6');
+				tagCountEl.appendChild(tagCountHeadline);
+				tagCountHeadline.textContent = 'Themen-Tags: ';
+				tagCountHeadline.className = 'text-smokegrey';
+				const tagCountValueEl = document.createElement('dd');
+				listBasicEl.appendChild(tagCountValueEl);
+				tagCountValueEl.textContent = this.collectionData.tagCount;
+
+				const productionTagCountEl = document.createElement('dt');
+				listBasicEl.appendChild(productionTagCountEl);
+				const productionTagCountHeadline = document.createElement('h6');
+				productionTagCountEl.appendChild(productionTagCountHeadline);
+				productionTagCountHeadline.textContent = 'Herstellungs-Tags: ';
+				productionTagCountHeadline.className = 'text-smokegrey';
+				const productionTagCountValueEl = document.createElement('dd');
+				listBasicEl.appendChild(productionTagCountValueEl);
+				productionTagCountValueEl.textContent = this.collectionData.productionTagCount;
 
 			},			
 
@@ -2383,13 +2444,22 @@ const app = {
 
 			setCollectionCounts(fgData) {
 				let objectCount = 0;
-				for(let node of fgData) {
-					if(node.type === 'node-object'){
-						objectCount++;
+				if(typeof fgData.nodes === 'Array') {
+					for(let node of fgData.nodes) {
+						if(node.type === 'node-object'){
+							objectCount++;
+						}
 					}
 				}
 
-				return { objects: objectCount }
+				return { 
+							objects: objectCount,
+							links: fgData.links.length,
+							categories: fgData.categorylist.length,
+							topics: fgData.topiclist.length,
+							tags: fgData.taglist.length,
+							productionTags: fgData.productionTaglist.length 
+						}
 			}
 		},
 
