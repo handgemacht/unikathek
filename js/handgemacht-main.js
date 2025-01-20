@@ -5869,7 +5869,6 @@ const app = {
 			}, 
 
 			setContextStory() {
-				if(app.embedded){ return; }
 				app.gui.message.setMessage(this.message);
 			}
 		},
@@ -6301,6 +6300,7 @@ const app = {
 				app.isARCapable = app.modelViewer.checkARSupport();
 				app.modelViewer.ar.setARButton();
 				app.gui.loadingScreen.hideLoadingScreen();
+				if(app.embedded){ return; }
 				app.modelViewer.contextStory.setContextStory();
 			});
 		},
