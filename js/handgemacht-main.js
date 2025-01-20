@@ -6369,7 +6369,7 @@ const app = {
 			this.element.setAttribute('field-of-view', '');
 			this.element.setAttribute('interpolation-decay', '150');
 			this.element.setAttribute('data-dimension', 'false');
-			app.hideGUI && this.element.setAttribute('auto-rotate', '');
+			//app.hideGUI && this.element.setAttribute('auto-rotate', '');
 			app.hideGUI && this.element.setAttribute('rotation-per-second', '0.3rad');
 			app.hideGUI && this.element.setAttribute('disable-zoom', '');
 			app.hideGUI && this.element.setAttribute('interaction-prompt', 'none');
