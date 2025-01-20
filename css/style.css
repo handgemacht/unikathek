@@ -1036,6 +1036,7 @@ button.content-object-link > img {
   max-height: 40dvh;
   margin: -15px 0 0 -15px;
   overflow: hidden; 
+  cursor: zoom-in;
 }
 
 .content-image > .content-image-box > img {
@@ -1121,6 +1122,7 @@ div.gui-fullscreen-container {
   margin: 0;
   background-color: #41403FAA;
   z-index: 5; 
+  cursor: zoom-out;
 }
 
 div.gui-fullscreen-container > img.image {
