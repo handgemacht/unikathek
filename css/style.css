@@ -1013,6 +1013,7 @@ a.content-link:visited {
 
 button.content-object-link {
   font-weight: 700;
+  margin-bottom: 3rem;
 }
 
 button.content-object-link > img {

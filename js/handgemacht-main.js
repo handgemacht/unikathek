@@ -407,9 +407,10 @@ const app = {
 				let url = app.gui.title.containerEl.getAttribute('data-url');
 				app.dev ? url+='&dev=true' : '';
 				app.stats ? url+='&dev=stats' : '';
+				app.embedded ? url+='&embeddded=true' : '';
 				app.tour ? url+='&tour=' + app.tour : '';
 				app.step ? url+='&step=' + app.step : '';
-				app.embedded ? url+='&embeddded=true' : '';
+
 				if(app.collectionViewer.highlight.focusedNode) {
 					app.collectionViewer.resetView.resetCameraView();
 					app.gui.message.hideMessage(true);
@@ -744,6 +745,10 @@ const app = {
 				if(this.closeEl) {
 					this.closeEl.addEventListener('click', (evt) => {
 						self.hideMessage(true);
+						if(app.tour) {
+							app.tour = null;
+							app.step = null;
+						}
 					});
 				}
 
@@ -760,9 +765,7 @@ const app = {
 							self.containerEl.classList.remove('extended');
 							self.containerEl.classList.add('extended');
 							self.sizeControlEl.setAttribute('data-extended', 'true');
-							
 						}
-						
 					});
 				}
 			},
@@ -2307,6 +2310,7 @@ const app = {
 			texts: {
 				title: 'Die Unikathek',
 				intro: 'Mehr als 100 handgemachte Oberpfälzer Objekte kannst du hier mitsamt ihren Geschichten entdecken. Erfahre anhand der Gegenstände, was die Menschen in der Oberpfalz in den letzten 80 Jahren beschäftigte – und was sie immer wieder dazu antrieb und antreibt, Dinge selbst in die Hand zu nehmen. ',
+				toursTitle: 'Themen:',
 				collectionTitle: 'Sammlungsinformation'
 			},
 
@@ -2352,7 +2356,8 @@ const app = {
 					self.collectionData.topicVisibleCount = app.collectionViewer.filter.filteredData.topics.length;
 					self.collectionData.tagVisibleCount = app.collectionViewer.filter.filteredData.tags.length;
 					self.collectionData.productionTagVisibleCount = app.collectionViewer.filter.filteredData.productionTags.length;
-					self.updateCollectionInfo()
+					self.updateCollectionInfo();
+					self.setTourList();
 				});
 				app.dev && console.log('dev --- cv > info: initialized');
 			},
@@ -2379,6 +2384,14 @@ const app = {
 				onboardingButton.className = 'link text-smokegrey';
 
 				onboardingButton.textContent = 'Leitfaden anzeigen';
+
+				const toursHeadline = document.createElement('h3');
+				infoContainer.appendChild(toursHeadline);
+				toursHeadline.textContent = this.texts.toursTitle;
+
+				const toursList = document.createElement('dl');
+				this.toursListEl = toursList;
+				infoContainer.appendChild(toursList);
 
 				const collectionHeadline = document.createElement('h3');
 				infoContainer.appendChild(collectionHeadline);
@@ -2507,6 +2520,26 @@ const app = {
 				this.topicCountValueEl.textContent = this.collectionData.topicCount + ' (' + this.collectionData.topicVisibleCount + ' gefiltert)';
 				this.tagCountValueEl.textContent = this.collectionData.tagCount + ' (' + this.collectionData.tagVisibleCount + ' gefiltert)';
 				this.productionTagCountValueEl.textContent = this.collectionData.productionTagCount + ' (' + this.collectionData.productionTagVisibleCount + ' gefiltert)';
+			}, 
+
+			setTourList() {
+				for (let name in app.collectionViewer.tour.list) {
+					const tour = app.collectionViewer.tour.list[name];
+					const tourButtonEl = document.createElement('button');
+					this.toursListEl.appendChild(tourButtonEl);
+					tourButtonEl.textContent = tour.title;
+					tourButtonEl.className = 'button duckyellow';
+
+					tourButtonEl.addEventListener('click', (e) => {
+						let url = '?m=cv';
+						app.dev ? url+='&dev=true' : '';
+						app.stats ? url+='&dev=stats' : '';
+						app.embedded ? url+='&embeddded=true' : '';
+						url+='&tour=' + tour.short;
+						url+='&step=0';
+						window.location.href = url;
+					});
+				}
 			}
 		},
 
@@ -3289,10 +3322,11 @@ const app = {
 			fgFilterUpdated: false,
 
 			list: {
-				// testwaa: {
-				// 	title: 'WAA Wackersdorf',
-				// 	short: 'waa'
-				// },
+				waa: {
+					title: 'WAA Wackersdorf',
+					short: 'waa', 
+					steps: '9'
+				},
 			},
 
 			setSteps(tour) {
@@ -3330,152 +3364,91 @@ const app = {
 										"type" : "headline"
 									},
 									{
-										"content" : "Anfang der 1980er-Jahre. In der „beschaulichen“ Oberpfalz macht sich Unruhe breit. Da soll etwas Großes gebaut werden: eine Wiederaufbereitungsanlage für Kernbrennstäbe aus Atomkraftwerken. Während sich einige Bürger davon einen wirtschaftlichen Aufschwung erhoffen und das Großprojekt befürworten, sind andere skeptisch. Einer davon ist der 27-jährige Wolfgang. Begleite ihn auf seiner Reise!",
+										"content" : "Anfang der 1980er-Jahre. In der „beschaulichen“ Oberpfalz macht sich Unruhe breit. Da soll möglicherweise etwas Großes gebaut werden: eine Wiederaufbereitungsanlage für Kernbrennstäbe aus Atomkraftwerken. Während sich einige Bürger davon einen wirtschaftlichen Aufschwung erhoffen und das Großprojekt befürworten, sind andere skeptisch. Einer davon ist der 31-jährige Wolfgang. Begleite ihn auf seiner Reise!",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
 										"imageCaption" : "",
 										"type" : "paragraph"
+									},
+									{
+										"content" : "",
+										"fileCopyright" : "Bürgerinitiative Schwandorf",
+										"filename" : "waa tour - Intro Stimmungsbild.jpg",
+										"imageAlt" : "Musikanten bei den WAA-Protesten",
+										"imageCaption" : "",
+										"type" : "image"
 									}
 								]
 							}
-						}, 
+						},
+						{
+							highlightObject: '',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ', Start',
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'weiter',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									extended: true
+								},
+								content: [
+									{
+										"content" : "Wackersdorf und die WAA",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Die wirtschaftliche Lage rund um Wackersdorf ist angespannt. Zu Beginn der 1980er-Jahre findet der Braunkohleabbau, der jahrhundertelang bestimmend für die Identität und Wirtschaft der Region gewesen ist, ein Ende. Rund 1.600 Menschen verlieren damit auch ihre Arbeitsstelle.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Gleichzeitig ist die „Deutsche Gesellschaft für die Wiederaufarbeitung von Kernbrennstoffen“ (DWK) auf der Suche nach einem geeigneten Standort für eine Anlage, in der radioaktive Abfälle aus Atomkraftwerken aufbereitet werden sollen. Es zeichnet sich ab, dass Wackersdorf dafür in Frage kommen könnte. Entschieden unterstützt wird das Projekt auch von der bayerischen Staatsregierung unter Ministerpräsident Franz Josef Strauß (CSU).",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Schon 1981 rumort es in der einheimischen Bevölkerung. Es gehen noch recht vage Gerüchte herum: „Da kommen Fremde und wollen in unserer Heimat was machen.“ Wenngleich das Ganze noch nicht so recht fassbar ist, verursachen die Informationen bei vielen Bürgern vor Ort ein schlechtes Bauchgefühl. Menschen wie Wolfgang werden skeptisch. 1981 gründet sich in Schwandorf eine Bürgerinitiative. Wolfgang hört davon, wird neugierig und nimmt gemeinsam mit einem Nachbarn am zweiten Treffen dieser Vereinigung teil.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Was? Da kommen Fremde und wollen in unserer Heimat was machen? Da müssen wir schon ein bisschen mit hinschauen… Das kann ja nichts Gutes sein, sonst würde es ja woanders hinkommen, oder? Schauen wir halt mal zum Treffen dieser neuen Bürgerinitiative.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+wolfgang"
+									}
+								]
+							}
+						},
 						{
 							highlightObject: '6379EA32-A534-C246-8D96-4BFCE2179CF2',
 							message: {
-								type: 'Thema: ' + this.list[tour].title,
-								buttons: [
-									{
-										label: 'zurück',
-										color: 'coalgrey',
-										icon: ''
-									},
-									{
-										label: 'nächstes Objekt',
-										color: 'coalgrey',
-										icon: 'arrow right'
-									}
-								],
-								content: [
-									{
-										"content" : "Anstecker \"WAA Nein\"",
-										"fileCopyright" : "",
-										"filename" : "",
-										"imageAlt" : "",
-										"imageCaption" : "",
-										"type" : "headline"
-									},
-									{
-										"content" : "1981 nimmt Wolfgang an einem Treffen der neu gegründeten Bürgerinitiative Schwandorf teil – und wird flugs zum Kassier ernannt. Zwar gibt Wolfgang diesen Posten aus Angst, seine Arbeitsstelle zu verlieren, bald darauf ab und übernimmt stattdessen die Funktion des Kassenprüfers. Dennoch treibt ihn in den folgenden Jahren die Frage um, wie sich der friedliche Protest gegen die WAA finanzieren lässt. Die Aktivisten sind froh um jede Mark, die in die Kasse der Bürgerinitiative fließt, und schlagen mitunter kreative Wege ein. So werden bei Demonstrationen zum Beispiel selbstgemachte Buttons verkauft - und gehen weg wie warme Semmeln.",
-										"fileCopyright" : "",
-										"filename" : "",
-										"imageAlt" : "",
-										"imageCaption" : "",
-										"type" : "paragraph"
-									}, 
-									{
-										"content" : "Anstecker \"WAA Nein\"",
-										"fileCopyright" : "",
-										"filename" : "6379EA32-A534-C246-8D96-4BFCE2179CF2",
-										"imageAlt" : "",
-										"imageCaption" : "",
-										"type" : "object-link"
-									}
-								]
-							}
-						},
-						{
-							highlightObject: 'F07C89FE-D514-6148-9480-457DD951729D',
-							message: {
-								type: 'Thema: ' + this.list[tour].title,
-								buttons: [
-									{
-										label: 'zurück',
-										color: 'coalgrey',
-										icon: ''
-									},
-									{
-										label: 'nächstes Objekt',
-										color: 'coalgrey',
-										icon: 'arrow right'
-									}
-								],
-								content: [
-									{
-										"content" : "Franziskusmarterl",
-										"fileCopyright" : "",
-										"filename" : "",
-										"imageAlt" : "",
-										"imageCaption" : "",
-										"type" : "headline"
-									},
-									{
-										"content" : "Es ist der finanziellen Situation der Bürgerinitiative geschuldet, dass in jeglichen Bereichen des Widerstands selbst Hand angelegt wird. Besonders eindrücklich führt das die Geschichte des Franziskus-Marterls vor Augen. Aus der Intention heraus, einen Treffpunkt zu schaffen, wird dieses genehmigungsfreie Kleindenkmal errichtet. Auch Wolfgang macht mit und steuert Material und Werkzeug bei, das beim Bau seines Hauses übrig geblieben ist.",
-										"fileCopyright" : "",
-										"filename" : "",
-										"imageAlt" : "",
-										"imageCaption" : "",
-										"type" : "paragraph"
-									}, 
-									{
-										"content" : "Franziskusmarterl",
-										"fileCopyright" : "",
-										"filename" : "F07C89FE-D514-6148-9480-457DD951729D",
-										"imageAlt" : "",
-										"imageCaption" : "",
-										"type" : "object-link"
-									}
-								]
-							}
-						},
-						{
-							highlightObject: '64AB9AAE-ABA6-E043-94D0-EC5CE4450E7C',
-							message: {
-								type: 'Thema: ' + this.list[tour].title,
-								buttons: [
-									{
-										label: 'zurück',
-										color: 'coalgrey',
-										icon: ''
-									},
-									{
-										label: 'nächstes Objekt',
-										color: 'coalgrey',
-										icon: 'arrow right'
-									}
-								],
-								content: [
-									{
-										"content" : "Widerstandssocken",
-										"fileCopyright" : "",
-										"filename" : "",
-										"imageAlt" : "",
-										"imageCaption" : "",
-										"type" : "headline"
-									},
-									{
-										"content" : "Beim Engagement gegen den Bau der WAA trägt jeder bei, was er kann. Frauen sorgen zum Beispiel für die Verpflegung der Demonstrierenden, so auch Irmgard Gietl. Sie leistet darüber hinaus einen ganz besonderen Beitrag: Als leidenschaftliche Strickerin verteilt sie selbstgemachte Socken an die Teilnehmer der Demonstrationen, damit diese keine kalten Füße bekommen. Ein Paar dieser “Widerstandssocken” erhält Wolfgang. Ebenso wird Landrat Hans Schuierer damit beschenkt.",
-										"fileCopyright" : "",
-										"filename" : "",
-										"imageAlt" : "",
-										"imageCaption" : "",
-										"type" : "paragraph"
-									}, 
-									{
-										"content" : "Widerstandssocken",
-										"fileCopyright" : "",
-										"filename" : "64AB9AAE-ABA6-E043-94D0-EC5CE4450E7C",
-										"imageAlt" : "",
-										"imageCaption" : "",
-										"type" : "object-link"
-									}
-								]
-							}
-						},
-						{
-							highlightObject: '732C44A9-308C-454C-9A2F-1C1599CE5A48',
-							message: {
-								type: 'Thema: ' + this.list[tour].title,
+								type: 'Thema: ' + this.list[tour].title + ', Teil 1',
 								buttons: [
 									{
 										label: 'zurück',
@@ -3490,7 +3463,7 @@ const app = {
 								],
 								content: [
 									{
-										"content" : "Bauzaun",
+										"content" : "Finanzierung der gewaltfreien Proteste",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -3498,12 +3471,302 @@ const app = {
 										"type" : "headline"
 									},
 									{
-										"content" : "Der Widerstand gegen das Großprojekt hat viele Menschen geprägt. Manche von ihnen haben Erinnerungsstücke an diese Zeit geschaffen. Jahrzehnte später ist Wolfgangs Alltag davon bestimmt, die Erinnerung an das bürgerliche Engagement und den Einsatz für die Demokratie zu hüten und weiterzugeben.",
+										"content" : "Wolfgang, gelernter Industriekaufmann, wird flugs zum Kassier der Bürgerinitiative Schwandorf ernannt. Zwar gibt er diesen Posten aus Angst, seine Arbeitsstelle zu verlieren, bald darauf offiziell ab und übernimmt stattdessen die Funktion des Kassenprüfers. Inoffiziell jedoch übt er die Tätigkeiten des Kassiers aus. In den folgenden Jahren treibt ihn deshalb die Frage um, wie sich der friedliche Protest gegen die WAA finanzieren lässt.",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
 										"imageCaption" : "",
 										"type" : "paragraph"
+									},
+									{
+										"content" : "Puh, ob das jetzt so ne gute Idee war mit dem Kassier… Nicht, dass die Cilly, meine Frau, Recht hat und ich wirklich entlassen werde, wenn ich da in der Öffentlichkeit als Vorstandschaftsmitglied der verrufenen Bürgerinitiative auftrete. Die Arbeit kann ich ja machen, aber offiziell halte ich mich da lieber mal im Hintergrund.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+wolfgang"
+									},
+									{
+										"content" : "Weil man das Projekt auf dem rechtlichen Wege verhindern möchte, wird insbesondere für die Zusammenarbeit mit einem Anwalt Geld gebraucht. Darüber hinaus fallen Kosten für die Öffentlichkeitsarbeit des Vereins sowie für Fachbücher an. Auch Sprit- und Telefonkosten, die privat nicht tragbar wären, sollen möglichst erstattet werden. Die Aktivisten sind daher froh um jede Mark, die in die Kasse der Bürgerinitiative fließt, und schlagen mitunter kreative Wege ein. So werden bei Demonstrationen zum Beispiel selbstgemachte Buttons verkauft – und gehen weg wie warme Semmeln.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Anstecker \"WAA Nein\"",
+										"fileCopyright" : "",
+										"filename" : "6379EA32-A534-C246-8D96-4BFCE2179CF2",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "object-link"
+									},
+									{
+										"content" : "",
+										"fileCopyright" : "Bürgerinitiative Schwandorf",
+										"filename" : "waa tour - WAA_Flugblatt Sonntagsspaziergang.jpg",
+										"imageAlt" : "Flugblatt der WAA Sonntagsspaziergänge",
+										"imageCaption" : "Finanziert werden musste beispielsweise der Druck zehntausender Flugblätter.",
+										"type" : "image"
+									}
+								]
+							}
+						}, 
+						{
+							highlightObject: 'F07C89FE-D514-6148-9480-457DD951729D',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ', Teil 2',
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'weiter',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								content: [
+									{
+										"content" : "Legale Proteste in einer Demokratie",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Im Zuge des Widerstands gegen die WAA befassen sich die Akteure zunehmend mit der Frage, welche Rechte ihnen als Bürger zukommen. Was können sie in einem demokratisch verfassten Staat tun, um ein solches Projekt auszubremsen und zu verhindern?",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Übrigens ist angesichts der finanziellen Situation der Bürgerinitiative auch hier Eigenleistung gefragt. Wolfgang beteiligt sich und steuert Material und Werkzeug bei, das beim Bau seines Hauses übriggeblieben ist.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									}, 
+									{
+										"content" : "Franziskusmarterl",
+										"fileCopyright" : "",
+										"filename" : "F07C89FE-D514-6148-9480-457DD951729D",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "object-link"
+									},
+									{
+										"content" : "„Also ich bin fast schon überrascht von mir selber. Widerstand! Das hat ja so gar nicht in mein Weltbild gepasst. Und wie sowas gehen soll, das hab ich als frommer Bürger und braver CSU-Wähler schon gleich dreimal nicht gewusst. Aber in der letzten Zeit haben wir viel dazugelernt. Wir haben eine Stimme, die wir erheben dürfen und können. Mutig und selbstbewusst sind wir geworden!“",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+wolfgang"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '64AB9AAE-ABA6-E043-94D0-EC5CE4450E7C',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ', Teil 3',
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'weiter',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								content: [
+									{
+										"content" : "Gesten des Zusammenhalts",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Viele Menschen investieren einen Großteil ihrer Freizeit in die Protestaktionen und werden auf verschiedenste Weise tätig. Frauen sorgen zum Beispiel für die Verpflegung der Demonstrierenden. Einheimische stellen Mahlzeiten für die aus der gesamten Bundesrepublik angereisten WAA-Gegner bereit, die Ende 1985 ein Hüttendorf auf dem WAA-Gelände aufschlagen und das Areal so besetzen.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "",
+										"fileCopyright" : "Bürgerinitiative Schwandorf",
+										"filename" : "waa tour - Box 5 Hüttendorf Verpflegung.jpg",
+										"imageAlt" : "Verpflegung im WAA Hüttendorf",
+										"imageCaption" : "Einheimische gewährleisten die Versorgung der Demonstranten im Hüttendorf 1985/1986.",
+										"type" : "image"
+									},
+									{
+										"content" : "Außerordentlich engagiert im Widerstand ist Irmgard Gietl. Sie leistet einen ganz besonderen Beitrag: Als leidenschaftliche Strickerin verteilt sie selbstgemachte Socken an die Teilnehmer der Demonstrationen, damit diese keine kalten Füße bekommen. Ein Paar dieser “Widerstandssocken” erhält Wolfgang im Jahr 1985, den nun infolge des monate- und jahrelangen Protestes eine enge Freundschaft mit Irmgard verbindet. Solche kleinen Anerkennungen festigen den Zusammenhalt und sind ein Ansporn zum Weitermachen, wie Wolfgang sagt. Auch Landrat Hans Schuierer wird mit einem Paar Socken beschenkt.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									}, 
+									{
+										"content" : "Widerstandssocken",
+										"fileCopyright" : "",
+										"filename" : "64AB9AAE-ABA6-E043-94D0-EC5CE4450E7C",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "object-link"
+									},
+									{
+										"content" : "Ganz schön anstrengend… Jede freie Minute geht drauf für die Aktivitäten der BI. Aber kleine Gesten wie die Widerstandssocken, die Irmgard mir geschenkt hat, erinnern mich daran, dass es sich lohnt. Fühlt sich schon an wie eine große Familie, die da mittlerweile entstanden ist.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+wolfgang"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ', Teil 4',
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'weiter',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									extended: true
+								},
+								content: [
+									{
+										"content" : "Portrait: Hans Schuierer",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Hans Schuierer gilt heute als Symbolfigur des friedlichen Widerstandes gegen die WAA. Als damaliger SPD-Landrat, der sich um das wirtschaftliche Wohl des Landkreises sorgte, war er dem viele Arbeitsplätze versprechenden Bauvorhaben gegenüber zunächst nicht abgeneigt. Diese Haltung änderte sich jedoch schlagartig, als er von einem 200 Meter hohen Kamin erfuhr, der auf dem Gelände gebaut werden sollte. „Wozu der Kamin?“, fragte er die Herren von der DWK. „Damit die radioaktiven Schadstoffe möglichst weit verteilt werden“, lautete die Antwort.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Spätestens jetzt wurde Hans Schuierer klar, dass er das Projekt nicht befürworten konnte. Nachdem er eine vonseiten des Landratsamtes notwendige Baugenehmigung verweigert hatte, wurde 1985 ein Gesetz, die „Lex Schuierer“, verabschiedet, wodurch die Mitwirkung des Landratsamtes bei dieser Angelegenheit nicht mehr nötig war.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ', Teil 5',
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'weiter',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									extended: true
+								},
+								content: [
+									{
+										"content" : "Verschiedene Formen des Widerstands",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Am Widerstand beteiligen sich die unterschiedlichsten Charaktere. Die Großzahl der WAA-Gegner, darunter auch Wolfgang, war darauf bedacht, dass der Widerstand möglichst friedlich vonstattengeht. Dennoch griffen manche zu härteren Mitteln. Sogenannte Krähenfüße – handtellergroße Gebilde aus Metall mit vier angespitzten Zinken – wurden auf das Baugelände geworfen, um die Reifen der Polizeiautos zu zerstören.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '732C44A9-308C-454C-9A2F-1C1599CE5A48',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ', Teil 6',
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'weiter',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								content: [
+									{
+										"content" : "Erinnerung an eine turbulente Zeit",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "1989 wurde das Großprojekt WAA Wackersdorf aus verschiedenen Gründen aufgegeben und der Bau der Anlage eingestellt. Über all die Jahre hat der Widerstand gegen das Großprojekt viele Menschen geprägt. Manche von ihnen haben Erinnerungsstücke an diese Zeit geschaffen. Jahrzehnte später ist Wolfgangs Alltag davon bestimmt, die Erinnerung an das bürgerliche Engagement und den Einsatz für die Demokratie zu hüten und weiterzugeben.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Unser Ziel haben wir erreicht: Die WAA ist nicht gekommen. Über 35 Jahre ist das jetzt her. Damals hab ich auch deswegen alles dokumentiert, um später sagen zu können: Wir haben was getan. Schön wär‘s, wenn wir das Erlebte jetzt auch der jungen Generation vermitteln könnten.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+wolfgang"
 									}, 
 									{
 										"content" : "Bauzaun WAA-Gelände",
@@ -3519,7 +3782,7 @@ const app = {
 						{
 							highlightObject: '',
 							message: {
-								type: 'Thema: ' + this.list[tour].title,
+								type: 'Thema: ' + this.list[tour].title + ', Ende',
 								buttons: [
 									{
 										label: 'zurück',
@@ -3527,19 +3790,117 @@ const app = {
 										icon: ''
 									},
 									{
-										label: 'Tour beenden',
+										label: 'weiter',
 										color: 'coalgrey',
-										icon: ''
+										icon: 'arrow right'
 									}
 								],
+								options: {
+									extended: true
+								},
 								content: [
 									{
-										"content" : "Gemeinschaft und Zusammenhalt; Erfindergeist und Kreativität; outside the box-Denken; selbstgemachte Gegenstände zeugen von Tatendrang; Akteure entwickelten Selbstbewusstsein; prägte sie ihr Leben lang und bestimmt teilweise noch immer einen Großteil des Alltags",
+										"content" : "Wackersdorf heute",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Auf dem ehemaligen WAA-Gelände befindet sich heute keine atomare Wiederaufbereitungsanlage, sondern ein Industriepark. Das ist wohl nicht zuletzt Menschen wie Wolfgang zu verdanken, die sich jahrelang mit großem Erfindergeist, mit kreativer Schaffenskraft und Durchhaltevermögen gegen das Vorhaben WAA einsetzten. Von ihrem Engagement und Tatendrang zeugen die hier präsentierten selbstgemachten Gegenstände. Die Akteure entwickelten dabei ein besonderes Selbstbewusstsein, lernten viel über ihre bürgerlichen Rechte in einer Demokratie und auch, nicht zu allem „Ja und Amen“ zu sagen. Diese Erfahrungen prägten sie ihr Leben lang und bestimmen teilweise noch immer einen Großteil ihres Alltags. So ist auch Wolfgang immer noch darauf bedacht, seine Geschichte zu erzählen.",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
 										"imageCaption" : "",
 										"type" : "paragraph"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ', Literatur',
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'beenden',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									extended: true
+								},
+								content: [
+									{
+										"content" : "Mehr zum Thema",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Du willst mehr zum Thema erfahren? Dann schau doch mal hier rein:",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Döring, Alois: Franziskus in Wackersdorf. Christliche Symbolik im politischen Widerstand – religiöse Riten und Formen in ökologischen und friedensethischen Protestbewegungen, in: Brednich, Rolf Wilhelm/Schmitt, Heinz (Hg.): Symbole. Zur Bedeutung der Zeichen in der Kultur, Münster 1997, S. 435-449.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "literature"
+									},
+									{
+										"content" : "Duschinger, Oskar: Hans Schuierer. Symbolfigur des friedlichen Widerstandes gegen die WAA, Regenstauf 2018.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "literature"
+									},
+									{
+										"content" : "Duschinger, Oskar/Zech-Kleber, Bernhard von: Wiederaufbereitungsanlage Wackersdorf, URL: <a href='https://www.historisches-lexikon-bayerns.de/Lexikon/Wiederaufbereitungsanlage_Wackersdorf' target='_blank'>https://www.historisches-lexikon-bayerns.de/Lexikon/Wiederaufbereitungsanlage_Wackersdorf</a>.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "literature"
+									},
+									{
+										"content" : "Stauber, Michaela: Das Franziskusmarterl bei Wackersdorf. 3D-Scan eines Objekts des Widerstands, URL: <a href='https://wissen.freilandmuseum-oberpfalz.de/franziskusmarterl-3d-scan-hand-gemacht/' target='_blank'>https://wissen.freilandmuseum-oberpfalz.de/franziskusmarterl-3d-scan-hand-gemacht/</a>.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "literature"
+									},
+									{
+										"content" : "BR-Beitrag über Irmgard Gietl: <a href='https://www.br.de/br-fernsehen/sendungen/lebenslinien/irmgard-und-die-widerstandssocken-irmgard-gietl-wackersdorf-oberpfalz-ganze-folge102.html' target='_blank'>https://www.br.de/br-fernsehen/sendungen/lebenslinien/irmgard-und-die-widerstandssocken-irmgard-gietl-wackersdorf-oberpfalz-ganze-folge102.html</a>.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "literature"
+									},
+									{
+										"content" : "Zeitzeugeninterviews des Hauses der Bayerischen Geschichte: <a href='https://hdbg.eu/zeitzeugen/themen/waa-wackersdorf/60' target='_blank'>https://hdbg.eu/zeitzeugen/themen/waa-wackersdorf/60</a>.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "literature"
 									}
 								]
 							}
@@ -3621,6 +3982,11 @@ const app = {
 
 					app.gui.message.buttons.button[1].element.addEventListener('click', (e) => {
 						app.gui.message.hideMessage(true);
+						if(step >= app.collectionViewer.tour.list[app.tour].steps){
+							app.tour = null;
+							app.step = null;
+							return;
+						}
 						this.show(step+1);
 					}, { signal: app.gui.message.abortController.signal });
 					return;
@@ -3629,7 +3995,7 @@ const app = {
 
 			setTourMessage(step) {
 				let thisMessageExtended = false;
-				let thisMessageSizeControl = false;
+				let thisMessageSizeControl = true;
 				let thisMessageShowClose = true;
 				if(Object.keys(this.steps[step].message).includes('showClose')){
 					thisMessageShowClose = this.steps[step].message.showClose;
@@ -9839,6 +10205,10 @@ const app = {
 				const linkHTML = '<a href="' + href + '"><button class="button content-object-link duckyellow"><img src="' + app.assets.icon['watch'].src.coalgrey + '" alt="' + app.assets.icon['watch'].alt + '" width="100" height="100">' + content.content + '</button></a>';
 				contentHTML = contentHTML.concat(linkHTML);
 
+			}else if(content.type === 'personal+wolfgang'){
+				const imageHTML = '<img src="" alt="Illustration von Wolfgang" width="100px" height="100px">' 
+				const paragraphAndImageHTML = '<div class="content-image in-paragraph personal"><div class="content-image-box">' + imageHTML + '</div></div><p class="content-text personal">' + content.content + '</p>';
+				contentHTML = contentHTML.concat(paragraphAndImageHTML);
 			}
 		}
 		return contentHTML;
