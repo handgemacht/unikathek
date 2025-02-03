@@ -5,7 +5,7 @@
 //START app 
 const app = {
 	title: 'Unikathek',
-	version: 'beta 1.7 25/01/17',
+	version: 'beta 1.8 25/02/03',
 	dev: false,
 	stats: false,
 	viewerMode: false,
@@ -219,6 +219,15 @@ const app = {
 							coalgrey: filepath + 'hand.gemacht WebApp icon small play coalgrey.svg' 
 						}
 					},
+				}
+			},
+
+			illustration: {
+				personal: {
+					'wolfgang': {
+						alt: 'Illustration von Wolfgang',
+						src: filepath + 'hand.gemacht WebApp illustration personal wolfgang.png'
+					}
 				}
 			},
 
@@ -749,6 +758,7 @@ const app = {
 							app.tour = null;
 							app.step = null;
 						}
+						app.collectionViewer.resetView.resetCameraView();
 					});
 				}
 
@@ -2330,6 +2340,8 @@ const app = {
 				productionTagVisibleCount: 'noCount',
 			},
 
+			tourListSet: false,
+
 			init() {
 				let self = this;
 				
@@ -2523,6 +2535,8 @@ const app = {
 			}, 
 
 			setTourList() {
+				if(this.tourListSet){ return; }
+
 				for (let name in app.collectionViewer.tour.list) {
 					const tour = app.collectionViewer.tour.list[name];
 					const tourButtonEl = document.createElement('button');
@@ -2540,6 +2554,7 @@ const app = {
 						window.location.href = url;
 					});
 				}
+				this.tourListSet = true;
 			}
 		},
 
@@ -3308,10 +3323,6 @@ const app = {
 					target: '#orbit-target', 
 					desiredDistance: 175, 
 					autoRotate: true,
-					// removed pitch reset due to user feedback
-					//activeRotX: true, 
-					//desiredRotX: 0,
-					//desiredCameraPitch: 0,
 					forceUpdate: true
 				});
 			}
@@ -3461,6 +3472,9 @@ const app = {
 										icon: 'arrow right'
 									}
 								],
+								options: {
+									extended: true
+								},
 								content: [
 									{
 										"content" : "Finanzierung der gewaltfreien Proteste",
@@ -3529,6 +3543,9 @@ const app = {
 										icon: 'arrow right'
 									}
 								],
+								options: {
+									extended: true
+								},
 								content: [
 									{
 										"content" : "Legale Proteste in einer Demokratie",
@@ -3589,6 +3606,9 @@ const app = {
 										icon: 'arrow right'
 									}
 								],
+								options: {
+									extended: true
+								},
 								content: [
 									{
 										"content" : "Gesten des Zusammenhalts",
@@ -3743,6 +3763,9 @@ const app = {
 										icon: 'arrow right'
 									}
 								],
+								options: {
+									extended: true
+								},
 								content: [
 									{
 										"content" : "Erinnerung an eine turbulente Zeit",
@@ -5014,6 +5037,7 @@ const app = {
 
 					let newDistance = 0;
 					let newDesiredCameraPitch = 0;
+					let newDesiredCameraYaw = 0;
 					let newDesiredDistance = 0
 					let newTarget = '';
 					let newHighestDistance = 0;
@@ -5022,7 +5046,8 @@ const app = {
 						this.resetHighlight();
 						newTarget = document.querySelector('#forcegraph').object3D.position;
 						newHighestDistance = this.data.highestDistance.max;
-						newDesiredCameraPitch = -5;
+						app.isMobile ? newDesiredCameraPitch = -5 : '';
+						!app.isMobile ? newDesiredCameraYaw = 0 : '';
 					}
 
 					source ? app.collectionViewer.highlight.focusedNode = source.id : app.collectionViewer.highlight.focusedNode = null;
@@ -5031,7 +5056,8 @@ const app = {
 						this.highlightModel(source);
 						newTarget = this.data.source.__threeObj.position;
 						newHighestDistance = this.data.highestDistance.value;
-						newDesiredCameraPitch = -10;
+						app.isMobile ? newDesiredCameraPitch = -15 : '';
+						!app.isMobile ? newDesiredCameraYaw = 25 : '';
 					}
 
 					if(source.type === 'link-tag' || source.type === 'link-category' || source.type === 'link-topic' || source.type === 'link-productionTag' ) {
@@ -5059,6 +5085,7 @@ const app = {
 						activeRotX: true, 
 						desiredRotX: -5, 
 						desiredCameraPitch: newDesiredCameraPitch,
+						desiredCameraYaw: newDesiredCameraYaw,
 						forceUpdate: true 
 					});
 
@@ -5321,6 +5348,8 @@ const app = {
 					desiredRotX: { default: -5 }, 
 					cameraPitch: { default: 0 },
 					desiredCameraPitch: { default: 0 },
+					cameraYaw: { default: 0 },
+					desiredCameraYaw: { default: 25 },
 					forceUpdate: { default: false }
 				},
 
@@ -5401,6 +5430,7 @@ const app = {
 						this.updateOrientation();
 						this.updatePosition();
 						this.updateCameraPitch();
+						!app.isMobile && this.updateCameraYaw();
 					}
 				},
 
@@ -5615,8 +5645,24 @@ const app = {
 					if(this.data.cameraPitch < this.data.desiredCameraPitch) {
 						this.data.cameraPitch += 0.3;
 					}
-					
+		
 					this.el.object3D.rotation.x += (this.data.cameraPitch * 0.01745);
+				},
+
+				updateCameraYaw: function () {
+					let desiredCameraYaw = 0;
+					desiredCameraYaw = this.data.desiredCameraYaw;
+					app.tour ? desiredCameraYaw = 25 : '';
+					app.isMobile ? desiredCameraYaw = 0 : '';
+
+					if(this.data.cameraYaw > desiredCameraYaw) {
+						this.data.cameraYaw -= 0.5;
+					}
+					
+					if(this.data.cameraYaw < desiredCameraYaw) {
+						this.data.cameraYaw += 0.5;
+					}
+					this.el.object3D.children[1].rotation.y = (this.data.cameraYaw * 0.01745);
 				},
 
 				calculateDeltaPosition: function () {
@@ -10158,7 +10204,7 @@ const app = {
 			}else if(content.type === 'paragraph+image'){
 				const imageHTML = '<img src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px">' 
 				const captionHTML = '<span class="content-image-caption">' + content.imageCaption + '<span class="copyright"> Foto: ' + content.fileCopyright + '</span></span>';
-				const paragraphAndImageHTML = '<div class="content-image in-paragraph"><div class="content-image-box">' + imageHTML + '</div>' + captionHTML + '</div><p class="content-text">' + content.content + '</p>';
+				const paragraphAndImageHTML = '<div class="content-image in-paragraph terracotta"><div class="content-image-box">' + imageHTML + '</div>' + captionHTML + '</div><p class="content-text">' + content.content + '</p>';
 				contentHTML = contentHTML.concat(paragraphAndImageHTML);
 
 			}else if(content.type === 'paragraph+audio'){
@@ -10176,7 +10222,7 @@ const app = {
 			}else if(content.type === 'image'){
 				const imageHTML = '<img src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px">' 
 				const captionHTML = '<p class="content-image-caption">' + content.imageCaption + '<span class="copyright"> Foto: ' + content.fileCopyright + '</span></p>';
-				const imageAndCaptionHTML = '<div class="content-image"><div class="content-image-box">' + imageHTML + '</div>' + captionHTML + '</div>';
+				const imageAndCaptionHTML = '<div class="content-image terracotta"><div class="content-image-box">' + imageHTML + '</div>' + captionHTML + '</div>';
 				contentHTML = contentHTML.concat(imageAndCaptionHTML);
 
 			}else if(content.type === 'audio'){
@@ -10206,9 +10252,9 @@ const app = {
 				contentHTML = contentHTML.concat(linkHTML);
 
 			}else if(content.type === 'personal+wolfgang'){
-				const imageHTML = '<img src="" alt="Illustration von Wolfgang" width="100px" height="100px">' 
-				const paragraphAndImageHTML = '<div class="content-image in-paragraph personal"><div class="content-image-box">' + imageHTML + '</div></div><p class="content-text personal">' + content.content + '</p>';
-				contentHTML = contentHTML.concat(paragraphAndImageHTML);
+				const imageHTML = '<img src="' + app.assets.illustration.personal['wolfgang'].src + '" alt="' + app.assets.illustration.personal['wolfgang'].alt + '" width="100px" height="100px">' 
+				const personalHTML = '<div class="content-image personal shadow-skyblue"><div class="content-image-box">' + imageHTML + '</div><p class="content-text personal">' + content.content + '</p></div>';
+				contentHTML = contentHTML.concat(personalHTML);
 			}
 		}
 		return contentHTML;

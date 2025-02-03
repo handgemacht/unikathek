@@ -788,14 +788,14 @@ div.gui-message-container {
   width: 100%;
   height: fit-content;
   max-height: 40%;
-  top: 50%;
+  top: 60%;
   margin: 0;
   pointer-events: none;
   z-index: 4;
 }
 
 div.gui-message-container.extended {
-  top: 5%;
+  top: 10%;
 }
 
 div.gui-message-container.object {
@@ -1002,6 +1002,12 @@ p.content-text.literature {
   font-size: 0.75em;
 }
 
+p.content-text.personal {
+  font-size: 1.0rem;
+  font-weight: 700;
+  padding: 1.5em 2em 0.5em 2em;
+}
+
 a.content-link {
   display: block;
   color: #FF7850;
@@ -1013,7 +1019,7 @@ a.content-link:visited {
 
 button.content-object-link {
   font-weight: 700;
-  margin-bottom: 3rem;
+  margin-bottom: 3em;
 }
 
 button.content-object-link > img {
@@ -1026,7 +1032,6 @@ button.content-object-link > img {
   width: 90%;
   min-width: 175px;
   margin: 30px 15px 30px 10%;
-  background-color: #FF7850;
   border-radius: 0px 20px 0px 20px;
   float: right;
 }
@@ -1043,6 +1048,20 @@ button.content-object-link > img {
 .content-image > .content-image-box > img {
   width: 100%;
   height: auto;
+}
+
+.content-image.personal {
+  margin-top: 7em;
+}
+
+.content-image.personal > .content-image-box {
+  position: absolute;
+  margin: -112px 0 0 -25px;
+}
+
+.content-image.personal > .content-image-box > img {
+  width: 300px;
+  height: 200px;
 }
 
 .content-image-caption {
@@ -2494,6 +2513,11 @@ img.help-symbol{
 
   div.gui-message-container {
     width: 45%;
+    top: 40%;
+  }
+
+  div.gui-message-container.extended {
+    top: 5%;
   }
 
   div.gui-message-container.object {
@@ -2510,6 +2534,10 @@ img.help-symbol{
 
   .content-image {
     width: 90%;
+  }
+
+  p.content-text.personal {
+    font-size: 1.2rem;
   }
 
 }
