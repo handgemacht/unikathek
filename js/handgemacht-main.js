@@ -400,6 +400,7 @@ const app = {
 				if(modelViewer) {
 					this.element.innerHTML += '<div class="arrow"><img class="icon" src="' + app.assets.icon['arrow right'].src.coalgrey + '" alt="' + app.assets.icon['arrow right'].alt + '" width="100" height="100" loading="lazy"></div>'
 					this.element.innerHTML += '<span>Modelviewer</span>';
+					this.element.innerHTML += '<br><div class="back text-coalgrey"><img class="icon" src="./assets/hand.gemacht WebApp icon arrow back coalgrey.svg" alt="Pfeil zurück" width="100" height="100" loading="lazy"></div><span class="back">zurück</span>'
 				}
 
 				this.containerEl.className = 'gui-title-container';
@@ -496,9 +497,13 @@ const app = {
 				this.animation.object.alt = app.assets.loading.alt;
 				this.animation.object.width = 100;
 				this.animation.object.height = 100;
+
+				this.animation.percentEl = document.createElement('div');
+				this.animation.containerEl.appendChild(this.animation.percentEl);
+				this.animation.percentEl.className = 'text percent';
+				this.animation.percentEl.textContent = '0%';
 		
 				this.animation.textEl = document.createElement('div');
-				this.animation.textEl = this.animation.textEl;
 				this.animation.containerEl.appendChild(this.animation.textEl);
 				this.animation.textEl.className = 'text';
 				this.animation.textEl.textContent = this.content.value;
@@ -704,6 +709,7 @@ const app = {
 
 				//reset scrolling
 				this.content.containerEl.scrollTop = 0;
+				this.element.scrollTop = 0;
 
 				this.type.element.className = 'type hide';
 				this.element.className = 'gui-message';
@@ -1563,7 +1569,7 @@ const app = {
 			setSteps() {
 				this.steps = {
 					start: {
-						type: 'message',
+						type: 'Leitfaden',
 						buttons: [
 							{
 								label: 'los geht\'s',
@@ -1573,7 +1579,7 @@ const app = {
 						],
 						options: {
 							extended: true,
-							sizeControl: true
+							sizeControl: false
 						},
 						content: [
 							{
@@ -1595,7 +1601,7 @@ const app = {
 						]
 					}, 
 					collection: {
-						type: 'message',
+						type: 'Leitfaden',
 						buttons: [
 							{
 								label: 'zurück',
@@ -1630,7 +1636,7 @@ const app = {
 								"type" : "paragraph"
 							},
 							{
-								"content" : "<strong>Die blauen Felder</strong> (Kontexte <span class='icon skyblue'><img src='" + app.assets.icon['category'].src.pearlwhite + "' alt='" + app.assets.icon['category'].alt + "'></span>) fassen zusammen, zu welchen Zwecken und vor welchen Hintergründen die Einzelstücke hergestellt und verwendet worden sind – und werden.<br> <strong>Die roten Felder</strong> (Merkmale <span class='icon terracotta'><img src='" + app.assets.icon['topic'].src.pearlwhite + "' alt='" + app.assets.icon['topic'].alt + "'></span>) veranschaulichen dagegen, welche Eigenschaften speziell die handgemachten Oberpfälzer Gegenstände besitzen. Dabei kann es sich sowohl um Motivationen als auch um Effekte des Selbermachens handeln.<br> <strong>Die grauen Linien</strong> (Herstellungs-Tags <span class='icon smokegrey'><img src='" + app.assets.icon['tag'].src.pearlwhite + "' alt='" + app.assets.icon['tag'].alt + "'></span>) geben Hinweise auf verwendete Materialien und Herstellungstechniken, während <strong>die gelben Linien</strong> (Themen-Tags <span class='icon duckyellow'><img src='" + app.assets.icon['tag'].src.coalgrey + "' alt='" + app.assets.icon['tag'].alt + "'></span>) spezifische Kontexte anzeigen.",
+								"content" : "<dl class='content-list icon'><dt><div class='icon big skyblue'><img src='" + app.assets.icon['category'].src.pearlwhite + "' alt='" + app.assets.icon['category'].alt + "'></div></dt><dd><strong>Kontexte</strong> fassen zusammen, zu welchen Zwecken und vor welchen Hintergründen die Einzelstücke hergestellt und verwendet worden sind – und werden.</dd><dt><div class='icon big terracotta'><img src='" + app.assets.icon['topic'].src.pearlwhite + "' alt='" + app.assets.icon['topic'].alt + "'></div></dt><dd><strong>Merkmale</strong> veranschaulichen dagegen, welche Eigenschaften speziell die handgemachten Oberpfälzer Gegenstände besitzen. Dabei kann es sich sowohl um Motivationen als auch um Effekte des Selbermachens handeln.</dd><dt><div class='icon big duckyellow'><img src='" + app.assets.icon['tag'].src.coalgrey + "' alt='" + app.assets.icon['tag'].alt + "'></div></dt><dd><strong>Themen-Tags</strong> verbinden spezifische Kontexte wie zum Beispiel den Kötztiger Pfingstritt oder die Objekte rund um die WAA Wackersdorf.</dd><dt><div class='icon big smokegrey'><img src='" + app.assets.icon['tag'].src.pearlwhite + "' alt='" + app.assets.icon['tag'].alt + "'></div></dt><dd><strong>Herstellungs-Tags</strong> geben Hinweise auf verwendete Materialien und Herstellungstechniken. Diese Tags sind gewöhnlich ausgeblendet.</dd></dl>",
 								"fileCopyright" : "",
 								"filename" : "",
 								"imageAlt" : "",
@@ -1656,7 +1662,7 @@ const app = {
 						]
 					}, 
 					tools: {
-						type: 'message',
+						type: 'Leitfaden',
 						buttons: [
 							{
 								label: 'zurück',
@@ -1773,7 +1779,7 @@ const app = {
 				app.dev && console.log('dev --- cv > onboarding: initialized');
 			}, 
 
-			show(step = 'start', type = 'message') {
+			show(step = 'start') {
 				if(!(step in this.steps)) {return;}
 
 				this.setOnboardingMessage(step);
@@ -1827,6 +1833,7 @@ const app = {
 
 			setOnboardingMessage(step) {
 				this.onboardingMessage = {
+					type: this.steps[step].type,
 					content: app.createHTMLContentFromJSON(this.steps[step].content),
 					color: 'pearlwhite',
 					shadow: 'shadow-coalgrey',
@@ -3317,6 +3324,7 @@ const app = {
 			}, 
 
 			resetCameraView() {
+				if(!app.collectionViewer.initialized) {return;}
 				document.querySelector('#forcegraph').setAttribute('highlight', {source: ''});
 				document.querySelector('a-camera').setAttribute('orbit-controls', {
 					enabled: true, 
@@ -4296,6 +4304,17 @@ const app = {
 						const fgData = '';
 						const fileJSON = app.filepaths.files + app.filepaths.collectionJSON;
 
+						function percentLoaded(count, max){
+							let percent = (100 / max) * count;
+							percent = Math.trunc(percent);
+							return percent;
+						}
+
+						function countLoaded(count, max){
+							let loaded = count + '/' + max;
+							return loaded;
+						}
+
 						//fetch json data from file
 						const objectsJSON = fetch(fileJSON)
 							.then((response) => response.json())
@@ -4303,6 +4322,17 @@ const app = {
 								this.json = json;
 								//load models to scene
 								const scene = document.querySelector('a-scene').object3D;
+
+								let loadingTextEl = null;
+								let loadingText = '';
+								let loadedCount = 0;	
+
+								if(typeof app.gui.loadingScreen.animation.textEl != null){
+									loadingTextEl = app.gui.loadingScreen.animation.percentEl;
+									loadingText = loadingTextEl.innerHTML;
+									loadingTextEl.innerHTML = percentLoaded(loadedCount, json.objects.length) + '%';
+								}
+								
 								for(let object of json.objects){
 									if(object.quality512){
 										app.gltfLoader.load(app.filepaths.files + object.quality512, (gltf) => {
@@ -4311,7 +4341,9 @@ const app = {
 											gltf.scene.visible = false;
 											scene.add( gltf.scene );
 										}, (xhr) =>{ 
-											app.dev && console.log( ( 'dev --- load model: ' + object.name + ' - ' + xhr.loaded / xhr.total * 100 ) + '% loaded' );
+											(xhr.loaded/xhr.total === 1) && app.dev ? console.log( ( 'dev --- load model: ' + object.name + ' - ' + xhr.loaded / xhr.total * 100 ) + '% loaded' ) : '';
+											xhr.loaded/xhr.total === 1 ? loadedCount = loadedCount + 1 : '';
+											loadingTextEl.innerHTML = percentLoaded(loadedCount, json.objects.length) + '%';
 										}, (error) => {		
 											console.log( 'An error happened: ', error );
 										});
@@ -5399,7 +5431,7 @@ const app = {
 
 						//app.dev && console.log('dev --- orbit-controls > screen.orientation: ', screen.orientation.type);
 						if(screen.orientation.type === 'portrait-primary'){
-							this.desiredDistance = this.desiredDistance * 1.5;
+							this.desiredDistance = this.desiredDistance * 1.0;
 						}
 						//app.dev && console.log('dev --- orbit-controls > this.distance: ', this.desiredDistance);
 
@@ -6715,6 +6747,8 @@ const app = {
 				if(app.embedded){ return; }
 				app.modelViewer.contextStory.setContextStory();
 			});
+
+			this.element.addEventListener('progress', (e) => this.setLoadingText(e));
 		},
 
 		getJSONData: async function(url) {
@@ -6803,6 +6837,12 @@ const app = {
 			this.element.remove();
 			app.gui.toolbar.button[1].removeEventListener('click', (e) => app.modelViewer.contextStory.setContextStory() );
 			app.gui.toolbar.button[2].removeEventListener('click', (e) => app.modelViewer.measurement.toggleMeasurements() );
+		},
+
+		setLoadingText(event) {
+			let progress = Math.trunc(event.detail.totalProgress * 100);
+			app.gui.loadingScreen.animation.percentEl.innerHTML = progress + '%'
+			app.dev && console.log('dev --- progress: ', progress)
 		}
 	},
 

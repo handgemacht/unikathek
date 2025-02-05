@@ -25,7 +25,7 @@ body {
   background-color: #FAF0E6;
   font-family: 'Roboto Slab', serif;
   font-weight: 356;
-  font-size: 1.0em;
+  font-size: 1.0rem;
   line-height: 1.4;
   color: #41403F;
 }
@@ -225,7 +225,7 @@ audio {
 button {
   padding: 0;
   font-family: 'Roboto Slab', serif;
-  font-size: 1.0em;
+  font-size: 1.0rem;
   border: none;
   background-color: transparent;
   border-radius: 0px 20px 0px 20px;
@@ -323,7 +323,7 @@ button.shadow-duckyellow:hover {
 
 input {
   font: inherit;
-  font-size: 1.4em;
+  font-size: 1.4rem;
 }
 
 label.checkbox-container {
@@ -397,38 +397,39 @@ h1:first-of-type, h2:first-of-type, h3:first-of-type, h4:first-of-type, h5:first
 }
 
 h1 {
-  font-size: 1.6em;
+  font-size: 1.4rem;
   font-weight: 700;
 }
 
 h2 {
-  font-size: 1.6em;
+  font-size: 1.4rem;
 }
 
 h3 {
-  font-size: 1.4em;
+  font-size: 1.2rem;
+  font-weight: 700;
 }
 
 h4 {
-  font-size: 1.2em;
+  font-size: 1.2rem;
 }
 
 h5 {
-  font-size: 1.0em;
+  font-size: 1.0rem;
 }
 
 h6 {
-  font-size: 0.75em;
+  font-size: 0.75rem;
   text-transform: uppercase;
 }
 
 p {
-  font-size: 1em;
+  font-size: 1rem;
   margin-block-start: 0;
 }
 
 .text-small {
-  font-size: 0.75em;
+  font-size: 0.75rem;
 }
 
 div.icon {
@@ -442,6 +443,14 @@ div.icon {
   border: none;
   border-radius: 100%;
   overflow: hidden;
+}
+
+div.icon.big {
+  margin-right: 5px;
+  padding: 0.1em;
+  top: 0.3em;
+  width: 3em;
+  height: 3em;
 }
 
 div.icon > img {
@@ -512,7 +521,7 @@ div.arrow.left.coalgrey {
 .pill {
   display: inline-block;
   position: relative;
-  font-size: 0.75em;
+  font-size: 0.75rem;
   text-decoration: none;
   padding: 2px 12px 2px 12px;
   margin: 2px 5px 2px 0;
@@ -653,8 +662,8 @@ div.gui-title-container {
 
 div.gui-title-container > h1.title {
   display: inline-block;
-  font-size: 1.2em;
-  line-height: 1.25em;
+  font-size: 1.2rem;
+  line-height: 1.25rem;
   position: relative;
   align-self: center;
 }
@@ -666,6 +675,30 @@ div.gui-title-container > * > div.arrow {
 }
 
 div.gui-title-container > * > div.arrow > img.icon {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+}
+
+div.gui-title-container > * > span.back {
+  position: relative;
+  font-size: 0.75rem;
+  top: -0.7em;
+  left: -0.3em;
+}
+
+div.gui-title-container > * > div.back {
+  position: relative;
+  display: inline-block;
+  top: 0;
+  left: -0.3em;
+  width: 1.75em;
+  height: 1.75em;
+}
+
+div.gui-title-container > * > div.back > img.icon {
   position: relative;
   display: block;
   width: 100%;
@@ -750,16 +783,28 @@ div.gui-loading-screen.transparent {
 }
 
 div.animation-container {
-  width: 270px;
-  height: 585px;
+  position: relative;
+  top: -10%;
+  width: fit-content;
+  height: 15%;
   margin: 0;
   text-align: center;
-  padding-top: 150px;
 }
 
 div.animation-container > div.text {
   color: #9B9691;
   padding: 20px;
+}
+
+div.animation-container > div.percent {
+  position: absolute;
+  top: 50%;
+  right: 39%;
+  width: 5em;
+  padding: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-align: right;
 }
 
 div.animation-container > object.animation {
@@ -799,7 +844,7 @@ div.gui-message-container.extended {
 }
 
 div.gui-message-container.object {
-  width: 85%;
+  width: 80%;
 }
 
 div.gui-message-container > div.gui-message {
@@ -826,7 +871,7 @@ div.gui-message-container.object > div.gui-message {
 
 div.gui-message-container.extended > div.gui-message {
   height: fit-content;
-  max-height: 85dvh;
+  max-height: 80dvh;
 }
 
 div.gui-message-container > div.type {
@@ -839,7 +884,7 @@ div.gui-message-container > div.type {
   border-radius: 0px 15px 0px 0px;
   border: none;
   box-shadow: none;
-  font-size: 0.75em;
+  font-size: 0.75rem;
   font-weight: 356;
   letter-spacing: .6px;
   pointer-events: all;
@@ -916,14 +961,14 @@ div.gui-message > div.content-container > div.content > div.pill-container {
 }
 
 div.gui-message > div.content-container > div.content > h3 {
-  font-size: 1.4em;
+  font-size: 1.2rem;
   font-weight: 700;
   margin-block-start: 0;
   margin-block-end: 0.5em;
 }
 
 div.gui-message > div.content-container > div.content > ul, p {
-    font-size: 1.0em;
+    font-size: 1.0rem;
 }
 
 div.gui-message > div.button-container {
@@ -999,7 +1044,7 @@ p.content-text.literature {
   display: list-item;
   margin-left : 1em;
   font-style: italic;
-  font-size: 0.75em;
+  font-size: 0.75rem;
 }
 
 p.content-text.personal {
@@ -1067,7 +1112,7 @@ button.content-object-link > img {
 
 .content-image-caption {
   display: inline-block;
-  font-size: 0.75em;
+  font-size: 0.75rem;
   font-weight: 700;
   margin: 0;
   padding: 10px 15px 15px 15px;
@@ -1078,6 +1123,25 @@ button.content-object-link > img {
   display: block;
   font-weight: 356;
   white-space: wrap;
+}
+
+.content-list.icon {
+  margin-block-start: -4em;
+  margin-block-end: 4em;
+}
+
+.content-list > dt > .icon {
+  position: relative;
+  top: 1.7em;
+}
+
+.content-list > dt > .icon.big {
+  position: relative;
+  top: 3.3em;
+}
+
+.content-list > dd {
+  margin-inline-start: 4em;
 }
 
 .content-footer {
@@ -1225,20 +1289,20 @@ div.gui-menu-container > div.content > div.title {
   text-align: center;
   margin-top: 0;
   margin-bottom: 50px;
-  font-size: 1.4em;
+  font-size: 1.4rem;
   font-weight: 356;
 }
 
 div.gui-menu-container > div.content > div.text {
   text-align: center;
-  font-size: 1.0em;
+  font-size: 1.0rem;
   margin: 0 50px 0 50px;
 }
 
 div.gui-menu-container > div.content > div.button-container {
   width: 100%;
   text-align: center;
-  font-size: 1.2em;
+  font-size: 1.2rem;
 }
 
 div.gui-menu-container > div.content > div.link-container {
@@ -1249,7 +1313,7 @@ div.gui-menu-container > div.content > div.link-container {
 div.gui-menu-container > div.content > div.version {
   color: #9B9691;
   text-align: center;
-  font-size: 0.75em;
+  font-size: 0.75rem;
   margin-top: 10px;
 }
 
@@ -1264,7 +1328,7 @@ div.gui-menu-container > div.content > div.link-container > a {
   display: block;
   margin: 5px;
   color: #FAF0E6;
-  font-size: 1.2em;
+  font-size: 1.2rem;
   text-align: center;
   text-decoration: none;
 }
@@ -1522,7 +1586,7 @@ div.cv-tooltip > div.type {
   left: 0;
   padding: 2px 15px 1px 12px;
   border-radius: 0px 7px 0px 0px;
-  font-size: 0.75em;
+  font-size: 0.75rem;
   letter-spacing: .6px;
   white-space: nowrap;
   user-select: none;
@@ -1534,13 +1598,13 @@ div.cv-tooltip > div.content {
   top: 15px;
   padding: 3px 15px 4px 12px;
   border-radius: 0px 20px 0px 20px;
-  font-size: 1.2em;
+  font-size: 1.2rem;
   white-space: nowrap;
   user-select: none;
 }
 
 div.cv-tooltip.cta > div.content {
-  font-size: 1em;
+  font-size: 1rem;
   font-weight: 700;
   padding: 3px 15px 5px 15px;
 }
@@ -1561,7 +1625,7 @@ div.cv-highlight-type {
   left: 0px;
   padding: 2px 15px 1px 12px;
   border-radius: 0px 7px 0px 0px;
-  font-size: 0.75em;
+  font-size: 0.75rem;
   letter-spacing: .6px;
   z-index: 1;
 }
@@ -1571,7 +1635,7 @@ div.cv-highlight-content {
   top: 15px;
   padding: 3px 15px 4px 12px;
   border-radius: 0px 20px 0px 20px;
-  font-size: 1.2em;
+  font-size: 1.2rem;
   white-space: nowrap;
 }
 
@@ -1737,7 +1801,7 @@ div.autocomplete-list-container > div.autocomplete-list > div.disabled {
 }
 
 div.autocomplete-list-container > div.autocomplete-list > div.autocomplete-active {
-  font-size: 1.1em;
+  font-size: 1.0rem;
   font-weight: 700;
   margin-left: 5px;
 }
@@ -1813,7 +1877,7 @@ div.cv-info-container > button.button.text-small {
   top: 0;
   left: 0;
   transform: translate(-50%, 20px);
-  font-size: 0.8em;
+  font-size: 0.75rem;
   pointer-events: none;
   white-space: nowrap;
 }
@@ -2315,7 +2379,7 @@ form {
   background-color: #ffaf96;
   margin-bottom: 5px;
   padding: 5px;
-  font-size: 1.2em;
+  font-size: 1.2rem;
   border-radius: 5px;
   cursor: pointer;
   display: flex;
@@ -2482,7 +2546,7 @@ img.help-symbol{
   }
 
   div.gui-title-container > h1.title {
-    font-size: 1.6em;
+    font-size: 1.4rem;
   }
 
   div.annotation {
@@ -2518,7 +2582,7 @@ img.help-symbol{
   }
 
   div.gui-message-container.extended {
-    top: 5%;
+    top: 10%;
   }
 
   div.gui-message-container.object {
