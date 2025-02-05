@@ -3572,6 +3572,14 @@ const app = {
 										"type" : "paragraph"
 									},
 									{
+										"content" : "Raffiniert erscheint in diesem Kontext der Bau des Franziskusmarterls. Hinter seiner Errichtung steckt zunächst einmal das Bedürfnis danach, einen Treffpunkt am Baugelände zu schaffen. Nachdem ein 1983 errichteter Turm niedergeschlagen worden ist, kommt einem der Aktivisten im Folgejahr der Gedanke, ein Marterl zu bauen. Der Clou: Ein solches Kleindenkmal ist bis zu einer gewissen Größe genehmigungsfrei! Ein weiterer positiver und erleichternder Nebeneffekt: Andachten mit mehreren hundert Teilnehmern können hier ohne Anmeldung stattfinden. Hinzu kommt, dass ein solches religiöses Symbol in der christlich geprägten Bevölkerung der 1980er-Jahre Akzeptanz findet und den Ruf der Bürgerinitiative aufpoliert. Schließlich spiegelt es das Anliegen der Demonstrierenden wider: Es geht ihnen um die Bewahrung der Schöpfung.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
 										"content" : "Übrigens ist angesichts der finanziellen Situation der Bürgerinitiative auch hier Eigenleistung gefragt. Wolfgang beteiligt sich und steuert Material und Werkzeug bei, das beim Bau seines Hauses übriggeblieben ist.",
 										"fileCopyright" : "",
 										"filename" : "",
