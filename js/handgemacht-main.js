@@ -3707,11 +3707,11 @@ const app = {
 									},
 									{
 										"content" : "Hans Schuierer gilt heute als Symbolfigur des friedlichen Widerstandes gegen die WAA. Als damaliger SPD-Landrat, der sich um das wirtschaftliche Wohl des Landkreises sorgte, war er dem viele Arbeitsplätze versprechenden Bauvorhaben gegenüber zunächst nicht abgeneigt. Diese Haltung änderte sich jedoch schlagartig, als er von einem 200 Meter hohen Kamin erfuhr, der auf dem Gelände gebaut werden sollte. „Wozu der Kamin?“, fragte er die Herren von der DWK. „Damit die radioaktiven Schadstoffe möglichst weit verteilt werden“, lautete die Antwort.",
-										"fileCopyright" : "",
-										"filename" : "",
-										"imageAlt" : "",
-										"imageCaption" : "",
-										"type" : "paragraph"
+										"fileCopyright" : "Wikimedia Commons, User: Mramius, <a class='link text-pearlwhite' href='https://creativecommons.org/licenses/by-sa/4.0/deed.de' target='_blank'>CC By-SA 4.0</a>, <a class='link text-pearlwhite' href='https://commons.wikimedia.org/wiki/File:KurtPetzoldHansSchuierer.jpg?uselang=de' target='_blank'>KurtPetzoldHansSchuierer.jpg</a> (Ausschnitt)",
+										"filename" : "waa tour - Hans Schuierer.jpg",
+										"imageAlt" : "Foto von Hans Schuirer",
+										"imageCaption" : "Hans Schuierer, Landrat von Wackersdorf, bei einer Anti-Atomkraft-Kundgebung.",
+										"type" : "paragraph+image"
 									},
 									{
 										"content" : "Spätestens jetzt wurde Hans Schuierer klar, dass er das Projekt nicht befürworten konnte. Nachdem er eine vonseiten des Landratsamtes notwendige Baugenehmigung verweigert hatte, wurde 1985 ein Gesetz, die „Lex Schuierer“, verabschiedet, wodurch die Mitwirkung des Landratsamtes bei dieser Angelegenheit nicht mehr nötig war.",

@@ -1125,6 +1125,11 @@ button.content-object-link > img {
   white-space: wrap;
 }
 
+.content-image-caption > .copyright > a:link:visited:active {
+  color: #41403F;
+  text-decoration: underline;
+}
+
 .content-list.icon {
   margin-block-start: -4em;
   margin-block-end: 4em;
