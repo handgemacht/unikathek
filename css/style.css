@@ -945,11 +945,8 @@ div.gui-message-container > button.back > img.back-icon {
 
 div.gui-message > div.content-container {
   position: relative;
-  margin-right: 5px;
-  padding: 3px 20px 60px 12px;
+  padding: 0 2em 0 2em;
 }
-
-
 
 div.gui-message > div.content-container > div.content {
   padding-top: 2em;
@@ -1029,14 +1026,14 @@ div.gui-message > div.button-container > button.button > img.button-icon {
 /* --- content --- */
 
 p.content-text {
-  padding: 0px 30px 15px 0px;
+  padding: 0 2em 0 0;
   hyphens: auto;
   hyphenate-character: "-";
   hyphenate-limit-chars: 6 3 2;
 }
 
 p.content-text.quote {
-  padding: 0 30px 0 40px;
+  padding: 0 2em 0 3em;
   font-style: italic;
 }
 
@@ -1110,6 +1107,18 @@ button.content-object-link > img {
   height: 200px;
 }
 
+.content-image.fullsize {
+  margin: 1em 1em 4em 1em;
+  border-radius: 0;
+  float: initial;
+  width: fit-content;
+}
+
+.content-image.fullsize > .content-image-box {
+  margin: 0;
+  border-radius: 0px 20px 0px 20px;
+}
+
 .content-image-caption {
   display: inline-block;
   font-size: 0.75rem;
@@ -1128,6 +1137,11 @@ button.content-object-link > img {
 .content-image-caption > .copyright > a:link:visited:active {
   color: #41403F;
   text-decoration: underline;
+}
+
+.content-image.fullsize > .content-image-caption {
+  float: right;
+  padding: 0;
 }
 
 .content-list.icon {

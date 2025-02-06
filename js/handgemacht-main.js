@@ -3375,6 +3375,14 @@ const app = {
 								},
 								content: [
 									{
+										"content" : "",
+										"fileCopyright" : "Bürgerinitiative Schwandorf",
+										"filename" : "waa tour - Intro Stimmungsbild.jpg",
+										"imageAlt" : "Musikanten bei den WAA-Protesten",
+										"imageCaption" : "",
+										"type" : "image+fullsize"
+									},
+									{
 										"content" : "WAA Wackersdorf",
 										"fileCopyright" : "",
 										"filename" : "",
@@ -3389,14 +3397,6 @@ const app = {
 										"imageAlt" : "",
 										"imageCaption" : "",
 										"type" : "paragraph"
-									},
-									{
-										"content" : "",
-										"fileCopyright" : "Bürgerinitiative Schwandorf",
-										"filename" : "waa tour - Intro Stimmungsbild.jpg",
-										"imageAlt" : "Musikanten bei den WAA-Protesten",
-										"imageCaption" : "",
-										"type" : "image"
 									}
 								]
 							}
@@ -3510,11 +3510,11 @@ const app = {
 									},
 									{
 										"content" : "Weil man das Projekt auf dem rechtlichen Wege verhindern möchte, wird insbesondere für die Zusammenarbeit mit einem Anwalt Geld gebraucht. Darüber hinaus fallen Kosten für die Öffentlichkeitsarbeit des Vereins sowie für Fachbücher an. Auch Sprit- und Telefonkosten, die privat nicht tragbar wären, sollen möglichst erstattet werden. Die Aktivisten sind daher froh um jede Mark, die in die Kasse der Bürgerinitiative fließt, und schlagen mitunter kreative Wege ein. So werden bei Demonstrationen zum Beispiel selbstgemachte Buttons verkauft – und gehen weg wie warme Semmeln.",
-										"fileCopyright" : "",
-										"filename" : "",
-										"imageAlt" : "",
-										"imageCaption" : "",
-										"type" : "paragraph"
+										"fileCopyright" : "Bürgerinitiative Schwandorf",
+										"filename" : "waa tour - WAA_Flugblatt Sonntagsspaziergang.jpg",
+										"imageAlt" : "Flugblatt der WAA Sonntagsspaziergänge",
+										"imageCaption" : "Finanziert werden musste beispielsweise der Druck zehntausender Flugblätter.",
+										"type" : "paragraph+image"
 									},
 									{
 										"content" : "Anstecker \"WAA Nein\"",
@@ -3523,14 +3523,6 @@ const app = {
 										"imageAlt" : "",
 										"imageCaption" : "",
 										"type" : "object-link"
-									},
-									{
-										"content" : "",
-										"fileCopyright" : "Bürgerinitiative Schwandorf",
-										"filename" : "waa tour - WAA_Flugblatt Sonntagsspaziergang.jpg",
-										"imageAlt" : "Flugblatt der WAA Sonntagsspaziergänge",
-										"imageCaption" : "Finanziert werden musste beispielsweise der Druck zehntausender Flugblätter.",
-										"type" : "image"
 									}
 								]
 							}
@@ -3710,7 +3702,7 @@ const app = {
 										"fileCopyright" : "Wikimedia Commons, User: Mramius, <a class='link text-pearlwhite' href='https://creativecommons.org/licenses/by-sa/4.0/deed.de' target='_blank'>CC By-SA 4.0</a>, <a class='link text-pearlwhite' href='https://commons.wikimedia.org/wiki/File:KurtPetzoldHansSchuierer.jpg?uselang=de' target='_blank'>KurtPetzoldHansSchuierer.jpg</a> (Ausschnitt)",
 										"filename" : "waa tour - Hans Schuierer.jpg",
 										"imageAlt" : "Foto von Hans Schuirer",
-										"imageCaption" : "Hans Schuierer, Landrat von Wackersdorf, bei einer Anti-Atomkraft-Kundgebung.",
+										"imageCaption" : "Hans Schuierer, Landrat von Schwandorf, bei einer Anti-Atomkraft-Kundgebung.",
 										"type" : "paragraph+image"
 									},
 									{
@@ -3793,19 +3785,11 @@ const app = {
 									},
 									{
 										"content" : "1989 wurde das Großprojekt WAA Wackersdorf aus verschiedenen Gründen aufgegeben und der Bau der Anlage eingestellt. Über all die Jahre hat der Widerstand gegen das Großprojekt viele Menschen geprägt. Manche von ihnen haben Erinnerungsstücke an diese Zeit geschaffen. Jahrzehnte später ist Wolfgangs Alltag davon bestimmt, die Erinnerung an das bürgerliche Engagement und den Einsatz für die Demokratie zu hüten und weiterzugeben.",
-										"fileCopyright" : "",
-										"filename" : "",
-										"imageAlt" : "",
+										"fileCopyright" : "Bürgerinitiative Schwandorf",
+										"filename" : "waa tour - Bauzaun.jpg",
+										"imageAlt" : "Bauzaun am WAA-Gelände",
 										"imageCaption" : "",
-										"type" : "paragraph"
-									},
-									{
-										"content" : "Unser Ziel haben wir erreicht: Die WAA ist nicht gekommen. Über 35 Jahre ist das jetzt her. Damals hab ich auch deswegen alles dokumentiert, um später sagen zu können: Wir haben was getan. Schön wär‘s, wenn wir das Erlebte jetzt auch der jungen Generation vermitteln könnten.",
-										"fileCopyright" : "",
-										"filename" : "",
-										"imageAlt" : "",
-										"imageCaption" : "",
-										"type" : "personal+wolfgang"
+										"type" : "paragraph+image"
 									}, 
 									{
 										"content" : "Bauzaun WAA-Gelände",
@@ -3814,6 +3798,14 @@ const app = {
 										"imageAlt" : "",
 										"imageCaption" : "",
 										"type" : "object-link"
+									},
+									{
+										"content" : "Unser Ziel haben wir erreicht: Die WAA ist nicht gekommen. Über 35 Jahre ist das jetzt her. Damals hab ich auch deswegen alles dokumentiert, um später sagen zu können: Wir haben was getan. Schön wär‘s, wenn wir das Erlebte jetzt auch der jungen Generation vermitteln könnten.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+wolfgang"
 									}
 								]
 							}
@@ -3829,7 +3821,7 @@ const app = {
 										icon: ''
 									},
 									{
-										label: 'weiter',
+										label: 'mehr erfahren',
 										color: 'coalgrey',
 										icon: 'arrow right'
 									}
@@ -3870,7 +3862,6 @@ const app = {
 									{
 										label: 'beenden',
 										color: 'coalgrey',
-										icon: 'arrow right'
 									}
 								],
 								options: {
@@ -10273,6 +10264,12 @@ const app = {
 				const imageAndCaptionHTML = '<div class="content-image terracotta"><div class="content-image-box">' + imageHTML + '</div>' + captionHTML + '</div>';
 				contentHTML = contentHTML.concat(imageAndCaptionHTML);
 
+			}else if(content.type === 'image+fullsize'){
+				const imageHTML = '<img src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px">' 
+				const copyrightHTML = '<p class="content-image-caption"><span class="copyright text-coalgrey"> Foto: ' + content.fileCopyright + '</span></p>';
+				const imageAndCaptionHTML = '<div class="content-image fullsize"><div class="content-image-box">' + imageHTML + '</div>' + copyrightHTML + '</div>';
+				contentHTML = contentHTML.concat(imageAndCaptionHTML);
+				
 			}else if(content.type === 'audio'){
 				const audioHTML = '<audio controls><source src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" type="audio/mpeg"></audio>';
 				contentHTML = contentHTML.concat(audioHTML);
