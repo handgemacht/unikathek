@@ -752,6 +752,9 @@ const app = {
 					this.backEl.addEventListener('click', (evt) => {
 						self.hideMessage(true);
 						if(!app.collectionViewer.initialized) { return; }
+						if(app.tour) {
+							app.collectionViewer.tour.show(app.step);
+						}
 						app.gui.title.set();
 						app.collectionViewer.resetView.resetCameraView();
 					});
@@ -861,6 +864,10 @@ const app = {
 
 				if(Object.keys(this.options).includes("sizeControl")){
 					!this.options.sizeControl ? this.sizeControlEl.classList.add('hide') : '';
+				}
+
+				if(Object.keys(this.options).includes("large")){
+					this.options.large ? this.boxEl.classList.add('large') : '';
 				}
 
 				app.dev && console.log('dev --- message: ', this)
@@ -1536,6 +1543,7 @@ const app = {
 			this.search.init();
 			this.filter.init();
 			this.resetView.init();
+			this.welcome.init();
 			this.onboarding.init();
 			this.tour.init();
 			this.registerComponents();
@@ -1564,6 +1572,213 @@ const app = {
 			app.dev && console.log('dev --- collectionViewer initialized');
 		},
 
+		welcome: {
+
+			setContent() {
+				this.welcome = {
+					type: 'Unikathek',
+					buttons: [
+							{
+								label: 'zur Unikathek',
+								color: 'coalgrey',
+								icon: 'arrow right'
+							}
+					],
+					options: {
+							extended: true,
+							sizeControl: false, 
+							large: true
+					},
+					content: [
+							{
+								"content" : "Willkommen in der Unikathek!",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "headline"
+							},
+							{
+								"content" : "Mehr als 100 handgemachte Oberpfälzer Objekte kannst du hier mitsamt ihren Geschichten entdecken. Erfahre anhand der Gegenstände, was die Menschen in der Oberpfalz in den letzten 80 Jahren beschäftigte – und was sie immer wieder dazu antrieb und antreibt, Dinge selbst in die Hand zu nehmen.",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "paragraph"
+							},
+							{
+								"content" : "Zum ersten mal hier? Dann schau in unseren Leitfaden. Dort wird die Unikathek mit all den wichtigen Funktionen und Werkzeugen erklärt. ",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "paragraph"
+							}, 
+							{
+								"content" : "Leitfaden",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "button"
+							},
+							{
+								"content" : "Themen in der Unikathek",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "subheadline"
+							},
+							{
+								"content" : "WAA Wackersdorf",
+								"fileCopyright" : "Bürgerinitiative Schwandorf",
+								"filename" : "waa tour - Intro Stimmungsbild.jpg",
+								"imageAlt" : "Musikanten bei den WAA-Protesten",
+								"imageCaption" : "Beschreibung WAA Wackersdorf in zwei kurzen Sätzen.",
+								"type" : "description+tour"
+							}, 
+							{
+								"content" : "Besondere Objekte",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "subheadline"
+							},
+							{
+								"content" : "Dirndl",
+								"objectID" : "6D0549BE-3890-8245-9D95-9B5E526327DB",
+								"fileCopyright" : "Julian Moder",
+								"filename" : "Dirndl_25k_512.jpg",
+								"imageAlt" : "Rendering eines Dirndls",
+								"imageCaption" : "Beschreibung des Dirndls in zwei kurzen Sätzen.",
+								"type" : "description+object"
+							}, 
+							{
+								"content" : "Geige aus Kriegsgefangenschaft",
+								"objectID" : "10FD2C3C-D08F-0A4B-9D1B-CA32FF9D5ED6",
+								"fileCopyright" : "Julian Moder",
+								"filename" : "Geige_7k_2k.jpg",
+								"imageAlt" : "Rendering einer Geige",
+								"imageCaption" : "Beschreibung der Geige in zwei kurzen Sätzen.",
+								"type" : "description+object"
+							}, 
+							{
+								"content" : "Ofen",
+								"objectID" : "6420F1C4-1A3D-604E-8D42-9D9C5CDA2A9E",
+								"fileCopyright" : "Julian Moder",
+								"filename" : "Ofen_56k_2k.jpg",
+								"imageAlt" : "Rendering einer Geige",
+								"imageCaption" : "Beschreibung des Ofens in zwei kurzen Sätzen.",
+								"type" : "description+object"
+							}
+					]
+				}
+			},
+
+			init() {
+				this.setContent();
+				app.showWelcome && this.show();
+				app.dev && console.log('dev --- cv > onboarding > app.showWelcome: ', app.showWelcome);	
+				app.dev && console.log('dev --- cv > onboarding: initialized');				
+			}, 
+
+			show() {
+				if(!this.welcome) {return;}
+
+				this.setWelcomeMessage(this.welcome);
+
+				app.gui.toolbar.toggleToolbar(false);
+				app.gui.message.setMessage(this.welcomeMessage);
+
+				app.gui.message.buttons.button[0].element.addEventListener('click', (e) => {
+					app.gui.message.hideMessage(true)
+				}, { signal: app.gui.message.abortController.signal });
+
+				this.setEventListeners();
+			},
+
+			setWelcomeMessage(step) {
+				this.welcomeMessage = {
+					type: this.welcome.type,
+					content: app.createHTMLContentFromJSON(this.welcome.content),
+					color: 'pearlwhite',
+					shadow: 'shadow-coalgrey',
+					buttonSetup: [
+						{ label: this.welcome.buttons[0].label, color: this.welcome.buttons[0].color, icon: this.welcome.buttons[0].icon }
+					], 
+					options: {
+						extended: false, 
+						sizeControl: false, 
+						large: false
+					}
+				}
+
+				if(this.welcome.buttons[1]) {
+					this.welcomeMessage.buttonSetup = [
+						{ label: this.welcome.buttons[0].label, color: this.welcome.buttons[0].color, icon: this.welcome.buttons[0].icon },
+						{ label: this.welcome.buttons[1].label, color: this.welcome.buttons[1].color, icon: this.welcome.buttons[1].icon }
+					]
+				}
+
+				if('options' in this.welcome) {
+					('extended' in this.welcome.options) ? this.welcomeMessage.options.extended = this.welcome.options.extended : '';
+					('sizeControl' in this.welcome.options) ? this.welcomeMessage.options.sizeControl = this.welcome.options.sizeControl : '';
+					('large' in this.welcome.options) ? this.welcomeMessage.options.large = this.welcome.options.large : '';
+				}
+			}, 
+
+			setEventListeners() {
+				const contentEl = app.gui.message.content.element;
+
+				const buttons = contentEl.querySelectorAll('.button');
+
+				for(let button of buttons){
+					
+					if(button.innerHTML === 'Leitfaden'){
+						button.addEventListener('click', (e) => {
+						app.collectionViewer.onboarding.show('start');
+						}, { signal: app.gui.message.abortController.signal });
+						continue;
+					}
+
+					if(button.classList.contains('tour')){
+						const link = button.getAttribute('data-link');
+						for(let key in app.collectionViewer.tour.list){
+							const tour = app.collectionViewer.tour.list[key];
+							if(tour.title === link){
+								button.addEventListener('click', (e) => {
+									let url = '?m=cv';
+									app.dev ? url+='&dev=true' : '';
+									app.stats ? url+='&dev=stats' : '';
+									app.embedded ? url+='&embeddded=true' : '';
+									url+='&tour=' + tour.short;
+									url+='&step=0';
+									window.location.href = url;
+								}, { signal: app.gui.message.abortController.signal });
+								continue;
+							}
+						}
+						continue;
+					}
+
+					if(button.classList.contains('object')){
+						const link = button.getAttribute('data-link');
+						button.addEventListener('click', (e) => {
+							let url = '?m=mv';
+							app.dev ? url+='&dev=true' : '';
+							app.stats ? url+='&dev=stats' : '';
+							app.embedded ? url+='&embeddded=true' : '';
+							url+='&model=' + link;
+							window.location.href = url;
+						}, { signal: app.gui.message.abortController.signal });
+					}
+
+				}
+			}
+		},
+
 		onboarding: {
 
 			setSteps() {
@@ -1572,6 +1787,11 @@ const app = {
 						type: 'Leitfaden',
 						buttons: [
 							{
+								label: 'zurück',
+								color: 'smokegrey',
+								icon: ''
+							},
+							{
 								label: 'los geht\'s',
 								color: 'coalgrey',
 								icon: 'arrow right'
@@ -1579,7 +1799,8 @@ const app = {
 						],
 						options: {
 							extended: true,
-							sizeControl: false
+							sizeControl: false, 
+							large: true
 						},
 						content: [
 							{
@@ -1773,9 +1994,6 @@ const app = {
 			init() {
 				this.setSteps();
 
-				if(app.showOnboarding) {
-					this.show('start');
-				}
 				app.dev && console.log('dev --- cv > onboarding: initialized');
 			}, 
 
@@ -1789,9 +2007,13 @@ const app = {
 				if(step === 'start') {
 					app.gui.toolbar.toggleToolbar(false);
 					app.gui.message.setMessage(this.onboardingMessage);
-					app.gui.message.boxEl.classList.add('first-contact');
 
 					app.gui.message.buttons.button[0].element.addEventListener('click', (e) => {
+						app.gui.message.hideMessage(true);
+						app.collectionViewer.welcome.show();
+					}, { signal: app.gui.message.abortController.signal });
+
+					app.gui.message.buttons.button[1].element.addEventListener('click', (e) => {
 						app.gui.message.hideMessage(true)
 						this.show('collection');
 					}, { signal: app.gui.message.abortController.signal });
@@ -1857,6 +2079,7 @@ const app = {
 				if('options' in this.steps[step]) {
 					('extended' in this.steps[step].options) ? this.onboardingMessage.options.extended = this.steps[step].options.extended : '';
 					('sizeControl' in this.steps[step].options) ? this.onboardingMessage.options.sizeControl = this.steps[step].options.sizeControl : '';
+					('large' in this.steps[step].options) ? this.onboardingMessage.options.large = this.steps[step].options.large : '';
 				}
 			}
 		},
@@ -2079,7 +2302,7 @@ const app = {
 						this.pillArray.push('#'+pillId);
 					}
 					if(categoryList !== '') {
-						categoryList = '<div class="pill-container categories"><h6 class="text-smokegrey">Kontexte: </h6>' + categoryList + '</div>';
+						categoryList = '<div class="pill-container categories"><h7 class="text-smokegrey">Kontexte: </h7>' + categoryList + '</div>';
 					}
 
 					let topicList = '';
@@ -2097,7 +2320,7 @@ const app = {
 						this.pillArray.push('#'+pillId);
 					}
 					if(topicList !== '') {
-						topicList = '<div class="pill-container topics"><h6 class="text-smokegrey">Merkmale: </h6>' + topicList + '</div>';
+						topicList = '<div class="pill-container topics"><h7 class="text-smokegrey">Merkmale: </h7>' + topicList + '</div>';
 					}
 	
 					let tagList = '';
@@ -2115,7 +2338,7 @@ const app = {
 						this.pillArray.push('#'+pillId);
 					}
 					if(tagList !== '') {
-						tagList = '<div class="pill-container tags"><h6 class="text-smokegrey">Tags: </h6>' + tagList + '</div>';
+						tagList = '<div class="pill-container tags"><h7 class="text-smokegrey">Tags: </h7>' + tagList + '</div>';
 					}
 
 					let productionTagList = '';
@@ -2133,7 +2356,7 @@ const app = {
 						this.pillArray.push('#'+pillId);
 					}
 					if(productionTagList !== '') {
-						productionTagList = '<div class="pill-container production-tags"><h6 class="text-smokegrey">Tags zur Herstellung: </h6>' + productionTagList + '</div>';
+						productionTagList = '<div class="pill-container production-tags"><h7 class="text-smokegrey">Tags zur Herstellung: </h7>' + productionTagList + '</div>';
 					}
 
 					let objectContent = app.createHTMLContentFromJSON(fgNode.contents);
@@ -2178,7 +2401,7 @@ const app = {
 					}
 
 					if(objectList !== '') {
-						objectList = '<div class="pill-container objects"><h6 class="text-smokegrey">Verbundene Objekte: </h6>' + objectList + '</div>';
+						objectList = '<div class="pill-container objects"><h7 class="text-smokegrey">Verbundene Objekte: </h7>' + objectList + '</div>';
 					}
 
 					let categoryContent = app.createHTMLContentFromJSON(fgNode.contents);
@@ -2212,7 +2435,7 @@ const app = {
 					}
 
 					if(objectList !== '') {
-						objectList = '<div class="pill-container objects"><h6 class="text-smokegrey">Verbundene Objekte: </h6>' + objectList + '</div>';
+						objectList = '<div class="pill-container objects"><h7 class="text-smokegrey">Verbundene Objekte: </h7>' + objectList + '</div>';
 					}
 					
 					let topicContent = app.createHTMLContentFromJSON(fgNode.contents)
@@ -2397,12 +2620,19 @@ const app = {
 				infoText.className = 'text-small';
 				infoText.textContent = this.texts.intro;
 
+				const welcomeButton = document.createElement('button');
+				this.welcomeButtonEl = welcomeButton;
+				infoContainer.appendChild(welcomeButton);
+				welcomeButton.className = 'link text-smokegrey';
+
+				welcomeButton.textContent = 'Startnachricht';
+
 				const onboardingButton = document.createElement('button');
 				this.onboardingButtonEl = onboardingButton;
 				infoContainer.appendChild(onboardingButton);
 				onboardingButton.className = 'link text-smokegrey';
 
-				onboardingButton.textContent = 'Leitfaden anzeigen';
+				onboardingButton.textContent = 'Leitfaden';
 
 				const toursHeadline = document.createElement('h3');
 				infoContainer.appendChild(toursHeadline);
@@ -2421,7 +2651,7 @@ const app = {
 
 				const releaseDateEl = document.createElement('dt');
 				listBasicEl.appendChild(releaseDateEl);
-				const releaseDateHeadline = document.createElement('h6');
+				const releaseDateHeadline = document.createElement('h7');
 				releaseDateEl.appendChild(releaseDateHeadline);
 				releaseDateHeadline.textContent = 'Datenstand vom: ';
 				releaseDateHeadline.className = 'text-smokegrey';
@@ -2431,7 +2661,7 @@ const app = {
 
 				const objectCountEl = document.createElement('dt');
 				listBasicEl.appendChild(objectCountEl);
-				const objectCountHeadline = document.createElement('h6');
+				const objectCountHeadline = document.createElement('h7');
 				objectCountEl.appendChild(objectCountHeadline);
 				objectCountHeadline.textContent = 'Objekte: ';
 				objectCountHeadline.className = 'text-smokegrey';
@@ -2441,7 +2671,7 @@ const app = {
 
 				const linkCountEl = document.createElement('dt');
 				listBasicEl.appendChild(linkCountEl);
-				const linkCountHeadline = document.createElement('h6');
+				const linkCountHeadline = document.createElement('h7');
 				linkCountEl.appendChild(linkCountHeadline);
 				linkCountHeadline.textContent = 'Verknüpfungen: ';
 				linkCountHeadline.className = 'text-smokegrey';
@@ -2451,7 +2681,7 @@ const app = {
 
 				const categoryCountEl = document.createElement('dt');
 				listBasicEl.appendChild(categoryCountEl);
-				const categoryCountHeadline = document.createElement('h6');
+				const categoryCountHeadline = document.createElement('h7');
 				categoryCountEl.appendChild(categoryCountHeadline);
 				categoryCountHeadline.textContent = 'Kontexte: ';
 				categoryCountHeadline.className = 'text-smokegrey';
@@ -2461,7 +2691,7 @@ const app = {
 
 				const topicCountEl = document.createElement('dt');
 				listBasicEl.appendChild(topicCountEl);
-				const topicCountHeadline = document.createElement('h6');
+				const topicCountHeadline = document.createElement('h7');
 				topicCountEl.appendChild(topicCountHeadline);
 				topicCountHeadline.textContent = 'Merkmale: ';
 				topicCountHeadline.className = 'text-smokegrey';
@@ -2471,7 +2701,7 @@ const app = {
 
 				const tagCountEl = document.createElement('dt');
 				listBasicEl.appendChild(tagCountEl);
-				const tagCountHeadline = document.createElement('h6');
+				const tagCountHeadline = document.createElement('h7');
 				tagCountEl.appendChild(tagCountHeadline);
 				tagCountHeadline.textContent = 'Themen-Tags: ';
 				tagCountHeadline.className = 'text-smokegrey';
@@ -2481,7 +2711,7 @@ const app = {
 
 				const productionTagCountEl = document.createElement('dt');
 				listBasicEl.appendChild(productionTagCountEl);
-				const productionTagCountHeadline = document.createElement('h6');
+				const productionTagCountHeadline = document.createElement('h7');
 				productionTagCountEl.appendChild(productionTagCountHeadline);
 				productionTagCountHeadline.textContent = 'Herstellungs-Tags: ';
 				productionTagCountHeadline.className = 'text-smokegrey';
@@ -2491,6 +2721,11 @@ const app = {
 			},			
 
 			setEventlisteners() {
+				this.welcomeButtonEl.addEventListener('click', (e) => {
+					app.gui.toolbar.buttonActionTab(document.querySelector(this.buttonSetup.id));
+					app.collectionViewer.welcome.show();
+				});
+
 				this.onboardingButtonEl.addEventListener('click', (e) => {
 					app.gui.toolbar.toggleToolbar(false);
 					app.gui.toolbar.buttonActionTab(document.querySelector(this.buttonSetup.id));
@@ -3522,7 +3757,7 @@ const app = {
 										"filename" : "6379EA32-A534-C246-8D96-4BFCE2179CF2",
 										"imageAlt" : "",
 										"imageCaption" : "",
-										"type" : "object-link"
+										"type" : "link-object"
 									}
 								]
 							}
@@ -3585,7 +3820,7 @@ const app = {
 										"filename" : "F07C89FE-D514-6148-9480-457DD951729D",
 										"imageAlt" : "",
 										"imageCaption" : "",
-										"type" : "object-link"
+										"type" : "link-object"
 									},
 									{
 										"content" : "„Also ich bin fast schon überrascht von mir selber. Widerstand! Das hat ja so gar nicht in mein Weltbild gepasst. Und wie sowas gehen soll, das hab ich als frommer Bürger und braver CSU-Wähler schon gleich dreimal nicht gewusst. Aber in der letzten Zeit haben wir viel dazugelernt. Wir haben eine Stimme, die wir erheben dürfen und können. Mutig und selbstbewusst sind wir geworden!“",
@@ -3656,7 +3891,7 @@ const app = {
 										"filename" : "64AB9AAE-ABA6-E043-94D0-EC5CE4450E7C",
 										"imageAlt" : "",
 										"imageCaption" : "",
-										"type" : "object-link"
+										"type" : "link-object"
 									},
 									{
 										"content" : "Ganz schön anstrengend… Jede freie Minute geht drauf für die Aktivitäten der BI. Aber kleine Gesten wie die Widerstandssocken, die Irmgard mir geschenkt hat, erinnern mich daran, dass es sich lohnt. Fühlt sich schon an wie eine große Familie, die da mittlerweile entstanden ist.",
@@ -3797,7 +4032,7 @@ const app = {
 										"filename" : "732C44A9-308C-454C-9A2F-1C1599CE5A48",
 										"imageAlt" : "",
 										"imageCaption" : "",
-										"type" : "object-link"
+										"type" : "link-object"
 									},
 									{
 										"content" : "Unser Ziel haben wir erreicht: Die WAA ist nicht gekommen. Über 35 Jahre ist das jetzt her. Damals hab ich auch deswegen alles dokumentiert, um später sagen zu können: Wir haben was getan. Schön wär‘s, wenn wir das Erlebte jetzt auch der jungen Generation vermitteln könnten.",
@@ -6066,7 +6301,7 @@ const app = {
 				if(basicData.name){
 					const nameTermEl = document.createElement('dt');
 					descriptionListBasicEl.appendChild(nameTermEl);
-					const nameTermHeadline = document.createElement('h6');
+					const nameTermHeadline = document.createElement('h7');
 					nameTermEl.appendChild(nameTermHeadline);
 					nameTermHeadline.textContent = 'Bezeichnung: ';
 					nameTermHeadline.className = 'text-smokegrey';
@@ -6081,7 +6316,7 @@ const app = {
 				if(basicData.key){
 					const keyTermEl = document.createElement('dt');
 					descriptionListBasicEl.appendChild(keyTermEl);
-					const keyTermHeadline = document.createElement('h6');
+					const keyTermHeadline = document.createElement('h7');
 					keyTermEl.appendChild(keyTermHeadline);
 					keyTermHeadline.textContent = 'Objektnummer: ';
 					keyTermHeadline.className = 'text-smokegrey';
@@ -6094,7 +6329,7 @@ const app = {
 				if(basicData.categories.length > 0) {
 					const categoryTermEl = document.createElement('dt');
 					descriptionListBasicEl.appendChild(categoryTermEl);
-					const categoryTermHeadline = document.createElement('h6');
+					const categoryTermHeadline = document.createElement('h7');
 					categoryTermEl.appendChild(categoryTermHeadline);
 					categoryTermHeadline.textContent = 'Kontexte: ';
 					categoryTermHeadline.className = 'text-smokegrey';
@@ -6118,7 +6353,7 @@ const app = {
 				if(basicData.tags.length > 0) {
 					const tagTermEl = document.createElement('dt');
 					descriptionListBasicEl.appendChild(tagTermEl);
-					const tagTermHeadline = document.createElement('h6');
+					const tagTermHeadline = document.createElement('h7');
 					tagTermEl.appendChild(tagTermHeadline);
 					tagTermHeadline.textContent = 'Tags: ';
 					tagTermHeadline.className = 'text-smokegrey';
@@ -6144,7 +6379,7 @@ const app = {
 				if(objectData.alternativeName){
 					const altNameTermEl = document.createElement('dt');
 					descriptionListObjectEl.appendChild(altNameTermEl);
-					const altNameTermHeadline = document.createElement('h6');
+					const altNameTermHeadline = document.createElement('h7');
 					altNameTermEl.appendChild(altNameTermHeadline);
 					altNameTermHeadline.textContent = 'Alternative Bezeichnung: ';
 					altNameTermHeadline.className = 'text-smokegrey';
@@ -6160,7 +6395,7 @@ const app = {
 
 					const datingFromToTermEl = document.createElement('dt');
 					descriptionListObjectEl.appendChild(datingFromToTermEl);
-					const datingFromToTermHeadline = document.createElement('h6');
+					const datingFromToTermHeadline = document.createElement('h7');
 					datingFromToTermEl.appendChild(datingFromToTermHeadline);
 					datingFromToTermHeadline.textContent = 'Datierung: ';
 					datingFromToTermHeadline.className = 'text-smokegrey';
@@ -6175,7 +6410,7 @@ const app = {
 
 					const locationTermEl = document.createElement('dt');
 					descriptionListObjectEl.appendChild(locationTermEl);
-					const locationTermHeadline = document.createElement('h6');
+					const locationTermHeadline = document.createElement('h7');
 					locationTermEl.appendChild(locationTermHeadline);
 					locationTermHeadline.textContent = 'Verortung: ';
 					locationTermHeadline.className = 'text-smokegrey';
@@ -6190,7 +6425,7 @@ const app = {
 
 					const originTermEl = document.createElement('dt');
 					descriptionListObjectEl.appendChild(originTermEl);
-					const originTermHeadline = document.createElement('h6');
+					const originTermHeadline = document.createElement('h7');
 					originTermEl.appendChild(originTermHeadline);
 					originTermHeadline.textContent = 'Enstehungsort: ';
 					originTermHeadline.className = 'text-smokegrey';
@@ -6210,7 +6445,7 @@ const app = {
 				if(collectionData.collectionDate){
 					const collectionDateTermEl = document.createElement('dt');
 					descriptionListCollectionEl.appendChild(collectionDateTermEl);
-					const collectionDateTermHeadline = document.createElement('h6');
+					const collectionDateTermHeadline = document.createElement('h7');
 					collectionDateTermEl.appendChild(collectionDateTermHeadline);
 					collectionDateTermHeadline.textContent = 'Erhebungsdatum: ';
 					collectionDateTermHeadline.className = 'text-smokegrey';
@@ -6225,7 +6460,7 @@ const app = {
 
 					const collectionLocationTermEl = document.createElement('dt');
 					descriptionListCollectionEl.appendChild(collectionLocationTermEl);
-					const collectionLocationTermHeadline = document.createElement('h6');
+					const collectionLocationTermHeadline = document.createElement('h7');
 					collectionLocationTermEl.appendChild(collectionLocationTermHeadline);
 					collectionLocationTermHeadline.textContent = 'Erhebungsort: ';
 					collectionLocationTermHeadline.className = 'text-smokegrey';
@@ -6238,7 +6473,7 @@ const app = {
 				if(collectionData.collectionScanner){
 					const collectionScannerTermEl = document.createElement('dt');
 					descriptionListCollectionEl.appendChild(collectionScannerTermEl);
-					const collectionScannerTermHeadline = document.createElement('h6');
+					const collectionScannerTermHeadline = document.createElement('h7');
 					collectionScannerTermEl.appendChild(collectionScannerTermHeadline);
 					collectionScannerTermHeadline.textContent = '3D-Scanner: ';
 					collectionScannerTermHeadline.className = 'text-smokegrey';
@@ -10233,7 +10468,7 @@ const app = {
 					('iconBackgroundColor' in content) ? iconBackgroundColor = content.iconBackgroundColor : '';
 					imageHTML = '<div class="icon ' + iconBackgroundColor + '"><img src="' + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px"></div>'
 				}
-				const subHeadlineHTML = '<h5>' + imageHTML + content.content + '</h5>';
+				const subHeadlineHTML = '<h4>' + imageHTML + content.content + '</h4>';
 				contentHTML = contentHTML.concat(subHeadlineHTML);
 
 			}else if(content.type === 'paragraph'){
@@ -10250,6 +10485,18 @@ const app = {
 				
 			}else if(content.type === 'paragraph+video'){
 				
+			}else if(content.type === 'description+tour'){
+				const imageHTML = '<img src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px">' 
+				const captionHTML = '<span class="copyright text-small"> Foto: ' + content.fileCopyright + '</span>';
+				const paragraphAndImageHTML = '<div class="description tour shadow-duckyellow"><div class="content-image"><div class="content-image-box">' + imageHTML + captionHTML + '</div></div><h5>' + content.content + '</h5><p class="content-text">' + content.imageCaption + '</p><button class="button tour duckyellow" data-link="' + content.content + '">zum Thema</button></div>';
+				contentHTML = contentHTML.concat(paragraphAndImageHTML);
+
+			}else if(content.type === 'description+object'){
+				const imageHTML = '<img src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px">' 
+				const captionHTML = '<span class="copyright text-small"> Foto: ' + content.fileCopyright + '</span>';
+				const paragraphAndImageHTML = '<div class="description object shadow-skyblue"><div class="content-image"><div class="content-image-box">' + imageHTML + captionHTML + '</div></div><h5>' + content.content + '</h5><p class="content-text text-small">' + content.imageCaption + '</p><button class="button object skyblue" data-link="' + content.objectID + '">ansehen</button></div>';
+				contentHTML = contentHTML.concat(paragraphAndImageHTML);
+
 			}else if(content.type === 'quote'){
 				const quoteHTML = '<p class="content-text quote">' + content.content + '</p>';
 				contentHTML = contentHTML.concat(quoteHTML);
@@ -10280,11 +10527,7 @@ const app = {
 				const linkHTML = '<a class="content-link" href="">' + content.content + '</a>';
 				contentHTML = contentHTML.concat(linkHTML);
 
-			}else if(content.type === 'button'){
-				const linkHTML = '<a href="' + content.filename + '"><button class="button duckyellow">' + content.content + '</button></a>';
-				contentHTML = contentHTML.concat(linkHTML);
-
-			}else if(content.type === 'object-link'){
+			}else if(content.type === 'link-object'){
 				let href = '?m=mv';
 				app.dev ? href += '&dev=true': '';
 				if(app.tour) {
@@ -10293,7 +10536,15 @@ const app = {
 				}
 				href += '&model=' + content.filename;
 
-				const linkHTML = '<a href="' + href + '"><button class="button content-object-link duckyellow"><img src="' + app.assets.icon['watch'].src.coalgrey + '" alt="' + app.assets.icon['watch'].alt + '" width="100" height="100">' + content.content + '</button></a>';
+				const linkHTML = '<a href="' + href + '"><button class="button content-object-link skyblue"><img src="' + app.assets.icon['watch'].src.pearlwhite + '" alt="' + app.assets.icon['watch'].alt + '" width="100" height="100">' + content.content + '</button></a>';
+				contentHTML = contentHTML.concat(linkHTML);
+
+			}else if(content.type === 'link-button'){
+				const linkHTML = '<a href="' + content.filename + '"><button class="button skyblue">' + content.content + '</button></a>';
+				contentHTML = contentHTML.concat(linkHTML);
+
+			}else if(content.type === 'button'){
+				const linkHTML = '<button class="button coalgrey">' + content.content + '</button>';
 				contentHTML = contentHTML.concat(linkHTML);
 
 			}else if(content.type === 'personal+wolfgang'){
@@ -10354,6 +10605,7 @@ const app = {
 		this.stats = (this.getURLParameter('stats') === 'true');
 		this.hideGUI = (this.getURLParameter('gui') === 'false');
 		this.embedded = (this.getURLParameter('embedded') === 'true');
+		this.showWelcome = true;
 
 		this.embedded ? this.hideGUI = true : '';
 
@@ -10379,11 +10631,16 @@ const app = {
 		this.hideGUI ? url += '&gui=false' : '';
 		this.embedded ? url += '&embedded=true' : '';
 		(this.viewerMode === 'cv' && node) ? window.history.pushState(null, null, url) : '';
+
+		//prevent welcome message
+		(this.viewerMode === 'cv' && this.tour) ? this.showWelcome = false : '';
+		(this.viewerMode === 'cv' && node) ? this.showWelcome = false : '';
+		(this.viewerMode === 'cv' && isFrom) ? this.showWelcome = false : '';
 	}, 
 
 	handleLocalStorage() {
-		this.showOnboarding = (localStorage.getItem('onboardingComplete') !== 'true');
-		app.dev && console.log('dev --- handleLocalStorage > showOnboarding: ', this.showOnboarding);
+		//this.value = (localStorage.getItem('value') !== 'true');
+		//app.dev && console.log('dev --- handleLocalStorage > value: ', this.value);
 	},
 
 	checkMobile() {
