@@ -671,7 +671,7 @@ const app = {
 				this.containerEl.classList.remove('hide');
 
 				//auto extend message
-				if(this.content.containerEl.offsetHeight*1.5 < this.content.element.offsetHeight && app.isMobile === false) {
+				if(this.content.containerEl.offsetHeight * 1.5 < this.content.element.offsetHeight && app.isMobile === false) {
 					this.containerEl.classList.add('extended');
 					this.sizeControlEl.setAttribute('data-extended', true);
 				}
@@ -840,17 +840,21 @@ const app = {
 				this.shadow && this.type.element.classList.add(this.shadow.replace('shadow-', ''));
 				this.shadow && this.element.classList.add(this.shadow);
 
+				this.containerEl.classList.add('extended');
+				this.sizeControlEl.setAttribute('data-extended', true);
 				if(Object.keys(this.options).includes("extended")){
-					this.options.extended ? this.containerEl.classList.add('extended') : '';
-					this.options.extended ? this.sizeControlEl.setAttribute('data-extended', true) : '';
+					this.options.extended ? this.containerEl.classList.add('extended') : this.containerEl.classList.remove('extended');
+					this.options.extended ? this.sizeControlEl.setAttribute('data-extended', true) : this.sizeControlEl.setAttribute('data-extended', false);
 				}
 
+				this.sizeControlEl.classList.remove('hide');
 				if(Object.keys(this.options).includes("sizeControl")){
-					!this.options.sizeControl ? this.sizeControlEl.classList.add('hide') : '';
+					this.options.sizeControl ? this.sizeControlEl.classList.remove('hide') : this.sizeControlEl.classList.add('hide');
 				}
 
+				this.boxEl.classList.remove('large');
 				if(Object.keys(this.options).includes("large")){
-					this.options.large ? this.boxEl.classList.add('large') : '';
+					this.options.large ? this.boxEl.classList.add('large') : this.boxEl.classList.remove('large');
 				}
 
 				app.dev && console.log('dev --- message: ', this)
@@ -4013,9 +4017,10 @@ const app = {
 									},
 									{
 										"content" : "1989 wurde das Großprojekt WAA Wackersdorf aus verschiedenen Gründen aufgegeben und der Bau der Anlage eingestellt. Über all die Jahre hat der Widerstand gegen das Großprojekt viele Menschen geprägt. Manche von ihnen haben Erinnerungsstücke an diese Zeit geschaffen und beispielsweise ein Stück des markanten grünen Bauzauns zu einem Andenken umgewandelt. Heute ist Wolfgangs Alltag davon bestimmt, die Erinnerung an das bürgerliche Engagement und den Einsatz für die Demokratie zu hüten und weiterzugeben.",
+										"fileCopyright" : "Bürgerinitiative Schwandorf",
 										"filename" : "waa tour - Bauzaun.jpg",
 										"imageAlt" : "Bauzaun am WAA-Gelände",
-										"imageCaption" : "",
+										"imageCaption" : "Der Bauzaun wurde mit den Jahren ein Symbol der WAA-Proteste.",
 										"type" : "paragraph+image"
 									}, 
 									{

@@ -839,7 +839,7 @@ div.gui-message-container {
   top: 70dvh;
   margin: 0;
   pointer-events: none;
-  z-index: 4;
+  z-index: 7;
 }
 
 div.gui-message-container.extended {
@@ -1029,7 +1029,7 @@ div.gui-message > div.button-container > button.button > img.button-icon {
 /* --- content --- */
 
 .content > h1, h2, h3, h4, h5, h6, h7 {
-  margin-block-start: 3em;
+  margin-block-start: 2em;
   margin-block-end: 1em;
 }
 
@@ -1355,7 +1355,7 @@ div.gui-fullscreen-container {
   height: 100dvh;
   margin: 0;
   background-color: #41403FAA;
-  z-index: 5; 
+  z-index: 8; 
   cursor: zoom-out;
 }
 
