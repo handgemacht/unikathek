@@ -836,14 +836,14 @@ div.gui-message-container {
   width: 100%;
   height: fit-content;
   max-height: 40%;
-  top: 60%;
+  top: 70dvh;
   margin: 0;
   pointer-events: none;
   z-index: 4;
 }
 
 div.gui-message-container.extended {
-  top: 10%;
+  top: 10dvh;
 }
 
 div.gui-message-container.object {
@@ -854,7 +854,7 @@ div.gui-message-container > div.gui-message {
   width: 100%;
   min-height: 35%;
   height: fit-content;
-  max-height: 40dvh;
+  max-height: 20dvh;
   border-radius: 0px 1rem 0px 1rem;
   pointer-events: all;
   text-align: right;
@@ -869,7 +869,7 @@ div.gui-message-container > div.gui-message::-webkit-scrollbar-button:end:decrem
 
 div.gui-message-container.object > div.gui-message {
   height: fit-content;
-  max-height: 25dvh;
+  max-height: 20dvh;
 }
 
 div.gui-message-container.extended > div.gui-message {
@@ -2721,21 +2721,13 @@ img.help-symbol{
     left: initial;
   }
 
-  a-scene.active-message {
-    left: 0%;
-  }
-
-  model-viewer.active-message {
-    left: 0%;
-  }
-
   div.gui-message-container {
     width: 45%;
-    top: 40%;
+    top: 70dvh;
   }
 
   div.gui-message-container.extended {
-    top: 10%;
+    top: 10dvh;
   }
 
   div.gui-message-container.object {
