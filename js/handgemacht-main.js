@@ -1804,7 +1804,7 @@ const app = {
 						},
 						content: [
 							{
-								"content" : "Willkommen in der Unikathek!",
+								"content" : "Was ist die Unikathek?",
 								"fileCopyright" : "",
 								"filename" : "",
 								"imageAlt" : "",
@@ -1812,7 +1812,7 @@ const app = {
 								"type" : "headline"
 							},
 							{
-								"content" : "Mehr als 100 handgemachte Oberpfälzer Objekte kannst du hier mitsamt ihren Geschichten entdecken. Erfahre anhand der Gegenstände, was die Menschen in der Oberpfalz in den letzten 80 Jahren beschäftigte – und was sie immer wieder dazu antrieb und antreibt, Dinge selbst in die Hand zu nehmen.",
+								"content" : "Im Projekt hand.gemacht sammeln wir selbst hergestellte Gegenstände und deren Geschichten. In der Unikathek werden die Geschichten ihrer Besitzer und andere Merkmale mit den Objekten verknüpft und sichtbar gemacht. Im folgenden Leitfaden zeigen wir, wie diese Verknüpfungen aussehen und wie man durch die Unikathek navigiert. ",
 								"fileCopyright" : "",
 								"filename" : "",
 								"imageAlt" : "",
@@ -1857,7 +1857,7 @@ const app = {
 								"type" : "paragraph"
 							},
 							{
-								"content" : "<dl class='content-list icon'><dt><div class='icon big skyblue'><img src='" + app.assets.icon['category'].src.pearlwhite + "' alt='" + app.assets.icon['category'].alt + "'></div></dt><dd><strong>Kontexte</strong> fassen zusammen, zu welchen Zwecken und vor welchen Hintergründen die Einzelstücke hergestellt und verwendet worden sind – und werden.</dd><dt><div class='icon big terracotta'><img src='" + app.assets.icon['topic'].src.pearlwhite + "' alt='" + app.assets.icon['topic'].alt + "'></div></dt><dd><strong>Merkmale</strong> veranschaulichen dagegen, welche Eigenschaften speziell die handgemachten Oberpfälzer Gegenstände besitzen. Dabei kann es sich sowohl um Motivationen als auch um Effekte des Selbermachens handeln.</dd><dt><div class='icon big duckyellow'><img src='" + app.assets.icon['tag'].src.coalgrey + "' alt='" + app.assets.icon['tag'].alt + "'></div></dt><dd><strong>Themen-Tags</strong> verbinden spezifische Kontexte wie zum Beispiel den Kötztiger Pfingstritt oder die Objekte rund um die WAA Wackersdorf.</dd><dt><div class='icon big smokegrey'><img src='" + app.assets.icon['tag'].src.pearlwhite + "' alt='" + app.assets.icon['tag'].alt + "'></div></dt><dd><strong>Herstellungs-Tags</strong> geben Hinweise auf verwendete Materialien und Herstellungstechniken. Diese Tags sind gewöhnlich ausgeblendet.</dd></dl>",
+								"content" : "<dl class='content-list icon'><dt><div class='icon big skyblue'><img src='" + app.assets.icon['category'].src.pearlwhite + "' alt='" + app.assets.icon['category'].alt + "'></div></dt><dd><strong>Kontexte</strong> fassen zusammen, zu welchen Zwecken und vor welchen Hintergründen die Einzelstücke hergestellt und verwendet worden sind – und werden.</dd><dt><div class='icon big terracotta'><img src='" + app.assets.icon['topic'].src.pearlwhite + "' alt='" + app.assets.icon['topic'].alt + "'></div></dt><dd><strong>Merkmale</strong> veranschaulichen dagegen, welche Eigenschaften speziell die handgemachten Oberpfälzer Gegenstände besitzen. Dabei kann es sich sowohl um Motivationen als auch um Effekte des Selbermachens handeln.</dd><dt><div class='icon big duckyellow'><img src='" + app.assets.icon['tag'].src.coalgrey + "' alt='" + app.assets.icon['tag'].alt + "'></div></dt><dd><strong>Themen-Verbindungen</strong> verknüpfen spezifische Kontexte wie zum Beispiel den Kötztiger Pfingstritt oder die Objekte rund um die WAA Wackersdorf.</dd><dt><div class='icon big smokegrey'><img src='" + app.assets.icon['tag'].src.pearlwhite + "' alt='" + app.assets.icon['tag'].alt + "'></div></dt><dd><strong>Herstellungs-Verbindungen</strong> geben Hinweise auf verwendete Materialien und Herstellungstechniken. Diese Verbindungen sind gewöhnlich ausgeblendet und können in der Filter-Einstellung angezeigt werden.</dd></dl>",
 								"fileCopyright" : "",
 								"filename" : "",
 								"imageAlt" : "",
@@ -3597,7 +3597,7 @@ const app = {
 						{
 							highlightObject: '',
 							message: {
-								type: 'Thema: ' + this.list[tour].title,
+								type: 'Thema: ' + this.list[tour].title + ' 1/' + this.list[tour].steps,
 								buttons: [
 									{
 										label: 'los geht\'s',
@@ -3606,7 +3606,8 @@ const app = {
 									}
 								],
 								options: {
-									extended: true
+									extended: true,
+									large: true
 								},
 								content: [
 									{
@@ -3632,6 +3633,14 @@ const app = {
 										"imageAlt" : "",
 										"imageCaption" : "",
 										"type" : "paragraph"
+									}, 
+									{
+										"content" : "Servus, ich bin Wolfgang! Komm mit und klick dich durch, wenn du wissen willst, was ich im Widerstand gegen die WAA Wackersdorf erlebt hab.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+wolfgang"
 									}
 								]
 							}
@@ -3639,7 +3648,7 @@ const app = {
 						{
 							highlightObject: '',
 							message: {
-								type: 'Thema: ' + this.list[tour].title + ', Start',
+								type: 'Thema: ' + this.list[tour].title + ' 2/' + this.list[tour].steps,
 								buttons: [
 									{
 										label: 'zurück',
@@ -3689,7 +3698,7 @@ const app = {
 										"type" : "paragraph"
 									},
 									{
-										"content" : "Was? Da kommen Fremde und wollen in unserer Heimat was machen? Da müssen wir schon ein bisschen mit hinschauen… Das kann ja nichts Gutes sein, sonst würde es ja woanders hinkommen, oder? Schauen wir halt mal zum Treffen dieser neuen Bürgerinitiative.",
+										"content" : "Was? Da kommen Fremde und wollen in unserer Heimat was machen? Da müssen wir schon ein bisschen mit hinschauen… Mein Bauchgefühl sagt mir: Das kann nichts Gutes sein, sonst würde es ja woanders hinkommen, oder? Schauen wir halt mal zum Treffen dieser neuen Bürgerinitiative.",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -3702,7 +3711,7 @@ const app = {
 						{
 							highlightObject: '6379EA32-A534-C246-8D96-4BFCE2179CF2',
 							message: {
-								type: 'Thema: ' + this.list[tour].title + ', Teil 1',
+								type: 'Thema: ' + this.list[tour].title + ' 3/' + this.list[tour].steps,
 								buttons: [
 									{
 										label: 'zurück',
@@ -3765,7 +3774,7 @@ const app = {
 						{
 							highlightObject: 'F07C89FE-D514-6148-9480-457DD951729D',
 							message: {
-								type: 'Thema: ' + this.list[tour].title + ', Teil 2',
+								type: 'Thema: ' + this.list[tour].title + ' 4/' + this.list[tour].steps,
 								buttons: [
 									{
 										label: 'zurück',
@@ -3823,7 +3832,7 @@ const app = {
 										"type" : "link-object"
 									},
 									{
-										"content" : "„Also ich bin fast schon überrascht von mir selber. Widerstand! Das hat ja so gar nicht in mein Weltbild gepasst. Und wie sowas gehen soll, das hab ich als frommer Bürger und braver CSU-Wähler schon gleich dreimal nicht gewusst. Aber in der letzten Zeit haben wir viel dazugelernt. Wir haben eine Stimme, die wir erheben dürfen und können. Mutig und selbstbewusst sind wir geworden!“",
+										"content" : "Also ich bin fast schon überrascht von mir selber. Widerstand! Das hat ja so gar nicht in mein Weltbild gepasst. Und wie sowas gehen soll, das hab ich als frommer Bürger und braver CSU-Wähler schon gleich dreimal nicht gewusst. Aber in der letzten Zeit haben wir viel dazugelernt. Wir haben eine Stimme, die wir erheben dürfen und können. Mutig und selbstbewusst sind wir geworden!",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -3836,7 +3845,7 @@ const app = {
 						{
 							highlightObject: '64AB9AAE-ABA6-E043-94D0-EC5CE4450E7C',
 							message: {
-								type: 'Thema: ' + this.list[tour].title + ', Teil 3',
+								type: 'Thema: ' + this.list[tour].title + ' 5/' + this.list[tour].steps,
 								buttons: [
 									{
 										label: 'zurück',
@@ -3907,7 +3916,7 @@ const app = {
 						{
 							highlightObject: '',
 							message: {
-								type: 'Thema: ' + this.list[tour].title + ', Teil 4',
+								type: 'Thema: ' + this.list[tour].title + ' 6/' + this.list[tour].steps,
 								buttons: [
 									{
 										label: 'zurück',
@@ -3934,7 +3943,7 @@ const app = {
 									},
 									{
 										"content" : "Hans Schuierer gilt heute als Symbolfigur des friedlichen Widerstandes gegen die WAA. Als damaliger SPD-Landrat, der sich um das wirtschaftliche Wohl des Landkreises sorgte, war er dem viele Arbeitsplätze versprechenden Bauvorhaben gegenüber zunächst nicht abgeneigt. Diese Haltung änderte sich jedoch schlagartig, als er von einem 200 Meter hohen Kamin erfuhr, der auf dem Gelände gebaut werden sollte. „Wozu der Kamin?“, fragte er die Herren von der DWK. „Damit die radioaktiven Schadstoffe möglichst weit verteilt werden“, lautete die Antwort.",
-										"fileCopyright" : "Wikimedia Commons, User: Mramius, <a class='link text-pearlwhite' href='https://creativecommons.org/licenses/by-sa/4.0/deed.de' target='_blank'>CC By-SA 4.0</a>, <a class='link text-pearlwhite' href='https://commons.wikimedia.org/wiki/File:KurtPetzoldHansSchuierer.jpg?uselang=de' target='_blank'>KurtPetzoldHansSchuierer.jpg</a> (Ausschnitt)",
+										"fileCopyright" : "Wikimedia Commons, Author: Mramius, <a class='link text-pearlwhite' href='https://creativecommons.org/licenses/by-sa/4.0/deed.de' target='_blank'>CC By-SA 4.0</a>, <a class='link text-pearlwhite' href='https://commons.wikimedia.org/wiki/File:KurtPetzoldHansSchuierer.jpg' target='_blank'>KurtPetzoldHansSchuierer.jpg</a> (Ausschnitt)",
 										"filename" : "waa tour - Hans Schuierer.jpg",
 										"imageAlt" : "Foto von Hans Schuirer",
 										"imageCaption" : "Hans Schuierer, Landrat von Schwandorf, bei einer Anti-Atomkraft-Kundgebung.",
@@ -3954,7 +3963,7 @@ const app = {
 						{
 							highlightObject: '',
 							message: {
-								type: 'Thema: ' + this.list[tour].title + ', Teil 5',
+								type: 'Thema: ' + this.list[tour].title + ' 7/' + this.list[tour].steps,
 								buttons: [
 									{
 										label: 'zurück',
@@ -3986,6 +3995,14 @@ const app = {
 										"imageAlt" : "",
 										"imageCaption" : "",
 										"type" : "paragraph"
+									},
+									{	
+										"content" : "",
+										"fileCopyright" : "Bürgerinitiative Schwandorf",
+										"filename" : "waa tour - waa demo.jpg",
+										"imageAlt" : "Protest-Banner auf einer WAA-Demonstration",
+										"imageCaption" : "Zehntausende von Menschen gingen in den 1980er-Jahren auf die Straße, um auf friedliche Weise gegen die WAA zu demonstrieren.",
+										"type" : "image"
 									}
 								]
 							}
@@ -3993,7 +4010,7 @@ const app = {
 						{
 							highlightObject: '732C44A9-308C-454C-9A2F-1C1599CE5A48',
 							message: {
-								type: 'Thema: ' + this.list[tour].title + ', Teil 6',
+								type: 'Thema: ' + this.list[tour].title + ' 8/' + this.list[tour].steps,
 								buttons: [
 									{
 										label: 'zurück',
@@ -4019,8 +4036,7 @@ const app = {
 										"type" : "headline"
 									},
 									{
-										"content" : "1989 wurde das Großprojekt WAA Wackersdorf aus verschiedenen Gründen aufgegeben und der Bau der Anlage eingestellt. Über all die Jahre hat der Widerstand gegen das Großprojekt viele Menschen geprägt. Manche von ihnen haben Erinnerungsstücke an diese Zeit geschaffen. Jahrzehnte später ist Wolfgangs Alltag davon bestimmt, die Erinnerung an das bürgerliche Engagement und den Einsatz für die Demokratie zu hüten und weiterzugeben.",
-										"fileCopyright" : "Bürgerinitiative Schwandorf",
+										"content" : "1989 wurde das Großprojekt WAA Wackersdorf aus verschiedenen Gründen aufgegeben und der Bau der Anlage eingestellt. Über all die Jahre hat der Widerstand gegen das Großprojekt viele Menschen geprägt. Manche von ihnen haben Erinnerungsstücke an diese Zeit geschaffen und beispielsweise ein Stück des markanten grünen Bauzauns zu einem Andenken umgewandelt. Heute ist Wolfgangs Alltag davon bestimmt, die Erinnerung an das bürgerliche Engagement und den Einsatz für die Demokratie zu hüten und weiterzugeben.",
 										"filename" : "waa tour - Bauzaun.jpg",
 										"imageAlt" : "Bauzaun am WAA-Gelände",
 										"imageCaption" : "",
@@ -4048,7 +4064,7 @@ const app = {
 						{
 							highlightObject: '',
 							message: {
-								type: 'Thema: ' + this.list[tour].title + ', Ende',
+								type: 'Thema: ' + this.list[tour].title + ' 9/' + this.list[tour].steps,
 								buttons: [
 									{
 										label: 'zurück',
@@ -4072,6 +4088,14 @@ const app = {
 										"imageAlt" : "",
 										"imageCaption" : "",
 										"type" : "headline"
+									},
+									{	
+										"content" : "",
+										"fileCopyright" : "Wikimedia Commons, Author: Alois Köppl, Gleiritsch <a class='link text-pearlwhite' href='https://online-2000.de/'  target='_blank'>online-2000.de</a>, <a class='link text-pearlwhite' href='https://creativecommons.org/licenses/by/3.0/deed.en' target='_blank'>CC BY 3.0</a>, <a class='link text-pearlwhite' href='https://commons.wikimedia.org/wiki/File:Wackersdorf_Gewerbegebiet_Westlicher_Tax%C3%B6ldener_Forst_06_09_2013.jpg' target='_blank'>Wackersdorf Gewerbegebiet Westlicher Taxöldener Forst 06 09 2013.jpg</a>",
+										"filename" : "waa tour - wackersdorf gewerbegebiet.jpg",
+										"imageAlt" : "Wackersdorfer Gewerbegebiet",
+										"imageCaption" : "Statt einer WAA entstand bei Wackersdorf letztendlich ein Gewerbegebiet mit zahlreichen Arbeitsplätzen.",
+										"type" : "image"
 									},
 									{
 										"content" : "Auf dem ehemaligen WAA-Gelände befindet sich heute keine atomare Wiederaufbereitungsanlage, sondern ein Industriepark. Das ist wohl nicht zuletzt Menschen wie Wolfgang zu verdanken, die sich jahrelang mit großem Erfindergeist, mit kreativer Schaffenskraft und Durchhaltevermögen gegen das Vorhaben WAA einsetzten. Von ihrem Engagement und Tatendrang zeugen die hier präsentierten selbstgemachten Gegenstände. Die Akteure entwickelten dabei ein besonderes Selbstbewusstsein, lernten viel über ihre bürgerlichen Rechte in einer Demokratie und auch, nicht zu allem „Ja und Amen“ zu sagen. Diese Erfahrungen prägten sie ihr Leben lang und bestimmen teilweise noch immer einen Großteil ihres Alltags. So ist auch Wolfgang immer noch darauf bedacht, seine Geschichte zu erzählen.",
@@ -4262,6 +4286,7 @@ const app = {
 				let thisMessageExtended = false;
 				let thisMessageSizeControl = true;
 				let thisMessageShowClose = true;
+				let thisMessageLarge = true;
 				if(Object.keys(this.steps[step].message).includes('showClose')){
 					thisMessageShowClose = this.steps[step].message.showClose;
 				}
@@ -4271,6 +4296,9 @@ const app = {
 					}
 					if(Object.keys(this.steps[step].message.options).includes('sizeControl')) {
 						thisMessageSizeControl = this.steps[step].message.options.sizeControl;
+					}
+					if(Object.keys(this.steps[step].message.options).includes('large')) {
+						thisMessageLarge = this.steps[step].message.options.large;
 					}
 				}
 				this.tourMessage = {
@@ -4298,6 +4326,7 @@ const app = {
 				if('options' in this.steps[step].message) {
 					('extended' in this.steps[step].message.options) ? this.tourMessage.options.extended = this.steps[step].message.options.extended : '';
 					('sizeControl' in this.steps[step].message.options) ? this.tourMessage.options.sizeControl = this.steps[step].message.options.sizeControl : '';
+					('large' in this.steps[step].message.options) ? this.tourMessage.options.large = this.steps[step].message.options.large : '';
 				}
 			}, 
 
@@ -4906,10 +4935,17 @@ const app = {
 							onNodeClick: node => { 
 								app.dev && console.log('dev --- onNodeClick: ', node);
 								if(node.visibility === 'hidden'){ return; };
-								if(document.querySelector('a-camera').components['orbit-controls'].hasUserInput) {return;}
+								if(document.querySelector('a-camera').components['orbit-controls'].hasUserInput) { return; }
 								if(node.id === app.collectionViewer.highlight.focusedNode) {
 									if(node.type === 'node-object'){
-										window.location.href = '?m=mv&model=' + node.id;
+										let href = '?m=mv';
+										app.dev ? href += '&dev=true': '';
+										if(app.tour) {
+											href += '&tour=' + app.tour;
+											href += '&step=' + app.step;
+										}
+										href += '&model=' + node.id;
+										window.location.href = href;
 										return;
 									}
 								}								
@@ -5588,7 +5624,6 @@ const app = {
 					this.highlightMarker.element.style.opacity = opacity;
 					this.highlightMarker.bracket.upper.element.style.borderRadius = (radius * 20) + 'px 0';
 					this.highlightMarker.bracket.lower.element.style.borderRadius = (radius * 20) + 'px 0';
-
 				}
 			});
 			//END highlight
