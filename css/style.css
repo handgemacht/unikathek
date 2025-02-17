@@ -1178,22 +1178,22 @@ div.description > p.content-text {
 
 div.description.tour {
   position: relative;
-  min-width: 13em;
-  min-height: 8em;
+  min-width: 13rem;
+  min-height: 8rem;
   margin: 3em 3em 0 0;
   border-radius: 0px 1rem 0px 1rem;
 }
 
 div.description.tour > h5 {
   margin-block-start: 1em;
-  padding: 1rem 1rem 0 1rem;
+  padding: 0 1rem 0 1rem;
   clear: initial;
 }
 
 div.description.tour > .content-image {
   width: 13em;
   float: left;
-  margin: 0;
+  margin: 0 0 1em 0;
 }
 
 div.description.tour > .content-image > .content-image-box {
