@@ -5,7 +5,7 @@
 //START app 
 const app = {
 	title: 'Unikathek',
-	version: 'beta 1.8 25/02/03',
+	version: 'beta 1.8 25/02/17',
 	dev: false,
 	stats: false,
 	viewerMode: false,
@@ -205,6 +205,20 @@ const app = {
 							coalgrey: filepath + 'hand.gemacht WebApp icon small close coalgrey.svg' 
 						}
 					},
+					'maximize': {
+						alt: 'Maximieren-Symbol',
+						src: {
+							pearlwhite: filepath + 'hand.gemacht WebApp icon small maximize pearlwhite.svg',
+							coalgrey: filepath + 'hand.gemacht WebApp icon small maximize coalgrey.svg' 
+						}
+					},
+					'minimize': {
+						alt: 'Minimieren-Symbol',
+						src: {
+							pearlwhite: filepath + 'hand.gemacht WebApp icon small minimize pearlwhite.svg',
+							coalgrey: filepath + 'hand.gemacht WebApp icon small minimize coalgrey.svg' 
+						}
+					},
 					'pause': {
 						alt: 'Pause-Symbol',
 						src: {
@@ -319,23 +333,24 @@ const app = {
 
 		if (this.viewerMode === 'cv') {
 			this.collectionViewer.init();
-			this.gui.title.init();
 			this.gui.loadingScreen.showLoadingScreen('Unikathek wird geladen');
 		}
 
 		if (this.viewerMode === 'mv') {
 			this.modelViewer.init();
 			this.arViewer.registerComponents();
-			this.gui.title.init();
 			this.gui.loadingScreen.showLoadingScreen('Modelviewer wird geladen');
 		}
 
 		this.gui.setupCollapsibles();
+
+		app.dev && console.log('init --- app complete');
 	}, 
 
 	gui: {
 			
 		init() {
+			this.title.init();
 			this.logo.init();
 			//this.version.init();
 			this.loadingScreen.init();
@@ -344,6 +359,8 @@ const app = {
 			this.fullScreen.init();
 			this.menu.init();
 			this.toolbar.init();
+
+			app.dev && console.log('init --- app > gui complete');
 		},
 
 		title: {
@@ -351,6 +368,8 @@ const app = {
 			init() {
 				this.createElements();
 				this.set();
+
+				app.dev && console.log('init --- app > gui > title');
 			},
 
 			createElements() {
@@ -423,6 +442,7 @@ const app = {
 
 				if(app.collectionViewer.highlight.focusedNode) {
 					app.collectionViewer.resetView.resetCameraView();
+					// app.dev && console.log('dev --- reserCameraView from titleClickHandler()');
 					app.gui.message.hideMessage(true);
 					app.gui.title.set();
 				}else{
@@ -436,6 +456,8 @@ const app = {
 			init() {
 				this.createElements();
 				app.hideGUI && this.element.classList.add('hide');
+
+				app.dev && console.log('init --- app > gui > logo');
 			},
 
 			createElements() {
@@ -459,6 +481,8 @@ const app = {
 			init() {
 				this.createElements();
 				app.hideGUI && this.element.classList.add('hide');
+
+				app.dev && console.log('init --- app > gui > version');
 			},
 
 			createElements() {
@@ -470,12 +494,17 @@ const app = {
 		},
 
 		loadingScreen: {
+			
+			hidden: false,
+
 			content: {
 				value: 'loading...',
 			},
 
 			init() {
 				this.createElements();
+
+				app.dev && console.log('init --- app > gui > loadingScreen');
 			}, 
 
 			createElements() {
@@ -517,6 +546,7 @@ const app = {
 			}, 
 
 			hideLoadingScreen(timeout = 0) {
+				if(this.hidden) { return; }
 				setTimeout(() => {
 					this.element.classList.add('transparent');
 					this.animation.textEl.innerHTML = this.content.value;
@@ -525,8 +555,7 @@ const app = {
 
 					setTimeout(() => {
 						this.element.classList.add('hide');
-						app.dev && console.log('dev --- loadingScreen > hidden');
-						app.collectionViewer.resetView.resetCameraView();
+						// app.dev && console.log('dev --- loadingScreen > hidden');
 					}, 500)
 
 				}, timeout);
@@ -552,6 +581,8 @@ const app = {
 				this.createElements();
 				this.setEventListener();
 				this.abortController = new AbortController();
+
+				app.dev && console.log('init --- app > gui > message');
 			}, 
 
 			createElements() {
@@ -567,26 +598,38 @@ const app = {
 				this.containerEl.appendChild(this.type.element);
 				this.type.element.className = 'type hide';
 
-				this.sizeControlEl = document.createElement('button');
-				this.containerEl.appendChild(this.sizeControlEl);
-				this.sizeControlEl.className = 'size-control';
-				this.sizeControlEl.setAttribute('data-extended', 'false');
+				
 
 				this.element = document.createElement('div');
 				this.containerEl.appendChild(this.element);
 				this.element.className = 'gui-message';
 
+				this.icons = {};
+
+				this.icons.containerEl = document.createElement('div');
+				this.containerEl.appendChild(this.icons.containerEl);
+				this.icons.containerEl.className = 'icon-container';
+
+				this.fadeEl = document.createElement('div');
+				this.icons.containerEl.appendChild(this.fadeEl)
+				this.fadeEl.className = 'icons-fade';
+
+				this.sizeControlEl = document.createElement('button');
+				this.icons.containerEl.appendChild(this.sizeControlEl);
+				this.sizeControlEl.className = 'size-control';
+				this.sizeControlEl.setAttribute('data-maximized', 'false');
+
 				this.sizeControlEl.icon = document.createElement('img');
 				this.sizeControlEl.appendChild(this.sizeControlEl.icon);
-				this.sizeControlEl.icon.className = 'arrow-wide';
-				this.sizeControlEl.icon.src = app.assets.icon['arrow wide up'].src.coalgrey;
-				this.sizeControlEl.icon.alt = app.assets.icon['arrow wide up'].alt;
+				this.sizeControlEl.icon.className = 'resize-icon';
+				this.sizeControlEl.icon.src = app.assets.icon.small['maximize'].src.coalgrey;
+				this.sizeControlEl.icon.alt = app.assets.icon.small['maximize'].alt;
 				this.sizeControlEl.icon.width = 100;
 				this.sizeControlEl.icon.height = 100;
 				this.sizeControlEl.icon.setAttribute('loading', 'lazy');
 
 				this.closeEl = document.createElement('button');
-				this.containerEl.appendChild(this.closeEl);
+				this.icons.containerEl.appendChild(this.closeEl);
 				this.closeEl.className = 'close';
 	
 				this.closeEl.icon = document.createElement('img');
@@ -599,7 +642,7 @@ const app = {
 				this.closeEl.icon.setAttribute('loading', 'lazy');
 
 				this.backEl = document.createElement('button');
-				this.containerEl.appendChild(this.backEl);
+				this.icons.containerEl.appendChild(this.backEl);
 				this.backEl.className = 'back';
 
 				this.backEl.icon = document.createElement('img');
@@ -670,10 +713,10 @@ const app = {
 			showMessage() {
 				this.containerEl.classList.remove('hide');
 
-				//auto extend message
+				//auto maximize message
 				if(this.content.containerEl.offsetHeight * 1.5 < this.content.element.offsetHeight && app.isMobile === false) {
-					this.containerEl.classList.add('extended');
-					this.sizeControlEl.setAttribute('data-extended', true);
+					this.containerEl.classList.add('maximized');
+					this.sizeControlEl.setAttribute('data-maximized', true);
 				}
 
 				if(app.collectionViewer.highlight.pillArray.length > 0) {
@@ -709,7 +752,8 @@ const app = {
 				this.closeEl.className = 'close';
 				this.backEl.className = 'back';
 				this.sizeControlEl.className = 'size-control';
-				this.sizeControlEl.setAttribute('data-extended', false);
+				this.sizeControlEl.setAttribute('data-maximized', false);
+				this.sizeControlEl.icon.src = app.assets.icon.small['maximize'].src.coalgrey;
 
 				//remove Eventlisteners
 				callAbortController ? this.abortController.abort() : '';
@@ -740,6 +784,7 @@ const app = {
 						}
 						app.gui.title.set();
 						app.collectionViewer.resetView.resetCameraView();
+						// app.dev && console.log('dev --- reserCameraView from click: back');
 					});
 				}
 
@@ -751,22 +796,25 @@ const app = {
 							app.step = null;
 						}
 						app.collectionViewer.resetView.resetCameraView();
+						// app.dev && console.log('dev --- reserCameraView from click: close');
 					});
 				}
 
 				if(this.sizeControlEl) {
 					this.sizeControlEl.addEventListener('click', (evt) => {
-						let isExtended = self.sizeControlEl.getAttribute('data-extended');
-						if(isExtended === 'true'){
-							app.dev && console.log('dev --- message isExtended (true): ', isExtended)
-							self.containerEl.classList.remove('extended');
-							self.sizeControlEl.setAttribute('data-extended', 'false');
+						let isMaximized = self.sizeControlEl.getAttribute('data-maximized');
+						if(isMaximized === 'true'){
+							// app.dev && console.log('dev --- message isMaximized (true): ', isMaximized)
+							self.containerEl.classList.remove('maximized');
+							self.sizeControlEl.setAttribute('data-maximized', 'false');
+							this.sizeControlEl.icon.src = app.assets.icon.small['maximize'].src.coalgrey;
 							
 						}else{
-							app.dev && console.log('dev --- message isExtended (false): ', isExtended)
-							self.containerEl.classList.remove('extended');
-							self.containerEl.classList.add('extended');
-							self.sizeControlEl.setAttribute('data-extended', 'true');
+							// app.dev && console.log('dev --- message isMaximized (false): ', isMaximized)
+							self.containerEl.classList.remove('maximized');
+							self.containerEl.classList.add('maximized');
+							self.sizeControlEl.setAttribute('data-maximized', 'true');
+							this.sizeControlEl.icon.src = app.assets.icon.small['minimize'].src.coalgrey;
 						}
 					});
 				}
@@ -840,11 +888,13 @@ const app = {
 				this.shadow && this.type.element.classList.add(this.shadow.replace('shadow-', ''));
 				this.shadow && this.element.classList.add(this.shadow);
 
-				this.containerEl.classList.add('extended');
-				this.sizeControlEl.setAttribute('data-extended', true);
-				if(Object.keys(this.options).includes("extended")){
-					this.options.extended ? this.containerEl.classList.add('extended') : this.containerEl.classList.remove('extended');
-					this.options.extended ? this.sizeControlEl.setAttribute('data-extended', true) : this.sizeControlEl.setAttribute('data-extended', false);
+				this.containerEl.classList.add('maximized');
+				this.sizeControlEl.setAttribute('data-maximized', true);
+				this.sizeControlEl.icon.src = app.assets.icon.small['minimize'].src.coalgrey;
+				if(Object.keys(this.options).includes("maximized")){
+					this.options.maximized ? this.containerEl.classList.add('maximized') : this.containerEl.classList.remove('maximized');
+					this.options.maximized ? this.sizeControlEl.setAttribute('data-maximized', true) : this.sizeControlEl.setAttribute('data-maximized', false);
+					this.options.maximized ? this.sizeControlEl.icon.src = app.assets.icon.small['minimize'].src.coalgrey : this.sizeControlEl.icon.src = app.assets.icon.small['maximize'].src.coalgrey;
 				}
 
 				this.sizeControlEl.classList.remove('hide');
@@ -852,12 +902,12 @@ const app = {
 					this.options.sizeControl ? this.sizeControlEl.classList.remove('hide') : this.sizeControlEl.classList.add('hide');
 				}
 
-				this.boxEl.classList.remove('large');
-				if(Object.keys(this.options).includes("large")){
-					this.options.large ? this.boxEl.classList.add('large') : this.boxEl.classList.remove('large');
+				this.boxEl.classList.remove('centered');
+				if(Object.keys(this.options).includes('centered')){
+					this.options.centered ? this.boxEl.classList.add('centered') : this.boxEl.classList.remove('centered');
 				}
 
-				app.dev && console.log('dev --- message: ', this)
+				// app.dev && console.log('dev --- message: ', this)
 				this.showMessage();
 			},
 
@@ -893,6 +943,8 @@ const app = {
 			init() {
 				this.createElements();
 				this.setEventListener();
+
+
 			}, 
 
 			createElements() {
@@ -958,6 +1010,8 @@ const app = {
 					self.containerEl.classList.add('hide'); 
 					self.image.classList.add('hide');
 				});
+
+				app.dev && console.log('init --- app > gui > fullScreen');
 			}, 
 
 			createElements() {
@@ -998,6 +1052,8 @@ const app = {
 				this.setEventListener();
 				app.hideGUI && this.containerEl.classList.add('hide');
 				app.hideGUI && this.button.element.classList.add('hide');
+
+				app.dev && console.log('init --- app > gui > menu');
 			},
 	
 			createElements() {
@@ -1164,6 +1220,8 @@ const app = {
 					app.gui.toolbar.buttonActionTab(button);
 				})
 				//app.hideGUI && this.boxEl.classList.add('hide');
+
+				app.dev && console.log('init --- app > gui > toolbar');
 			},
 	
 			createElements() {
@@ -1491,8 +1549,8 @@ const app = {
 			{
 				set: function(target, prop, value){
 					target[prop] = value;
+					app.dev && console.log('event --- proxyfgData-update - call')
 					document.dispatchEvent(app.collectionViewer.proxyfgData.update);
-					app.dev && console.log('event --- proxyfgData-update')
 					return true;
 				}
 			}
@@ -1553,10 +1611,11 @@ const app = {
 			app.gui.toolbar.setButton(this.resetView.buttonSetup);
 			app.gui.toolbar.button[3].icon.addEventListener('click', (e) => {
 				app.collectionViewer.resetView.resetCameraView();
+				// app.dev && console.log('dev --- reserCameraView from click: resetView');
 			})
 
 			this.initialized = true;
-			app.dev && console.log('dev --- collectionViewer initialized');
+			app.dev && console.log('init --- app > collectionViewer');
 		},
 
 		welcome: {
@@ -1572,9 +1631,9 @@ const app = {
 							}
 					],
 					options: {
-							extended: true,
-							sizeControl: false, 
-							large: true
+							maximized: true,
+							sizeControl: true, 
+							centered: true
 					},
 					content: [
 							{
@@ -1594,7 +1653,7 @@ const app = {
 								"type" : "paragraph"
 							},
 							{
-								"content" : "Zum ersten mal hier? Dann schau in unseren Leitfaden. Dort wird die Unikathek mit all den wichtigen Funktionen und Werkzeugen erklärt. ",
+								"content" : "Zum ersten mal hier? Dann schau am besten in unseren Leitfaden. Dort wird die Unikathek mit all ihren wichtigen Funktionen und Werkzeugen erklärt. ",
 								"fileCopyright" : "",
 								"filename" : "",
 								"imageAlt" : "",
@@ -1602,7 +1661,7 @@ const app = {
 								"type" : "paragraph"
 							}, 
 							{
-								"content" : "Leitfaden",
+								"content" : "zum Leitfaden",
 								"fileCopyright" : "",
 								"filename" : "",
 								"imageAlt" : "",
@@ -1610,7 +1669,7 @@ const app = {
 								"type" : "button"
 							},
 							{
-								"content" : "Themen in der Unikathek",
+								"content" : "Themen-Touren in der Unikathek",
 								"fileCopyright" : "",
 								"filename" : "",
 								"imageAlt" : "",
@@ -1622,7 +1681,7 @@ const app = {
 								"fileCopyright" : "Bürgerinitiative Schwandorf",
 								"filename" : "waa tour - Intro Stimmungsbild.jpg",
 								"imageAlt" : "Musikanten bei den WAA-Protesten",
-								"imageCaption" : "Beschreibung WAA Wackersdorf in zwei kurzen Sätzen.",
+								"imageCaption" : "Als in den 1980er-Jahren eine atomare Wiederaufbereitungsanlage bei Wackersdorf gebaut werden sollte, regte sich in der Oberpfalz heftiger Widerstand. Ein WAA-Gegner erzählt von seinen Erlebnissen und zeigt verschiedene Objekte, die im Widerstand eine Rolle spielten.",
 								"type" : "description+tour"
 							}, 
 							{
@@ -1635,29 +1694,29 @@ const app = {
 							},
 							{
 								"content" : "Dirndl",
-								"objectID" : "6D0549BE-3890-8245-9D95-9B5E526327DB",
+								"objectLink" : "6D0549BE-3890-8245-9D95-9B5E526327DB",
 								"fileCopyright" : "Julian Moder",
 								"filename" : "Dirndl_25k_512.jpg",
 								"imageAlt" : "Rendering eines Dirndls",
-								"imageCaption" : "Beschreibung des Dirndls in zwei kurzen Sätzen.",
+								"imageCaption" : "Frühjahr 2020 – die Corona-Pandemie stellt den Alltag auf den Kopf. Gerade der richtige Zeitpunkt, um sich am Schneidern eines Dirndls zu versuchen, denkt sich Berufsmusiker Florian.",
 								"type" : "description+object"
 							}, 
 							{
 								"content" : "Geige aus Kriegsgefangenschaft",
-								"objectID" : "10FD2C3C-D08F-0A4B-9D1B-CA32FF9D5ED6",
+								"objectLink" : "10FD2C3C-D08F-0A4B-9D1B-CA32FF9D5ED6",
 								"fileCopyright" : "Julian Moder",
 								"filename" : "Geige_7k_2k.jpg",
 								"imageAlt" : "Rendering einer Geige",
-								"imageCaption" : "Beschreibung der Geige in zwei kurzen Sätzen.",
+								"imageCaption" : "Von Rimini nach Furth im Wald ist diese Geige gereist. Gebaut wurde sie 1947 vom gelernten Glasofenmaurer Ignaz Wirrer, als dieser in Kriegsgefangenschaft war.",
 								"type" : "description+object"
 							}, 
 							{
 								"content" : "Ofen",
-								"objectID" : "6420F1C4-1A3D-604E-8D42-9D9C5CDA2A9E",
+								"objectLink" : "6420F1C4-1A3D-604E-8D42-9D9C5CDA2A9E",
 								"fileCopyright" : "Julian Moder",
 								"filename" : "Ofen_56k_2k.jpg",
 								"imageAlt" : "Rendering einer Geige",
-								"imageCaption" : "Beschreibung des Ofens in zwei kurzen Sätzen.",
+								"imageCaption" : "Von der Wärmequelle zum Erinnerungsstück – dieser Ofen aus den 1940er-Jahren blickt auf eine bewegte Geschichte zurück. Ob auch Kriegsschrott verarbeitet wurde?",
 								"type" : "description+object"
 							}
 					]
@@ -1667,8 +1726,8 @@ const app = {
 			init() {
 				this.setContent();
 				app.showWelcome && this.show();
-				app.dev && console.log('dev --- cv > onboarding > app.showWelcome: ', app.showWelcome);	
-				app.dev && console.log('dev --- cv > onboarding: initialized');				
+				// app.dev && console.log('dev --- cv > welcome > app.showWelcome: ', app.showWelcome);	
+				app.dev && console.log('init --- app > collectionViewer > welcome');				
 			}, 
 
 			show() {
@@ -1696,9 +1755,9 @@ const app = {
 						{ label: this.welcome.buttons[0].label, color: this.welcome.buttons[0].color, icon: this.welcome.buttons[0].icon }
 					], 
 					options: {
-						extended: false, 
+						maximized: false, 
 						sizeControl: false, 
-						large: false
+						centered: false
 					}
 				}
 
@@ -1710,9 +1769,9 @@ const app = {
 				}
 
 				if('options' in this.welcome) {
-					('extended' in this.welcome.options) ? this.welcomeMessage.options.extended = this.welcome.options.extended : '';
+					('maximized' in this.welcome.options) ? this.welcomeMessage.options.maximized = this.welcome.options.maximized : '';
 					('sizeControl' in this.welcome.options) ? this.welcomeMessage.options.sizeControl = this.welcome.options.sizeControl : '';
-					('large' in this.welcome.options) ? this.welcomeMessage.options.large = this.welcome.options.large : '';
+					('centered' in this.welcome.options) ? this.welcomeMessage.options.centered = this.welcome.options.centered : '';
 				}
 			}, 
 
@@ -1785,9 +1844,9 @@ const app = {
 							}
 						],
 						options: {
-							extended: true,
-							sizeControl: false, 
-							large: true
+							maximized: true,
+							sizeControl: true, 
+							centered: true
 						},
 						content: [
 							{
@@ -1823,8 +1882,8 @@ const app = {
 							}
 						],
 						options: {
-							extended: true,
-							sizeControl: false
+							maximized: true,
+							sizeControl: true
 						},
 						content: [
 							{
@@ -1885,8 +1944,8 @@ const app = {
 						],
 						showClose: false,
 						options: {
-							extended: true,
-							sizeControl: false
+							maximized: true,
+							sizeControl: true
 						},
 						content: [
 							{
@@ -1981,7 +2040,7 @@ const app = {
 			init() {
 				this.setSteps();
 
-				app.dev && console.log('dev --- cv > onboarding: initialized');
+				app.dev && console.log('init --- app > collectionViewer > onboarding');
 			}, 
 
 			show(step = 'start') {
@@ -1989,7 +2048,7 @@ const app = {
 
 				this.setOnboardingMessage(step);
 
-				app.dev && console.log('dev --- show onboarding: ', step)
+				// app.dev && console.log('dev --- show onboarding: ', step)
 
 				if(step === 'start') {
 					app.gui.toolbar.toggleToolbar(false);
@@ -2049,10 +2108,10 @@ const app = {
 					buttonSetup: [
 						{ label: this.steps[step].buttons[0].label, color: this.steps[step].buttons[0].color, icon: this.steps[step].buttons[0].icon }
 					], 
-					showClose: false,
 					options: {
-						extended: false, 
-						sizeControl: false
+						maximized: false, 
+						sizeControl: false, 
+						centered: false
 					}
 				}
 
@@ -2064,9 +2123,9 @@ const app = {
 				}
 
 				if('options' in this.steps[step]) {
-					('extended' in this.steps[step].options) ? this.onboardingMessage.options.extended = this.steps[step].options.extended : '';
+					('maximized' in this.steps[step].options) ? this.onboardingMessage.options.maximized = this.steps[step].options.maximized : '';
 					('sizeControl' in this.steps[step].options) ? this.onboardingMessage.options.sizeControl = this.steps[step].options.sizeControl : '';
-					('large' in this.steps[step].options) ? this.onboardingMessage.options.large = this.steps[step].options.large : '';
+					('centered' in this.steps[step].options) ? this.onboardingMessage.options.centered = this.steps[step].options.centered : '';
 				}
 			}
 		},
@@ -2086,7 +2145,7 @@ const app = {
 					this.mouseDown = false;
 					this.pointerStyleHandler(null, e);
 				});
-				app.dev && console.log('dev --- cv > tooltip: initialized');
+				app.dev && console.log('init --- app > collectionViewer > tooltip');
 			},
 
 			createElements() {
@@ -2252,7 +2311,7 @@ const app = {
 			pillArray: [],
 
 			init() {
-				app.dev && console.log('dev --- cv > highlight: initialized');
+				app.dev && console.log('init --- app > collectionViewer > highlight');
 			},
 
 			onclickHandler(fgNode, showMessage = true) {
@@ -2537,7 +2596,7 @@ const app = {
 			texts: {
 				title: 'Die Unikathek',
 				intro: 'Mehr als 100 handgemachte Oberpfälzer Objekte kannst du hier mitsamt ihren Geschichten entdecken. Erfahre anhand der Gegenstände, was die Menschen in der Oberpfalz in den letzten 80 Jahren beschäftigte – und was sie immer wieder dazu antrieb und antreibt, Dinge selbst in die Hand zu nehmen. ',
-				toursTitle: 'Themen:',
+				toursTitle: 'Themen-Touren',
 				collectionTitle: 'Sammlungsinformation'
 			},
 
@@ -2563,6 +2622,7 @@ const app = {
 				let self = this;
 				
 				document.addEventListener('proxyfgData-update', (event) => {
+					app.dev && console.log('event --- proxyfgData-update - response: setting collectionData')
 					let collectionCounts = self.setCollectionCounts(app.collectionViewer.proxyfgData.data);
 					self.collectionData.releaseDate = app.collectionViewer.proxyfgData.data.releaseDate;
 					self.collectionData.objectCount = collectionCounts.objects;
@@ -2578,6 +2638,7 @@ const app = {
 				});
 
 				document.addEventListener('loadingScreen-ready', (event) => {
+					app.dev && console.log('event --- loadingScreen-ready - response: updating collectionData')
 					let collectionCounts = self.setCollectionCounts(app.collectionViewer.proxyfgData.data);
 					self.collectionData.objectVisibleCount = collectionCounts.objectsVisible;
 					self.collectionData.linkVisibleCount = collectionCounts.linksVisible;
@@ -2588,7 +2649,7 @@ const app = {
 					self.updateCollectionInfo();
 					self.setTourList();
 				});
-				app.dev && console.log('dev --- cv > info: initialized');
+				app.dev && console.log('init --- app > collectionViewer > info');
 			},
 
 			createElements() {
@@ -2822,7 +2883,7 @@ const app = {
 				this.createElements();
 
 				document.addEventListener('proxyfgData-update', (event) => {
-					//app.dev && console.log('dev --- cv > search > proxyfgData: ', app.collectionViewer.proxyfgData.data);
+					app.dev && console.log('event --- proxyfgData-update - response: updating search autocomplete')
 					let fgData = app.collectionViewer.proxyfgData.data.nodes;
 					for( let index in fgData){
 						let object = fgData[index];
@@ -2838,7 +2899,7 @@ const app = {
 					app.gui.toolbar.buttonClickHandler(e);
 					app.collectionViewer.search.resetSearchInput();
 				});
-				app.dev && console.log('dev --- cv > search: initialized');
+				app.dev && console.log('init --- app > collectionViewer > search');
 			}, 
 
 			createElements() {
@@ -2917,7 +2978,7 @@ const app = {
 								listItemEl.classList.add('disabled');
 								continue;
 							}
-							listItemEl.addEventListener("click", function(e) {
+							listItemEl.addEventListener('click', function(e) {
 								element.value = this.getElementsByTagName("input")[0].value;
 								app.collectionViewer.search.removeAutoCompleteList();
 								app.gui.toolbar.buttonActionSlide(app.collectionViewer.search.button.element);
@@ -2933,7 +2994,7 @@ const app = {
 					}
 				});
 
-				element.addEventListener("keydown", function(e) {
+				element.addEventListener('keydown', function(e) {
 					var x = app.collectionViewer.search.button.autocomplete.list.element;
 					if (x) x = x.getElementsByTagName("div");
 					if (e.keyCode == 40) {
@@ -3093,10 +3154,12 @@ const app = {
 				document.querySelector('.filter-change').addEventListener('click', (e) => {
 					app.collectionViewer.filter.filterUpdated ? app.collectionViewer.filter.updateForcegraph() : '';
 					app.collectionViewer.resetView.resetCameraView();
+					// app.dev && console.log('dev --- reserCameraView from click: filter change');
 					app.gui.toolbar.buttonActionTab(document.querySelector(self.buttonSetup.id))
 				})
 
 				document.addEventListener('proxyfgData-update', (event) => {
+					app.dev && console.log('event --- proxyfgData-update - response: updating checkbox lists')
 					//app.dev && console.log('dev --- cv > filter > proxyfgData-update: ', app.collectionViewer.proxyfgData.data);
 					this.generateCheckBoxList('#cv-filter-category-list', app.collectionViewer.proxyfgData.data.categorylist, app.collectionViewer.elementColor.category);
 					this.generateCheckBoxList('#cv-filter-topic-list', app.collectionViewer.proxyfgData.data.topiclist, app.collectionViewer.elementColor.topic);
@@ -3105,7 +3168,7 @@ const app = {
 
 					app.collectionViewer.filter.updateForcegraph();
 				});
-				app.dev && console.log('dev --- cv > filter: initialized');
+				app.dev && console.log('init --- app > collectionViewer > filter');
 			},
 
 			createElements() {
@@ -3460,7 +3523,7 @@ const app = {
 				let tagListElement = document.querySelector('#cv-filter-tag-list');
 				let productionTagListElement = document.querySelector('#cv-filter-production-tag-list');
 
-				app.dev && console.log('dev --- filteredData: ', this.filteredData);
+				// app.dev && console.log('dev --- filteredData: ', this.filteredData);
 
 				for(let element of categoryListElement.children) {
 					let name = element.innerHTML;
@@ -3542,7 +3605,7 @@ const app = {
 			},
 
 			init() {
-				app.dev && console.log('dev --- cv > resetView: initialized');
+				app.dev && console.log('init --- app > collectionViewer > resetView');
 			}, 
 
 			resetCameraView() {
@@ -3586,8 +3649,8 @@ const app = {
 									}
 								],
 								options: {
-									extended: true,
-									large: true
+									maximized: true,
+									centered: true
 								},
 								content: [
 									{
@@ -3642,7 +3705,7 @@ const app = {
 									}
 								],
 								options: {
-									extended: true
+									maximized: true
 								},
 								content: [
 									{
@@ -3705,7 +3768,7 @@ const app = {
 									}
 								],
 								options: {
-									extended: true
+									maximized: true
 								},
 								content: [
 									{
@@ -3733,7 +3796,7 @@ const app = {
 										"type" : "personal+wolfgang"
 									},
 									{
-										"content" : "Weil man das Projekt auf dem rechtlichen Wege verhindern möchte, wird insbesondere für die Zusammenarbeit mit einem Anwalt Geld gebraucht. Darüber hinaus fallen Kosten für die Öffentlichkeitsarbeit des Vereins sowie für Fachbücher an. Auch Sprit- und Telefonkosten, die privat nicht tragbar wären, sollen möglichst erstattet werden. Die Aktivisten sind daher froh um jede Mark, die in die Kasse der Bürgerinitiative fließt, und schlagen mitunter kreative Wege ein. So werden bei Demonstrationen zum Beispiel selbstgemachte Buttons verkauft – und gehen weg wie warme Semmeln.",
+										"content" : "Weil man das Projekt auf dem rechtlichen Wege verhindern möchte, wird insbesondere für die Zusammenarbeit mit einem Anwalt Geld gebraucht. Darüber hinaus fallen Kosten für die Öffentlichkeitsarbeit, etwa für den Druck von Flugblättern, sowie für Fachbücher an. Auch Sprit- und Telefonkosten, die privat nicht tragbar wären, sollen möglichst erstattet werden. Die Aktivisten sind daher froh um jede Mark, die in die Kasse der Bürgerinitiative fließt, und schlagen mitunter kreative Wege ein. So werden bei Demonstrationen zum Beispiel selbstgemachte Buttons verkauft – und gehen weg wie warme Semmeln.",
 										"fileCopyright" : "Bürgerinitiative Schwandorf",
 										"filename" : "waa tour - WAA_Flugblatt Sonntagsspaziergang.jpg",
 										"imageAlt" : "Flugblatt der WAA Sonntagsspaziergänge",
@@ -3768,7 +3831,7 @@ const app = {
 									}
 								],
 								options: {
-									extended: true
+									maximized: true
 								},
 								content: [
 									{
@@ -3780,7 +3843,7 @@ const app = {
 										"type" : "headline"
 									},
 									{
-										"content" : "Im Zuge des Widerstands gegen die WAA befassen sich die Akteure zunehmend mit der Frage, welche Rechte ihnen als Bürger zukommen. Was können sie in einem demokratisch verfassten Staat tun, um ein solches Projekt auszubremsen und zu verhindern?",
+										"content" : "Im Zuge des Widerstands gegen die WAA befassen sich die Akteure zunehmend mit der Frage, welche Rechte ihnen als Bürger zukommen. Was können sie in einem demokratisch verfassten Staat tun, um ein solches Projekt zu verhindern?",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -3839,7 +3902,7 @@ const app = {
 									}
 								],
 								options: {
-									extended: true
+									maximized: true
 								},
 								content: [
 									{
@@ -3910,7 +3973,7 @@ const app = {
 									}
 								],
 								options: {
-									extended: true
+									maximized: true
 								},
 								content: [
 									{
@@ -3957,7 +4020,7 @@ const app = {
 									}
 								],
 								options: {
-									extended: true
+									maximized: true
 								},
 								content: [
 									{
@@ -4004,7 +4067,7 @@ const app = {
 									}
 								],
 								options: {
-									extended: true
+									maximized: true
 								},
 								content: [
 									{
@@ -4059,7 +4122,7 @@ const app = {
 									}
 								],
 								options: {
-									extended: true
+									maximized: true
 								},
 								content: [
 									{
@@ -4105,7 +4168,7 @@ const app = {
 									}
 								],
 								options: {
-									extended: true
+									maximized: true
 								},
 								content: [
 									{
@@ -4183,7 +4246,7 @@ const app = {
 
 			init() {
 				this.setEventListeners();
-				app.dev && console.log('dev --- cv > tour: initialized');
+				app.dev && console.log('init --- app > collectionViewer > tour');
 			}, 
 
 			show(step) {
@@ -4264,22 +4327,22 @@ const app = {
 			}, 
 
 			setTourMessage(step) {
-				let thisMessageExtended = false;
+				let thisMessageMaximized = false;
 				let thisMessageSizeControl = true;
 				let thisMessageShowClose = true;
-				let thisMessageLarge = true;
+				let thisMessageCentered = true;
 				if(Object.keys(this.steps[step].message).includes('showClose')){
 					thisMessageShowClose = this.steps[step].message.showClose;
 				}
 				if(Object.keys(this.steps[step].message).includes('options')){
-					if(Object.keys(this.steps[step].message.options).includes('extended')) {
-						thisMessageExtended = this.steps[step].message.options.extended;
+					if(Object.keys(this.steps[step].message.options).includes('maximized')) {
+						thisMessageMaximized = this.steps[step].message.options.maximized;
 					}
 					if(Object.keys(this.steps[step].message.options).includes('sizeControl')) {
 						thisMessageSizeControl = this.steps[step].message.options.sizeControl;
 					}
-					if(Object.keys(this.steps[step].message.options).includes('large')) {
-						thisMessageLarge = this.steps[step].message.options.large;
+					if(Object.keys(this.steps[step].message.options).includes('centered')) {
+						thisMessageCentered = this.steps[step].message.options.centered;
 					}
 				}
 				this.tourMessage = {
@@ -4292,7 +4355,7 @@ const app = {
 					], 
 					showClose: thisMessageShowClose,
 					options: {
-						extended: thisMessageExtended, 
+						maximized: thisMessageMaximized, 
 						sizeControl: thisMessageSizeControl
 					}
 				}
@@ -4305,9 +4368,9 @@ const app = {
 				}
 
 				if('options' in this.steps[step].message) {
-					('extended' in this.steps[step].message.options) ? this.tourMessage.options.extended = this.steps[step].message.options.extended : '';
+					('maximized' in this.steps[step].message.options) ? this.tourMessage.options.maximized = this.steps[step].message.options.maximized : '';
 					('sizeControl' in this.steps[step].message.options) ? this.tourMessage.options.sizeControl = this.steps[step].message.options.sizeControl : '';
-					('large' in this.steps[step].message.options) ? this.tourMessage.options.large = this.steps[step].message.options.large : '';
+					('centered' in this.steps[step].message.options) ? this.tourMessage.options.centered = this.steps[step].message.options.centered : '';
 				}
 			}, 
 
@@ -4322,12 +4385,13 @@ const app = {
 				for(let n of fgNodes) {
 					if(n.id === id){
 						node = n;
-						app.dev && console.log('dev --- tour highlight model: ', node);
+						// app.dev && console.log('dev --- tour highlight model: ', node);
 					}
 				}
 
 				if(!node) { 
 					app.collectionViewer.resetView.resetCameraView();
+					// app.dev && console.log('dev --- reserCameraView from highlightObject()');
 					app.gui.title.set();
 					return;
 				 }
@@ -4340,13 +4404,14 @@ const app = {
 			setEventListeners() {
 				document.addEventListener('loadingScreen-ready', (event) => {
 					if(app.tour){
+						app.dev && console.log('event --- loadingScreen-ready - response: setting tour and steps')
 						if(typeof this.list[app.tour] !== 'object'){ return; }
 						const tourFound = this.setSteps(app.tour);
 						const stepFound = (typeof this.steps[app.step] === 'object');
 
 						if(tourFound) {
-							app.dev && console.log('dev --- tour found: ', app.tour);
-							app.dev && console.log('dev --- tour found > step found: ', app.step);
+							// app.dev && console.log('dev --- tour found: ', app.tour);
+							// app.dev && console.log('dev --- tour found > step found: ', app.step);
 							stepFound ? '' : app.step = 0;
 							stepFound ? this.show(app.step) : this.show(0);
 						}else{
@@ -4457,21 +4522,23 @@ const app = {
 					setEventlisteners: function() {
 						const comp = this;
 
-						//listen for filter-updated event
-						this.el.sceneEl.addEventListener('filter-updated', (e) => {
+						//listen for forcegraph-filter-updated event
+						this.el.sceneEl.addEventListener('forcegraph-filter-updated', (e) => {
+							app.dev && console.log('event --- forcegraph-filter-updated - response: assigning models, normalizing, setting object names')
 							comp.assignModelsToNodes();	
 							comp.assignMaterialToLinks();
 							comp.normalizeScale(this.scaleFactor, this.normalization);
 							comp.setObjectNames(comp.fgComp.nodes);
 							document.querySelector('#forcegraph').setAttribute('highlight', {noUpdate: false});
-							let event = new Event('load-json-models-ready');
+							let event = new Event('forcegraph-models-ready');
+							app.dev && console.log('event --- forcegraph-models-ready - call')
 							document.querySelector('a-scene').dispatchEvent(event);
-							app.dev && console.log('event --- load-json-models-ready')
 						});
 
 						//listen for JSON-models-loaded event
 						this.el.sceneEl.addEventListener('JSON-models-loaded', (e) => {
 							if(comp.json) {
+								app.dev && console.log('event --- JSON-models-loaded - response: preparing JSON data for forcegraph use, filtering forcegraph data')
 								//prepare JSON data for forcegraph
 								comp.fgData = comp.getDataFromJSON(comp.json);
 								//parse forcegraph data to app.collectionViewer
@@ -4564,6 +4631,7 @@ const app = {
 							.then((response) => response.json())
 							.then((json) => {
 								this.json = json;
+								// app.dev && console.log(`dev --- fetching ${fileJSON}:`, json)
 								//load models to scene
 								const scene = document.querySelector('a-scene').object3D;
 
@@ -4585,7 +4653,7 @@ const app = {
 											gltf.scene.visible = false;
 											scene.add( gltf.scene );
 										}, (xhr) =>{ 
-											(xhr.loaded/xhr.total === 1) && app.dev ? console.log( ( 'dev --- load model: ' + object.name + ' - ' + xhr.loaded / xhr.total * 100 ) + '% loaded' ) : '';
+											// (xhr.loaded/xhr.total === 1) && app.dev ? console.log( ( 'dev --- load model: ' + object.name + ' - ' + xhr.loaded / xhr.total * 100 ) + '% loaded' ) : '';
 											xhr.loaded/xhr.total === 1 ? loadedCount = loadedCount + 1 : '';
 											loadingTextEl.innerHTML = percentLoaded(loadedCount, json.objects.length) + '%';
 										}, (error) => {		
@@ -4597,8 +4665,8 @@ const app = {
 								//event dispatcher for JSON-models-loaded event
 								THREE.DefaultLoadingManager.onLoad = function () {
 									let event = new Event('JSON-models-loaded');
+									app.dev && console.log('event --- JSON-models-loaded - call')
 									document.querySelector('a-scene').dispatchEvent(event);
-									app.dev && console.log('event --- JSON-models-loaded')
 								};
 							});
 					},
@@ -4814,11 +4882,11 @@ const app = {
 					filterFgData: function(fgData, tags = [], productionTags = [], categories = [], topics = []) {
 						let filteredFgData = { 'nodes': [], 'links': [] };
 
-						app.dev && console.log('dev --- forcegraph filter fgData: ', fgData);
-						app.dev && console.log('dev --- forcegraph filter Data tags: ', tags);
-						app.dev && console.log('dev --- forcegraph filter Data production tags: ', productionTags);
-						app.dev && console.log('dev --- forcegraph filter Data categories: ', categories);
-						app.dev && console.log('dev --- forcegraph filter Data topics: ', topics);
+						// app.dev && console.log('dev --- forcegraph filter fgData: ', fgData);
+						// app.dev && console.log('dev --- forcegraph filter Data tags: ', tags);
+						// app.dev && console.log('dev --- forcegraph filter Data production tags: ', productionTags);
+						// app.dev && console.log('dev --- forcegraph filter Data categories: ', categories);
+						// app.dev && console.log('dev --- forcegraph filter Data topics: ', topics);
 
 						for( let link of fgData.links ){
 							if(link.type === 'link-tag' && tags.includes(link.name)){
@@ -4868,9 +4936,9 @@ const app = {
 							links: filteredFgData.links
 						});
 
-						let event = new Event('filter-updated');
+						let event = new Event('forcegraph-filter-updated');
+						app.dev && console.log('event --- forcegraph-filter-updated - call')
 						document.querySelector('a-scene').dispatchEvent(event);
-						app.dev && console.log('event --- filter-updated')
 					},
 
 					createForceGraph: function() {
@@ -4885,9 +4953,9 @@ const app = {
 							cooldownTicks: 0,
 							cooldownTime: 0,
 							onEngineStop: e => {
-								let event = new Event('forcegraph-ready');
+								let event = new Event('forcegraph-engine-ready');
+								app.dev && console.log('event --- forcegraph-engine-ready - call')
 								document.querySelector('a-scene').dispatchEvent(event);
-								app.dev && console.log('event --- forcegraph-ready')
 							},
 							d3AlphaMin: 0.5,
 							d3AlphaDecay: 0.028,
@@ -4914,7 +4982,7 @@ const app = {
 								app.collectionViewer.tooltip.mouseoverHandler(node);
 							},
 							onNodeClick: node => { 
-								app.dev && console.log('dev --- onNodeClick: ', node);
+								// app.dev && console.log('dev --- onNodeClick: ', node);
 								if(node.visibility === 'hidden'){ return; };
 								if(document.querySelector('a-camera').components['orbit-controls'].hasUserInput) { return; }
 								if(node.id === app.collectionViewer.highlight.focusedNode) {
@@ -5104,7 +5172,7 @@ const app = {
 							node.model.scale.set(normalizedScale, normalizedScale, normalizedScale);
 						}
 
-						app.dev && console.log(`dev --- normalizeScale > \nsizeLog: `, sizeLog);
+						// app.dev && console.log(`dev --- normalizeScale > \nsizeLog: `, sizeLog);
 					}, 
 
 					setObjectNames(nodes){
@@ -5203,8 +5271,8 @@ const app = {
 					//app.dev && console.log('dev --- camera-focus-target: ', this.data.target);
 					this.moveOrbitTarget();
 					let event = new Event('camera-focus-target-ready');
+					app.dev && console.log('event --- camera-focus-target-ready - call')
 					document.querySelector('a-scene').dispatchEvent(event);
-					app.dev && console.log('event --- camera-focus-target-ready')
 				},
 
 				tick: function () {},
@@ -5218,19 +5286,19 @@ const app = {
 				moveOrbitTarget: function() {
 					if(!this.data.target){
 						this.target = document.querySelector('#forcegraph').object3D;
-						app.dev && console.log('dev --- camera-focus-target > target > forcegraph: ', this.target);
+						// app.dev && console.log('dev --- camera-focus-target > target > forcegraph: ', this.target);
 					}else if(this.data.target.type === 'link-tag' || this.data.target.type === 'link-productionTag'){
 						this.target = {};
 						this.target.position = this.data.target.__curve.v1;
-						app.dev && console.log('dev --- camera-focus-target > target > link: ', this.target);
+						// app.dev && console.log('dev --- camera-focus-target > target > link: ', this.target);
 					}else{
 						this.target = this.data.target.__threeObj;
-						app.dev && console.log('dev --- camera-focus-target > target > object: ', this.target);
+						// app.dev && console.log('dev --- camera-focus-target > target > object: ', this.target);
 					}
 
 					let newCameraPosition = new THREE.Vector3(); 
 					this.target.getWorldPosition(newCameraPosition);
-					app.dev && console.log('dev --- camera-focus-target position: ', newCameraPosition);
+					// app.dev && console.log('dev --- camera-focus-target position: ', newCameraPosition);
 
 					//animation orbitTarget move to target x
 					this.orbitTargetEl.setAttribute('animation__mot-x', {
@@ -5368,7 +5436,7 @@ const app = {
 						windowInnerWidth: window.innerWidth
 					}
 
-					app.dev && console.log('dev --- highlight > distanceLog: ', distanceLog)
+					// app.dev && console.log('dev --- highlight > distanceLog: ', distanceLog)
 
 					this.cameraEl.setAttribute('orbit-controls', { 
 						autoRotate: false, 
@@ -5384,8 +5452,8 @@ const app = {
 					this.data.highestDistance.value = 0;
 
 					let event = new Event('highlight-ready');
+					app.dev && console.log('event --- highlight-ready - call')
 					document.querySelector('a-scene').dispatchEvent(event);
-					app.dev && console.log('event --- highlight-ready')
 				},
 
 				tick: function () {
@@ -6180,37 +6248,41 @@ const app = {
 		}, 
 
 		setEventListeners() {
-			this.sceneEl.addEventListener('load-json-models-ready', (evt) => {
+			this.sceneEl.addEventListener('forcegraph-models-ready', (evt) => {
+				app.dev && console.log('event --- forcegraph-models-ready - response: call collectionViewer-ready')
 				app.collectionViewer.components['load-json-models'].ready = true;
 				let event = new Event('collectionViewer-ready');
+				app.dev && console.log('event --- collectionViewer-ready - call from forcegraph-models-ready')
 				document.querySelector('a-scene').dispatchEvent(event);
-				app.dev && console.log('event --- collectionViewer-ready')
 			}, {once:true});
 
 			this.sceneEl.addEventListener('camera-focus-target-ready', (evt) => {
+				app.dev && console.log('event --- camera-focus-target-ready - response: call collectionViewer-ready')
 				app.collectionViewer.components['camera-focus-target'].ready = true;
 				let event = new Event('collectionViewer-ready');
+				app.dev && console.log('event --- collectionViewer-ready - call from camera-focus-target-ready')
 				document.querySelector('a-scene').dispatchEvent(event);
-				app.dev && console.log('event --- collectionViewer-ready')
 			}, {once:true});
 
 			this.sceneEl.addEventListener('highlight-ready', (evt) => {
+				app.dev && console.log('event --- highlight-ready - response: call collectionViewer-ready')
 				app.collectionViewer.components['highlight'].ready = true;
 				let event = new Event('collectionViewer-ready');
+				app.dev && console.log('event --- collectionViewer-ready - call from highlight-ready')
 				document.querySelector('a-scene').dispatchEvent(event);
-				app.dev && console.log('event --- collectionViewer-ready')
 			}, {once:true});
 
-			this.sceneEl.addEventListener('forcegraph-ready', (evt) => {
+			this.sceneEl.addEventListener('forcegraph-engine-ready', (evt) => {
 				if(!app.collectionViewer.components['forcegraph'].first) {
+					app.dev && console.log('event --- forcegraph-engine-ready - response (first): ignore')
 					app.collectionViewer.components['forcegraph'].first = true;
-					app.dev && console.log('event --- collectionViewer-ready first')
 					return;
 				}
+				app.dev && console.log('event --- forcegraph-engine-ready - response: call collectionViewer-ready')
 				app.collectionViewer.components['forcegraph'].ready = true;
 				let event = new Event('collectionViewer-ready');
+				app.dev && console.log('event --- collectionViewer-ready - call from forcegraph-engine-ready')
 				document.querySelector('a-scene').dispatchEvent(event);
-				app.dev && console.log('event --- collectionViewer-ready')
 			});
 
 			this.sceneEl.addEventListener('collectionViewer-ready', (evt) => {
@@ -6218,9 +6290,20 @@ const app = {
 					!app.collectionViewer.components['camera-focus-target'].ready || 
 					!app.collectionViewer.components['highlight'].ready ||
 					!app.collectionViewer.components['forcegraph'].ready
-					){return;}
+					)
+				{
+					app.dev && console.log('event --- collectionViewer-ready - response: not ready yet')
+					return;
+				}
 
-				if(app.collectionViewer.node && !app.tour) {
+				if(app.gui.loadingScreen.hidden) { 
+					app.dev && console.log('event --- collectionViewer-ready - response: loadingScreen already hidden')
+					return; 
+				}
+
+				app.dev && console.log('event --- collectionViewer-ready - response: components ready! setting camera view, hiding loadingScreen')
+
+				if(app.collectionViewer.node) {
 					let nodeID = app.collectionViewer.node;
 					let fgElement = document.querySelector('#forcegraph');
 					let aCameraElement = document.querySelector('a-camera');
@@ -6231,28 +6314,31 @@ const app = {
 					for(let n of fgNodes) {
 						if(n.id === nodeID){
 							node = n;
-							app.dev && console.log('dev --- URL model: ', node)
+							// app.dev && console.log('dev --- URL model: ', node)
 						}
 					}
 
 					if(node) { 
 						setTimeout(() => {
+							fgElement.setAttribute('highlight', {source: node});
 							aCameraElement.setAttribute('camera-focus-target', {target: node, duration: 1200});
+							app.collectionViewer.node = null;
 						}, 0);					
 						app.collectionViewer.highlight.onclickHandler(node);
-						fgElement.setAttribute('highlight', {source: node});
-						app.collectionViewer.node = null;
+						
 					}else {
 						app.collectionViewer.resetView.resetCameraView();
+						// app.dev && console.log('dev --- reserCameraView from collectionViewer-ready: no node found');
 					}					
 				}else {
 					app.collectionViewer.resetView.resetCameraView();
+					// app.dev && console.log('dev --- reserCameraView from collectionViewer-ready: no app.collectionViewer.node found');
 				}
 
 				app.gui.loadingScreen.hideLoadingScreen();
 				let event = new Event('loadingScreen-ready');
+				app.dev && console.log('event --- loadingScreen-ready - call')
 				document.dispatchEvent(event);
-				app.dev && console.log('event --- loadingScreen-ready')
 			});
 		}
 	},
@@ -6275,8 +6361,9 @@ const app = {
 					target[prop] = value;
 					if(typeof app.modelViewer.proxyJSON === 'undefined') { return false; };
 					if(!app.modelViewer.proxyJSON.data) { return false; };
+					app.dev && console.log('event --- proxyJSON-update - call');
+					// app.dev && console.log('dev --- proxyJSON-update', app.modelViewer.proxyJSON);
 					document.dispatchEvent(app.modelViewer.proxyJSON.update);
-					app.dev && console.log('dev --- proxyJSON-update', app.modelViewer.proxyJSON);
 					return true;
 				}
 			}
@@ -6298,7 +6385,7 @@ const app = {
 			app.gui.toolbar.setButton(this.ar.buttonSetup);
 
 			this.initialized = true;
-			app.dev && console.log('dev --- modelViewer initialized');
+			app.dev && console.log('init --- modelViewer complete');
 		},
 
 		info: {
@@ -6585,10 +6672,6 @@ const app = {
 						shadow: this.messageSetup.colors.shadow
 					}
 				}
-
-				
-
-				
 			}, 
 
 			setContextStory() {
@@ -6646,9 +6729,10 @@ const app = {
 			},
 
 			init() {
-
 				this.createElements();
 				this.renderModelDimensions();
+
+				app.dev && console.log('init --- modelViewer > measurement');
 			},
 
 			renderModelDimensions() {
@@ -6846,7 +6930,7 @@ const app = {
 				buttonEl.classList.remove(colors.button.background);
 				buttonEl.className = 'button smokegrey disabled';
 
-				app.dev && console.log('dev --- setARButton: ', {isWebXRCapable: app.isWebXRCapable, isARCapable: app.isARCapable});
+				// app.dev && console.log('dev --- setARButton: ', {isWebXRCapable: app.isWebXRCapable, isARCapable: app.isARCapable});
 
 				if(app.isMobile && app.isWebXRCapable) {
 					buttonEl.setAttribute('data-webxr', true);
@@ -7012,6 +7096,7 @@ const app = {
 			const self = this;
 
 			document.addEventListener('proxyJSON-update', (e) => {
+				app.dev && console.log('event --- proxyJSON-update - response: loading model, loading annotataions, loading contextStory, creating tab content')
 				const json = app.modelViewer.proxyJSON.data;
 				self.loadModel(json);
 				json.appData.annotations && self.annotations.loadAnnotations(json);
@@ -7063,10 +7148,10 @@ const app = {
 			const modelViewer = app.modelViewer.element;
 			//test if WebXR AR is supported
 			if(modelViewer.canActivateAR){
-				app.dev && console.log('dev --- checkARSupport:', true);
+				// app.dev && console.log('dev --- checkARSupport:', true);
 				return true;
 			}else{
-				app.dev && console.log('dev --- checkARSupport:', false);
+				// app.dev && console.log('dev --- checkARSupport:', false);
 				return false;
 			}
 			return false;
@@ -7121,7 +7206,7 @@ const app = {
 		setLoadingText(event) {
 			let progress = Math.trunc(event.detail.totalProgress * 100);
 			app.gui.loadingScreen.animation.percentEl.innerHTML = progress + '%'
-			app.dev && console.log('dev --- progress: ', progress)
+			// app.dev && console.log('dev --- progress: ', progress)
 		}
 	},
 
@@ -8105,7 +8190,7 @@ const app = {
 					  self.hideMissionBtn();
 					  self.missionExisting = false;
 					}
-					app.dev && console.log('dev --- arViewer > json: \n', json);
+					// app.dev && console.log('dev --- arViewer > json: \n', json);
 				  })
 				  .catch((error) => {
 					app.dev && console.error("There was a problem with the fetch operation:", error);
@@ -10506,7 +10591,9 @@ const app = {
 				const headlineHTML = '<h3>' + content.content + '</h3>';
 				contentHTML = contentHTML.concat(headlineHTML);
 
-			}else if(content.type === 'subheadline'){
+			}
+
+			if(content.type === 'subheadline'){
 				let imageHTML = '';
 				if(content.filename) {
 					let iconBackgroundColor = '';
@@ -10516,63 +10603,106 @@ const app = {
 				const subHeadlineHTML = '<h4>' + imageHTML + content.content + '</h4>';
 				contentHTML = contentHTML.concat(subHeadlineHTML);
 
-			}else if(content.type === 'paragraph'){
+			}
+
+			if(content.type === 'paragraph'){
 				const paragraphHTML = '<p class="content-text">' + content.content + '</p>';
 				contentHTML = contentHTML.concat(paragraphHTML);
 
-			}else if(content.type === 'paragraph+image'){
+			}
+
+			if(content.type === 'paragraph+image'){
 				const imageHTML = '<img src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px">' 
 				const captionHTML = '<span class="content-image-caption">' + content.imageCaption + '<span class="copyright"> Foto: ' + content.fileCopyright + '</span></span>';
 				const paragraphAndImageHTML = '<div class="content-image in-paragraph terracotta"><div class="content-image-box">' + imageHTML + '</div>' + captionHTML + '</div><p class="content-text">' + content.content + '</p>';
 				contentHTML = contentHTML.concat(paragraphAndImageHTML);
 
-			}else if(content.type === 'paragraph+audio'){
+			}
+
+			if(content.type === 'paragraph+audio'){
 				
-			}else if(content.type === 'paragraph+video'){
+			}
+
+			if(content.type === 'paragraph+video'){
 				
-			}else if(content.type === 'description+tour'){
+			}
+
+			if(content.type === 'description+tour'){
 				const imageHTML = '<img src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px">' 
 				const captionHTML = '<span class="copyright text-small"> Foto: ' + content.fileCopyright + '</span>';
 				const paragraphAndImageHTML = '<div class="description tour shadow-duckyellow"><div class="content-image"><div class="content-image-box">' + imageHTML + captionHTML + '</div></div><h5>' + content.content + '</h5><p class="content-text">' + content.imageCaption + '</p><button class="button tour duckyellow" data-link="' + content.content + '">zum Thema</button></div>';
 				contentHTML = contentHTML.concat(paragraphAndImageHTML);
 
-			}else if(content.type === 'description+object'){
+			}
+
+			if(content.type === 'description+object'){
 				const imageHTML = '<img src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px">' 
 				const captionHTML = '<span class="copyright text-small"> Foto: ' + content.fileCopyright + '</span>';
-				const paragraphAndImageHTML = '<div class="description object shadow-skyblue"><div class="content-image"><div class="content-image-box">' + imageHTML + captionHTML + '</div></div><h5>' + content.content + '</h5><p class="content-text text-small">' + content.imageCaption + '</p><button class="button object skyblue" data-link="' + content.objectID + '">ansehen</button></div>';
+				const paragraphAndImageHTML = '<div class="description object shadow-skyblue"><div class="content-image"><div class="content-image-box">' + imageHTML + captionHTML + '</div></div><h5>' + content.content + '</h5><p class="content-text text-small">' + content.imageCaption + '</p><button class="button object skyblue" data-link="' + content.objectLink + '">ansehen</button></div>';
 				contentHTML = contentHTML.concat(paragraphAndImageHTML);
 
-			}else if(content.type === 'quote'){
+			}
+
+			if(content.type === 'quote'){
 				const quoteHTML = '<p class="content-text quote">' + content.content + '</p>';
 				contentHTML = contentHTML.concat(quoteHTML);
 
-			}else if(content.type === 'literature'){
+			}
+
+			if(content.type === 'literature'){
 				const quoteHTML = '<p class="content-text literature">' + content.content + '</p>';
 				contentHTML = contentHTML.concat(quoteHTML);
 
-			}else if(content.type === 'image'){
+			}
+
+			if(content.type === 'image'){
 				const imageHTML = '<img src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px">' 
 				const captionHTML = '<p class="content-image-caption">' + content.imageCaption + '<span class="copyright"> Foto: ' + content.fileCopyright + '</span></p>';
 				const imageAndCaptionHTML = '<div class="content-image terracotta"><div class="content-image-box">' + imageHTML + '</div>' + captionHTML + '</div>';
 				contentHTML = contentHTML.concat(imageAndCaptionHTML);
 
-			}else if(content.type === 'image+fullsize'){
+			}
+
+			if(content.type === 'image+fullsize'){
 				const imageHTML = '<img src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px">' 
 				const copyrightHTML = '<p class="content-image-caption"><span class="copyright text-coalgrey"> Foto: ' + content.fileCopyright + '</span></p>';
 				const imageAndCaptionHTML = '<div class="content-image fullsize"><div class="content-image-box">' + imageHTML + '</div>' + copyrightHTML + '</div>';
 				contentHTML = contentHTML.concat(imageAndCaptionHTML);
 				
-			}else if(content.type === 'audio'){
+			}
+
+			if(content.type === 'audio'){
 				const audioHTML = '<audio controls><source src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" type="audio/mpeg"></audio>';
+
 				contentHTML = contentHTML.concat(audioHTML);
 
-			}else if(content.type === 'video'){
+			}
+
+			if(content.type === 'audio+new'){
+				const audioHTML = '<audio id="' + content.filename + '"><source src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" type="audio/mpeg"></audio>';
+
+				const playButtonHTML = '<button onclick="document.getElementById("' + content.filename + '").play()">Play</button>';
+				const pauseButtonHTML = '<button onclick="document.getElementById("' + content.filename + '").pause()">Pause</button>';
+				const volumeUpButtonHTML = '<button onclick="document.getElementById("' + content.filename + '").volume += 0.1">Vol +</button>';
+				const volumeDownButtonHTML = '<button onclick="document.getElementById("' + content.filename + '").volume -= 0.1">Vol -</button>'; 
+
+				const playerHTML = audioHTML + '<div>' + playButtonHTML + pauseButtonHTML + volumeUpButtonHTML + volumeDownButtonHTML + '</div>'
+
+				contentHTML = contentHTML.concat(playerHTML);
+
+			}
+
+			if(content.type === 'video'){
 				
-			}else if(content.type === 'link'){
+			}
+
+			if(content.type === 'link'){
 				const linkHTML = '<a class="content-link" href="">' + content.content + '</a>';
 				contentHTML = contentHTML.concat(linkHTML);
 
-			}else if(content.type === 'link-object'){
+			}
+
+			if(content.type === 'link-object'){
 				let href = '?m=mv';
 				app.dev ? href += '&dev=true': '';
 				if(app.tour) {
@@ -10584,15 +10714,21 @@ const app = {
 				const linkHTML = '<a href="' + href + '"><button class="button content-object-link skyblue"><img src="' + app.assets.icon['watch'].src.pearlwhite + '" alt="' + app.assets.icon['watch'].alt + '" width="100" height="100">' + content.content + '</button></a>';
 				contentHTML = contentHTML.concat(linkHTML);
 
-			}else if(content.type === 'link-button'){
+			}
+
+			if(content.type === 'link-button'){
 				const linkHTML = '<a href="' + content.filename + '"><button class="button skyblue">' + content.content + '</button></a>';
 				contentHTML = contentHTML.concat(linkHTML);
 
-			}else if(content.type === 'button'){
+			}
+
+			if(content.type === 'button'){
 				const linkHTML = '<button class="button coalgrey">' + content.content + '</button>';
 				contentHTML = contentHTML.concat(linkHTML);
 
-			}else if(content.type === 'personal+wolfgang'){
+			}
+
+			if(content.type === 'personal+wolfgang'){
 				const imageHTML = '<img src="' + app.assets.illustration.personal['wolfgang'].src + '" alt="' + app.assets.illustration.personal['wolfgang'].alt + '" width="100px" height="100px">' 
 				const personalHTML = '<div class="content-image personal shadow-skyblue"><div class="content-image-box">' + imageHTML + '</div><p class="content-text personal">' + content.content + '</p></div>';
 				contentHTML = contentHTML.concat(personalHTML);
@@ -10668,6 +10804,7 @@ const app = {
 
 		//handle from parameter
 		(this.viewerMode === 'cv' && node) ? this.collectionViewer.node = node : '';
+		(this.viewerMode === 'cv' && this.tour) ? this.collectionViewer.node = null : '';
 
 		//reset URL with pushState if node is set
 		let url = '?m=' + this.viewerMode;
@@ -10696,7 +10833,7 @@ const app = {
 				check = true;
 			}
 		})(navigator.userAgent||navigator.vendor||window.opera);
-		app.dev && console.log('dev --- checkMobile:', check);
+		// app.dev && console.log('dev --- checkMobile:', check);
 		return check;
 	},
 
@@ -10705,11 +10842,11 @@ const app = {
 		if(navigator.xr){
 			return true;
 			navigator.xr.isSessionSupported('immersive-ar').then((isSupported) => {
-				app.dev && console.log('dev --- checkWebXRSupport:', isSupported);
+				// app.dev && console.log('dev --- checkWebXRSupport:', isSupported);
 				
 			});
 		}else{
-			app.dev && console.log('dev --- checkWebXRSupport:', false);
+			// app.dev && console.log('dev --- checkWebXRSupport:', false);
 			return false;
 		}
 	},
@@ -10728,7 +10865,7 @@ const app = {
 		} catch (err) {
 			passiveSupported = false;
 		} finally {
-			app.dev && console.log('dev --- checkEventlistenerPassiveSupport: ', passiveSupported)
+			// app.dev && console.log('dev --- checkEventlistenerPassiveSupport: ', passiveSupported)
 			return passiveSupported;
 		}
 	},
