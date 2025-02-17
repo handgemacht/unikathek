@@ -7173,7 +7173,7 @@ const app = {
 			this.element.setAttribute('disable-tap', '');
 			this.element.setAttribute('camera-orbit', '');
 			this.element.setAttribute('orbit-sensitivity', '2');
-			this.element.setAttribute('min-camera-orbit', '-Infinity 15deg 0.1m');
+			this.element.setAttribute('min-camera-orbit', '-Infinity 15deg 0.2m');
 			this.element.setAttribute('max-camera-orbit', '-Infinity 165ddeg 12.5m');
 			this.element.setAttribute('camera-target', '');
 			this.element.setAttribute('field-of-view', '');
