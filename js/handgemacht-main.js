@@ -1782,7 +1782,7 @@ const app = {
 
 				for(let button of buttons){
 					
-					if(button.innerHTML === 'Leitfaden'){
+					if(button.innerHTML === 'zum Leitfaden'){
 						button.addEventListener('click', (e) => {
 						app.collectionViewer.onboarding.show('start');
 						}, { signal: app.gui.message.abortController.signal });
