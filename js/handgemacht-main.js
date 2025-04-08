@@ -238,9 +238,17 @@ const app = {
 
 			illustration: {
 				personal: {
-					'wolfgang': {
+					'waa': {
 						alt: 'Illustration von Wolfgang',
 						src: filepath + 'hand.gemacht WebApp illustration personal wolfgang.png'
+					},
+					'kir1': {
+						alt: 'Illustration von Franzi',
+						src: filepath + 'hand.gemacht WebApp illustration personal franzi.png'
+					},
+					'kir2': {
+						alt: 'Illustration von Flo',
+						src: filepath + 'hand.gemacht WebApp illustration personal flo.png'
 					}
 				}
 			},
@@ -2134,8 +2142,11 @@ const app = {
 
 			mouseDown: false,
 
+			firstMouseMove: false,
+
 			init() {
 				this.createElements();
+				this.setEventlisteners();
 
 				document.addEventListener("mousedown", (e) => {
 					this.mouseDown = true;
@@ -2165,6 +2176,7 @@ const app = {
 			}, 
 
 			showTooltip(type, content, id = null) {
+				if(!this.firstMouseMove) { return; }
 				let typeText = '';
 				if(type === 'node-object'){
 					typeText = 'Objekt'
@@ -2226,34 +2238,7 @@ const app = {
 
 			mouseoverHandler(fgElement) {
 				this.hideTooltip();
-
-				function isTouchDevice() {
-					try {
-						document.createEvent("TouchEvent");
-						return true;
-					} catch (e) {
-						return false;
-					}
-				}
 			
-				const move = (e) => {
-					try {
-						var x = !isTouchDevice() ? e.pageX : e.touches[0].pageX;
-						var y = !isTouchDevice() ? e.pageY : e.touches[0].pageY;
-					} catch (e) {}
-			
-					this.element.style.left = x + 12 + 'px';
-					this.element.style.top = y + 24 + 'px';
-				}
-			
-				document.addEventListener('mousemove', (e) => {
-					move(e);
-				});
-
-				document.addEventListener('touchmove', (e) => {
-					move(e);
-				});
-
 				this.pointerStyleHandler(null)
 
 				let type = '';
@@ -2267,8 +2252,6 @@ const app = {
 				if (fgElement.visibility === 'hidden') {
 					return;
 				}
-				
-				if(isTouchDevice()) { return; }
 
 				this.showTooltip(fgElement.type, fgElement.name, fgElement.id);
 
@@ -2280,8 +2263,8 @@ const app = {
 				
 				if(this.mouseDown){
 					document.querySelector('canvas.a-canvas').style.cursor = 'grabbing';
-					//event && event.preventDefault();
-					//event && event.stopPropagation();
+					// event && event.preventDefault();
+					// event && event.stopPropagation();
 					return;
 				}
 
@@ -2301,6 +2284,20 @@ const app = {
 				if(fgElement.id !== app.collectionViewer.highlight.focusedNode) { return; }
 				if(fgType !== 'node-category' && fgType !== 'node-topic') { return; }
 				document.querySelector('canvas.a-canvas').style.cursor = 'default';
+			}, 
+
+			moveTooltip(e) {
+				var x = e.pageX + 12;
+				var y = e.pageY + 24;
+				this.element.style.translate = x + 'px ' + y + 'px';
+			},
+
+			setEventlisteners() {
+				const self = this;
+				document.addEventListener('mousemove', (event) => {
+					self.firstMouseMove = true;
+					self.moveTooltip(event)
+				})
 			}
 		},
 
@@ -4289,7 +4286,7 @@ const app = {
 										"type" : "headline"
 									},
 									{
-										"content" : "paragraph",
+										"content" : "„Kirwa ist ein Lebensg’fühl“, heißt es auf einem Internetauftritt zum Kulturerbe Kirwa. Doch was ist das genau? Was gehört dazu? Was macht die Kirwa in der Oberpfalz aus? Die beiden kirwaerprobten Jugendlichen Franzi und Florian zeigen es dir und geben Einblicke hinter die Kulissen.",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -4297,12 +4294,20 @@ const app = {
 										"type" : "paragraph"
 									}, 
 									{
-										"content" : "personal quote",
+										"content" : "Hi, ich bin die Franzi, bin 24 Jahre alt und hab schon auf so einigen Kirwan ausgetanzt. Kirwa ist mein Leben, könnte man sagen. Ich liebe es einfach. Warum? Das findest du heraus, wenn du dich auf die Themen-Tour begibst!",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
 										"imageCaption" : "",
-										"type" : "personal+franzi"
+										"type" : "personal+kir1"
+									}, 
+									{
+										"content" : "Servus, mein Name ist Flo. Seit ich 16 Jahre alt bin, bin ich als Kirwabursch in meinem Heimatort aktiv. Das ist immer eine Mordsgaudi! Die Franzi, eine alte Freundin von mir, kenne ich bereits seit der Grundschulzeit in einem Dorf im Landkreis Amberg-Sulzbach.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+kir2"
 									}
 								]
 							}
@@ -4328,7 +4333,7 @@ const app = {
 								},
 								content: [
 									{
-										"content" : "headline",
+										"content" : "Kirwa – was ist das?",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -4336,18 +4341,50 @@ const app = {
 										"type" : "headline"
 									},
 									{
-										"content" : "paragraph",
+										"content" : "Der Begriff Kirwa leitet sich von „Kirchweih“ ab und bezeichnet in der Oberpfalz ein meist mehrtägiges Fest, welches anlässlich des Patroziniums oder der Weihe eines Gotteshauses begangen wird. Es handelt sich dabei um einen Brauch, zu dem viele verschiedene Traditionen gehören. Sie können sich von Ort zu Ort unterscheiden und werden immer wieder angepasst.",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
 										"imageCaption" : "",
 										"type" : "paragraph"
+									},
+									{
+										"content" : "Kirchweih wird in vielen Regionen Deutschlands (und sogar darüber hinaus) gefeiert und hat viele Namen, z. B. „Kirta“, „Kerb“ oder „Kerwa“. Im Folgenden steht die Kirwa in verschiedenen Oberpfälzer Landkreisen im Fokus. Hier tanzen vielerorts junge, unverheiratete Kirwapaare um den Kirwabaum. Dafür studieren die Kirwamoidln und Kirwaburschen bereits Wochen oder sogar Monate im Voraus eigens Tänze ein. Außerdem sind die Jugendlichen maßgeblich an der Organisation und Vorbereitung des Festes beteiligt.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "",
+										"fileCopyright" : "Michaela Stauber",
+										"filename" : "kir tour - Kirwa Austanzen.jpg",
+										"imageAlt" : "Kirwa Austanzen am Kirwabaum",
+										"imageCaption" : "Am Kirwabaum geben die Kirwapaare verschiedene Tänze zum Besten.",
+										"type" : "image"
+									},
+									{
+										"content" : "Übrigens: Die Kirwa im Amberg-Sulzbacher Land wurde 2023 in das Bayerische Landesverzeichnis des Immateriellen Kulturerbes als sogenanntes „Gutes Praxisbeispiel“ aufgenommen. Mehr als 100 Kirchweihfeste werden dort jährlich gefeiert, was den Landkreis und die Identität seiner Bewohner prägt.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									}, 
+									{
+										"content" : "Also ich hätte ja immer gedacht, dass es die Kirwa nur bei uns gibt. Interessant, dass der Brauch auch außerhalb Bayerns existiert!",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+kir2"
 									}
 								]
 							}
 						},
 						{
-							highlightObject: '',
+							highlightObject: '9071D540-2E9C-8645-BBF5-72E13DFEF517',
 							message: {
 								type: 'Thema: ' + this.list[tour].title + ' 3/' + this.list[tour].steps,
 								buttons: [
@@ -4367,7 +4404,7 @@ const app = {
 								},
 								content: [
 									{
-										"content" : "headline",
+										"content" : "Keine Party ohne Einladung",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -4375,12 +4412,36 @@ const app = {
 										"type" : "headline"
 									},
 									{
-										"content" : "paragraph",
+										"content" : "Ein wichtiger Bestandteil der Vorbereitungen auf das Fest sind verschiedene Werbemaßnahmen, die auf die bevorstehende Kirwa im Ort aufmerksam machen und Besucher anlocken sollen. In den letzten Jahren geschieht dies zunehmend über Aktivitäten in den sozialen Medien. Hier werden nun Fotos von den Kirwapaaren, eigens produzierte Kurzvideos und Kirwaplakate geteilt.",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
 										"imageCaption" : "",
 										"type" : "paragraph"
+									},
+									{
+										"content" : "Doch auch analoge Mittel werden nach wie vor eingesetzt, wie etwa ein Blick in den Landkreis Neumarkt i. d. Oberpfalz zeigt. Die Mitglieder des Oberölsbacher Kirwavereins haben in Eigenleistung eine überlebensgroße Breze aus Holz geschaffen und mit dem Schriftzug „Kirwa Eischba“ sowie dem Datum des Festes versehen. Am Straßenrand aufgestellt, verweist das selbstgebaute Schild die Passanten auf die anstehenden Feierlichkeiten. Eine durchaus kreative Einladung!",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Holzbreze",
+										"fileCopyright" : "",
+										"filename" : "9071D540-2E9C-8645-BBF5-72E13DFEF517",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "link-object"
+									},
+									{
+										"content" : "Ich kann’s kaum mehr erwarten, bis es endlich losgeht! Hoffentlich kommen viele Gäste. In puncto Werbung haben wir uns ordentlich was einfallen lassen und sogar einige Videos für Instagram gedreht. Aber hey, so ein cooles Hinweisschild am Straßenrand wäre natürlich auch noch ne coole Idee.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+kir1"
 									}
 								]
 							}
@@ -4406,7 +4467,7 @@ const app = {
 								},
 								content: [
 									{
-										"content" : "headline",
+										"content" : "Zusammenhalt und Teamwork",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -4414,18 +4475,50 @@ const app = {
 										"type" : "headline"
 									},
 									{
-										"content" : "paragraph",
+										"content" : "Die vielen Vorbereitungsarbeiten schweißen die Kirwapaare, deren Zusammensetzung sich jedes Jahr ändert, oftmals zusammen. Eine gemeinsame Aufgabe bietet Gelegenheit, ins Gespräch zu kommen und sich kennenzulernen. Von solchen Erfahrungen berichten die Kirwamoidln etwa, wenn sie über das Backen der Kücheln sprechen. Hunderte Exemplare dieses seit Generationen zur Kirwa servierten Gebäckstückes werden vielerorts von den Kirwamoidln hergestellt.",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
 										"imageCaption" : "",
 										"type" : "paragraph"
+									},
+									{
+										"content" : "Küchel Gebenbach",
+										"fileCopyright" : "",
+										"filename" : "4A236316-FD71-F640-8899-A0473D901902",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "link-object"
+									},
+									{
+										"content" : "Das Schöne am Küchelbacken ist, dass sich jeder einen halben oder ganzen Tag Zeit dafür nimmt. Dabei kann man in Ruhe miteinander reden und die Mädels besser kennenlernen. Im Hintergrund läuft Musik und manchmal wird auch das eine oder andere alkoholische Getränk konsumiert – natürlich in Maßen. Das Backen ist schon so ein Highlight, bevor die Kirwa richtig beginnt!",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+kir1"
+									},
+									{
+										"content" : "Zum Bilden einer Gemeinschaft trägt außerdem die Erkenntnis bei, dass sich viele Aufgaben alleine nicht bewerkstelligen lassen. Das trifft einerseits auf das Backen von rund 600 Kücheln zu, andererseits auf das Vorbereiten des Kirwabaumes – einer rund 30 Meter hohen, entasteten und geschmückten Fichte, die am Dorf- oder Kirwaplatz aufgestellt wird und als Wahrzeichen der Kirwa gilt.",
+										"fileCopyright" : "Michaela Stauber",
+										"filename" : "kir tour - Kirwabaum.jpg",
+										"imageAlt" : "Eine gerade gewachsene, hohe Fichte als Kirwabaum",
+										"imageCaption" : "Eine hohe, gerade gewachsene Fichte wird von den männlichen Brauchträgern entastet und aus dem Wald geholt, um später als Kirwabaum zu dienen. Dieser zeichnet sich durch eine geschmückte Spitze und geschmückte Kränze aus. Ebenso sind Schnitzereien am Stamm charakteristisch dafür.",
+										"type" : "paragraph+image"
+									},
+									{
+										"content" : "Beim Baumholen im Wald ist man aufeinander angewiesen. Wenn man die bleischwere Fichte anheben und einige Meter weit tragen muss, merkt jeder, dass es ohne den anderen nicht geht. Auch das Schnitzen und Schälen des Baumes wäre alleine gar nicht machbar. Da ist auf jeden Fall Teamwork gefragt!",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+kir2"
 									}
 								]
 							}
 						},
 						{
-							highlightObject: '',
+							highlightObject: '44633EA0-9CBD-D74C-B96C-1A5EFD30CE3C',
 							message: {
 								type: 'Thema: ' + this.list[tour].title + ' 5/' + this.list[tour].steps,
 								buttons: [
@@ -4445,7 +4538,7 @@ const app = {
 								},
 								content: [
 									{
-										"content" : "headline",
+										"content" : "Angebandelt",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -4453,12 +4546,44 @@ const app = {
 										"type" : "headline"
 									},
 									{
-										"content" : "paragraph",
+										"content" : "Kirwa, das ist immer auch eine Gelegenheit zum Anbandeln. Besonders beim gemeinsamen Tanzen (und Feiern) können sich die Jugendlichen näherkommen. Ebenso stehen aber selbstgemachte Utensilien im Zeichen der Tanzpartnerschaft. So bemalen die Burschen und Moidln Krüge füreinander und machen sich bei der Suche nach passenden Motiven Gedanken über ihren Tanzpartner bzw. ihre Tanzpartnerin – oder fragen direkt, was ihm bzw. ihr gefallen würde. Auf diese Weise lernt man sich besser kennen und drückt zudem seine Wertschätzung für das Gegenüber aus. Wenn ein Paar bereits seit Längerem befreundet oder liiert ist, finden oftmals Insider Platz auf dem Krug!",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
 										"imageCaption" : "",
 										"type" : "paragraph"
+									},
+									{
+										"content" : "Krug \"Hund\"",
+										"fileCopyright" : "",
+										"filename" : "44633EA0-9CBD-D74C-B96C-1A5EFD30CE3C",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "link-object"
+									},
+									{
+										"content" : "Puh, ich hab mir einige Gedanken darüber gemacht, was meinem Tanzpartner gefallen könnte und zu ihm passt. Hoffentlich freut er sich über den Krug!",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+kir1"
+									},
+									{
+										"content" : "Darüber hinaus zeigen selbstgefertigte Accessoires mitunter die Zusammengehörigkeit eines Paares an, beispielsweise indem Filzherzen in der gleichen Farbe gestaltet werden.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Filzherz \"Bixn\"",
+										"fileCopyright" : "",
+										"filename" : "D245F8C1-1FE3-3545-A86A-FEE1E8B29CF0",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "link-object"
 									}
 								]
 							}
@@ -4484,7 +4609,7 @@ const app = {
 								},
 								content: [
 									{
-										"content" : "headline",
+										"content" : "Hauruck! Kirwabaum und Muskelkraft",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -4492,7 +4617,31 @@ const app = {
 										"type" : "headline"
 									},
 									{
-										"content" : "paragraph",
+										"content" : "Er ist „das Heiligste“ einer Kirwa: der Kirwabaum. Am Morgen des Kirwasamstag – in manchen Ortschaften auch schon vorher – holen ihn die Kirwaburschen und einige forstarbeitserfahrene ortsansässige Männer aus einem nahegelegenen Wald. Hier ist traditionsgemäß Handarbeit gefordert! Der rund 30 Meter lange Baum muss zunächst ohne Maschineneinsatz angehoben und einige Meter weit getragen werden, bis er auf einen Transportwagen gehievt und die restliche Strecke vom Traktor gezogen wird.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Vor allem beim Aufstellen des Kirwabaumes sind viele Brauchträger auf ein traditionelles Vorgehen bedacht. Mit langen Holzstangen, im Dialekt als „Goißn“ oder „Schwalben“ bezeichnet, soll der Baum mithilfe von Muskelkraft in die Senkrechte befördert werden. Dabei darf nicht übersehen werden, dass heute oftmals moderne Hilfsmittel – etwa eine elektrische Seilwinde oder ein Radlader – zum Einsatz kommen. Sie dienen der Absicherung und entlasten zum Teil auch die Männer an den Goißn und Schwalben. Besonders aus Sicherheitsgründen übernimmt mittlerweile in so manchem Dorf ein Kran das Aufstellen des Baumes, was zeigt, welchem Wandel die Bräuche rund um die Kirwa unterliegen.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Das Baumaufstellen mit Muskelkraft ist immer ein Spektakel! Da kommen die Dorfbewohner und schauen zu. Freilich, es ist anstrengend und kostet Kraft. Aber es gehört halt irgendwie dazu. Mit einem Kran ist das Aufstellen zwar sicherer, aber irgendwie auch ein bisschen langweilig.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+kir2"
+									},
+									{
+										"content" : "Übrigens: Das Beispiel des Kirwabaums verdeutlicht, dass viele kirwabezogene Aufgaben nach Geschlechtern getrennt ausgeführt werden. Nicht allen Moidln und Burschen gefällt diese strikte, oft mit dem Argument der Tradition begründete Arbeitsaufteilung. Hier und da kommt es zur Auflösung und Lockerung dieser Strukturen, etwa wenn sich die Moidln am Schnitzen oder sogar am Aufstellen des Baumes beteiligen.",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -4523,7 +4672,7 @@ const app = {
 								},
 								content: [
 									{
-										"content" : "headline",
+										"content" : "Fesch – das passende Outfit",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -4531,18 +4680,34 @@ const app = {
 										"type" : "headline"
 									},
 									{
-										"content" : "paragraph",
+										"content" : "Besonders am Kirwasonntag, wenn das Austanzen um den Kirwabaum ansteht, sitzen (oder besser gesagt: tanzen) die Kirwapaare auf dem Präsentierteller. Daher wundert es wenig, dass sie sich zu diesem Anlass ordentlich herausputzen. Die Mädchen tragen ihr schönstes und neuestes Dirndl, die Burschen Lederhosen oder schwarze Hosen, dazu ein weißes Hemd und neuerdings immer öfter ein Leibchen. Mancherorts komplettiert ein Hut mit einem selbstgemachten Blumenkranz das Festtagsgewand der Kirwaburschen. Den Kranz binden die Kirwamoidln und achten dabei meist darauf, dass er farblich mit ihrem Dirndl abgestimmt ist.",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
 										"imageCaption" : "",
 										"type" : "paragraph"
+									},
+									{
+										"content" : "Solche Accessoires verleihen ihren Trägern einerseits eine individuelle Note. Andererseits zeigen sie deren Status an: Sie heben die Kirwaburschen von Zuschauern ab. Im Falle der Fronberger Kirwa im Landkreis Schwandorf markiert ein mit einer Fasanenfeder versehener Hut, wer den Reigen der Kirwaburschen in diesem Jahr anführt.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Das Austanzen ist einfach der Höhepunkt der Kirwa. Da stehen die Kirwapaare im Mittelpunkt – klar, dass sich die Kirwamoidln und -burschen deshalb besonders schick kleiden. So ein Hut mit Blumenschmuck unterstreicht nochmal den festlichen Charakter und zeigt obendrein, wer zusammengehört.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+kir1"
 									}
 								]
 							}
 						},
 						{
-							highlightObject: '',
+							highlightObject: '4A236316-FD71-F640-8899-A0473D901902',
 							message: {
 								type: 'Thema: ' + this.list[tour].title + ' 8/' + this.list[tour].steps,
 								buttons: [
@@ -4562,7 +4727,7 @@ const app = {
 								},
 								content: [
 									{
-										"content" : "headline",
+										"content" : "Verköstigung",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -4570,12 +4735,28 @@ const app = {
 										"type" : "headline"
 									},
 									{
-										"content" : "paragraph",
+										"content" : "Was wäre ein Fest ohne Speis und Trank? Berichte aus dem 19. Jahrhundert lassen verlauten, dass sich die Kirwa in der Oberpfalz besonders durch das reichhaltige Speisenangebot vom Alltag absetzte. Neben großen Mengen an Fleisch wurde mit Kücheln aufgefahren – einem Hefeteiggebäck, das in kostbarem Butterschmalz herausgebacken wird. Noch heute zählt es zu den Kirwa-Klassikern.",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
 										"imageCaption" : "",
 										"type" : "paragraph"
+									},
+									{
+										"content" : "Je nach Region sind damit wiederum bestimmte Bräuche verbunden. In Michelfeld ziehen die Kirwapaare bereits am Donnerstag vor dem Kirwawochenende in Gruppen von Haus zu Haus und verkaufen das Gebäck an die Bewohner des Ortes. Entlohnt werden sie mit Spirituosen und einer Brotzeit.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Zitat Physikatsbericht: „Von den Esswaaren [sic] bilden die im Schmalz gebackenen, sogenannten Kücheln einen wesentlichen Bestandtheil, und es wäre in der That keine Kirchweih, wo diese in einem Hause fehlen würden; daher dann auch jede Hausfrau selbst das letzte Pfund Schmalz gerne hiezu verwendet.“ ",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "quote"
 									}
 								]
 							}
@@ -4601,7 +4782,7 @@ const app = {
 								},
 								content: [
 									{
-										"content" : "headline",
+										"content" : "„O Kirwa, lou niad nou!“ – Erinnerungsstücke an eine schöne Zeit",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -4609,12 +4790,28 @@ const app = {
 										"type" : "headline"
 									},
 									{
-										"content" : "paragraph",
+										"content" : "Franzi und Florian erinnern sich gerne an das zurück, was sie auf verschiedenen Kirwan erlebt haben. Das Kirwaaustanzen empfinden sie als besonderes Erlebnis, als Event, das ihren Alltag prägt – ähnlich wie ein Urlaub oder ein Festivalbesuch. Es ist ein erinnerungswürdiges Ereignis. Manche Gegenstände werden daher mit dem Hintergedanken geschaffen, sie als Souvenir aufzubewahren. Zum Beispiel bemalen die Kirwapaare eigene Krüge und beschriften diese meist mit der aktuellen Jahreszahl, um sie später datieren zu können. Wenn die Kirwa dann schon lange vorbei ist, vermögen die Krüge, die Erinnerung daran – an die gemeinsame Zeit mit anderen – zu wecken und wachzuhalten.",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
 										"imageCaption" : "",
 										"type" : "paragraph"
+									},
+									{
+										"content" : "Krug \"Watschnkirwa\"",
+										"fileCopyright" : "",
+										"filename" : "7E02497F-ADA0-6A46-BA4A-A4FBAA79FD25",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "link-object"
+									},
+									{
+										"content" : "Wenn ich den Krug anschaue, dann denke ich an das Bemalen, an die Kirwa und an die Leute, die dabei waren. An das, was so passiert ist, worüber man gelacht hat – an alles, was dazugehört eben. Ist schon ein cooles Erinnerungsstück an eine tolle Zeit, die leider irgendwann ein Ende nimmt.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+kir2"
 									}
 								]
 							}
@@ -4647,7 +4844,7 @@ const app = {
 										"type" : "headline"
 									},
 									{
-										"content" : "Du willst mehr zum Thema erfahren? Dann schau doch mal hier rein:",
+										"content" : "Neugierig geworden? Mehr zum Thema Kirwa erfährst du zum Beispiel hier:",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -4655,7 +4852,7 @@ const app = {
 										"type" : "paragraph"
 									},
 									{
-										"content" : "literature",
+										"content" : "Piehler, Uli: Mir hom Kirwa! Kirchweihfreuden in der Oberpfalz, Amberg 2009.",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -4663,7 +4860,7 @@ const app = {
 										"type" : "literature"
 									},
 									{
-										"content" : "literature",
+										"content" : "Stauber, Michaela: Materialisierte immaterielle Kultur. Bedeutungen und Funktionen selbstgemachter Brauchobjekte am Beispiel der Kirwa, URL: <a href='https://wissen.freilandmuseum-oberpfalz.de/materialisierte-immaterielle-kultur/' target='_blank'>https://wissen.freilandmuseum-oberpfalz.de/materialisierte-immaterielle-kultur/</a>.",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -4671,7 +4868,7 @@ const app = {
 										"type" : "literature"
 									},
 									{
-										"content" : "literature",
+										"content" : "Stauber, Michaela: Kirwabaum und Kücheln. Bedeutungen und Funktionen selbstgemachter Brauchobjekte, URL: <a href='https://wissen.freilandmuseum-oberpfalz.de/kirwabaum-und-kuecheln-bedeutungen-und-funktionen/' target='_blank'>https://wissen.freilandmuseum-oberpfalz.de/kirwabaum-und-kuecheln-bedeutungen-und-funktionen/</a>.",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -4679,23 +4876,7 @@ const app = {
 										"type" : "literature"
 									},
 									{
-										"content" : "literature",
-										"fileCopyright" : "",
-										"filename" : "",
-										"imageAlt" : "",
-										"imageCaption" : "",
-										"type" : "literature"
-									},
-									{
-										"content" : "literature",
-										"fileCopyright" : "",
-										"filename" : "",
-										"imageAlt" : "",
-										"imageCaption" : "",
-										"type" : "literature"
-									},
-									{
-										"content" : "literature",
+										"content" : "Website des Landratsamtes Amberg-Sulzbach zum Kulturerbe Kirwa im Amberg-Sulzbacher Land: <a href='https://kulturerbe-kirwa.de/' target='_blank'>https://kulturerbe-kirwa.de/</a>.",
 										"fileCopyright" : "",
 										"filename" : "",
 										"imageAlt" : "",
@@ -5694,16 +5875,6 @@ const app = {
 								const widthHalf = width / 2;
 								const heightHalf = height / 2;
 
-								const vector = new THREE.Vector3();
-								vector.copy(nodeObject.position);
-								vector.project(threeCamera);
-
-								vector.x = ( vector.x * widthHalf ) + widthHalf;
-								vector.y = - ( vector.y * heightHalf ) + heightHalf;
-
-								element.style.top = vector.y + 'px';
-								element.style.left = vector.x + 'px';
-
 								const meshDistance = camera.position.distanceTo(nodeObject.position);
 								const opacity = mapToRange(meshDistance, [250,150], [0,1]);
 								element.style.opacity = opacity;
@@ -5711,6 +5882,19 @@ const app = {
 
 								const scale = mapToRange(opacity, [0, 1], [0.6, 1]);
 								element.style.scale = scale;
+
+								const vector = new THREE.Vector3();
+								vector.copy(nodeObject.position);
+								vector.project(threeCamera);
+
+								vector.x = ( vector.x * widthHalf ) + widthHalf;
+								vector.y = - ( vector.y * heightHalf ) + heightHalf;
+
+								const offsetX = (80 - (opacity * 30));
+								const offsetY = (5 + (mapToRange(meshDistance, [250,0], [0,1]) * 40) );
+
+								element.style.translate = vector.x + 'px ' + (vector.y + offsetY) + 'px';
+								element.style.transform = 'translateX(-' + offsetX + '%)';
 							}
 						}
 					}
@@ -5847,7 +6031,7 @@ const app = {
 				},
 
 				update: function () {
-					//app.dev && console.log('dev -- comp > highlight > update')
+					//app.dev && console.log('dev -- comp > highlight > update', this)
 					let source = this.data.source;
 					this.fgComp = this.el.components.forcegraph.data;
 					this.visibleNodes = 0;
@@ -5863,6 +6047,8 @@ const app = {
 					let newDesiredDistance = 0
 					let newTarget = '';
 					let newHighestDistance = 0;
+					let newAutoRotate = false;
+					let newAutoRotateSpeed = 5;
 
 					if(!source) {
 						//app.dev && console.log('dev -- comp > highlight > update without source')
@@ -5871,6 +6057,8 @@ const app = {
 						newHighestDistance = this.data.highestDistance.max;
 						app.isMobile ? newDesiredCameraPitch = -5 : '';
 						(window.innerWidth > 1023) ? newDesiredCameraYaw = 0 : '';
+						newAutoRotate = true;
+						newAutoRotateSpeed = 5;
 					}
 
 					if(source) {
@@ -5888,8 +6076,14 @@ const app = {
 						if(source.type === 'link-tag' || source.type === 'link-category' || source.type === 'link-topic' || source.type === 'link-productionTag' ) {
 							return;
 						}
+
+						newAutoRotate = true;
+						newAutoRotateSpeed = 2;
+
 					}else{
-						app.collectionViewer.highlight.focusedNode = null
+						app.collectionViewer.highlight.focusedNode = null;
+						newAutoRotate = true;
+						newAutoRotateSpeed = 5;
 					}
 
 					newDistance = this.camera.position.distanceTo(newTarget);
@@ -5907,7 +6101,8 @@ const app = {
 					// app.dev && console.log('dev --- highlight > distanceLog: ', distanceLog)
 
 					this.cameraEl.setAttribute('orbit-controls', { 
-						autoRotate: false, 
+						autoRotate: newAutoRotate, 
+						autoRotateSpeed: newAutoRotateSpeed,
 						distance: newDistance, 
 						desiredDistance: newDesiredDistance, 
 						activeRotX: true, 
@@ -5916,6 +6111,8 @@ const app = {
 						desiredCameraYaw: newDesiredCameraYaw,
 						forceUpdate: true 
 					});
+
+					//app.dev && console.log('dev --- comp > highlight > set orbit-controls: ', this.cameraEl.getAttribute('orbit-controls'));
 
 					this.data.highestDistance.value = 0;
 
@@ -6181,7 +6378,7 @@ const app = {
 					minDistance: { default: 30 },
 					maxDistance: { default: 700 }, 
 					autoRotate: { default: true }, 
-					autoRotateSpeed: { default: 10 },
+					autoRotateSpeed: { default: 5 },
 					activeRotX: { default: false },
 					desiredRotX: { default: -5 }, 
 					cameraPitch: { default: 0 },
@@ -6213,7 +6410,7 @@ const app = {
 
 				update: function () {
 					if(!this.data.enabled) { return; }
-
+					//app.dev && console.log('dev --- comp > orbit-controls > update', this.el.components['orbit-controls']);
 					//(app.dev && !this.data.forceUpdate) && console.log('dev --- orbit-controls > update');
 					//(app.dev && this.data.forceUpdate) && console.log('dev --- orbit-controls > forced update');
 					this.data.forceUpdate = false;
@@ -6545,14 +6742,15 @@ const app = {
 				},
 
 				onMouseMove: function (event) {
-					var pitchObject = this.pitchObject;
-					var yawObject = this.yawObject;
-					var previousMouseEvent = this.previousMouseEvent;
-				
+
 					if (!this.mouseDown || !this.data.enabled) { 
 						this.mouseMove = false;
 						return;
 					}
+				
+					var pitchObject = this.pitchObject;
+					var yawObject = this.yawObject;
+					var previousMouseEvent = this.previousMouseEvent;
 				
 					this.mouseMove = true;
 
@@ -11196,8 +11394,20 @@ const app = {
 
 			}
 
-			if(content.type === 'personal+wolfgang'){
-				const imageHTML = '<img src="' + app.assets.illustration.personal['wolfgang'].src + '" alt="' + app.assets.illustration.personal['wolfgang'].alt + '" width="100px" height="100px">' 
+			if(content.type === 'personal+waa'){
+				const imageHTML = '<img src="' + app.assets.illustration.personal['waa'].src + '" alt="' + app.assets.illustration.personal['waa'].alt + '" width="100px" height="100px">' 
+				const personalHTML = '<div class="content-image personal shadow-skyblue"><div class="content-image-box">' + imageHTML + '</div><p class="content-text personal">' + content.content + '</p></div>';
+				contentHTML = contentHTML.concat(personalHTML);
+			}
+
+			if(content.type === 'personal+kir1'){
+				const imageHTML = '<img src="' + app.assets.illustration.personal['kir1'].src + '" alt="' + app.assets.illustration.personal['kir1'].alt + '" width="100px" height="100px">' 
+				const personalHTML = '<div class="content-image personal shadow-skyblue"><div class="content-image-box">' + imageHTML + '</div><p class="content-text personal">' + content.content + '</p></div>';
+				contentHTML = contentHTML.concat(personalHTML);
+			}
+
+			if(content.type === 'personal+kir2'){
+				const imageHTML = '<img src="' + app.assets.illustration.personal['kir2'].src + '" alt="' + app.assets.illustration.personal['kir2'].alt + '" width="100px" height="100px">' 
 				const personalHTML = '<div class="content-image personal shadow-skyblue"><div class="content-image-box">' + imageHTML + '</div><p class="content-text personal">' + content.content + '</p></div>';
 				contentHTML = contentHTML.concat(personalHTML);
 			}

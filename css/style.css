@@ -1031,6 +1031,7 @@ div.gui-message > div.button-container > button.button > img.button-icon {
 .content button { 
   font-weight: 700;
   margin-right: 1em;
+  margin-bottom: 1em;
 }
 
 p.content-text {
@@ -2024,7 +2025,6 @@ div.cv-info-container > button.button.text-small {
   position: absolute;
   top: 0;
   left: 0;
-  transform: translate(-50%, 20px);
   font-size: 0.75rem;
   pointer-events: none;
   white-space: nowrap;
