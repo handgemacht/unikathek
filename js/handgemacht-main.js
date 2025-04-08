@@ -3624,6 +3624,11 @@ const app = {
 					short: 'waa', 
 					steps: '9'
 				},
+				kir: {
+					title: 'Kirwa in der Oberpfalz',
+					short: 'kir', 
+					steps: '9'
+				}
 			},
 
 			setSteps(tour) {
@@ -4241,6 +4246,469 @@ const app = {
 					]
 					return true;
 				}
+
+				if(tour === 'kir'){
+					this.fgFilter = {
+								tags: ['Kirwa'],
+								productionTags: [''],
+								categories: [''],
+								topics: ['']
+							}
+
+					this.steps = [
+						{
+							highlightObject: '',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ' 1/' + this.list[tour].steps,
+								buttons: [
+									{
+										label: 'los geht\'s',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									maximized: true,
+									centered: true
+								},
+								content: [
+									{
+										"content" : "",
+										"fileCopyright" : "Michaela Stauber",
+										"filename" : "kir tour - Kirwa Austanzen und Musik.jpg",
+										"imageAlt" : "Kirwa Austanzen mit Musikern",
+										"imageCaption" : "",
+										"type" : "image+fullsize"
+									},
+									{
+										"content" : "Kirwa in der Oberpfalz",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "paragraph",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									}, 
+									{
+										"content" : "personal quote",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+franzi"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ' 2/' + this.list[tour].steps,
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'weiter',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									maximized: true
+								},
+								content: [
+									{
+										"content" : "headline",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "paragraph",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ' 3/' + this.list[tour].steps,
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'weiter',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									maximized: true
+								},
+								content: [
+									{
+										"content" : "headline",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "paragraph",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									}
+								]
+							}
+						}, 
+						{
+							highlightObject: '',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ' 4/' + this.list[tour].steps,
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'weiter',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									maximized: true
+								},
+								content: [
+									{
+										"content" : "headline",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "paragraph",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ' 5/' + this.list[tour].steps,
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'weiter',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									maximized: true
+								},
+								content: [
+									{
+										"content" : "headline",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "paragraph",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ' 6/' + this.list[tour].steps,
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'weiter',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									maximized: true
+								},
+								content: [
+									{
+										"content" : "headline",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "paragraph",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ' 7/' + this.list[tour].steps,
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'weiter',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									maximized: true
+								},
+								content: [
+									{
+										"content" : "headline",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "paragraph",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ' 8/' + this.list[tour].steps,
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'weiter',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									maximized: true
+								},
+								content: [
+									{
+										"content" : "headline",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "paragraph",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ' 9/' + this.list[tour].steps,
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'mehr erfahren',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									maximized: true
+								},
+								content: [
+									{
+										"content" : "headline",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "paragraph",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ', Literatur',
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'beenden',
+										color: 'coalgrey',
+									}
+								],
+								options: {
+									maximized: true
+								},
+								content: [
+									{
+										"content" : "Mehr zum Thema",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Du willst mehr zum Thema erfahren? Dann schau doch mal hier rein:",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "literature",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "literature"
+									},
+									{
+										"content" : "literature",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "literature"
+									},
+									{
+										"content" : "literature",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "literature"
+									},
+									{
+										"content" : "literature",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "literature"
+									},
+									{
+										"content" : "literature",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "literature"
+									},
+									{
+										"content" : "literature",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "literature"
+									}
+								]
+							}
+						}
+					]
+					return true;
+				}
+
 				return false;
 			},
 
