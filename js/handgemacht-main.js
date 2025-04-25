@@ -5215,7 +5215,7 @@ const app = {
 						this.categoryModelEl = document.createElement('a-entity');
 						this.categoryModelEl.setAttribute('id', 'category-model');
 						this.categoryModelEl.setAttribute('geometry', 'primitive: circle; radius: 4');
-						this.categoryModelEl.setAttribute('material', 'src: #icon-category');
+						this.categoryModelEl.setAttribute('material', 'src: #icon-category; transparent: true');
 						this.categoryModelEl.setAttribute('visible', false);
 						this.el.sceneEl.querySelector('a-assets').appendChild(this.categoryModelEl);
 
@@ -5223,8 +5223,8 @@ const app = {
 						this.topicModelEl = document.createElement('a-entity');
 						this.topicModelEl.setAttribute('id', 'topic-model');
 						this.topicModelEl.setAttribute('geometry', 'primitive: circle; radius: 3');
-						this.topicModelEl.setAttribute('material', 'src: #icon-topic');
-						this.topicModelEl.setAttribute('visible', false);
+						this.topicModelEl.setAttribute('material', 'src: #icon-topic; transparent: true');
+						//this.topicModelEl.setAttribute('visible', false);
 						this.el.sceneEl.querySelector('a-assets').appendChild(this.topicModelEl);
 
 						//create link category model 
@@ -5631,7 +5631,7 @@ const app = {
 								app.collectionViewer.tooltip.mouseoverHandler(node);
 							},
 							onNodeClick: node => { 
-								// app.dev && console.log('dev --- onNodeClick: ', node);
+								app.dev && console.log('dev --- onNodeClick: ', node);
 								if(node.visibility === 'hidden'){ return; };
 								if(document.querySelector('a-camera').components['orbit-controls'].hasUserInput) { return; }
 								if(node.id === app.collectionViewer.highlight.focusedNode) {
