@@ -333,8 +333,6 @@ const app = {
 		if (!this.viewerMode) {
 			//redirect to collection viewer if no m is set in URL
 			let url='?m=cv';
-			this.dev ? url+='&dev=true' : '';
-			this.stats ? url+='&dev=stats' : '';
 			url = app.setURLParams(url);
 			window.location.href = url;
 		}
@@ -442,7 +440,6 @@ const app = {
 			titleClickHandler() {
 				app.gui.title.containerEl.removeEventListener('click', app.gui.title.titleClickHandler);
 				let url = app.gui.title.containerEl.getAttribute('data-url');
-				app.dev ? url+='&dev=true' : '';
 				url = app.setURLParams(url);
 				app.tour ? url+='&tour=' + app.tour : '';
 				app.step ? url+='&step=' + app.step : '';
@@ -11452,6 +11449,7 @@ const app = {
 		this.stats = (this.getURLParameter('stats') === 'true');
 		this.hideGUI = (this.getURLParameter('gui') === 'false');
 		this.embedded = (this.getURLParameter('embedded') === 'true');
+		this.fileMaker = (this.getURLParameter('fm') === 'true');
 		this.showWelcome = true;
 
 		this.embedded ? this.hideGUI = true : '';
@@ -11462,6 +11460,10 @@ const app = {
 		}else{
 			this.viewerMode = mode;
 		}
+
+		//handdle filemaker
+		this.fileMaker ? app.filepaths.files = '../files/' : '';
+		(this.fileMaker && app.dev) && console.log('dev --- fileMaker active, filepath changed to: ', app.filepaths.files)
 
 		//handle mv model uuid
 		(this.viewerMode === 'mv' && !model) && this.handleError('mv-000');
@@ -11474,10 +11476,6 @@ const app = {
 
 		//reset URL with pushState if node is set
 		let url = '?m=' + this.viewerMode;
-		this.dev ? url += '&dev=true' : '';
-		this.stats ? url += '&stats=true' : '';
-		this.hideGUI ? url += '&gui=false' : '';
-		this.embedded ? url += '&embedded=true' : '';
 		url = app.setURLParams(url);
 		(this.viewerMode === 'cv' && node) ? window.history.pushState(null, null, url) : '';
 
@@ -11492,6 +11490,7 @@ const app = {
 		//app.dev && console.log('dev --- handleLocalStorage > value: ', this.value);
 	},
 
+	setURLParams(url) {
 		app.dev ? url += '&dev=true' : '';
 		app.stats ? url += '&stats=true' : '';
 
