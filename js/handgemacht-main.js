@@ -335,7 +335,7 @@ const app = {
 			let url='?m=cv';
 			this.dev ? url+='&dev=true' : '';
 			this.stats ? url+='&dev=stats' : '';
-			this.embedded ? url += '&embedded=true' : '';
+			url = app.setURLParams(url);
 			window.location.href = url;
 		}
 
@@ -443,8 +443,7 @@ const app = {
 				app.gui.title.containerEl.removeEventListener('click', app.gui.title.titleClickHandler);
 				let url = app.gui.title.containerEl.getAttribute('data-url');
 				app.dev ? url+='&dev=true' : '';
-				app.stats ? url+='&dev=stats' : '';
-				app.embedded ? url+='&embeddded=true' : '';
+				url = app.setURLParams(url);
 				app.tour ? url+='&tour=' + app.tour : '';
 				app.step ? url+='&step=' + app.step : '';
 
@@ -1804,9 +1803,7 @@ const app = {
 							if(tour.title === link){
 								button.addEventListener('click', (e) => {
 									let url = '?m=cv';
-									app.dev ? url+='&dev=true' : '';
-									app.stats ? url+='&dev=stats' : '';
-									app.embedded ? url+='&embeddded=true' : '';
+									url = app.setURLParams(url);
 									url+='&tour=' + tour.short;
 									url+='&step=0';
 									window.location.href = url;
@@ -1821,9 +1818,7 @@ const app = {
 						const link = button.getAttribute('data-link');
 						button.addEventListener('click', (e) => {
 							let url = '?m=mv';
-							app.dev ? url+='&dev=true' : '';
-							app.stats ? url+='&dev=stats' : '';
-							app.embedded ? url+='&embeddded=true' : '';
+							url = app.setURLParams(url);
 							url+='&model=' + link;
 							window.location.href = url;
 						}, { signal: app.gui.message.abortController.signal });
@@ -2498,9 +2493,7 @@ const app = {
 
 			messageClickEvent(fgNode) {
 				let url = '?m=mv';
-				app.dev ? url += '&dev=true' : '';
-				app.stats ? url += '&stats=true' : '';
-				app.embedded ? url += '&embedded=true' : '';
+				url = app.setURLParams(url);
 				url += '&model=' + fgNode.id;
 				window.location.href = url;
 			},
@@ -2833,9 +2826,7 @@ const app = {
 
 					tourButtonEl.addEventListener('click', (e) => {
 						let url = '?m=cv';
-						app.dev ? url+='&dev=true' : '';
-						app.stats ? url+='&dev=stats' : '';
-						app.embedded ? url+='&embeddded=true' : '';
+						url = app.setURLParams(url);
 						url+='&tour=' + tour.short;
 						url+='&step=0';
 						window.location.href = url;
@@ -4935,8 +4926,7 @@ const app = {
 				}, 100);
 
 				let url = '?m=cv';
-				app.dev ? url += '&dev=true' : '';
-				app.stats ? url += '&stats=true' : '';
+				url = app.setURLParams(url);
 				url += '&tour=' + app.tour;
 				url += '&step=' + app.step;
 				window.history.pushState(null, null, url)
@@ -7775,7 +7765,7 @@ const app = {
 				app.modelViewer.ar.setARButton();
 				app.gui.loadingScreen.hideLoadingScreen();
 				if(app.embedded){ return; }
-				app.modelViewer.contextStory.setContextStory();
+				!app.filemaker && app.modelViewer.contextStory.setContextStory();
 			});
 
 			this.element.addEventListener('progress', (e) => this.setLoadingText(e));
@@ -8463,9 +8453,7 @@ const app = {
 
 			  cancelAR: function () {
 				let url = '?m=mv&model=' + app.primaryKey;
-				app.dev ? url += '&dev=true' : '';
-				app.stats ? url += '&stats=true' : '';
-				app.embedded ? url += '&embedded=true' : '';
+				url = app.setURLParams(url);
 				window.location.href = url;
 			  },
 
@@ -11490,6 +11478,7 @@ const app = {
 		this.stats ? url += '&stats=true' : '';
 		this.hideGUI ? url += '&gui=false' : '';
 		this.embedded ? url += '&embedded=true' : '';
+		url = app.setURLParams(url);
 		(this.viewerMode === 'cv' && node) ? window.history.pushState(null, null, url) : '';
 
 		//prevent welcome message
@@ -11502,6 +11491,16 @@ const app = {
 		//this.value = (localStorage.getItem('value') !== 'true');
 		//app.dev && console.log('dev --- handleLocalStorage > value: ', this.value);
 	},
+
+		app.dev ? url += '&dev=true' : '';
+		app.stats ? url += '&stats=true' : '';
+
+		app.hideGUI ? url += '&gui=false' : '';
+		app.embedded ? url += '&embedded=true' : '';
+		app.fileMaker ? url += '&fm=true' : '';
+
+		return url;
+	}
 
 	checkMobile() {
 		// from: https://stackoverflow.com/questions/11381673/detecting-a-mobile-browser
