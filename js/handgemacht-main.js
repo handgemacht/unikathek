@@ -11500,7 +11500,7 @@ const app = {
 		app.fileMaker ? url += '&fm=true' : '';
 
 		return url;
-	}
+	},
 
 	checkMobile() {
 		// from: https://stackoverflow.com/questions/11381673/detecting-a-mobile-browser
