@@ -460,6 +460,7 @@ const app = {
 			init() {
 				this.createElements();
 				app.hideGUI && this.element.classList.add('hide');
+				app.embedded && this.element.classList.add('hide');
 
 				app.dev && console.log('init --- app > gui > logo');
 			},
@@ -485,6 +486,7 @@ const app = {
 			init() {
 				this.createElements();
 				app.hideGUI && this.element.classList.add('hide');
+				app.embedded && this.element.classList.add('hide');
 
 				app.dev && console.log('init --- app > gui > version');
 			},
@@ -1056,6 +1058,8 @@ const app = {
 				this.setEventListener();
 				app.hideGUI && this.containerEl.classList.add('hide');
 				app.hideGUI && this.button.element.classList.add('hide');
+				app.embedded && this.containerEl.classList.add('hide');
+				app.embedded && this.button.element.classList.add('hide');
 
 				app.dev && console.log('init --- app > gui > menu');
 			},
@@ -7762,7 +7766,10 @@ const app = {
 				app.modelViewer.ar.setARButton();
 				app.gui.loadingScreen.hideLoadingScreen();
 				if(app.embedded){ return; }
-				!app.filemaker && app.modelViewer.contextStory.setContextStory();
+				alert(app.filemaker)
+				app.dev && console.error('dev --- filemaker: ', app.filemaker);
+				if(app.filemaker){ return; }
+				app.modelViewer.contextStory.setContextStory();
 			});
 
 			this.element.addEventListener('progress', (e) => this.setLoadingText(e));
@@ -7791,7 +7798,7 @@ const app = {
 			app.gui.title.set(modelJSON.basicData.name, 'node-object', modelJSON.primaryKey, true)
 
 			//set modelViewer data
-			app.hideGUI ? modelViewer.src = app.filepaths.files + modelJSON.appData.model.quality512 : modelViewer.src = app.filepaths.files + modelJSON.appData.model.quality2k;
+			modelViewer.src = app.filepaths.files + modelJSON.appData.model.quality512 : modelViewer.src = app.filepaths.files + modelJSON.appData.model.quality2k;
 			modelViewer.cameraOrbit = modelJSON.appData.modelViewer.cameraOrbit;
 			modelViewer.cameraTarget = modelJSON.appData.modelViewer.cameraTarget;
 			modelViewer.fieldOfView = modelJSON.appData.modelViewer.cameraField;
@@ -7832,10 +7839,10 @@ const app = {
 			this.element.setAttribute('field-of-view', '');
 			this.element.setAttribute('interpolation-decay', '150');
 			this.element.setAttribute('data-dimension', 'false');
-			//app.hideGUI && this.element.setAttribute('auto-rotate', '');
-			app.hideGUI && this.element.setAttribute('rotation-per-second', '0.3rad');
 			app.hideGUI && this.element.setAttribute('disable-zoom', '');
 			app.hideGUI && this.element.setAttribute('interaction-prompt', 'none');
+			app.embedded && this.element.setAttribute('disable-zoom', '');
+			app.embedded && this.element.setAttribute('interaction-prompt', 'none');
 
 			this.default = {};
 
@@ -11452,8 +11459,6 @@ const app = {
 		this.fileMaker = (this.getURLParameter('fm') === 'true');
 		this.showWelcome = true;
 
-		this.embedded ? this.hideGUI = true : '';
-
 		//set viewerMode
 		if(!this.viewerModes.includes(mode)){
 			this.viewerMode = false;
@@ -11463,7 +11468,7 @@ const app = {
 
 		//handdle filemaker
 		this.fileMaker ? app.filepaths.files = '../files/' : '';
-		(this.fileMaker && app.dev) && console.log('dev --- fileMaker active, filepath changed to: ', app.filepaths.files)
+		// (this.fileMaker && app.dev) && console.log('dev --- fileMaker active, filepath changed to: ', app.filepaths.files)
 
 		//handle mv model uuid
 		(this.viewerMode === 'mv' && !model) && this.handleError('mv-000');
