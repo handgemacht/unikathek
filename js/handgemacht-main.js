@@ -7798,7 +7798,7 @@ const app = {
 			app.gui.title.set(modelJSON.basicData.name, 'node-object', modelJSON.primaryKey, true)
 
 			//set modelViewer data
-			modelViewer.src = app.filepaths.files + modelJSON.appData.model.quality512 : modelViewer.src = app.filepaths.files + modelJSON.appData.model.quality2k;
+			modelViewer.src = app.filepaths.files + modelJSON.appData.model.quality2k;
 			modelViewer.cameraOrbit = modelJSON.appData.modelViewer.cameraOrbit;
 			modelViewer.cameraTarget = modelJSON.appData.modelViewer.cameraTarget;
 			modelViewer.fieldOfView = modelJSON.appData.modelViewer.cameraField;
