@@ -1223,7 +1223,7 @@ const app = {
 					const button = document.querySelector('#'+app.gui.toolbar.overlay.getAttribute('data-button'));
 					app.gui.toolbar.buttonActionTab(button);
 				})
-				//app.hideGUI && this.boxEl.classList.add('hide');
+				app.hideGUI && this.boxEl.classList.add('hide');
 
 				app.dev && console.log('init --- app > gui > toolbar');
 			},
