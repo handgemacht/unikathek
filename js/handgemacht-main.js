@@ -7766,9 +7766,7 @@ const app = {
 				app.modelViewer.ar.setARButton();
 				app.gui.loadingScreen.hideLoadingScreen();
 				if(app.embedded){ return; }
-				alert(app.filemaker)
-				app.dev && console.error('dev --- filemaker: ', app.filemaker);
-				if(app.filemaker){ return; }
+				if(app.fileMaker){ return; }
 				app.modelViewer.contextStory.setContextStory();
 			});
 
