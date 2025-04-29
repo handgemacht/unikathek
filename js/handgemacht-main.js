@@ -257,11 +257,11 @@ const app = {
 				marker: {
 					'category': {
 						alt: 'Kontext-Marker',
-						src: filepath + 'hand.gemacht WebApp cv marker category.svg'
+						src: filepath + 'hand.gemacht WebApp cv marker category.glb'
 					},
 					'topic': {
 						alt: 'Merkmal-Marker',
-						src: filepath + 'hand.gemacht WebApp cv marker topic.svg'
+						src: filepath + 'hand.gemacht WebApp cv marker topic.glb'
 					}
 				}
 			},
@@ -5190,33 +5190,31 @@ const app = {
 					},
 
 					createCategoryAndTagModels: function() {
-						this.imgCategory = document.createElement('img');
-						this.imgCategory.id = 'icon-category';
-						this.imgCategory.crossOrigin = 'anonymous';
-						this.imgCategory.src = app.assets.cv.marker['category'].src;
-						this.el.sceneEl.querySelector('a-assets').appendChild(this.imgCategory);
-
-						this.imgTopic = document.createElement('img');
-						this.imgTopic.id = 'icon-topic';
-						this.imgTopic.crossOrigin = 'anonymous';
-						this.imgTopic.src = app.assets.cv.marker['topic'].src;
-						this.el.sceneEl.querySelector('a-assets').appendChild(this.imgTopic);
+						const scene = this.el.sceneEl;
 
 						//create category model 
-						this.categoryModelEl = document.createElement('a-entity');
-						this.categoryModelEl.setAttribute('id', 'category-model');
-						this.categoryModelEl.setAttribute('geometry', 'primitive: circle; radius: 4');
-						this.categoryModelEl.setAttribute('material', 'src: #icon-category; transparent: true');
-						this.categoryModelEl.setAttribute('visible', false);
-						this.el.sceneEl.querySelector('a-assets').appendChild(this.categoryModelEl);
+						// app.gltfLoader.load(app.assets.cv.marker['category'].src, (gltf) => {
+						// 					gltf.scene.name = 'category-model';
+						// 					gltf.scene.visible = false;
+						// 					app.dev && console.log('dev --- debug: ', gltf)
+						// 					scene.add( gltf.scene );
+						// 				}, (xhr) =>{ 
+						// 					(xhr.loaded/xhr.total === 1) && app.dev ? console.log( ( 'dev --- load category model: ' + xhr.loaded / xhr.total * 100 ) + '% loaded' ) : '';
+						// 				}, (error) => {		
+						// 					console.log( 'An error happened: ', error );
+						// 				});
+						// this.categoryModelEl = document.createElement('a-entity');
+						// this.categoryModelEl.setAttribute('id', 'category-model');
+						// this.categoryModelEl.setAttribute('src', app.assets.cv.marker['category'].src);
+						// this.categoryModelEl.setAttribute('visible', false);
+						// this.el.sceneEl.querySelector('a-assets').appendChild(this.categoryModelEl);
 
-						//create topic model 
-						this.topicModelEl = document.createElement('a-entity');
-						this.topicModelEl.setAttribute('id', 'topic-model');
-						this.topicModelEl.setAttribute('geometry', 'primitive: circle; radius: 3');
-						this.topicModelEl.setAttribute('material', 'src: #icon-topic; transparent: true');
-						//this.topicModelEl.setAttribute('visible', false);
-						this.el.sceneEl.querySelector('a-assets').appendChild(this.topicModelEl);
+						// //create topic model 
+						// this.topicModelEl = document.createElement('a-entity');
+						// this.topicModelEl.setAttribute('id', 'topic-model');
+						// this.topicModelEl.setAttribute('src', app.assets.cv.marker['topic'].src);
+						// this.topicModelEl.setAttribute('visible', false);
+						// this.el.sceneEl.querySelector('a-assets').appendChild(this.topicModelEl);
 
 						//create link category model 
 						this.linkCategoryModelEl = document.createElement('a-entity');
@@ -5254,6 +5252,7 @@ const app = {
 					loadJSONModels: function () {
 						const fgData = '';
 						const fileJSON = app.filepaths.files + app.filepaths.collectionJSON;
+						const scene = document.querySelector('a-scene').object3D;
 
 						function percentLoaded(count, max){
 							let percent = (100 / max) * count;
@@ -5266,6 +5265,26 @@ const app = {
 							return loaded;
 						}
 
+						app.gltfLoader.load(app.assets.cv.marker['category'].src, (gltf) => {
+											gltf.scene.name = 'category-model';
+											gltf.scene.visible = false;
+											scene.add( gltf.scene );
+										}, (xhr) =>{ 
+											// (xhr.loaded/xhr.total === 1) && app.dev ? console.log( ( 'dev --- load category model: ' + xhr.loaded / xhr.total * 100 ) + '% loaded' ) : '';
+										}, (error) => {		
+											console.log( 'An error happened: ', error );
+										});
+
+						app.gltfLoader.load(app.assets.cv.marker['topic'].src, (gltf) => {
+											gltf.scene.name = 'topic-model';
+											gltf.scene.visible = false;
+											scene.add( gltf.scene );
+										}, (xhr) =>{ 
+											// (xhr.loaded/xhr.total === 1) && app.dev ? console.log( ( 'dev --- load topic model: ' + xhr.loaded / xhr.total * 100 ) + '% loaded' ) : '';
+										}, (error) => {		
+											console.log( 'An error happened: ', error );
+										});
+
 						//fetch json data from file
 						const objectsJSON = fetch(fileJSON)
 							.then((response) => response.json())
@@ -5273,7 +5292,6 @@ const app = {
 								this.json = json;
 								// app.dev && console.log(`dev --- fetching ${fileJSON}:`, json)
 								//load models to scene
-								const scene = document.querySelector('a-scene').object3D;
 
 								let loadingTextEl = null;
 								let loadingText = '';
@@ -5597,17 +5615,15 @@ const app = {
 								app.dev && console.log('event --- forcegraph-engine-ready - call')
 								document.querySelector('a-scene').dispatchEvent(event);
 							},
-							d3AlphaMin: 0.5,
-							d3AlphaDecay: 0.028,
-							d3VelocityDecay: 0.6,
+							d3AlphaMin: 0.0,
+							d3AlphaDecay: 0.022,
+							d3VelocityDecay: 0.4,
 							linkWidth: 0.6,
 							linkCurvature: 0.15,
 							linkThreeObjectExtend: false,
 							nodeRelSize: 1,
 							nodeVal: node => { return node.size },
-							nodeThreeObject: node => {
-								node.model.material.visible = false;
-							},
+							nodeThreeObject: node => { return node.model },
 							nodeThreeObjectExtend: true,
 							nodeOpacity: 0,
 							onLinkHover: link => { 
@@ -5651,9 +5667,6 @@ const app = {
 						const fgComp = this.fgComp;
 						this.categoryArray = [];
 
-						const categoryModel = this.categoryModelEl.object3D;
-						const topicModel = this.topicModelEl.object3D;
-
 						//set JSON-model or category-model for each node
 						for(let node of fgComp.nodes){
 							if(node.id === ''){continue;}
@@ -5664,16 +5677,14 @@ const app = {
 									node.model = child.children[0].clone();
 								}
 								//set model for categories
-								if(node.type === 'node-category'){
-									node.model = categoryModel.children[0].clone();
-									node.model.material = new THREE.MeshBasicMaterial();
-									node.model.material.copy(categoryModel.children[0].material);
+								if(child.name === 'category-model' && node.type === 'node-category'){
+									node.model = child.children[0].clone();
+									node.model.material.transparent = false;
 								}
 								//set model for topics
-								if(node.type === 'node-topic'){
-									node.model = topicModel.children[0].clone();
-									node.model.material = new THREE.MeshBasicMaterial();
-									node.model.material.copy(topicModel.children[0].material);
+								if(child.name === 'topic-model' && node.type === 'node-topic'){
+									node.model = child.children[0].clone();
+									node.model.material.transparent = false;
 								}
 								//skip if no model was set
 								if(!node.model) {continue;}
@@ -6217,13 +6228,13 @@ const app = {
 							if(modelArray.includes(node.id)){
 								node.visibility = 'visible';
 								node.model.material.opacity = 1;
-								node.model.material.visible = true;
+								//node.model.material.visible = true;
 								this.setHighestDistance(distance);
 								node.__threeObj.visible = true;
 								//app.dev && console.log('dev --- node: ', node)
 							}else{
 								node.visibility = 'hidden';
-								node.model.material.visible = false;
+								//node.model.material.visible = false;
 								node.__threeObj.visible = false;
 							}
 						}
@@ -6248,7 +6259,7 @@ const app = {
 						if (node.id != '' && node.model.material) {
 							node.visibility = 'visible';
 							node.model.material.opacity = 1;
-							node.model.material.visible = true;
+							//node.model.material.visible = true;
 							node.__threeObj.visible = true;
 
 							let distance = this.data.highestDistance.max;
