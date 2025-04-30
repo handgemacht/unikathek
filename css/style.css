@@ -1848,6 +1848,7 @@ button.filter-change {
   bottom: 45px;
   width: 43.5%;
   padding: 5px 15px;
+  margin: 0;
   border-radius: 15px 0 0 0;
   font-weight: 700;
   z-index: 1;
