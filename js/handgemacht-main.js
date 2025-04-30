@@ -5606,9 +5606,9 @@ const app = {
 							linkThreeObjectExtend: false,
 							nodeRelSize: 1,
 							nodeVal: node => { return node.size },
-							// nodeThreeObject: node => {
-							// 	node.model.material.visible = false;
-							// },
+							nodeThreeObject: node => {
+								node.model.material.visible = false;
+							},
 							nodeThreeObjectExtend: true,
 							nodeOpacity: 0,
 							onLinkHover: link => { 
@@ -6249,7 +6249,7 @@ const app = {
 						if (node.id != '' && node.model.material) {
 							node.visibility = 'visible';
 							node.model.material.opacity = 1;
-							//node.model.material.visible = true;
+							node.model.material.visible = true;
 							node.__threeObj.visible = true;
 
 							let distance = this.data.highestDistance.max;
