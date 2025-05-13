@@ -315,8 +315,6 @@ const app = {
 
 		this.handleURLParameter();
 
-		this.handleLocalStorage();
-
 		this.isMobile = this.checkMobile();
 		this.isWebXRCapable = this.checkWebXRSupport();
 		this.passiveSupported = this.checkEventlistenerPassiveSupport();
@@ -373,7 +371,7 @@ const app = {
 			
 			init() {
 				this.createElements();
-				this.set();
+				this.set(null, null, null, false, true);
 
 				app.dev && console.log('init --- app > gui > title');
 			},
@@ -383,29 +381,44 @@ const app = {
 				document.body.appendChild(this.containerEl);
 				this.containerEl.className = 'gui-title-container';
 
-				this.arrowEl = document.createElement('span');
+				this.arrowEl = document.createElement('div');
 				this.arrowEl.className = 'arrow';
 
 				this.arrowEl.icon = document.createElement('img');
 				this.arrowEl.appendChild(this.arrowEl.icon);
 				this.arrowEl.icon.className = 'icon';
-				this.arrowEl.icon.src = app.assets.icon['arrow left'].src.coalgrey;
-				this.arrowEl.icon.alt = app.assets.icon['arrow left'].alt;
+				this.arrowEl.icon.src = app.assets.icon['arrow right'].src.coalgrey;
+				this.arrowEl.icon.alt = app.assets.icon['arrow right'].alt;
 				this.arrowEl.icon.width = 100;
 				this.arrowEl.icon.height = 100;
 				this.arrowEl.icon.setAttribute('loading', 'lazy');
+
+				this.backEl = document.createElement('div');
+				this.backEl.className = 'back';
+
+				this.backEl.icon = document.createElement('img');
+				this.backEl.appendChild(this.backEl.icon);
+				this.backEl.icon.className = 'icon';
+				this.backEl.icon.src = app.assets.icon['arrow back'].src.coalgrey;
+				this.backEl.icon.alt = app.assets.icon['arrow back'].alt;
+				this.backEl.icon.width = 100;
+				this.backEl.icon.height = 100;
+				this.backEl.icon.setAttribute('loading', 'lazy');
 
 				this.element = document.createElement('h1');
 				this.containerEl.appendChild(this.element);
 				this.element.className = 'title';
 			}, 
 
-			set(breadcrumb = null, breadcrumbType = null, nodeId = null, modelViewer = false) {
-				let url = '?m=cv';
-				
+			set(breadcrumb = null, breadcrumbType = null, nodeId = null, modelViewer = false, first = false) {
+				let urlRoot = '?m=cv';
+				let urlBreadcrumb = urlRoot;
+				let urlModelViewer = urlRoot;
+				let url = urlRoot;
+
 				if(nodeId){
-					nodeId = '&node=' + nodeId;
-					url += nodeId;
+					urlBreadcrumb = urlRoot + '&node=' + nodeId;
+					urlModelViewer = '?m=mv' + '&model=' + nodeId;
 				}
 
 				if(app.embedded){
@@ -415,31 +428,79 @@ const app = {
 					return;
 				}
 
-				this.element.innerHTML = '<span>' + app.title + '</span>';
+				this.element.innerHTML = '';
+
+				this.titleRoot = document.createElement('span');
+				this.element.appendChild(this.titleRoot);
+				this.titleRoot.id = 'title-root';
+				this.titleRoot.textContent = app.title;
+
+				this.titleRoot ? this.titleRoot.setAttribute('data-url', urlRoot) : '';
+				this.titleRoot ? this.titleRoot.removeEventListener('click', app.gui.title.titleClickHandler) : '';
+				this.titleRoot ? this.titleRoot.addEventListener('click', app.gui.title.titleClickHandler) : '';
 
 				if(breadcrumb) {
-					this.element.innerHTML += '<div class="arrow"><img class="icon" src="' + app.assets.icon['arrow right'].src.coalgrey + '" alt="' + app.assets.icon['arrow right'].alt + '" width="100" height="100" loading="lazy"></div>'
-					this.element.innerHTML += '<span>' + breadcrumb + '</span>';
+					const arrow = this.arrowEl.cloneNode(true);
+					this.element.appendChild(arrow);
+
+					this.titleBreadcrumb = document.createElement('span');
+					this.element.appendChild(this.titleBreadcrumb);
+					this.titleBreadcrumb.id = 'title-breadcrumb';
+					this.titleBreadcrumb.textContent = breadcrumb;
+
+					this.titleBreadcrumb ? this.titleBreadcrumb.setAttribute('data-url', urlBreadcrumb) : '';
+					this.titleBreadcrumb ? this.titleBreadcrumb.removeEventListener('click', app.gui.title.titleClickHandler) : '';
+					this.titleBreadcrumb ? this.titleBreadcrumb.addEventListener('click', app.gui.title.titleClickHandler) : '';
+
+					document.title = 'hand.gemacht Unikathek' + ' > ' + breadcrumb
+
+					url = urlBreadcrumb;
 				}
 
 				if(modelViewer) {
-					this.element.innerHTML += '<div class="arrow"><img class="icon" src="' + app.assets.icon['arrow right'].src.coalgrey + '" alt="' + app.assets.icon['arrow right'].alt + '" width="100" height="100" loading="lazy"></div>'
-					this.element.innerHTML += '<span>Modelviewer</span>';
-					this.element.innerHTML += '<br><div class="back text-coalgrey"><img class="icon" src="./assets/hand.gemacht WebApp icon arrow back coalgrey.svg" alt="Pfeil zurück" width="100" height="100" loading="lazy"></div><span class="back">zurück</span>'
+					const arrow = this.arrowEl.cloneNode(true);
+					this.element.appendChild(arrow);
+
+					this.titleModelViewer = document.createElement('span');
+					this.element.appendChild(this.titleModelViewer);
+					this.titleModelViewer.id = 'title-modelviewer';
+					this.titleModelViewer.textContent = 'Modelviewer';
+					this.break = document.createElement('br');
+					this.element.appendChild(this.break);
+
+					const back = this.backEl.cloneNode(true);
+					this.element.appendChild(back);
+
+					this.titleBack = document.createElement('span');
+					this.element.appendChild(this.titleBack);
+					this.titleBack.className = 'back';
+					this.titleBack.id = 'title-back';
+					this.titleBack.textContent = 'zurück';
+
+					this.titleModelViewer ? this.titleModelViewer.setAttribute('data-url', urlModelViewer) : '';
+					this.titleModelViewer ? this.titleModelViewer.removeEventListener('click', app.gui.title.titleClickHandler) : '';
+					this.titleModelViewer ? this.titleModelViewer.addEventListener('click', app.gui.title.titleClickHandler) : '';
+
+					this.titleBack ? this.titleBack.setAttribute('data-url', urlBreadcrumb) : '';
+					this.titleBack ? this.titleBack.removeEventListener('click', app.gui.title.titleClickHandler) : '';
+					this.titleBack ? this.titleBack.addEventListener('click', app.gui.title.titleClickHandler) : '';
+
+					document.title = 'hand.gemacht Unikathek' + ' > ' + breadcrumb + ' > ' + 'Modelviewer'
+
+					url = urlModelViewer;
 				}
 
 				this.containerEl.className = 'gui-title-container';
 
 				this.containerEl.classList.add('clickable');
 
-				this.containerEl.setAttribute('data-url', url);
-				this.containerEl.removeEventListener('click', app.gui.title.titleClickHandler);
-				this.containerEl.addEventListener('click', app.gui.title.titleClickHandler);
+				!first ? window.history.pushState(null, null, url) : '';
+				app.dev && console.log('dev --- history.state: ', history);
 			}, 
 
-			titleClickHandler() {
-				app.gui.title.containerEl.removeEventListener('click', app.gui.title.titleClickHandler);
-				let url = app.gui.title.containerEl.getAttribute('data-url');
+			titleClickHandler(event) {
+				event.srcElement.removeEventListener('click', app.gui.title.titleClickHandler);
+				let url = event.srcElement.getAttribute('data-url');
 				url = app.setURLParams(url);
 				app.tour ? url+='&tour=' + app.tour : '';
 				app.step ? url+='&step=' + app.step : '';
@@ -2314,7 +2375,7 @@ const app = {
 				if(type !== 'none'){
 					showMessage && app.gui.message.hideMessage(true);
 					if(!fgNode.model.material.visible) {return;}
-					app.gui.title.set(fgNode.name, fgNode.type);
+					app.gui.title.set(fgNode.name, fgNode.type, fgNode.id);
 					showMessage && app.collectionViewer.highlight.generateMessage(fgNode);
 				}
 			}, 
@@ -5590,7 +5651,7 @@ const app = {
 						forcegraphEntity.setAttribute('highlight', { noUpdate: true });
 						forcegraphEntity.setAttribute('forcegraph', {
 							forceEngine: 'd3', //'d3' (default) or 'ngraph'
-							warmupTicks: 15000,
+							warmupTicks: 2000,
 							cooldownTicks: 0,
 							cooldownTime: 0,
 							onEngineStop: e => {
@@ -11456,13 +11517,19 @@ const app = {
 		this.hideGUI = (this.getURLParameter('gui') === 'false');
 		this.embedded = (this.getURLParameter('embedded') === 'true');
 		this.fileMaker = (this.getURLParameter('fm') === 'true');
-		this.showWelcome = true;
+		this.showWelcome = (this.getURLParameter('welcome') !== 'false');
 
 		//set viewerMode
 		if(!this.viewerModes.includes(mode)){
 			this.viewerMode = false;
 		}else{
 			this.viewerMode = mode;
+		}
+
+		//handle session storage
+		if(this.showWelcome) {
+			let sessionWelcome = this.getSessionStorage('welcome');
+			!sessionWelcome ? sessionWelcome = this.setSessionStorage('welcome', true) : this.showWelcome = false;
 		}
 
 		//handdle filemaker
@@ -11479,19 +11546,25 @@ const app = {
 		(this.viewerMode === 'cv' && this.tour) ? this.collectionViewer.node = null : '';
 
 		//reset URL with pushState if node is set
-		let url = '?m=' + this.viewerMode;
-		url = app.setURLParams(url);
-		(this.viewerMode === 'cv' && node) ? window.history.pushState(null, null, url) : '';
+		// let url = '?m=' + this.viewerMode;
+		// url = app.setURLParams(url);
+		// (this.viewerMode === 'cv' && node) ? window.history.pushState(null, null, url) : '';
 
 		//prevent welcome message
 		(this.viewerMode === 'cv' && this.tour) ? this.showWelcome = false : '';
 		(this.viewerMode === 'cv' && node) ? this.showWelcome = false : '';
 		(this.viewerMode === 'cv' && isFrom) ? this.showWelcome = false : '';
-	}, 
+	},
 
-	handleLocalStorage() {
-		//this.value = (localStorage.getItem('value') !== 'true');
-		//app.dev && console.log('dev --- handleLocalStorage > value: ', this.value);
+	setSessionStorage(key, value) {
+		sessionStorage.setItem(key, value);
+		app.dev && console.log('dev --- setSessionStorage: ', {key, value});
+	},
+
+	getSessionStorage(key) {
+		let data = sessionStorage.getItem(key);
+		app.dev && console.log('dev --- getSessionStorage: ', {key, data});
+		return data;
 	},
 
 	setURLParams(url) {
