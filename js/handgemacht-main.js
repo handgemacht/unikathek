@@ -343,7 +343,7 @@ const app = {
 		if (this.viewerMode === 'mv') {
 			this.modelViewer.init();
 			this.arViewer.registerComponents();
-			this.gui.loadingScreen.showLoadingScreen('Modelviewer wird geladen');
+			this.gui.loadingScreen.showLoadingScreen('Modellansicht wird geladen');
 		}
 
 		this.gui.setupCollapsibles();
@@ -464,7 +464,7 @@ const app = {
 					this.titleModelViewer = document.createElement('span');
 					this.element.appendChild(this.titleModelViewer);
 					this.titleModelViewer.id = 'title-modelviewer';
-					this.titleModelViewer.textContent = 'Modelviewer';
+					this.titleModelViewer.textContent = 'Modellansicht';
 					this.break = document.createElement('br');
 					this.element.appendChild(this.break);
 
@@ -485,7 +485,7 @@ const app = {
 					this.titleBack ? this.titleBack.removeEventListener('click', app.gui.title.titleClickHandler) : '';
 					this.titleBack ? this.titleBack.addEventListener('click', app.gui.title.titleClickHandler) : '';
 
-					document.title = 'hand.gemacht Unikathek' + ' > ' + breadcrumb + ' > ' + 'Modelviewer'
+					document.title = 'hand.gemacht Unikathek' + ' > ' + breadcrumb + ' > ' + 'Modellansicht'
 
 					url = urlModelViewer;
 				}
@@ -493,6 +493,8 @@ const app = {
 				this.containerEl.className = 'gui-title-container';
 
 				this.containerEl.classList.add('clickable');
+
+				url = app.setURLParams(url);
 
 				!first ? window.history.pushState(null, null, url) : '';
 				app.dev && console.log('dev --- history.state: ', history);
@@ -1691,7 +1693,7 @@ const app = {
 
 			setContent() {
 				this.welcome = {
-					type: 'Unikathek',
+					type: '',
 					buttons: [
 							{
 								label: 'zur Unikathek',
@@ -1722,28 +1724,52 @@ const app = {
 								"type" : "paragraph"
 							},
 							{
-								"content" : "Zum ersten mal hier? Dann schau am besten in unseren Leitfaden. Dort wird die Unikathek mit all ihren wichtigen Funktionen und Werkzeugen erklärt. ",
+								"content" : "Die Unikathek entstand im Zuge des Forschungsprojekts \"hand.gemacht\". Die Gegenstände wurden mit einem 3D-Scanner von uns erfasst. Nach der Erhebung erhielten die Bürgerinnen und Bürger ihre handgemachten Werke gleich wieder zurück. Dieses Verfahren ermöglicht es, das mobile kulturelle Erbe der Oberpfalz, welches verschiedene Identitäten prägt, zu sammeln und eine Momentaufnahme davon aufzubewahren.",
 								"fileCopyright" : "",
 								"filename" : "",
 								"imageAlt" : "",
 								"imageCaption" : "",
 								"type" : "paragraph"
-							}, 
+							},
 							{
-								"content" : "zum Leitfaden",
+								"content" : "mehr zum Forschungsprojekt",
+								"fileCopyright" : "",
+								"filename" : "https://www.handgemacht.bayern/projekt",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "link-button"
+							},
+							{
+								"content" : "mehr zur Förderrichtlinie",
+								"fileCopyright" : "",
+								"filename" : "https://www.stmfh.bayern.de/heimat/regionale_identitaet/",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "link-button"
+							},
+							{
+								"content" : "Das Projekt wurde vom 1. Juni 2022 bis zum 30. Juni 2025 im Rahmen der Heimat-Digital-Regional Förderrichtlinie des Bayerischen Staatsministeriums der Finanzen und für Heimat gefördert.",
+								"fileCopyright" : "Bayerisches Staatsministerium der Finanzen und für Heimat",
+								"filename" : "stmfh foerderung.webp",
+								"imageAlt" : "Bayerisches Staatsministerium der Finanzen und für Heimat als Förderer Logo",
+								"imageCaption" : "",
+								"type" : "paragraph+image+patronage"
+							},
+							{
+								"content" : "Zum ersten mal hier? Dann schau am besten in unseren Leitfaden. Dort wird die Unikathek mit all ihren wichtigen Funktionen und Werkzeugen erklärt. ",
 								"fileCopyright" : "",
 								"filename" : "",
 								"imageAlt" : "",
 								"imageCaption" : "",
-								"type" : "button"
-							},
+								"type" : "description+onboarding"
+							}, 
 							{
 								"content" : "Themen-Touren in der Unikathek",
 								"fileCopyright" : "",
 								"filename" : "",
 								"imageAlt" : "",
 								"imageCaption" : "",
-								"type" : "subheadline"
+								"type" : "headline"
 							},
 							{
 								"content" : "WAA Wackersdorf",
@@ -1759,7 +1785,7 @@ const app = {
 								"filename" : "",
 								"imageAlt" : "",
 								"imageCaption" : "",
-								"type" : "subheadline"
+								"type" : "headline"
 							},
 							{
 								"content" : "Dirndl",
@@ -1787,6 +1813,22 @@ const app = {
 								"imageAlt" : "Rendering einer Geige",
 								"imageCaption" : "Von der Wärmequelle zum Erinnerungsstück – dieser Ofen aus den 1940er-Jahren blickt auf eine bewegte Geschichte zurück. Ob auch Kriegsschrott verarbeitet wurde?",
 								"type" : "description+object"
+							},
+							{
+								"content" : "Kontakt",
+								"fileCopyright" : "",
+								"filename" : "https://www.handgemacht.bayern/#Kontakt",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "link"
+							},
+							{
+								"content" : "Impressum",
+								"fileCopyright" : "",
+								"filename" : "https://www.handgemacht.bayern/impressum",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "link"
 							}
 					]
 				}
@@ -1851,7 +1893,7 @@ const app = {
 
 				for(let button of buttons){
 					
-					if(button.innerHTML === 'zum Leitfaden'){
+					if(button.classList.contains('onboarding')){
 						button.addEventListener('click', (e) => {
 						app.collectionViewer.onboarding.show('start');
 						}, { signal: app.gui.message.abortController.signal });
@@ -2234,6 +2276,7 @@ const app = {
 
 			showTooltip(type, content, id = null) {
 				if(!this.firstMouseMove) { return; }
+				if(this.isMobile) { return; }
 				let typeText = '';
 				if(type === 'node-object'){
 					typeText = 'Objekt'
@@ -2462,7 +2505,7 @@ const app = {
 					let objectContent = app.createHTMLContentFromJSON(fgNode.contents);
 
 					let message = {
-						type: 'Objekt',
+						type: 'Objektfokus',
 						content: objectContent
 								+ categoryList
 								+ topicList
@@ -7833,6 +7876,24 @@ const app = {
 			});
 
 			this.element.addEventListener('progress', (e) => this.setLoadingText(e));
+
+			document.addEventListener('wheel', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				event.stopImmediatePropagation();
+				let deltaY = event.deltaY;
+				let zoomSensitivity = 0.1;
+				let direction = 0;
+
+				deltaY > 0 ? direction = -1 : direction = 1;
+
+				direction = direction * zoomSensitivity;
+
+				app.dev && console.log('dev --- scroll event: ', event)
+				app.dev && console.log('dev --- scroll direction: ', direction)
+
+				//self.element.zoom(direction);
+			})
 		},
 
 		getJSONData: async function(url) {
@@ -7889,10 +7950,10 @@ const app = {
 			this.element.setAttribute('src', '');
 			this.element.setAttribute('shadow-intensity', '1');
 			this.element.setAttribute('camera-controls', '');
-			//this.element.setAttribute('touch-action', 'pan-y');
 			this.element.setAttribute('disable-tap', '');
 			this.element.setAttribute('camera-orbit', '');
 			this.element.setAttribute('orbit-sensitivity', '2');
+			this.element.setAttribute('zoom-sensitivity', '0.01');
 			this.element.setAttribute('min-camera-orbit', '-Infinity 15deg 0.2m');
 			this.element.setAttribute('max-camera-orbit', '-Infinity 165ddeg 12.5m');
 			this.element.setAttribute('camera-target', '');
@@ -7952,7 +8013,7 @@ const app = {
 			this.firstContactTool = "<h3>Tools</h3> <p>Willkommen bei den Tools. Hier kannst du das Objekt mit Clipping genauer untersuchen. Bewege die Kamera dazu nahe an das Objekt, um das Objekt abzuschneiden. Außerdem kannst du einen Schnitt festhalten mit Freeze oder die Entfernung des Schnitts einstellen. </br> Du kannst die Textur, also die Beschaffenheit der Oberfläche, sowie das Wireframe, also das visuelle Modell des 3D-Object an- bzw. ausschalten.";
 			this.goodbyeMessage = "<h3>Entdecker-Modus verlassen</h3> <p>Was möchtest du tun?</p>";
 			this.goodbyeMessageButton1 = "Entdeckermodus erneut starten";
-			this.goodbyeMessageButton2 = "Zum Modelviewer zurückkehren";
+			this.goodbyeMessageButton2 = "Zur Modellansicht zurückkehren";
 			this.startPlacing = '<img src="' + app.assets.icon['move'].src.pearlwhite + '" alt="' + app.assets.icon['move'].alt + '" height="50px" loading="lazy" /> <p>Um das Objekt zu platzieren, suche eine freie Boden- oder Tischfläche. Das Objekt soll dort in realer Größe platziert werden.</p>';
 			this.leaveAR = '<p>Entdecker-Modus wirklich verlassen?</p>';
 			this.startPlacingButton = 'Platzierung starten!';
@@ -11345,6 +11406,12 @@ const app = {
 				
 			}
 
+			if(content.type === 'description+onboarding'){
+				const paragraphHTML = '<div class="description onboarding shadow-smokegrey"><h5>Leitfaden</h5><p class="content-text">' + content.content + '</p><button class="button onboarding smokegrey" data-link="onboarding">zum Leitfaden</button></div>';
+				contentHTML = contentHTML.concat(paragraphHTML);
+
+			}
+
 			if(content.type === 'description+tour'){
 				const imageHTML = '<img src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px">' 
 				const captionHTML = '<span class="copyright text-small"> Foto: ' + content.fileCopyright + '</span>';
@@ -11389,6 +11456,12 @@ const app = {
 				
 			}
 
+			if(content.type === 'paragraph+image+patronage'){
+				const imageHTML = '<img src="' + app.filepaths.assets + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px">' 
+				const paragraphAndImageHTML = '<div class="content-image in-paragraph fullsize nozoom patronage"><div class="content-image-box">' + imageHTML + '</div></div><p class="content-text">' + content.content + '</p>';
+				contentHTML = contentHTML.concat(paragraphAndImageHTML);				
+			}
+
 			if(content.type === 'audio'){
 				const audioHTML = '<audio controls><source src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" type="audio/mpeg"></audio>';
 
@@ -11415,7 +11488,7 @@ const app = {
 			}
 
 			if(content.type === 'link'){
-				const linkHTML = '<a class="content-link" href="">' + content.content + '</a>';
+				const linkHTML = '<a class="content-link" href="' + content.filename + '">' + content.content + '</a>';
 				contentHTML = contentHTML.concat(linkHTML);
 
 			}
