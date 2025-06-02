@@ -1060,6 +1060,7 @@ p.content-text.personal {
 a.content-link {
   display: block;
   color: #FF7850;
+  padding: 0em 0em 1em 0em;
 }
 
 a.content-link:visited {
@@ -1123,9 +1124,8 @@ button.content-object-link > img {
 }
 
 .content-image.patronage {
-  margin: 0em 1em 4em 1em;
+  margin: 0em 1em 1em 0em;
   border-radius: 0;
-  float: right;
   width: fit-content;
 }
 
@@ -1264,7 +1264,7 @@ div.description.object {
   position: relative;
   margin-block-start: 1em;
   margin-block-end: 3em;
-  margin-right: 3.4em;
+  margin-right: 3.3em;
   width: 13em;
   height: 25em;
   float: left;
@@ -2695,7 +2695,7 @@ img.help-symbol{
 
 
   div.gui-message-container {
-    width: 540px;
+    width: 600px;
   }
 
   .content-image.in-paragraph {
@@ -2792,7 +2792,7 @@ img.help-symbol{
   }
 
   div.gui-message-box.centered > div.gui-message-container {
-    width: 50%;
+    width: 65%;
   }
 
 }
@@ -2800,9 +2800,17 @@ img.help-symbol{
 /* very large  */
 @media only screen and (min-width: 1280px) {
 
+  div.gui-message-box.centered > div.gui-message-container {
+    width: 75%;
+  }
+
 }
 
 @media only screen and (min-width: 1600px) and (orientation: landscape) {
+
+  div.gui-message-box.centered > div.gui-message-container {
+    width: 60%;
+  }
 
   .content-image.in-paragraph {
     width: 40%;

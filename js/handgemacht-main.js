@@ -635,15 +635,20 @@ const app = {
 			type: {
 				value: '',
 			},
+
 			content: {
 				value: 'default message',
 			},
+
 			color: 'smokegrey',
+
 			shadow: null,
+
 			buttonSetup: [
 				{label: '', color:'smokegrey', shadow: 'coalgrey'},
 				{label: '', color:'smokegrey', shadow: 'coalgrey'}
 				],
+
 			showClose: true,
 
 			init() {
@@ -783,7 +788,7 @@ const app = {
 				this.containerEl.classList.remove('hide');
 
 				//auto maximize message
-				if(this.content.containerEl.offsetHeight * 1.5 < this.content.element.offsetHeight && app.isMobile === false) {
+				if(app.isMobile === false) {
 					this.containerEl.classList.add('maximized');
 					this.sizeControlEl.setAttribute('data-maximized', true);
 				}
@@ -957,8 +962,8 @@ const app = {
 				this.shadow && this.type.element.classList.add(this.shadow.replace('shadow-', ''));
 				this.shadow && this.element.classList.add(this.shadow);
 
-				this.containerEl.classList.add('maximized');
-				this.sizeControlEl.setAttribute('data-maximized', true);
+				// this.containerEl.classList.add('maximized');
+				// this.sizeControlEl.setAttribute('data-maximized', true);
 				this.sizeControlEl.icon.src = app.assets.icon.small['minimize'].src.coalgrey;
 				if(Object.keys(this.options).includes("maximized")){
 					this.options.maximized ? this.containerEl.classList.add('maximized') : this.containerEl.classList.remove('maximized');
@@ -1115,6 +1120,8 @@ const app = {
 	
 		menu: {
 			text: 'Mehr über uns erfährst du hier:',
+
+			show: false,
 	
 			init(){
 				this.createElements();
@@ -1255,14 +1262,26 @@ const app = {
 			},
 	
 			setEventListener() {
+				const self = this;
+
 				if(this.closeEl) {
 					this.closeEl.addEventListener('click', (evt) => {
 						app.gui.menu.hideMenu();
 					});
 				}
+
 				if(this.button.element) {
 					this.button.element.addEventListener('click', (evt) => {
-						app.gui.menu.showMenu();
+						// app.gui.menu.showMenu(); //changed menu button interaction to start message 
+						
+
+						if(self.show){
+							app.gui.message.hideMessage();
+							self.show = false;
+						}else{
+							app.collectionViewer.welcome.show();
+							self.show = true;
+						}
 					});
 				}
 			},
@@ -1724,38 +1743,6 @@ const app = {
 								"type" : "paragraph"
 							},
 							{
-								"content" : "Die Unikathek entstand im Zuge des Forschungsprojekts \"hand.gemacht\". Die Gegenstände wurden mit einem 3D-Scanner von uns erfasst. Nach der Erhebung erhielten die Bürgerinnen und Bürger ihre handgemachten Werke gleich wieder zurück. Dieses Verfahren ermöglicht es, das mobile kulturelle Erbe der Oberpfalz, welches verschiedene Identitäten prägt, zu sammeln und eine Momentaufnahme davon aufzubewahren.",
-								"fileCopyright" : "",
-								"filename" : "",
-								"imageAlt" : "",
-								"imageCaption" : "",
-								"type" : "paragraph"
-							},
-							{
-								"content" : "mehr zum Forschungsprojekt",
-								"fileCopyright" : "",
-								"filename" : "https://www.handgemacht.bayern/projekt",
-								"imageAlt" : "",
-								"imageCaption" : "",
-								"type" : "link-button"
-							},
-							{
-								"content" : "mehr zur Förderrichtlinie",
-								"fileCopyright" : "",
-								"filename" : "https://www.stmfh.bayern.de/heimat/regionale_identitaet/",
-								"imageAlt" : "",
-								"imageCaption" : "",
-								"type" : "link-button"
-							},
-							{
-								"content" : "Das Projekt wurde vom 1. Juni 2022 bis zum 30. Juni 2025 im Rahmen der Heimat-Digital-Regional Förderrichtlinie des Bayerischen Staatsministeriums der Finanzen und für Heimat gefördert.",
-								"fileCopyright" : "Bayerisches Staatsministerium der Finanzen und für Heimat",
-								"filename" : "stmfh foerderung.webp",
-								"imageAlt" : "Bayerisches Staatsministerium der Finanzen und für Heimat als Förderer Logo",
-								"imageCaption" : "",
-								"type" : "paragraph+image+patronage"
-							},
-							{
 								"content" : "Zum ersten mal hier? Dann schau am besten in unseren Leitfaden. Dort wird die Unikathek mit all ihren wichtigen Funktionen und Werkzeugen erklärt. ",
 								"fileCopyright" : "",
 								"filename" : "",
@@ -1813,6 +1800,54 @@ const app = {
 								"imageAlt" : "Rendering einer Geige",
 								"imageCaption" : "Von der Wärmequelle zum Erinnerungsstück – dieser Ofen aus den 1940er-Jahren blickt auf eine bewegte Geschichte zurück. Ob auch Kriegsschrott verarbeitet wurde?",
 								"type" : "description+object"
+							}, 
+							{
+								"content" : "Über hand.gemacht",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "headline"
+							},
+							{
+								"content" : "Die Unikathek entstand im Zuge des Forschungsprojekts \"hand.gemacht\". Mit einem 3D-Scanner erfasst, erhielten die Bürgerinnen und Bürger ihre handgemachten Werke gleich nach der Erhebung wieder zurück. Dieses Verfahren ermöglicht es, das mobile kulturelle Erbe der Oberpfalz zu sammeln und eine Momentaufnahme davon aufzubewahren.",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "paragraph"
+							},
+							{
+								"content" : "mehr zum Forschungsprojekt",
+								"fileCopyright" : "",
+								"filename" : "https://www.handgemacht.bayern/projekt",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "link"
+							},
+							{
+								"content" : "Das Projekt wurde vom 1. Juni 2022 bis zum 30. Juni 2025 im Rahmen der Heimat-Digital-Regional Förderrichtlinie des Bayerischen Staatsministeriums der Finanzen und für Heimat gefördert.",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "paragraph"
+							},
+							{
+								"content" : "mehr zur Förderrichtlinie",
+								"fileCopyright" : "",
+								"filename" : "https://www.stmfh.bayern.de/heimat/regionale_identitaet/",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "link"
+							},
+							{
+								"content" : "",
+								"fileCopyright" : "Bayerisches Staatsministerium der Finanzen und für Heimat",
+								"filename" : "stmfh foerderung.webp",
+								"imageAlt" : "Bayerisches Staatsministerium der Finanzen und für Heimat als Förderer Logo",
+								"imageCaption" : "",
+								"type" : "image+patronage"
 							},
 							{
 								"content" : "Kontakt",
@@ -2763,19 +2798,19 @@ const app = {
 				infoText.className = 'text-small';
 				infoText.textContent = this.texts.intro;
 
-				const welcomeButton = document.createElement('button');
-				this.welcomeButtonEl = welcomeButton;
-				infoContainer.appendChild(welcomeButton);
-				welcomeButton.className = 'link text-smokegrey';
+				// const welcomeButton = document.createElement('button');
+				// this.welcomeButtonEl = welcomeButton;
+				// infoContainer.appendChild(welcomeButton);
+				// welcomeButton.className = 'link text-smokegrey';
 
-				welcomeButton.textContent = 'Startnachricht';
+				// welcomeButton.textContent = 'Startnachricht';
 
-				const onboardingButton = document.createElement('button');
-				this.onboardingButtonEl = onboardingButton;
-				infoContainer.appendChild(onboardingButton);
-				onboardingButton.className = 'link text-smokegrey';
+				// const onboardingButton = document.createElement('button');
+				// this.onboardingButtonEl = onboardingButton;
+				// infoContainer.appendChild(onboardingButton);
+				// onboardingButton.className = 'link text-smokegrey';
 
-				onboardingButton.textContent = 'Leitfaden';
+				// onboardingButton.textContent = 'Leitfaden';
 
 				const toursHeadline = document.createElement('h3');
 				infoContainer.appendChild(toursHeadline);
@@ -2864,16 +2899,16 @@ const app = {
 			},			
 
 			setEventlisteners() {
-				this.welcomeButtonEl.addEventListener('click', (e) => {
-					app.gui.toolbar.buttonActionTab(document.querySelector(this.buttonSetup.id));
-					app.collectionViewer.welcome.show();
-				});
+				// this.welcomeButtonEl.addEventListener('click', (e) => {
+				// 	app.gui.toolbar.buttonActionTab(document.querySelector(this.buttonSetup.id));
+				// 	app.collectionViewer.welcome.show();
+				// });
 
-				this.onboardingButtonEl.addEventListener('click', (e) => {
-					app.gui.toolbar.toggleToolbar(false);
-					app.gui.toolbar.buttonActionTab(document.querySelector(this.buttonSetup.id));
-					app.collectionViewer.onboarding.show();
-				});
+				// this.onboardingButtonEl.addEventListener('click', (e) => {
+				// 	app.gui.toolbar.toggleToolbar(false);
+				// 	app.gui.toolbar.buttonActionTab(document.querySelector(this.buttonSetup.id));
+				// 	app.collectionViewer.onboarding.show();
+				// });
 			}, 
 
 			setCollectionCounts(fgData) {
@@ -11456,10 +11491,9 @@ const app = {
 				
 			}
 
-			if(content.type === 'paragraph+image+patronage'){
-				const imageHTML = '<img src="' + app.filepaths.assets + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px">' 
-				const paragraphAndImageHTML = '<div class="content-image in-paragraph fullsize nozoom patronage"><div class="content-image-box">' + imageHTML + '</div></div><p class="content-text">' + content.content + '</p>';
-				contentHTML = contentHTML.concat(paragraphAndImageHTML);				
+			if(content.type === 'image+patronage'){
+				const imageHTML = '<div class="content-image fullsize nozoom patronage"><div class="content-image-box"><img src="' + app.filepaths.assets + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px"></div></div>';
+				contentHTML = contentHTML.concat(imageHTML);				
 			}
 
 			if(content.type === 'audio'){
