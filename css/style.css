@@ -290,6 +290,14 @@ button.shadow-duckyellow:hover {
   box-shadow: 5px 5px #FFC800;
 }
 
+a {
+  color: #46AAC8;
+}
+
+a:hover {
+  color: #14647D;
+}
+
 .link {
   text-decoration: underline;
   cursor: pointer;
