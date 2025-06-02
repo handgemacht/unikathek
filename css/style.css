@@ -1893,15 +1893,16 @@ div.cv-filter-container {
   overflow: hidden;
 }
 
-.collapsible-content {
+div.cv-filter-container.collapsible-content {
   padding: 0;
+  margin: 0;
   max-height: 0;
   transition: all 0.5s;
   overflow: hidden;
 }
 
-.collapsible-content.active {
-  padding: 15px 0 0 0;
+div.cv-filter-container.collapsible-content.active {
+  padding: 15px 0 30px 0;
   max-height: 200dvh;
 }
 
@@ -1910,6 +1911,7 @@ div.cv-filter-container > div.list-container {
 
 div.cv-filter-container > div.list-container > button.button {
   width: 100%;
+  margin-bottom: 0;
   background-color: initial;
   text-align: left;
 }
@@ -1952,7 +1954,7 @@ input.cv-search-input {
   width: 75%;
   border: none;
   background-color: transparent;
-  padding: 0 20px 0 10px;
+  padding: 0 20px 10px 10px;
   user-select: initial;
 }
 
