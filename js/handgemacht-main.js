@@ -7997,12 +7997,13 @@ const app = {
 
 		getJSONData: async function(url) {
 			//JSON fetch and loading model viewer
+			let headers = null;
+			if(app.fileMaker) {
+				headers = { headers: { 'Cache-Control': 'no-cache' } }
+			}
+
 			try{
-				const response = await fetch(url, {
-					headers: {
-						'Cache-Control': 'no-cache'
-					}
-				});
+				const response = await fetch(url, headers);
 				if(!response.ok) {
 					throw new Error(`Response status: ${response.status}`);
 					return false;
