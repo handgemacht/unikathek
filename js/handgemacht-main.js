@@ -7809,6 +7809,12 @@ const app = {
 		annotations: {
 
 			annotationSetup: {
+					unset: {
+						icon: 'quiz',
+						buttonColor: 'smokegrey', 
+						messageColor: 'pearlwhite', 
+						messageShadowColor: 'shadow-smokegrey'
+					},
 					read: {
 						icon: 'read',
 						buttonColor: 'skyblue', 
@@ -7853,6 +7859,8 @@ const app = {
 
 				for(let a in modelJSON.appData.annotations){
 					const annotation = modelJSON.appData.annotations[a];
+
+					annotation.mediaType ? '' : annotation.mediaType = 'unset';
 
 					//button creation
 					this.annotationArray[a] = {};
@@ -7990,7 +7998,11 @@ const app = {
 		getJSONData: async function(url) {
 			//JSON fetch and loading model viewer
 			try{
-				const response = await fetch(url);
+				const response = await fetch(url, {
+					headers: {
+						'Cache-Control': 'no-cache'
+					}
+				});
 				if(!response.ok) {
 					throw new Error(`Response status: ${response.status}`);
 					return false;
