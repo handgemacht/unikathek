@@ -7837,7 +7837,7 @@ const app = {
 						icon: 'move',
 						buttonColor: 'skyblue', 
 						messageColor: 'pearlwhite', 
-						messageShadowColor: 'shadow-terracotta'
+						messageShadowColor: 'shadow-skyblue'
 					}
 			},
 
