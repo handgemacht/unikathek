@@ -7832,6 +7832,12 @@ const app = {
 						buttonColor: 'terracotta', 
 						messageColor: 'pearlwhite', 
 						messageShadowColor: 'shadow-terracotta'
+					},
+					move: {
+						icon: 'move',
+						buttonColor: 'skyblue', 
+						messageColor: 'pearlwhite', 
+						messageShadowColor: 'shadow-terracotta'
 					}
 			},
 
