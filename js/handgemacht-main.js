@@ -5,7 +5,7 @@
 //START app 
 const app = {
 	title: 'Unikathek',
-	version: 'beta 1.6 25/01/07',
+	version: 'beta 1.9 25/06/06',
 	dev: false,
 	stats: false,
 	viewerMode: false,
@@ -205,6 +205,20 @@ const app = {
 							coalgrey: filepath + 'hand.gemacht WebApp icon small close coalgrey.svg' 
 						}
 					},
+					'maximize': {
+						alt: 'Maximieren-Symbol',
+						src: {
+							pearlwhite: filepath + 'hand.gemacht WebApp icon small maximize pearlwhite.svg',
+							coalgrey: filepath + 'hand.gemacht WebApp icon small maximize coalgrey.svg' 
+						}
+					},
+					'minimize': {
+						alt: 'Minimieren-Symbol',
+						src: {
+							pearlwhite: filepath + 'hand.gemacht WebApp icon small minimize pearlwhite.svg',
+							coalgrey: filepath + 'hand.gemacht WebApp icon small minimize coalgrey.svg' 
+						}
+					},
 					'pause': {
 						alt: 'Pause-Symbol',
 						src: {
@@ -219,6 +233,23 @@ const app = {
 							coalgrey: filepath + 'hand.gemacht WebApp icon small play coalgrey.svg' 
 						}
 					},
+				}
+			},
+
+			illustration: {
+				personal: {
+					'waa': {
+						alt: 'Illustration von Wolfgang',
+						src: filepath + 'hand.gemacht WebApp illustration personal wolfgang.png'
+					},
+					'kir1': {
+						alt: 'Illustration von Franzi',
+						src: filepath + 'hand.gemacht WebApp illustration personal franzi.png'
+					},
+					'kir2': {
+						alt: 'Illustration von Flo',
+						src: filepath + 'hand.gemacht WebApp illustration personal flo.png'
+					}
 				}
 			},
 
@@ -284,8 +315,6 @@ const app = {
 
 		this.handleURLParameter();
 
-		this.handleLocalStorage();
-
 		this.isMobile = this.checkMobile();
 		this.isWebXRCapable = this.checkWebXRSupport();
 		this.passiveSupported = this.checkEventlistenerPassiveSupport();
@@ -302,31 +331,30 @@ const app = {
 		if (!this.viewerMode) {
 			//redirect to collection viewer if no m is set in URL
 			let url='?m=cv';
-			this.dev ? url+='&dev=true' : '';
-			this.stats ? url+='&dev=stats' : '';
-			this.embedded ? url += '&embedded=true' : '';
+			url = app.setURLParams(url);
 			window.location.href = url;
 		}
 
 		if (this.viewerMode === 'cv') {
 			this.collectionViewer.init();
-			this.gui.title.init();
 			this.gui.loadingScreen.showLoadingScreen('Unikathek wird geladen');
 		}
 
 		if (this.viewerMode === 'mv') {
 			this.modelViewer.init();
 			this.arViewer.registerComponents();
-			this.gui.title.init();
-			this.gui.loadingScreen.showLoadingScreen('Modelviewer wird geladen');
+			this.gui.loadingScreen.showLoadingScreen('Modellansicht wird geladen');
 		}
 
 		this.gui.setupCollapsibles();
+
+		app.dev && console.log('init --- app complete');
 	}, 
 
 	gui: {
 			
 		init() {
+			this.title.init();
 			this.logo.init();
 			//this.version.init();
 			this.loadingScreen.init();
@@ -335,13 +363,17 @@ const app = {
 			this.fullScreen.init();
 			this.menu.init();
 			this.toolbar.init();
+
+			app.dev && console.log('init --- app > gui complete');
 		},
 
 		title: {
 			
 			init() {
 				this.createElements();
-				this.set();
+				this.set(null, null, null, false, true);
+
+				app.dev && console.log('init --- app > gui > title');
 			},
 
 			createElements() {
@@ -349,60 +381,135 @@ const app = {
 				document.body.appendChild(this.containerEl);
 				this.containerEl.className = 'gui-title-container';
 
-				this.arrowEl = document.createElement('span');
+				this.arrowEl = document.createElement('div');
 				this.arrowEl.className = 'arrow';
 
 				this.arrowEl.icon = document.createElement('img');
 				this.arrowEl.appendChild(this.arrowEl.icon);
 				this.arrowEl.icon.className = 'icon';
-				this.arrowEl.icon.src = app.assets.icon['arrow left'].src.coalgrey;
-				this.arrowEl.icon.alt = app.assets.icon['arrow left'].alt;
+				this.arrowEl.icon.src = app.assets.icon['arrow right'].src.coalgrey;
+				this.arrowEl.icon.alt = app.assets.icon['arrow right'].alt;
 				this.arrowEl.icon.width = 100;
 				this.arrowEl.icon.height = 100;
 				this.arrowEl.icon.setAttribute('loading', 'lazy');
+
+				this.backEl = document.createElement('div');
+				this.backEl.className = 'back';
+
+				this.backEl.icon = document.createElement('img');
+				this.backEl.appendChild(this.backEl.icon);
+				this.backEl.icon.className = 'icon';
+				this.backEl.icon.src = app.assets.icon['arrow back'].src.coalgrey;
+				this.backEl.icon.alt = app.assets.icon['arrow back'].alt;
+				this.backEl.icon.width = 100;
+				this.backEl.icon.height = 100;
+				this.backEl.icon.setAttribute('loading', 'lazy');
 
 				this.element = document.createElement('h1');
 				this.containerEl.appendChild(this.element);
 				this.element.className = 'title';
 			}, 
 
-			set(breadcrumb = null, breadcrumbType = null, nodeId = null, modelViewer = false) {
-				let url = '?m=cv';
-				
+			set(breadcrumb = null, breadcrumbType = null, nodeId = null, modelViewer = false, first = false) {
+				let urlRoot = '?m=cv';
+				let urlBreadcrumb = urlRoot;
+				let urlModelViewer = urlRoot;
+				let url = urlRoot;
+
 				if(nodeId){
-					nodeId = '&node=' + nodeId;
-					url += nodeId;
+					urlBreadcrumb = urlRoot + '&node=' + nodeId;
+					urlModelViewer = '?m=mv' + '&model=' + nodeId;
 				}
 
-				this.element.innerHTML = '<span>' + app.title + '</span>';
+				if(app.embedded){
+					this.element.innerHTML = '<span></span>';
+					this.containerEl.className = 'gui-title-container';
+					this.containerEl.removeEventListener('click', app.gui.title.titleClickHandler);
+					return;
+				}
+
+				this.element.innerHTML = '';
+
+				this.titleRoot = document.createElement('span');
+				this.element.appendChild(this.titleRoot);
+				this.titleRoot.id = 'title-root';
+				this.titleRoot.textContent = app.title;
+
+				this.titleRoot ? this.titleRoot.setAttribute('data-url', urlRoot) : '';
+				this.titleRoot ? this.titleRoot.removeEventListener('click', app.gui.title.titleClickHandler) : '';
+				this.titleRoot ? this.titleRoot.addEventListener('click', app.gui.title.titleClickHandler) : '';
 
 				if(breadcrumb) {
-					this.element.innerHTML += '<div class="arrow"><img class="icon" src="' + app.assets.icon['arrow right'].src.coalgrey + '" alt="' + app.assets.icon['arrow right'].alt + '" width="100" height="100" loading="lazy"></div>'
-					this.element.innerHTML += '<span>' + breadcrumb + '</span>';
+					const arrow = this.arrowEl.cloneNode(true);
+					this.element.appendChild(arrow);
+
+					this.titleBreadcrumb = document.createElement('span');
+					this.element.appendChild(this.titleBreadcrumb);
+					this.titleBreadcrumb.id = 'title-breadcrumb';
+					this.titleBreadcrumb.textContent = breadcrumb;
+
+					this.titleBreadcrumb ? this.titleBreadcrumb.setAttribute('data-url', urlBreadcrumb) : '';
+					this.titleBreadcrumb ? this.titleBreadcrumb.removeEventListener('click', app.gui.title.titleClickHandler) : '';
+					this.titleBreadcrumb ? this.titleBreadcrumb.addEventListener('click', app.gui.title.titleClickHandler) : '';
+
+					document.title = 'hand.gemacht Unikathek' + ' > ' + breadcrumb
+
+					url = urlBreadcrumb;
 				}
 
 				if(modelViewer) {
-					this.element.innerHTML += '<div class="arrow"><img class="icon" src="' + app.assets.icon['arrow right'].src.coalgrey + '" alt="' + app.assets.icon['arrow right'].alt + '" width="100" height="100" loading="lazy"></div>'
-					this.element.innerHTML += '<span>Modelviewer</span>';
+					const arrow = this.arrowEl.cloneNode(true);
+					this.element.appendChild(arrow);
+
+					this.titleModelViewer = document.createElement('span');
+					this.element.appendChild(this.titleModelViewer);
+					this.titleModelViewer.id = 'title-modelviewer';
+					this.titleModelViewer.textContent = 'Modellansicht';
+					this.break = document.createElement('br');
+					this.element.appendChild(this.break);
+
+					const back = this.backEl.cloneNode(true);
+					this.element.appendChild(back);
+
+					this.titleBack = document.createElement('span');
+					this.element.appendChild(this.titleBack);
+					this.titleBack.className = 'back';
+					this.titleBack.id = 'title-back';
+					this.titleBack.textContent = 'zurück';
+
+					this.titleModelViewer ? this.titleModelViewer.setAttribute('data-url', urlModelViewer) : '';
+					this.titleModelViewer ? this.titleModelViewer.removeEventListener('click', app.gui.title.titleClickHandler) : '';
+					this.titleModelViewer ? this.titleModelViewer.addEventListener('click', app.gui.title.titleClickHandler) : '';
+
+					this.titleBack ? this.titleBack.setAttribute('data-url', urlBreadcrumb) : '';
+					this.titleBack ? this.titleBack.removeEventListener('click', app.gui.title.titleClickHandler) : '';
+					this.titleBack ? this.titleBack.addEventListener('click', app.gui.title.titleClickHandler) : '';
+
+					document.title = 'hand.gemacht Unikathek' + ' > ' + breadcrumb + ' > ' + 'Modellansicht'
+
+					url = urlModelViewer;
 				}
 
 				this.containerEl.className = 'gui-title-container';
 
 				this.containerEl.classList.add('clickable');
 
-				this.containerEl.setAttribute('data-url', url);
-				this.containerEl.removeEventListener('click', app.gui.title.titleClickHandler);
-				this.containerEl.addEventListener('click', app.gui.title.titleClickHandler);
+				url = app.setURLParams(url);
+
+				!first ? window.history.pushState(null, null, url) : '';
+				app.dev && console.log('dev --- history.state: ', history);
 			}, 
 
-			titleClickHandler() {
-				app.gui.title.containerEl.removeEventListener('click', app.gui.title.titleClickHandler);
-				let url = app.gui.title.containerEl.getAttribute('data-url');
-				app.dev ? url+='&dev=true' : '';
-				app.stats ? url+='&dev=stats' : '';
-				app.embedded ? url+='&embeddded=true' : '';
+			titleClickHandler(event) {
+				event.srcElement.removeEventListener('click', app.gui.title.titleClickHandler);
+				let url = event.srcElement.getAttribute('data-url');
+				url = app.setURLParams(url);
+				app.tour ? url+='&tour=' + app.tour : '';
+				app.step ? url+='&step=' + app.step : '';
+
 				if(app.collectionViewer.highlight.focusedNode) {
 					app.collectionViewer.resetView.resetCameraView();
+					// app.dev && console.log('dev --- reserCameraView from titleClickHandler()');
 					app.gui.message.hideMessage(true);
 					app.gui.title.set();
 				}else{
@@ -416,6 +523,9 @@ const app = {
 			init() {
 				this.createElements();
 				app.hideGUI && this.element.classList.add('hide');
+				app.embedded && this.element.classList.add('hide');
+
+				app.dev && console.log('init --- app > gui > logo');
 			},
 
 			createElements() {
@@ -439,6 +549,9 @@ const app = {
 			init() {
 				this.createElements();
 				app.hideGUI && this.element.classList.add('hide');
+				app.embedded && this.element.classList.add('hide');
+
+				app.dev && console.log('init --- app > gui > version');
 			},
 
 			createElements() {
@@ -450,12 +563,17 @@ const app = {
 		},
 
 		loadingScreen: {
+			
+			hidden: false,
+
 			content: {
 				value: 'loading...',
 			},
 
 			init() {
 				this.createElements();
+
+				app.dev && console.log('init --- app > gui > loadingScreen');
 			}, 
 
 			createElements() {
@@ -477,9 +595,13 @@ const app = {
 				this.animation.object.alt = app.assets.loading.alt;
 				this.animation.object.width = 100;
 				this.animation.object.height = 100;
+
+				this.animation.percentEl = document.createElement('div');
+				this.animation.containerEl.appendChild(this.animation.percentEl);
+				this.animation.percentEl.className = 'text percent';
+				this.animation.percentEl.textContent = '0%';
 		
 				this.animation.textEl = document.createElement('div');
-				this.animation.textEl = this.animation.textEl;
 				this.animation.containerEl.appendChild(this.animation.textEl);
 				this.animation.textEl.className = 'text';
 				this.animation.textEl.textContent = this.content.value;
@@ -493,6 +615,7 @@ const app = {
 			}, 
 
 			hideLoadingScreen(timeout = 0) {
+				if(this.hidden) { return; }
 				setTimeout(() => {
 					this.element.classList.add('transparent');
 					this.animation.textEl.innerHTML = this.content.value;
@@ -501,7 +624,8 @@ const app = {
 
 					setTimeout(() => {
 						this.element.classList.add('hide');
-					}, 1500)
+						// app.dev && console.log('dev --- loadingScreen > hidden');
+					}, 500)
 
 				}, timeout);
 			}
@@ -511,21 +635,28 @@ const app = {
 			type: {
 				value: '',
 			},
+
 			content: {
 				value: 'default message',
 			},
+
 			color: 'smokegrey',
+
 			shadow: null,
+
 			buttonSetup: [
 				{label: '', color:'smokegrey', shadow: 'coalgrey'},
 				{label: '', color:'smokegrey', shadow: 'coalgrey'}
 				],
+
 			showClose: true,
 
 			init() {
 				this.createElements();
 				this.setEventListener();
 				this.abortController = new AbortController();
+
+				app.dev && console.log('init --- app > gui > message');
 			}, 
 
 			createElements() {
@@ -541,26 +672,38 @@ const app = {
 				this.containerEl.appendChild(this.type.element);
 				this.type.element.className = 'type hide';
 
-				this.sizeControlEl = document.createElement('button');
-				this.containerEl.appendChild(this.sizeControlEl);
-				this.sizeControlEl.className = 'size-control';
-				this.sizeControlEl.setAttribute('data-extended', 'false');
+				
 
 				this.element = document.createElement('div');
 				this.containerEl.appendChild(this.element);
 				this.element.className = 'gui-message';
 
+				this.icons = {};
+
+				this.icons.containerEl = document.createElement('div');
+				this.containerEl.appendChild(this.icons.containerEl);
+				this.icons.containerEl.className = 'icon-container';
+
+				this.fadeEl = document.createElement('div');
+				this.icons.containerEl.appendChild(this.fadeEl)
+				this.fadeEl.className = 'icons-fade';
+
+				this.sizeControlEl = document.createElement('button');
+				this.icons.containerEl.appendChild(this.sizeControlEl);
+				this.sizeControlEl.className = 'size-control';
+				this.sizeControlEl.setAttribute('data-maximized', 'false');
+
 				this.sizeControlEl.icon = document.createElement('img');
 				this.sizeControlEl.appendChild(this.sizeControlEl.icon);
-				this.sizeControlEl.icon.className = 'arrow-wide';
-				this.sizeControlEl.icon.src = app.assets.icon['arrow wide up'].src.coalgrey;
-				this.sizeControlEl.icon.alt = app.assets.icon['arrow wide up'].alt;
+				this.sizeControlEl.icon.className = 'resize-icon';
+				this.sizeControlEl.icon.src = app.assets.icon.small['maximize'].src.coalgrey;
+				this.sizeControlEl.icon.alt = app.assets.icon.small['maximize'].alt;
 				this.sizeControlEl.icon.width = 100;
 				this.sizeControlEl.icon.height = 100;
 				this.sizeControlEl.icon.setAttribute('loading', 'lazy');
 
-				this.closeEl = document.createElement('div');
-				this.element.appendChild(this.closeEl);
+				this.closeEl = document.createElement('button');
+				this.icons.containerEl.appendChild(this.closeEl);
 				this.closeEl.className = 'close';
 	
 				this.closeEl.icon = document.createElement('img');
@@ -572,8 +715,8 @@ const app = {
 				this.closeEl.icon.height = 100;
 				this.closeEl.icon.setAttribute('loading', 'lazy');
 
-				this.backEl = document.createElement('div');
-				this.element.appendChild(this.backEl);
+				this.backEl = document.createElement('button');
+				this.icons.containerEl.appendChild(this.backEl);
 				this.backEl.className = 'back';
 
 				this.backEl.icon = document.createElement('img');
@@ -599,6 +742,10 @@ const app = {
 				this.buttons.containerEl = document.createElement('div');
 				this.element.appendChild(this.buttons.containerEl);
 				this.buttons.containerEl.className = 'button-container';
+
+				this.buttons.fadeEl = document.createElement('div');
+				this.buttons.containerEl.appendChild(this.buttons.fadeEl)
+				this.buttons.fadeEl.className = 'button-fade';
 
 				this.buttons.button = [{},{}];
 
@@ -640,20 +787,10 @@ const app = {
 			showMessage() {
 				this.containerEl.classList.remove('hide');
 
-				//auto extend message
-				if(this.content.containerEl.offsetHeight*1.5 < this.content.element.offsetHeight && app.isMobile === false) {
-					this.containerEl.classList.add('extended');
-					this.sizeControlEl.setAttribute('data-extended', true);
-				}
-
-				if(document.querySelector('a-scene')){
-					document.querySelector('a-scene').classList.remove('active-message');
-					document.querySelector('a-scene').classList.add('active-message');
-				}
-
-				if(document.querySelector('model-viewer')){
-					document.querySelector('model-viewer').classList.remove('active-message');
-					document.querySelector('model-viewer').classList.add('active-message');
+				//auto maximize message
+				if(app.isMobile === false) {
+					this.containerEl.classList.add('maximized');
+					this.sizeControlEl.setAttribute('data-maximized', true);
 				}
 
 				if(app.collectionViewer.highlight.pillArray.length > 0) {
@@ -680,13 +817,17 @@ const app = {
 
 				//reset scrolling
 				this.content.containerEl.scrollTop = 0;
+				this.element.scrollTop = 0;
 
 				this.type.element.className = 'type hide';
 				this.element.className = 'gui-message';
 				this.containerEl.className = 'gui-message-container hide';
+				this.boxEl.className = 'gui-message-box';
 				this.closeEl.className = 'close';
+				this.backEl.className = 'back';
 				this.sizeControlEl.className = 'size-control';
-				this.sizeControlEl.setAttribute('data-extended', false);
+				this.sizeControlEl.setAttribute('data-maximized', false);
+				this.sizeControlEl.icon.src = app.assets.icon.small['maximize'].src.coalgrey;
 
 				//remove Eventlisteners
 				callAbortController ? this.abortController.abort() : '';
@@ -703,14 +844,6 @@ const app = {
 				this.buttons.button[1].labelEl.innerHTML = this.buttonSetup[1].label;
 
 				app.gui.toolbar.toggleToolbar(true);
-
-				if(document.querySelector('a-scene')){
-					document.querySelector('a-scene').classList.remove('active-message');
-				}
-
-				if(document.querySelector('model-viewer')){
-					document.querySelector('model-viewer').classList.remove('active-message');
-				}
 			},
 
 			setEventListener() {
@@ -719,32 +852,44 @@ const app = {
 				if(this.backEl) {
 					this.backEl.addEventListener('click', (evt) => {
 						self.hideMessage(true);
+						if(!app.collectionViewer.initialized) { return; }
+						if(app.tour) {
+							app.collectionViewer.tour.show(app.step);
+						}
 						app.gui.title.set();
+						app.collectionViewer.resetView.resetCameraView();
+						// app.dev && console.log('dev --- reserCameraView from click: back');
 					});
 				}
 
 				if(this.closeEl) {
 					this.closeEl.addEventListener('click', (evt) => {
 						self.hideMessage(true);
+						if(app.tour) {
+							app.tour = null;
+							app.step = null;
+						}
+						app.collectionViewer.resetView.resetCameraView();
+						// app.dev && console.log('dev --- reserCameraView from click: close');
 					});
 				}
 
 				if(this.sizeControlEl) {
 					this.sizeControlEl.addEventListener('click', (evt) => {
-						let isExtended = self.sizeControlEl.getAttribute('data-extended');
-						if(isExtended === 'true'){
-							app.dev && console.log('dev --- message isExtended (true): ', isExtended)
-							self.containerEl.classList.remove('extended');
-							self.sizeControlEl.setAttribute('data-extended', 'false');
+						let isMaximized = self.sizeControlEl.getAttribute('data-maximized');
+						if(isMaximized === 'true'){
+							// app.dev && console.log('dev --- message isMaximized (true): ', isMaximized)
+							self.containerEl.classList.remove('maximized');
+							self.sizeControlEl.setAttribute('data-maximized', 'false');
+							this.sizeControlEl.icon.src = app.assets.icon.small['maximize'].src.coalgrey;
 							
 						}else{
-							app.dev && console.log('dev --- message isExtended (false): ', isExtended)
-							self.containerEl.classList.remove('extended');
-							self.containerEl.classList.add('extended');
-							self.sizeControlEl.setAttribute('data-extended', 'true');
-							
+							// app.dev && console.log('dev --- message isMaximized (false): ', isMaximized)
+							self.containerEl.classList.remove('maximized');
+							self.containerEl.classList.add('maximized');
+							self.sizeControlEl.setAttribute('data-maximized', 'true');
+							this.sizeControlEl.icon.src = app.assets.icon.small['minimize'].src.coalgrey;
 						}
-						
 					});
 				}
 			},
@@ -808,23 +953,35 @@ const app = {
 
 				if(this.color === 'pearlwhite'){
 					this.closeEl.icon.src = app.assets.icon.small['close'].src.coalgrey;
+					this.backEl.icon.src = app.assets.icon['arrow back'].src.coalgrey;
 				}else{
 					this.closeEl.icon.src = app.assets.icon.small['close'].src.pearlwhite;
+					this.backEl.icon.src = app.assets.icon['arrow back'].src.pearlwhite;
 				}
 
 				this.shadow && this.type.element.classList.add(this.shadow.replace('shadow-', ''));
 				this.shadow && this.element.classList.add(this.shadow);
 
-				if(Object.keys(this.options).includes("extended")){
-					this.options.extended ? this.containerEl.classList.add('extended') : '';
-					this.options.extended ? this.sizeControlEl.setAttribute('data-extended', true) : '';
+				// this.containerEl.classList.add('maximized');
+				// this.sizeControlEl.setAttribute('data-maximized', true);
+				this.sizeControlEl.icon.src = app.assets.icon.small['minimize'].src.coalgrey;
+				if(Object.keys(this.options).includes("maximized")){
+					this.options.maximized ? this.containerEl.classList.add('maximized') : this.containerEl.classList.remove('maximized');
+					this.options.maximized ? this.sizeControlEl.setAttribute('data-maximized', true) : this.sizeControlEl.setAttribute('data-maximized', false);
+					this.options.maximized ? this.sizeControlEl.icon.src = app.assets.icon.small['minimize'].src.coalgrey : this.sizeControlEl.icon.src = app.assets.icon.small['maximize'].src.coalgrey;
 				}
 
+				this.sizeControlEl.classList.remove('hide');
 				if(Object.keys(this.options).includes("sizeControl")){
-					!this.options.sizeControl ? this.sizeControlEl.classList.add('hide') : '';
+					this.options.sizeControl ? this.sizeControlEl.classList.remove('hide') : this.sizeControlEl.classList.add('hide');
 				}
 
-				app.dev && console.log('dev --- message: ', this)
+				this.boxEl.classList.remove('centered');
+				if(Object.keys(this.options).includes('centered')){
+					this.options.centered ? this.boxEl.classList.add('centered') : this.boxEl.classList.remove('centered');
+				}
+
+				// app.dev && console.log('dev --- message: ', this)
 				this.showMessage();
 			},
 
@@ -860,6 +1017,8 @@ const app = {
 			init() {
 				this.createElements();
 				this.setEventListener();
+
+
 			}, 
 
 			createElements() {
@@ -925,6 +1084,8 @@ const app = {
 					self.containerEl.classList.add('hide'); 
 					self.image.classList.add('hide');
 				});
+
+				app.dev && console.log('init --- app > gui > fullScreen');
 			}, 
 
 			createElements() {
@@ -959,12 +1120,18 @@ const app = {
 	
 		menu: {
 			text: 'Mehr über uns erfährst du hier:',
+
+			show: false,
 	
 			init(){
 				this.createElements();
 				this.setEventListener();
 				app.hideGUI && this.containerEl.classList.add('hide');
 				app.hideGUI && this.button.element.classList.add('hide');
+				app.embedded && this.containerEl.classList.add('hide');
+				app.embedded && this.button.element.classList.add('hide');
+
+				app.dev && console.log('init --- app > gui > menu');
 			},
 	
 			createElements() {
@@ -1095,14 +1262,26 @@ const app = {
 			},
 	
 			setEventListener() {
+				const self = this;
+
 				if(this.closeEl) {
 					this.closeEl.addEventListener('click', (evt) => {
 						app.gui.menu.hideMenu();
 					});
 				}
+
 				if(this.button.element) {
 					this.button.element.addEventListener('click', (evt) => {
-						app.gui.menu.showMenu();
+						// app.gui.menu.showMenu(); //changed menu button interaction to start message 
+						
+
+						if(self.show){
+							app.gui.message.hideMessage();
+							self.show = false;
+						}else{
+							app.collectionViewer.welcome.show();
+							self.show = true;
+						}
 					});
 				}
 			},
@@ -1130,7 +1309,9 @@ const app = {
 					const button = document.querySelector('#'+app.gui.toolbar.overlay.getAttribute('data-button'));
 					app.gui.toolbar.buttonActionTab(button);
 				})
-				//app.hideGUI && this.boxEl.classList.add('hide');
+				app.hideGUI && this.boxEl.classList.add('hide');
+
+				app.dev && console.log('init --- app > gui > toolbar');
 			},
 	
 			createElements() {
@@ -1444,6 +1625,8 @@ const app = {
 
 	collectionViewer: {
 
+		initialized: false,
+
 		toolBarSetup: {
 			color: 'pearlwhite', 
 			shadowColor: 'shadow-smokegrey'
@@ -1456,6 +1639,7 @@ const app = {
 			{
 				set: function(target, prop, value){
 					target[prop] = value;
+					app.dev && console.log('event --- proxyfgData-update - call')
 					document.dispatchEvent(app.collectionViewer.proxyfgData.update);
 					return true;
 				}
@@ -1494,6 +1678,9 @@ const app = {
 			this.search.init();
 			this.filter.init();
 			this.resetView.init();
+			this.welcome.init();
+			this.onboarding.init();
+			this.tour.init();
 			this.registerComponents();
 			this.setEventListeners();			
 
@@ -1514,29 +1701,31 @@ const app = {
 			app.gui.toolbar.setButton(this.resetView.buttonSetup);
 			app.gui.toolbar.button[3].icon.addEventListener('click', (e) => {
 				app.collectionViewer.resetView.resetCameraView();
+				// app.dev && console.log('dev --- reserCameraView from click: resetView');
 			})
 
-			this.onboarding.init();
+			this.initialized = true;
+			app.dev && console.log('init --- app > collectionViewer');
 		},
 
-		onboarding: {
+		welcome: {
 
-			setSteps() {
-				this.steps = {
-					start: {
-						type: 'message',
-						buttons: [
+			setContent() {
+				this.welcome = {
+					type: '',
+					buttons: [
 							{
-								label: 'los geht\'s',
+								label: 'zur Unikathek',
 								color: 'coalgrey',
 								icon: 'arrow right'
 							}
-						],
-						options: {
-							extended: false,
-							sizeControl: true
-						},
-						content: [
+					],
+					options: {
+							maximized: true,
+							sizeControl: true, 
+							centered: true
+					},
+					content: [
 							{
 								"content" : "Willkommen in der Unikathek!",
 								"fileCopyright" : "",
@@ -1552,11 +1741,300 @@ const app = {
 								"imageAlt" : "",
 								"imageCaption" : "",
 								"type" : "paragraph"
+							},
+							{
+								"content" : "Zum ersten mal hier? Dann schau am besten in unseren Leitfaden. Dort wird die Unikathek mit all ihren wichtigen Funktionen und Werkzeugen erklärt. ",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "description+onboarding"
+							}, 
+							{
+								"content" : "Themen-Touren in der Unikathek",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "headline"
+							},
+							{
+								"content" : "WAA Wackersdorf",
+								"fileCopyright" : "Bürgerinitiative Schwandorf",
+								"filename" : "waa tour - Intro Stimmungsbild.jpg",
+								"imageAlt" : "Musikanten bei den WAA-Protesten",
+								"imageCaption" : "Als in den 1980er-Jahren eine atomare Wiederaufbereitungsanlage bei Wackersdorf gebaut werden sollte, regte sich in der Oberpfalz heftiger Widerstand. Ein WAA-Gegner erzählt von seinen Erlebnissen und zeigt verschiedene Objekte, die im Widerstand eine Rolle spielten.",
+								"type" : "description+tour"
+							},
+							{
+								"content" : "Kirwa in der Oberpfalz",
+								"fileCopyright" : "Michaela Stauber",
+								"filename" : "kir tour - Kirwa Austanzen und Musik.jpg",
+								"imageAlt" : "Kirwa Austanzen mit Musikern",
+								"imageCaption" : "[ändern] „Kirwa ist ein Lebensg’fühl“, heißt es auf einem Internetauftritt zum Kulturerbe Kirwa. Doch was ist das genau? Was gehört dazu? Was macht die Kirwa in der Oberpfalz aus? Die beiden kirwaerprobten Jugendlichen Franzi und Florian zeigen es dir und geben Einblicke hinter die Kulissen.",
+								"type" : "description+tour"
+							}, 
+							{
+								"content" : "Besondere Objekte",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "headline"
+							},
+							{
+								"content" : "Dirndl",
+								"objectLink" : "6D0549BE-3890-8245-9D95-9B5E526327DB",
+								"fileCopyright" : "Julian Moder",
+								"filename" : "Dirndl_25k_512.jpg",
+								"imageAlt" : "Rendering eines Dirndls",
+								"imageCaption" : "Frühjahr 2020 – die Corona-Pandemie stellt den Alltag auf den Kopf. Gerade der richtige Zeitpunkt, um sich am Schneidern eines Dirndls zu versuchen, denkt sich Berufsmusiker Florian.",
+								"type" : "description+object"
+							}, 
+							{
+								"content" : "Geige aus Kriegsgefangenschaft",
+								"objectLink" : "10FD2C3C-D08F-0A4B-9D1B-CA32FF9D5ED6",
+								"fileCopyright" : "Julian Moder",
+								"filename" : "Geige_7k_2k.jpg",
+								"imageAlt" : "Rendering einer Geige",
+								"imageCaption" : "Von Rimini nach Furth im Wald ist diese Geige gereist. Gebaut wurde sie 1947 vom gelernten Glasofenmaurer Ignaz Wirrer, als dieser in Kriegsgefangenschaft war.",
+								"type" : "description+object"
+							}, 
+							{
+								"content" : "Ofen",
+								"objectLink" : "6420F1C4-1A3D-604E-8D42-9D9C5CDA2A9E",
+								"fileCopyright" : "Julian Moder",
+								"filename" : "Ofen_56k_2k.jpg",
+								"imageAlt" : "Rendering einer Geige",
+								"imageCaption" : "Von der Wärmequelle zum Erinnerungsstück – dieser Ofen aus den 1940er-Jahren blickt auf eine bewegte Geschichte zurück. Ob auch Kriegsschrott verarbeitet wurde?",
+								"type" : "description+object"
+							}, 
+							{
+								"content" : "Über hand.gemacht",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "headline"
+							},
+							{
+								"content" : "Die Unikathek entstand im Zuge des Forschungsprojekts \"hand.gemacht\". Mit einem 3D-Scanner erfasst, erhielten die Bürgerinnen und Bürger ihre handgemachten Werke gleich nach der Erhebung wieder zurück. Dieses Verfahren ermöglicht es, das mobile kulturelle Erbe der Oberpfalz zu sammeln und eine Momentaufnahme davon aufzubewahren.",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "paragraph"
+							},
+							{
+								"content" : "mehr zum Forschungsprojekt",
+								"fileCopyright" : "",
+								"filename" : "https://www.handgemacht.bayern/projekt",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "link"
+							}, 
+							{
+								"content" : "Förderung",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "headline"
+							},
+							{
+								"content" : "Das Projekt wurde vom 1. Juni 2022 bis zum 30. Juni 2025 im Rahmen der Heimat-Digital-Regional Förderrichtlinie des Bayerischen Staatsministeriums der Finanzen und für Heimat gefördert.",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "paragraph"
+							},
+							{
+								"content" : "mehr zur Förderrichtlinie",
+								"fileCopyright" : "",
+								"filename" : "https://www.stmfh.bayern.de/heimat/regionale_identitaet/",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "link"
+							},
+							{
+								"content" : "",
+								"fileCopyright" : "Bayerisches Staatsministerium der Finanzen und für Heimat",
+								"filename" : "stmfh foerderung.webp",
+								"imageAlt" : "Bayerisches Staatsministerium der Finanzen und für Heimat als Förderer Logo",
+								"imageCaption" : "",
+								"type" : "image+patronage"
+							}, 
+							{
+								"content" : " ",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "headline"
+							},
+							{
+								"content" : "Kontakt",
+								"fileCopyright" : "",
+								"filename" : "https://www.handgemacht.bayern/#Kontakt",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "link"
+							},
+							{
+								"content" : "Impressum",
+								"fileCopyright" : "",
+								"filename" : "https://www.handgemacht.bayern/impressum",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "link"
+							}
+					]
+				}
+			},
+
+			init() {
+				this.setContent();
+				app.showWelcome && this.show();
+				// app.dev && console.log('dev --- cv > welcome > app.showWelcome: ', app.showWelcome);	
+				app.dev && console.log('init --- app > collectionViewer > welcome');				
+			}, 
+
+			show() {
+				if(!this.welcome) {return;}
+
+				this.setWelcomeMessage(this.welcome);
+
+				app.gui.toolbar.toggleToolbar(false);
+				app.gui.message.setMessage(this.welcomeMessage);
+
+				app.gui.message.buttons.button[0].element.addEventListener('click', (e) => {
+					app.gui.message.hideMessage(true)
+				}, { signal: app.gui.message.abortController.signal });
+
+				this.setEventListeners();
+			},
+
+			setWelcomeMessage(step) {
+				this.welcomeMessage = {
+					type: this.welcome.type,
+					content: app.createHTMLContentFromJSON(this.welcome.content),
+					color: 'pearlwhite',
+					shadow: 'shadow-coalgrey',
+					buttonSetup: [
+						{ label: this.welcome.buttons[0].label, color: this.welcome.buttons[0].color, icon: this.welcome.buttons[0].icon }
+					], 
+					options: {
+						maximized: false, 
+						sizeControl: false, 
+						centered: false
+					}
+				}
+
+				if(this.welcome.buttons[1]) {
+					this.welcomeMessage.buttonSetup = [
+						{ label: this.welcome.buttons[0].label, color: this.welcome.buttons[0].color, icon: this.welcome.buttons[0].icon },
+						{ label: this.welcome.buttons[1].label, color: this.welcome.buttons[1].color, icon: this.welcome.buttons[1].icon }
+					]
+				}
+
+				if('options' in this.welcome) {
+					('maximized' in this.welcome.options) ? this.welcomeMessage.options.maximized = this.welcome.options.maximized : '';
+					('sizeControl' in this.welcome.options) ? this.welcomeMessage.options.sizeControl = this.welcome.options.sizeControl : '';
+					('centered' in this.welcome.options) ? this.welcomeMessage.options.centered = this.welcome.options.centered : '';
+				}
+			}, 
+
+			setEventListeners() {
+				const contentEl = app.gui.message.content.element;
+
+				const buttons = contentEl.querySelectorAll('.button');
+
+				for(let button of buttons){
+					
+					if(button.classList.contains('onboarding')){
+						button.addEventListener('click', (e) => {
+						app.collectionViewer.onboarding.show('start');
+						}, { signal: app.gui.message.abortController.signal });
+						continue;
+					}
+
+					if(button.classList.contains('tour')){
+						const link = button.getAttribute('data-link');
+						for(let key in app.collectionViewer.tour.list){
+							const tour = app.collectionViewer.tour.list[key];
+							if(tour.title === link){
+								button.addEventListener('click', (e) => {
+									let url = '?m=cv';
+									url = app.setURLParams(url);
+									url+='&tour=' + tour.short;
+									url+='&step=0';
+									window.location.href = url;
+								}, { signal: app.gui.message.abortController.signal });
+								continue;
+							}
+						}
+						continue;
+					}
+
+					if(button.classList.contains('object')){
+						const link = button.getAttribute('data-link');
+						button.addEventListener('click', (e) => {
+							let url = '?m=mv';
+							url = app.setURLParams(url);
+							url+='&model=' + link;
+							window.location.href = url;
+						}, { signal: app.gui.message.abortController.signal });
+					}
+
+				}
+			}
+		},
+
+		onboarding: {
+
+			setSteps() {
+				this.steps = {
+					start: {
+						type: 'Leitfaden',
+						buttons: [
+							{
+								label: 'zurück',
+								color: 'smokegrey',
+								icon: ''
+							},
+							{
+								label: 'los geht\'s',
+								color: 'coalgrey',
+								icon: 'arrow right'
+							}
+						],
+						options: {
+							maximized: true,
+							sizeControl: true, 
+							centered: true
+						},
+						content: [
+							{
+								"content" : "Was ist die Unikathek?",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "headline"
+							},
+							{
+								"content" : "Im Projekt hand.gemacht sammeln wir selbst hergestellte Gegenstände und deren Geschichten. In der Unikathek werden die Geschichten ihrer Besitzer und andere Merkmale mit den Objekten verknüpft und sichtbar gemacht. Im folgenden Leitfaden zeigen wir, wie diese Verknüpfungen aussehen und wie man durch die Unikathek navigiert. ",
+								"fileCopyright" : "",
+								"filename" : "",
+								"imageAlt" : "",
+								"imageCaption" : "",
+								"type" : "paragraph"
 							}
 						]
 					}, 
 					collection: {
-						type: 'message',
+						type: 'Leitfaden',
 						buttons: [
 							{
 								label: 'zurück',
@@ -1570,8 +2048,8 @@ const app = {
 							}
 						],
 						options: {
-							extended: true,
-							sizeControl: false
+							maximized: true,
+							sizeControl: true
 						},
 						content: [
 							{
@@ -1591,7 +2069,7 @@ const app = {
 								"type" : "paragraph"
 							},
 							{
-								"content" : "<strong>Die blauen Felder</strong> (Kontexte <span class='icon skyblue'><img src='" + app.assets.icon['category'].src.pearlwhite + "' alt='" + app.assets.icon['category'].alt + "'></span>) fassen zusammen, zu welchen Zwecken und vor welchen Hintergründen die Einzelstücke hergestellt und verwendet worden sind – und werden.<br> <strong>Die roten Felder</strong> (Merkmale <span class='icon terracotta'><img src='" + app.assets.icon['topic'].src.pearlwhite + "' alt='" + app.assets.icon['topic'].alt + "'></span>) veranschaulichen dagegen, welche Eigenschaften speziell die handgemachten Oberpfälzer Gegenstände besitzen. Dabei kann es sich sowohl um Motivationen als auch um Effekte des Selbermachens handeln.<br> <strong>Die grauen Linien</strong> (Herstellungs-Tags <span class='icon smokegrey'><img src='" + app.assets.icon['tag'].src.pearlwhite + "' alt='" + app.assets.icon['tag'].alt + "'></span>) geben Hinweise auf verwendete Materialien und Herstellungstechniken, während <strong>die gelben Linien</strong> (Themen-Tags <span class='icon duckyellow'><img src='" + app.assets.icon['tag'].src.coalgrey + "' alt='" + app.assets.icon['tag'].alt + "'></span>) spezifische Kontexte anzeigen.",
+								"content" : "<dl class='content-list icon'><dt><div class='icon big skyblue'><img src='" + app.assets.icon['category'].src.pearlwhite + "' alt='" + app.assets.icon['category'].alt + "'></div></dt><dd><strong>Kontexte</strong> fassen zusammen, zu welchen Zwecken und vor welchen Hintergründen die Einzelstücke hergestellt und verwendet worden sind – und werden.</dd><dt><div class='icon big terracotta'><img src='" + app.assets.icon['topic'].src.pearlwhite + "' alt='" + app.assets.icon['topic'].alt + "'></div></dt><dd><strong>Merkmale</strong> veranschaulichen dagegen, welche Eigenschaften speziell die handgemachten Oberpfälzer Gegenstände besitzen. Dabei kann es sich sowohl um Motivationen als auch um Effekte des Selbermachens handeln.</dd><dt><div class='icon big duckyellow'><img src='" + app.assets.icon['tag'].src.coalgrey + "' alt='" + app.assets.icon['tag'].alt + "'></div></dt><dd><strong>Themen-Verbindungen</strong> verknüpfen spezifische Kontexte wie zum Beispiel den Kötztiger Pfingstritt oder die Objekte rund um die WAA Wackersdorf.</dd><dt><div class='icon big smokegrey'><img src='" + app.assets.icon['tag'].src.pearlwhite + "' alt='" + app.assets.icon['tag'].alt + "'></div></dt><dd><strong>Herstellungs-Verbindungen</strong> geben Hinweise auf verwendete Materialien und Herstellungstechniken. Diese Verbindungen sind gewöhnlich ausgeblendet und können in der Filter-Einstellung angezeigt werden.</dd></dl>",
 								"fileCopyright" : "",
 								"filename" : "",
 								"imageAlt" : "",
@@ -1617,7 +2095,7 @@ const app = {
 						]
 					}, 
 					tools: {
-						type: 'message',
+						type: 'Leitfaden',
 						buttons: [
 							{
 								label: 'zurück',
@@ -1632,8 +2110,8 @@ const app = {
 						],
 						showClose: false,
 						options: {
-							extended: true,
-							sizeControl: false
+							maximized: true,
+							sizeControl: true
 						},
 						content: [
 							{
@@ -1728,23 +2206,26 @@ const app = {
 			init() {
 				this.setSteps();
 
-				if(app.showOnboarding) {
-					this.show('start');
-				}
+				app.dev && console.log('init --- app > collectionViewer > onboarding');
 			}, 
 
-			show(step = 'start', type = 'message') {
+			show(step = 'start') {
 				if(!(step in this.steps)) {return;}
 
 				this.setOnboardingMessage(step);
 
-				app.dev && console.log('dev --- show onboarding: ', step)
+				// app.dev && console.log('dev --- show onboarding: ', step)
 
 				if(step === 'start') {
 					app.gui.toolbar.toggleToolbar(false);
 					app.gui.message.setMessage(this.onboardingMessage);
 
 					app.gui.message.buttons.button[0].element.addEventListener('click', (e) => {
+						app.gui.message.hideMessage(true);
+						app.collectionViewer.welcome.show();
+					}, { signal: app.gui.message.abortController.signal });
+
+					app.gui.message.buttons.button[1].element.addEventListener('click', (e) => {
 						app.gui.message.hideMessage(true)
 						this.show('collection');
 					}, { signal: app.gui.message.abortController.signal });
@@ -1778,6 +2259,7 @@ const app = {
 
 					app.gui.message.buttons.button[1].element.addEventListener('click', (e) => {
 						app.gui.message.hideMessage(true);
+						localStorage.setItem('onboardingComplete', 'true');
 					}, { signal: app.gui.message.abortController.signal });
 					return;
 				}
@@ -1785,16 +2267,17 @@ const app = {
 
 			setOnboardingMessage(step) {
 				this.onboardingMessage = {
+					type: this.steps[step].type,
 					content: app.createHTMLContentFromJSON(this.steps[step].content),
 					color: 'pearlwhite',
 					shadow: 'shadow-coalgrey',
 					buttonSetup: [
 						{ label: this.steps[step].buttons[0].label, color: this.steps[step].buttons[0].color, icon: this.steps[step].buttons[0].icon }
 					], 
-					showClose: false,
 					options: {
-						extended: false, 
-						sizeControl: false
+						maximized: false, 
+						sizeControl: false, 
+						centered: false
 					}
 				}
 
@@ -1806,8 +2289,9 @@ const app = {
 				}
 
 				if('options' in this.steps[step]) {
-					('extended' in this.steps[step].options) ? this.onboardingMessage.options.extended = this.steps[step].options.extended : '';
+					('maximized' in this.steps[step].options) ? this.onboardingMessage.options.maximized = this.steps[step].options.maximized : '';
 					('sizeControl' in this.steps[step].options) ? this.onboardingMessage.options.sizeControl = this.steps[step].options.sizeControl : '';
+					('centered' in this.steps[step].options) ? this.onboardingMessage.options.centered = this.steps[step].options.centered : '';
 				}
 			}
 		},
@@ -1816,8 +2300,11 @@ const app = {
 
 			mouseDown: false,
 
+			firstMouseMove: false,
+
 			init() {
 				this.createElements();
+				this.setEventlisteners();
 
 				document.addEventListener("mousedown", (e) => {
 					this.mouseDown = true;
@@ -1827,6 +2314,7 @@ const app = {
 					this.mouseDown = false;
 					this.pointerStyleHandler(null, e);
 				});
+				app.dev && console.log('init --- app > collectionViewer > tooltip');
 			},
 
 			createElements() {
@@ -1846,6 +2334,8 @@ const app = {
 			}, 
 
 			showTooltip(type, content, id = null) {
+				if(!this.firstMouseMove) { return; }
+				if(this.isMobile) { return; }
 				let typeText = '';
 				if(type === 'node-object'){
 					typeText = 'Objekt'
@@ -1907,34 +2397,7 @@ const app = {
 
 			mouseoverHandler(fgElement) {
 				this.hideTooltip();
-
-				function isTouchDevice() {
-					try {
-						document.createEvent("TouchEvent");
-						return true;
-					} catch (e) {
-						return false;
-					}
-				}
 			
-				const move = (e) => {
-					try {
-						var x = !isTouchDevice() ? e.pageX : e.touches[0].pageX;
-						var y = !isTouchDevice() ? e.pageY : e.touches[0].pageY;
-					} catch (e) {}
-			
-					this.element.style.left = x + 12 + 'px';
-					this.element.style.top = y + 24 + 'px';
-				}
-			
-				document.addEventListener('mousemove', (e) => {
-					move(e);
-				});
-
-				document.addEventListener('touchmove', (e) => {
-					move(e);
-				});
-
 				this.pointerStyleHandler(null)
 
 				let type = '';
@@ -1948,8 +2411,6 @@ const app = {
 				if (fgElement.visibility === 'hidden') {
 					return;
 				}
-				
-				if(isTouchDevice()) { return; }
 
 				this.showTooltip(fgElement.type, fgElement.name, fgElement.id);
 
@@ -1961,8 +2422,8 @@ const app = {
 				
 				if(this.mouseDown){
 					document.querySelector('canvas.a-canvas').style.cursor = 'grabbing';
-					//event && event.preventDefault();
-					//event && event.stopPropagation();
+					// event && event.preventDefault();
+					// event && event.stopPropagation();
 					return;
 				}
 
@@ -1982,6 +2443,20 @@ const app = {
 				if(fgElement.id !== app.collectionViewer.highlight.focusedNode) { return; }
 				if(fgType !== 'node-category' && fgType !== 'node-topic') { return; }
 				document.querySelector('canvas.a-canvas').style.cursor = 'default';
+			}, 
+
+			moveTooltip(e) {
+				var x = e.pageX + 12;
+				var y = e.pageY + 24;
+				this.element.style.translate = x + 'px ' + y + 'px';
+			},
+
+			setEventlisteners() {
+				const self = this;
+				document.addEventListener('mousemove', (event) => {
+					self.firstMouseMove = true;
+					self.moveTooltip(event)
+				})
 			}
 		},
 
@@ -1992,26 +2467,18 @@ const app = {
 			pillArray: [],
 
 			init() {
-				this.setEventListener();
+				app.dev && console.log('init --- app > collectionViewer > highlight');
 			},
 
-			setEventListener(){
-				if(app.gui.message.backEl) {
-					app.gui.message.backEl.addEventListener('click', (evt) => {
-						app.collectionViewer.resetView.resetCameraView();
-					});
-				}
-			},
-
-			onclickHandler(fgNode) {
+			onclickHandler(fgNode, showMessage = true) {
 				let type = '';
 				fgNode ? type = fgNode.type : type = 'none';
 			
 				if(type !== 'none'){
-					app.gui.message.hideMessage(true);
+					showMessage && app.gui.message.hideMessage(true);
 					if(!fgNode.model.material.visible) {return;}
-					app.gui.title.set(fgNode.name, fgNode.type);
-					app.collectionViewer.highlight.generateMessage(fgNode);
+					app.gui.title.set(fgNode.name, fgNode.type, fgNode.id);
+					showMessage && app.collectionViewer.highlight.generateMessage(fgNode);
 				}
 			}, 
 
@@ -2037,7 +2504,7 @@ const app = {
 						this.pillArray.push('#'+pillId);
 					}
 					if(categoryList !== '') {
-						categoryList = '<div class="pill-container categories"><h6 class="text-smokegrey">Kontexte: </h6>' + categoryList + '</div>';
+						categoryList = '<div class="pill-container categories"><h7 class="text-smokegrey">Kontexte: </h7>' + categoryList + '</div>';
 					}
 
 					let topicList = '';
@@ -2055,7 +2522,7 @@ const app = {
 						this.pillArray.push('#'+pillId);
 					}
 					if(topicList !== '') {
-						topicList = '<div class="pill-container topics"><h6 class="text-smokegrey">Merkmale: </h6>' + topicList + '</div>';
+						topicList = '<div class="pill-container topics"><h7 class="text-smokegrey">Merkmale: </h7>' + topicList + '</div>';
 					}
 	
 					let tagList = '';
@@ -2073,7 +2540,7 @@ const app = {
 						this.pillArray.push('#'+pillId);
 					}
 					if(tagList !== '') {
-						tagList = '<div class="pill-container tags"><h6 class="text-smokegrey">Tags: </h6>' + tagList + '</div>';
+						tagList = '<div class="pill-container tags"><h7 class="text-smokegrey">Tags: </h7>' + tagList + '</div>';
 					}
 
 					let productionTagList = '';
@@ -2091,13 +2558,13 @@ const app = {
 						this.pillArray.push('#'+pillId);
 					}
 					if(productionTagList !== '') {
-						productionTagList = '<div class="pill-container production-tags"><h6 class="text-smokegrey">Tags zur Herstellung: </h6>' + productionTagList + '</div>';
+						productionTagList = '<div class="pill-container production-tags"><h7 class="text-smokegrey">Tags zur Herstellung: </h7>' + productionTagList + '</div>';
 					}
 
 					let objectContent = app.createHTMLContentFromJSON(fgNode.contents);
 
 					let message = {
-						type: 'Objekt',
+						type: 'Objektfokus',
 						content: objectContent
 								+ categoryList
 								+ topicList
@@ -2136,7 +2603,7 @@ const app = {
 					}
 
 					if(objectList !== '') {
-						objectList = '<div class="pill-container objects"><h6 class="text-smokegrey">Verbundene Objekte: </h6>' + objectList + '</div>';
+						objectList = '<div class="pill-container objects"><h7 class="text-smokegrey">Verbundene Objekte: </h7>' + objectList + '</div>';
 					}
 
 					let categoryContent = app.createHTMLContentFromJSON(fgNode.contents);
@@ -2170,7 +2637,7 @@ const app = {
 					}
 
 					if(objectList !== '') {
-						objectList = '<div class="pill-container objects"><h6 class="text-smokegrey">Verbundene Objekte: </h6>' + objectList + '</div>';
+						objectList = '<div class="pill-container objects"><h7 class="text-smokegrey">Verbundene Objekte: </h7>' + objectList + '</div>';
 					}
 					
 					let topicContent = app.createHTMLContentFromJSON(fgNode.contents)
@@ -2190,9 +2657,7 @@ const app = {
 
 			messageClickEvent(fgNode) {
 				let url = '?m=mv';
-				app.dev ? url += '&dev=true' : '';
-				app.stats ? url += '&stats=true' : '';
-				app.embedded ? url += '&embedded=true' : '';
+				url = app.setURLParams(url);
 				url += '&model=' + fgNode.id;
 				window.location.href = url;
 			},
@@ -2283,25 +2748,62 @@ const app = {
 			},
 
 			texts: {
-				title: 'Sammlung',
-				intro: 'Informationen zur Sammlung und Erhebung. '
+				title: 'Die Unikathek',
+				intro: 'Mehr als 100 handgemachte Oberpfälzer Objekte kannst du hier mitsamt ihren Geschichten entdecken. Erfahre anhand der Gegenstände, was die Menschen in der Oberpfalz in den letzten 80 Jahren beschäftigte – und was sie immer wieder dazu antrieb und antreibt, Dinge selbst in die Hand zu nehmen. ',
+				toursTitle: 'Themen-Touren',
+				collectionTitle: 'Sammlungsinformation'
 			},
 
 			collectionData: {
 				releaseDate: 'noDate', 
-				objectCount: 'noCount'
+				objectCount: 'noCount',
+				objectVisibleCount: 'noCount',
+				linkCount: 'noCount',
+				linkVisibleCount: 'noCount',
+				categoryCount: 'noCount',
+				categoryVisibleCount: 'noCount',
+				topicCount: 'noCount',
+				topicVisibleCount: 'noCount',
+				tagCount: 'noCount',
+				tagVisibleCount: 'noCount',
+				productionTagCount: 'noCount',
+				productionTagVisibleCount: 'noCount',
 			},
+
+			tourListSet: false,
 
 			init() {
 				let self = this;
 				
 				document.addEventListener('proxyfgData-update', (event) => {
+					app.dev && console.log('event --- proxyfgData-update - response: setting collectionData')
+					let collectionCounts = self.setCollectionCounts(app.collectionViewer.proxyfgData.data);
 					self.collectionData.releaseDate = app.collectionViewer.proxyfgData.data.releaseDate;
-					self.collectionData.objectCount = self.setCollectionCounts(app.collectionViewer.proxyfgData.data.nodes).objects;
+					self.collectionData.objectCount = collectionCounts.objects;
+					self.collectionData.objectVisibleCount = collectionCounts.objectsVisible;
+					self.collectionData.linkCount = collectionCounts.links;
+					self.collectionData.linkVisibleCount = collectionCounts.linksVisible;
+					self.collectionData.categoryCount = collectionCounts.categories;
+					self.collectionData.topicCount = collectionCounts.topics;
+					self.collectionData.tagCount = collectionCounts.tags;
+					self.collectionData.productionTagCount = collectionCounts.productionTags;
 					self.createElements();
 					self.setEventlisteners();
 				});
-				
+
+				document.addEventListener('loadingScreen-ready', (event) => {
+					app.dev && console.log('event --- loadingScreen-ready - response: updating collectionData')
+					let collectionCounts = self.setCollectionCounts(app.collectionViewer.proxyfgData.data);
+					self.collectionData.objectVisibleCount = collectionCounts.objectsVisible;
+					self.collectionData.linkVisibleCount = collectionCounts.linksVisible;
+					self.collectionData.categoryVisibleCount = app.collectionViewer.filter.filteredData.categories.length;
+					self.collectionData.topicVisibleCount = app.collectionViewer.filter.filteredData.topics.length;
+					self.collectionData.tagVisibleCount = app.collectionViewer.filter.filteredData.tags.length;
+					self.collectionData.productionTagVisibleCount = app.collectionViewer.filter.filteredData.productionTags.length;
+					self.updateCollectionInfo();
+					self.setTourList();
+				});
+				app.dev && console.log('init --- app > collectionViewer > info');
 			},
 
 			createElements() {
@@ -2320,12 +2822,38 @@ const app = {
 				infoText.className = 'text-small';
 				infoText.textContent = this.texts.intro;
 
+				// const welcomeButton = document.createElement('button');
+				// this.welcomeButtonEl = welcomeButton;
+				// infoContainer.appendChild(welcomeButton);
+				// welcomeButton.className = 'link text-smokegrey';
+
+				// welcomeButton.textContent = 'Startnachricht';
+
+				// const onboardingButton = document.createElement('button');
+				// this.onboardingButtonEl = onboardingButton;
+				// infoContainer.appendChild(onboardingButton);
+				// onboardingButton.className = 'link text-smokegrey';
+
+				// onboardingButton.textContent = 'Leitfaden';
+
+				const toursHeadline = document.createElement('h3');
+				infoContainer.appendChild(toursHeadline);
+				toursHeadline.textContent = this.texts.toursTitle;
+
+				const toursList = document.createElement('dl');
+				this.toursListEl = toursList;
+				infoContainer.appendChild(toursList);
+
+				const collectionHeadline = document.createElement('h3');
+				infoContainer.appendChild(collectionHeadline);
+				collectionHeadline.textContent = this.texts.collectionTitle;
+
 				const listBasicEl = document.createElement('dl');
 				infoContainer.appendChild(listBasicEl);
 
 				const releaseDateEl = document.createElement('dt');
 				listBasicEl.appendChild(releaseDateEl);
-				const releaseDateHeadline = document.createElement('h6');
+				const releaseDateHeadline = document.createElement('h7');
 				releaseDateEl.appendChild(releaseDateHeadline);
 				releaseDateHeadline.textContent = 'Datenstand vom: ';
 				releaseDateHeadline.className = 'text-smokegrey';
@@ -2335,40 +2863,140 @@ const app = {
 
 				const objectCountEl = document.createElement('dt');
 				listBasicEl.appendChild(objectCountEl);
-				const objectCountHeadline = document.createElement('h6');
+				const objectCountHeadline = document.createElement('h7');
 				objectCountEl.appendChild(objectCountHeadline);
-				objectCountHeadline.textContent = 'Objektanzahl: ';
+				objectCountHeadline.textContent = 'Objekte: ';
 				objectCountHeadline.className = 'text-smokegrey';
-				const objectCountValueEl = document.createElement('dd');
-				listBasicEl.appendChild(objectCountValueEl);
-				objectCountValueEl.textContent = this.collectionData.objectCount;
+				this.objectCountValueEl = document.createElement('dd');
+				listBasicEl.appendChild(this.objectCountValueEl);
+				this.objectCountValueEl.textContent = this.collectionData.objectCount + ' (' + this.collectionData.objectVisibleCount + ' gefiltert)';
 
-				const onboardingButton = document.createElement('button');
-				this.onboardingButtonEl = onboardingButton;
-				infoContainer.appendChild(onboardingButton);
-				onboardingButton.className = 'link text-smokegrey';
+				const linkCountEl = document.createElement('dt');
+				listBasicEl.appendChild(linkCountEl);
+				const linkCountHeadline = document.createElement('h7');
+				linkCountEl.appendChild(linkCountHeadline);
+				linkCountHeadline.textContent = 'Verknüpfungen: ';
+				linkCountHeadline.className = 'text-smokegrey';
+				this.linkCountValueEl = document.createElement('dd');
+				listBasicEl.appendChild(this.linkCountValueEl);
+				this.linkCountValueEl.textContent = this.collectionData.linkCount + ' (' + this.collectionData.linkVisibleCount + ' gefiltert)';
 
-				onboardingButton.textContent = 'Leitfaden anzeigen';
+				const categoryCountEl = document.createElement('dt');
+				listBasicEl.appendChild(categoryCountEl);
+				const categoryCountHeadline = document.createElement('h7');
+				categoryCountEl.appendChild(categoryCountHeadline);
+				categoryCountHeadline.textContent = 'Kontexte: ';
+				categoryCountHeadline.className = 'text-smokegrey';
+				this.categoryCountValueEl = document.createElement('dd');
+				listBasicEl.appendChild(this.categoryCountValueEl);
+				this.categoryCountValueEl.textContent = this.collectionData.categoryCount + ' (' + this.collectionData.categoryVisibleCount + ' gefiltert)';
 
+				const topicCountEl = document.createElement('dt');
+				listBasicEl.appendChild(topicCountEl);
+				const topicCountHeadline = document.createElement('h7');
+				topicCountEl.appendChild(topicCountHeadline);
+				topicCountHeadline.textContent = 'Merkmale: ';
+				topicCountHeadline.className = 'text-smokegrey';
+				this.topicCountValueEl = document.createElement('dd');
+				listBasicEl.appendChild(this.topicCountValueEl);
+				this.topicCountValueEl.textContent = this.collectionData.topicCount + ' (' + this.collectionData.topicVisibleCount + ' gefiltert)';
+
+				const tagCountEl = document.createElement('dt');
+				listBasicEl.appendChild(tagCountEl);
+				const tagCountHeadline = document.createElement('h7');
+				tagCountEl.appendChild(tagCountHeadline);
+				tagCountHeadline.textContent = 'Themen-Tags: ';
+				tagCountHeadline.className = 'text-smokegrey';
+				this.tagCountValueEl = document.createElement('dd');
+				listBasicEl.appendChild(this.tagCountValueEl);
+				this.tagCountValueEl.textContent = this.collectionData.tagCount + ' (' + this.collectionData.tagVisibleCount + ' gefiltert)';
+
+				const productionTagCountEl = document.createElement('dt');
+				listBasicEl.appendChild(productionTagCountEl);
+				const productionTagCountHeadline = document.createElement('h7');
+				productionTagCountEl.appendChild(productionTagCountHeadline);
+				productionTagCountHeadline.textContent = 'Herstellungs-Tags: ';
+				productionTagCountHeadline.className = 'text-smokegrey';
+				this.productionTagCountValueEl = document.createElement('dd');
+				listBasicEl.appendChild(this.productionTagCountValueEl);
+				this.productionTagCountValueEl.textContent = this.collectionData.productionTagCount + ' (' + this.collectionData.productionTagVisibleCount + ' gefiltert)';
 			},			
 
 			setEventlisteners() {
-				this.onboardingButtonEl.addEventListener('click', (e) => {
-					app.gui.toolbar.toggleToolbar(false);
-					app.gui.toolbar.buttonActionTab(document.querySelector(this.buttonSetup.id));
-					app.collectionViewer.onboarding.show();
-				});
+				// this.welcomeButtonEl.addEventListener('click', (e) => {
+				// 	app.gui.toolbar.buttonActionTab(document.querySelector(this.buttonSetup.id));
+				// 	app.collectionViewer.welcome.show();
+				// });
+
+				// this.onboardingButtonEl.addEventListener('click', (e) => {
+				// 	app.gui.toolbar.toggleToolbar(false);
+				// 	app.gui.toolbar.buttonActionTab(document.querySelector(this.buttonSetup.id));
+				// 	app.collectionViewer.onboarding.show();
+				// });
 			}, 
 
 			setCollectionCounts(fgData) {
 				let objectCount = 0;
-				for(let node of fgData) {
-					if(node.type === 'node-object'){
-						objectCount++;
+				let objectVisibleCount = 0;
+				if(typeof fgData.nodes === 'object') {
+					for(let node of fgData.nodes) {
+						if(node.type === 'node-object'){ 
+							objectCount++; 
+							if(node.visibility === 'hidden'){ objectVisibleCount++; }
+						}
 					}
 				}
 
-				return { objects: objectCount }
+				let linkCount = 0;
+				let linkVisibleCount = 0;
+				if(typeof fgData.links === 'object') {
+					for(let link of fgData.links) {
+						linkCount++; 
+						if(link.visibility === 'hidden'){ linkVisibleCount++; }
+					}
+				}
+
+
+				return { 
+							objects: objectCount,
+							objectsVisible: objectVisibleCount,
+							links: linkCount,
+							linksVisible: linkVisibleCount,
+							categories: fgData.categorylist.length,
+							topics: fgData.topiclist.length,
+							tags: fgData.taglist.length,
+							productionTags: fgData.productionTaglist.length 
+						}
+			}, 
+
+			updateCollectionInfo() {
+				this.objectCountValueEl.textContent = this.collectionData.objectCount + ' (' + this.collectionData.objectVisibleCount + ' gefiltert)';
+				this.linkCountValueEl.textContent = this.collectionData.linkCount + ' (' + this.collectionData.linkVisibleCount + ' gefiltert)';
+				this.categoryCountValueEl.textContent = this.collectionData.categoryCount + ' (' + this.collectionData.categoryVisibleCount + ' gefiltert)';
+				this.topicCountValueEl.textContent = this.collectionData.topicCount + ' (' + this.collectionData.topicVisibleCount + ' gefiltert)';
+				this.tagCountValueEl.textContent = this.collectionData.tagCount + ' (' + this.collectionData.tagVisibleCount + ' gefiltert)';
+				this.productionTagCountValueEl.textContent = this.collectionData.productionTagCount + ' (' + this.collectionData.productionTagVisibleCount + ' gefiltert)';
+			}, 
+
+			setTourList() {
+				if(this.tourListSet){ return; }
+
+				for (let name in app.collectionViewer.tour.list) {
+					const tour = app.collectionViewer.tour.list[name];
+					const tourButtonEl = document.createElement('button');
+					this.toursListEl.appendChild(tourButtonEl);
+					tourButtonEl.textContent = tour.title;
+					tourButtonEl.className = 'button duckyellow';
+
+					tourButtonEl.addEventListener('click', (e) => {
+						let url = '?m=cv';
+						url = app.setURLParams(url);
+						url+='&tour=' + tour.short;
+						url+='&step=0';
+						window.location.href = url;
+					});
+				}
+				this.tourListSet = true;
 			}
 		},
 
@@ -2407,7 +3035,7 @@ const app = {
 				this.createElements();
 
 				document.addEventListener('proxyfgData-update', (event) => {
-					//app.dev && console.log('dev --- cv > search > proxyfgData: ', app.collectionViewer.proxyfgData.data);
+					app.dev && console.log('event --- proxyfgData-update - response: updating search autocomplete')
 					let fgData = app.collectionViewer.proxyfgData.data.nodes;
 					for( let index in fgData){
 						let object = fgData[index];
@@ -2423,6 +3051,7 @@ const app = {
 					app.gui.toolbar.buttonClickHandler(e);
 					app.collectionViewer.search.resetSearchInput();
 				});
+				app.dev && console.log('init --- app > collectionViewer > search');
 			}, 
 
 			createElements() {
@@ -2487,28 +3116,54 @@ const app = {
 					autocompleteList.classList.add(app.collectionViewer.search.buttonSetup.colors.tab.text);
 	
 					currentFocus = -1;
-	
+					
+					const debugArray = [];
+					app.dev && console.log('dev --- search debug array: ', array);
+
 					for(let index in array){
 						let name = array[index].name;
-						if (name.substr(0, inputValue.length).toUpperCase() == inputValue.toUpperCase()) {
-							let listItemEl = document.createElement('div');
-							listItemEl.innerHTML = "<strong>" + name.substr(0, inputValue.length) + "</strong>";
-							listItemEl.innerHTML += name.substr(inputValue.length);
-							array[index].visibility === 'hidden' ? listItemEl.innerHTML += ' (gefiltert)' : '';
-							listItemEl.innerHTML += "<input type='hidden' value='" + name + "'>";
-							autocompleteList.appendChild(listItemEl);
-							if(array[index].visibility === 'hidden'){
-								listItemEl.classList.add('disabled');
-								continue;
+						for (var i = 0; i < name.length; i++) {
+							if (name.substring(i, i+inputValue.length).toUpperCase() == inputValue.toUpperCase()) {
+								let listItemEl = document.createElement('div');
+								listItemEl.innerHTML = name.substring(0, i);
+								listItemEl.innerHTML += "<strong>" + name.substring(i, i+inputValue.length) + "</strong>";
+								listItemEl.innerHTML += name.substring(i+inputValue.length);
+								array[index].visibility === 'hidden' ? listItemEl.innerHTML += ' (gefiltert)' : '';
+								listItemEl.innerHTML += "<input type='hidden' value='" + name + "'>";
+								autocompleteList.appendChild(listItemEl);
+								if(array[index].visibility === 'hidden'){
+									listItemEl.classList.add('disabled');
+									continue;
+								}
+								listItemEl.addEventListener('click', function(e) {
+									element.value = this.getElementsByTagName("input")[0].value;
+									app.collectionViewer.search.removeAutoCompleteList();
+									app.gui.toolbar.buttonActionSlide(app.collectionViewer.search.button.element);
+									app.collectionViewer.search.executeRequest(name);
+								});
 							}
-							listItemEl.addEventListener("click", function(e) {
-								element.value = this.getElementsByTagName("input")[0].value;
-								app.collectionViewer.search.removeAutoCompleteList();
-								app.gui.toolbar.buttonActionSlide(app.collectionViewer.search.button.element);
-								app.collectionViewer.search.executeRequest(name);
-							});
 						}
+						// if (name.substring(0, inputValue.length).toUpperCase() == inputValue.toUpperCase()) {
+						// 	let listItemEl = document.createElement('div');
+						// 	listItemEl.innerHTML = "<strong>" + name.substring(0, inputValue.length) + "</strong>";
+						// 	listItemEl.innerHTML += name.substring(inputValue.length);
+						// 	array[index].visibility === 'hidden' ? listItemEl.innerHTML += ' (gefiltert)' : '';
+						// 	listItemEl.innerHTML += "<input type='hidden' value='" + name + "'>";
+						// 	autocompleteList.appendChild(listItemEl);
+							// if(array[index].visibility === 'hidden'){
+							// 	listItemEl.classList.add('disabled');
+							// 	continue;
+							// }
+							// listItemEl.addEventListener('click', function(e) {
+							// 	element.value = this.getElementsByTagName("input")[0].value;
+							// 	app.collectionViewer.search.removeAutoCompleteList();
+							// 	app.gui.toolbar.buttonActionSlide(app.collectionViewer.search.button.element);
+							// 	app.collectionViewer.search.executeRequest(name);
+							// });
+						// }
 					}
+
+					app.dev && console.log('dev --- search debug output: ', debugArray);
 
 					if(!autocompleteList.hasChildNodes()) {
 						let listItemEl = document.createElement('div');
@@ -2517,7 +3172,7 @@ const app = {
 					}
 				});
 
-				element.addEventListener("keydown", function(e) {
+				element.addEventListener('keydown', function(e) {
 					var x = app.collectionViewer.search.button.autocomplete.list.element;
 					if (x) x = x.getElementsByTagName("div");
 					if (e.keyCode == 40) {
@@ -2677,10 +3332,12 @@ const app = {
 				document.querySelector('.filter-change').addEventListener('click', (e) => {
 					app.collectionViewer.filter.filterUpdated ? app.collectionViewer.filter.updateForcegraph() : '';
 					app.collectionViewer.resetView.resetCameraView();
+					// app.dev && console.log('dev --- reserCameraView from click: filter change');
 					app.gui.toolbar.buttonActionTab(document.querySelector(self.buttonSetup.id))
 				})
 
 				document.addEventListener('proxyfgData-update', (event) => {
+					app.dev && console.log('event --- proxyfgData-update - response: updating checkbox lists')
 					//app.dev && console.log('dev --- cv > filter > proxyfgData-update: ', app.collectionViewer.proxyfgData.data);
 					this.generateCheckBoxList('#cv-filter-category-list', app.collectionViewer.proxyfgData.data.categorylist, app.collectionViewer.elementColor.category);
 					this.generateCheckBoxList('#cv-filter-topic-list', app.collectionViewer.proxyfgData.data.topiclist, app.collectionViewer.elementColor.topic);
@@ -2689,6 +3346,7 @@ const app = {
 
 					app.collectionViewer.filter.updateForcegraph();
 				});
+				app.dev && console.log('init --- app > collectionViewer > filter');
 			},
 
 			createElements() {
@@ -2992,8 +3650,8 @@ const app = {
 				let productionTagListElement = document.querySelector('#cv-filter-production-tag-list');
 				let showCategoriesArray = [];
 				let showTopicsArray = [];
-				let showTabsArray = [];
-				let showProductionTabsArray = [];
+				let showTagsArray = [];
+				let showProductionTagsArray = [];
 				app.collectionViewer.filter.filteredData.categories = [];
 				app.collectionViewer.filter.filteredData.topics = [];
 				app.collectionViewer.filter.filteredData.tags = [];
@@ -3004,25 +3662,29 @@ const app = {
 				for(let element of categoryListElement.children) {
 					let active = (element.getAttribute('data-active') === 'true');
 					let name = element.innerHTML;
+					if(name === 'Alle aus-/abwählen') {continue;};
 					active ? showCategoriesArray.push(name) : app.collectionViewer.filter.filteredData.categories.push(name);
 				}
 
 				for(let element of topicListElement.children) {
 					let active = (element.getAttribute('data-active') === 'true');
 					let name = element.innerHTML;
+					if(name === 'Alle aus-/abwählen') {continue;};
 					active ? showTopicsArray.push(name) : app.collectionViewer.filter.filteredData.topics.push(name);
 				}
 
 				for(let element of tagListElement.children) {
 					let active = (element.getAttribute('data-active') === 'true');
 					let name = element.innerHTML;
-					active ? showTabsArray.push(name) : app.collectionViewer.filter.filteredData.tags.push(name);
+					if(name === 'Alle aus-/abwählen') {continue;};
+					active ? showTagsArray.push(name) : app.collectionViewer.filter.filteredData.tags.push(name);
 				}
 
 				for(let element of productionTagListElement.children) {
 					let active = (element.getAttribute('data-active') === 'true');
 					let name = element.innerHTML;
-					active ? showProductionTabsArray.push(name) : app.collectionViewer.filter.filteredData.productionTags.push(name);
+					if(name === 'Alle aus-/abwählen') {continue;};
+					active ? showProductionTagsArray.push(name) : app.collectionViewer.filter.filteredData.productionTags.push(name);
 				}
 
 				normalizeCheckboxValue === true ? normalizeValue = '1' : normalizeValue = '0';
@@ -3030,7 +3692,68 @@ const app = {
 
 				document.querySelector('a-scene').setAttribute('load-json-models', 'normalization: ' + normalizeValue)
 
-				loadJSONModelsComponent.filterFgData(fgData, showTabsArray, showProductionTabsArray, showCategoriesArray, showTopicsArray);
+				loadJSONModelsComponent.filterFgData(fgData, showTagsArray, showProductionTagsArray, showCategoriesArray, showTopicsArray);
+			}, 
+
+			updateCheckboxList() {
+				let categoryListElement = document.querySelector('#cv-filter-category-list');
+				let topicListElement = document.querySelector('#cv-filter-topic-list');
+				let tagListElement = document.querySelector('#cv-filter-tag-list');
+				let productionTagListElement = document.querySelector('#cv-filter-production-tag-list');
+
+				// app.dev && console.log('dev --- filteredData: ', this.filteredData);
+
+				for(let element of categoryListElement.children) {
+					let name = element.innerHTML;
+					let color = element.getAttribute('data-color');
+					element.classList.remove(color);
+					element.classList.add('inactive');
+					element.setAttribute('data-active', false);
+					if(this.filteredData.categories.includes(name)){
+						element.classList.add(color);
+						element.classList.remove('inactive');
+						element.setAttribute('data-active', true);
+					}
+				}
+
+				for(let element of topicListElement.children) {
+					let name = element.innerHTML;
+					let color = element.getAttribute('data-color');
+					element.classList.remove(color);
+					element.classList.add('inactive');
+					element.setAttribute('data-active', false);
+					if(this.filteredData.topics.includes(name)){
+						element.classList.add(color);
+						element.classList.remove('inactive');
+						element.setAttribute('data-active', true);
+					}
+				}
+
+				for(let element of tagListElement.children) {
+					let name = element.innerHTML;
+					let color = element.getAttribute('data-color');
+					element.classList.remove(color);
+					element.classList.add('inactive');
+					element.setAttribute('data-active', false);
+					if(this.filteredData.tags.includes(name)){
+						element.classList.add(color);
+						element.classList.remove('inactive');
+						element.setAttribute('data-active', true);
+					}
+				}
+
+				for(let element of productionTagListElement.children) {
+					let name = element.innerHTML;
+					let color = element.getAttribute('data-color');
+					element.classList.remove(color);
+					element.classList.add('inactive');
+					element.setAttribute('data-active', false);
+					if(this.filteredData.productionTags.includes(name)){
+						element.classList.add(color);
+						element.classList.remove('inactive');
+						element.setAttribute('data-active', true);
+					}
+				}
 			}
 		},
 
@@ -3060,21 +3783,1471 @@ const app = {
 			},
 
 			init() {
-
+				app.dev && console.log('init --- app > collectionViewer > resetView');
 			}, 
 
 			resetCameraView() {
-				document.querySelector('#forcegraph').setAttribute('highlight', {source: ''});
-				document.querySelector('a-camera').setAttribute('orbit-controls', {
-					enabled: true, 
-					target: '#orbit-target', 
-					desiredDistance: 175, 
-					autoRotate: true,
-					// removed pitch reset due to user feedback
-					//activeRotX: true, 
-					//desiredRotX: 0,
-					//desiredCameraPitch: 0,
-					forceUpdate: true
+				if(!app.collectionViewer.initialized) {return;}
+				document.querySelector('#forcegraph').setAttribute('highlight', {source: '', forceUpdate: true});
+			}
+		},
+
+		tour: {
+
+			fgFilterUpdated: false,
+
+			list: {
+				waa: {
+					title: 'WAA Wackersdorf',
+					short: 'waa', 
+					steps: '9'
+				},
+				kir: {
+					title: 'Kirwa in der Oberpfalz',
+					short: 'kir', 
+					steps: '9'
+				}
+			},
+
+			setSteps(tour) {
+
+				if(tour === 'waa'){
+					this.fgFilter = {
+								tags: ['WAA Wackersdorf'],
+								productionTags: [''],
+								categories: [''],
+								topics: ['']
+							}
+
+					this.steps = [
+						{
+							highlightObject: '',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ' 1/' + this.list[tour].steps,
+								buttons: [
+									{
+										label: 'los geht\'s',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									maximized: true,
+									centered: true
+								},
+								content: [
+									{
+										"content" : "",
+										"fileCopyright" : "Bürgerinitiative Schwandorf",
+										"filename" : "waa tour - Intro Stimmungsbild.jpg",
+										"imageAlt" : "Musikanten bei den WAA-Protesten",
+										"imageCaption" : "",
+										"type" : "image+fullsize"
+									},
+									{
+										"content" : "WAA Wackersdorf",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Anfang der 1980er-Jahre. In der „beschaulichen“ Oberpfalz macht sich Unruhe breit. Da soll möglicherweise etwas Großes gebaut werden: eine Wiederaufbereitungsanlage für Kernbrennstäbe aus Atomkraftwerken. Während sich einige Bürger davon einen wirtschaftlichen Aufschwung erhoffen und das Großprojekt befürworten, sind andere skeptisch. Einer davon ist der 31-jährige Wolfgang. Begleite ihn auf seiner Reise!",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									}, 
+									{
+										"content" : "Servus, ich bin Wolfgang! Komm mit und klick dich durch, wenn du wissen willst, was ich im Widerstand gegen die WAA Wackersdorf erlebt hab.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+wolfgang"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ' 2/' + this.list[tour].steps,
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'weiter',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									maximized: true
+								},
+								content: [
+									{
+										"content" : "Wackersdorf und die WAA",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Die wirtschaftliche Lage rund um Wackersdorf ist angespannt. Zu Beginn der 1980er-Jahre findet der Braunkohleabbau, der jahrhundertelang bestimmend für die Identität und Wirtschaft der Region gewesen ist, ein Ende. Rund 1.600 Menschen verlieren damit auch ihre Arbeitsstelle.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Gleichzeitig ist die „Deutsche Gesellschaft für die Wiederaufarbeitung von Kernbrennstoffen“ (DWK) auf der Suche nach einem geeigneten Standort für eine Anlage, in der radioaktive Abfälle aus Atomkraftwerken aufbereitet werden sollen. Es zeichnet sich ab, dass Wackersdorf dafür in Frage kommen könnte. Entschieden unterstützt wird das Projekt auch von der bayerischen Staatsregierung unter Ministerpräsident Franz Josef Strauß (CSU).",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Schon 1981 rumort es in der einheimischen Bevölkerung. Es gehen noch recht vage Gerüchte herum: „Da kommen Fremde und wollen in unserer Heimat was machen.“ Wenngleich das Ganze noch nicht so recht fassbar ist, verursachen die Informationen bei vielen Bürgern vor Ort ein schlechtes Bauchgefühl. Menschen wie Wolfgang werden skeptisch. 1981 gründet sich in Schwandorf eine Bürgerinitiative. Wolfgang hört davon, wird neugierig und nimmt gemeinsam mit einem Nachbarn am zweiten Treffen dieser Vereinigung teil.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Was? Da kommen Fremde und wollen in unserer Heimat was machen? Da müssen wir schon ein bisschen mit hinschauen… Mein Bauchgefühl sagt mir: Das kann nichts Gutes sein, sonst würde es ja woanders hinkommen, oder? Schauen wir halt mal zum Treffen dieser neuen Bürgerinitiative.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+wolfgang"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '6379EA32-A534-C246-8D96-4BFCE2179CF2',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ' 3/' + this.list[tour].steps,
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'weiter',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									maximized: true
+								},
+								content: [
+									{
+										"content" : "Finanzierung der gewaltfreien Proteste",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Wolfgang, gelernter Industriekaufmann, wird flugs zum Kassier der Bürgerinitiative Schwandorf ernannt. Zwar gibt er diesen Posten aus Angst, seine Arbeitsstelle zu verlieren, bald darauf offiziell ab und übernimmt stattdessen die Funktion des Kassenprüfers. Inoffiziell jedoch übt er die Tätigkeiten des Kassiers aus. In den folgenden Jahren treibt ihn deshalb die Frage um, wie sich der friedliche Protest gegen die WAA finanzieren lässt.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Puh, ob das jetzt so ne gute Idee war mit dem Kassier… Nicht, dass die Cilly, meine Frau, Recht hat und ich wirklich entlassen werde, wenn ich da in der Öffentlichkeit als Vorstandschaftsmitglied der verrufenen Bürgerinitiative auftrete. Die Arbeit kann ich ja machen, aber offiziell halte ich mich da lieber mal im Hintergrund.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+wolfgang"
+									},
+									{
+										"content" : "Weil man das Projekt auf dem rechtlichen Wege verhindern möchte, wird insbesondere für die Zusammenarbeit mit einem Anwalt Geld gebraucht. Darüber hinaus fallen Kosten für die Öffentlichkeitsarbeit, etwa für den Druck von Flugblättern, sowie für Fachbücher an. Auch Sprit- und Telefonkosten, die privat nicht tragbar wären, sollen möglichst erstattet werden. Die Aktivisten sind daher froh um jede Mark, die in die Kasse der Bürgerinitiative fließt, und schlagen mitunter kreative Wege ein. So werden bei Demonstrationen zum Beispiel selbstgemachte Buttons verkauft – und gehen weg wie warme Semmeln.",
+										"fileCopyright" : "Bürgerinitiative Schwandorf",
+										"filename" : "waa tour - WAA_Flugblatt Sonntagsspaziergang.jpg",
+										"imageAlt" : "Flugblatt der WAA Sonntagsspaziergänge",
+										"imageCaption" : "Finanziert werden musste beispielsweise der Druck zehntausender Flugblätter.",
+										"type" : "paragraph+image"
+									},
+									{
+										"content" : "Anstecker \"WAA Nein\"",
+										"fileCopyright" : "",
+										"filename" : "6379EA32-A534-C246-8D96-4BFCE2179CF2",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "link-object"
+									}
+								]
+							}
+						}, 
+						{
+							highlightObject: 'F07C89FE-D514-6148-9480-457DD951729D',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ' 4/' + this.list[tour].steps,
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'weiter',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									maximized: true
+								},
+								content: [
+									{
+										"content" : "Legale Proteste in einer Demokratie",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Im Zuge des Widerstands gegen die WAA befassen sich die Akteure zunehmend mit der Frage, welche Rechte ihnen als Bürger zukommen. Was können sie in einem demokratisch verfassten Staat tun, um ein solches Projekt zu verhindern?",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Raffiniert erscheint in diesem Kontext der Bau des Franziskusmarterls. Hinter seiner Errichtung steckt zunächst einmal das Bedürfnis danach, einen Treffpunkt am Baugelände zu schaffen. Nachdem ein 1983 errichteter Turm niedergeschlagen worden ist, kommt einem der Aktivisten im Folgejahr der Gedanke, ein Marterl zu bauen. Der Clou: Ein solches Kleindenkmal ist bis zu einer gewissen Größe genehmigungsfrei! Ein weiterer positiver und erleichternder Nebeneffekt: Andachten mit mehreren hundert Teilnehmern können hier ohne Anmeldung stattfinden. Hinzu kommt, dass ein solches religiöses Symbol in der christlich geprägten Bevölkerung der 1980er-Jahre Akzeptanz findet und den Ruf der Bürgerinitiative aufpoliert. Schließlich spiegelt es das Anliegen der Demonstrierenden wider: Es geht ihnen um die Bewahrung der Schöpfung.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Übrigens ist angesichts der finanziellen Situation der Bürgerinitiative auch hier Eigenleistung gefragt. Wolfgang beteiligt sich und steuert Material und Werkzeug bei, das beim Bau seines Hauses übriggeblieben ist.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									}, 
+									{
+										"content" : "Franziskusmarterl",
+										"fileCopyright" : "",
+										"filename" : "F07C89FE-D514-6148-9480-457DD951729D",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "link-object"
+									},
+									{
+										"content" : "Also ich bin fast schon überrascht von mir selber. Widerstand! Das hat ja so gar nicht in mein Weltbild gepasst. Und wie sowas gehen soll, das hab ich als frommer Bürger und braver CSU-Wähler schon gleich dreimal nicht gewusst. Aber in der letzten Zeit haben wir viel dazugelernt. Wir haben eine Stimme, die wir erheben dürfen und können. Mutig und selbstbewusst sind wir geworden!",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+wolfgang"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '64AB9AAE-ABA6-E043-94D0-EC5CE4450E7C',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ' 5/' + this.list[tour].steps,
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'weiter',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									maximized: true
+								},
+								content: [
+									{
+										"content" : "Gesten des Zusammenhalts",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Viele Menschen investieren einen Großteil ihrer Freizeit in die Protestaktionen und werden auf verschiedenste Weise tätig. Frauen sorgen zum Beispiel für die Verpflegung der Demonstrierenden. Einheimische stellen Mahlzeiten für die aus der gesamten Bundesrepublik angereisten WAA-Gegner bereit, die Ende 1985 ein Hüttendorf auf dem WAA-Gelände aufschlagen und das Areal so besetzen.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "",
+										"fileCopyright" : "Bürgerinitiative Schwandorf",
+										"filename" : "waa tour - Box 5 Hüttendorf Verpflegung.jpg",
+										"imageAlt" : "Verpflegung im WAA Hüttendorf",
+										"imageCaption" : "Einheimische gewährleisten die Versorgung der Demonstranten im Hüttendorf 1985/1986.",
+										"type" : "image"
+									},
+									{
+										"content" : "Außerordentlich engagiert im Widerstand ist Irmgard Gietl. Sie leistet einen ganz besonderen Beitrag: Als leidenschaftliche Strickerin verteilt sie selbstgemachte Socken an die Teilnehmer der Demonstrationen, damit diese keine kalten Füße bekommen. Ein Paar dieser “Widerstandssocken” erhält Wolfgang im Jahr 1985, den nun infolge des monate- und jahrelangen Protestes eine enge Freundschaft mit Irmgard verbindet. Solche kleinen Anerkennungen festigen den Zusammenhalt und sind ein Ansporn zum Weitermachen, wie Wolfgang sagt. Auch Landrat Hans Schuierer wird mit einem Paar Socken beschenkt.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									}, 
+									{
+										"content" : "Widerstandssocken",
+										"fileCopyright" : "",
+										"filename" : "64AB9AAE-ABA6-E043-94D0-EC5CE4450E7C",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "link-object"
+									},
+									{
+										"content" : "Ganz schön anstrengend… Jede freie Minute geht drauf für die Aktivitäten der BI. Aber kleine Gesten wie die Widerstandssocken, die Irmgard mir geschenkt hat, erinnern mich daran, dass es sich lohnt. Fühlt sich schon an wie eine große Familie, die da mittlerweile entstanden ist.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+wolfgang"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ' 6/' + this.list[tour].steps,
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'weiter',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									maximized: true
+								},
+								content: [
+									{
+										"content" : "Portrait: Hans Schuierer",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Hans Schuierer gilt heute als Symbolfigur des friedlichen Widerstandes gegen die WAA. Als damaliger SPD-Landrat, der sich um das wirtschaftliche Wohl des Landkreises sorgte, war er dem viele Arbeitsplätze versprechenden Bauvorhaben gegenüber zunächst nicht abgeneigt. Diese Haltung änderte sich jedoch schlagartig, als er von einem 200 Meter hohen Kamin erfuhr, der auf dem Gelände gebaut werden sollte. „Wozu der Kamin?“, fragte er die Herren von der DWK. „Damit die radioaktiven Schadstoffe möglichst weit verteilt werden“, lautete die Antwort.",
+										"fileCopyright" : "Wikimedia Commons, Author: Mramius, <a class='link text-pearlwhite' href='https://creativecommons.org/licenses/by-sa/4.0/deed.de' target='_blank'>CC By-SA 4.0</a>, <a class='link text-pearlwhite' href='https://commons.wikimedia.org/wiki/File:KurtPetzoldHansSchuierer.jpg' target='_blank'>KurtPetzoldHansSchuierer.jpg</a> (Ausschnitt)",
+										"filename" : "waa tour - Hans Schuierer.jpg",
+										"imageAlt" : "Foto von Hans Schuirer",
+										"imageCaption" : "Hans Schuierer, Landrat von Schwandorf, bei einer Anti-Atomkraft-Kundgebung.",
+										"type" : "paragraph+image"
+									},
+									{
+										"content" : "Spätestens jetzt wurde Hans Schuierer klar, dass er das Projekt nicht befürworten konnte. Nachdem er eine vonseiten des Landratsamtes notwendige Baugenehmigung verweigert hatte, wurde 1985 ein Gesetz, die „Lex Schuierer“, verabschiedet, wodurch die Mitwirkung des Landratsamtes bei dieser Angelegenheit nicht mehr nötig war.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ' 7/' + this.list[tour].steps,
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'weiter',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									maximized: true
+								},
+								content: [
+									{
+										"content" : "Verschiedene Formen des Widerstands",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Am Widerstand beteiligen sich die unterschiedlichsten Charaktere. Die Großzahl der WAA-Gegner, darunter auch Wolfgang, war darauf bedacht, dass der Widerstand möglichst friedlich vonstattengeht. Dennoch griffen manche zu härteren Mitteln. Sogenannte Krähenfüße – handtellergroße Gebilde aus Metall mit vier angespitzten Zinken – wurden auf das Baugelände geworfen, um die Reifen der Polizeiautos zu zerstören.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{	
+										"content" : "",
+										"fileCopyright" : "Bürgerinitiative Schwandorf",
+										"filename" : "waa tour - waa demo.jpg",
+										"imageAlt" : "Protest-Banner auf einer WAA-Demonstration",
+										"imageCaption" : "Zehntausende von Menschen gingen in den 1980er-Jahren auf die Straße, um auf friedliche Weise gegen die WAA zu demonstrieren.",
+										"type" : "image"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '732C44A9-308C-454C-9A2F-1C1599CE5A48',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ' 8/' + this.list[tour].steps,
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'weiter',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									maximized: true
+								},
+								content: [
+									{
+										"content" : "Erinnerung an eine turbulente Zeit",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "1989 wurde das Großprojekt WAA Wackersdorf aus verschiedenen Gründen aufgegeben und der Bau der Anlage eingestellt. Über all die Jahre hat der Widerstand gegen das Großprojekt viele Menschen geprägt. Manche von ihnen haben Erinnerungsstücke an diese Zeit geschaffen und beispielsweise ein Stück des markanten grünen Bauzauns zu einem Andenken umgewandelt. Heute ist Wolfgangs Alltag davon bestimmt, die Erinnerung an das bürgerliche Engagement und den Einsatz für die Demokratie zu hüten und weiterzugeben.",
+										"fileCopyright" : "Bürgerinitiative Schwandorf",
+										"filename" : "waa tour - Bauzaun.jpg",
+										"imageAlt" : "Bauzaun am WAA-Gelände",
+										"imageCaption" : "Der Bauzaun wurde mit den Jahren ein Symbol der WAA-Proteste.",
+										"type" : "paragraph+image"
+									}, 
+									{
+										"content" : "Bauzaun WAA-Gelände",
+										"fileCopyright" : "",
+										"filename" : "732C44A9-308C-454C-9A2F-1C1599CE5A48",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "link-object"
+									},
+									{
+										"content" : "Unser Ziel haben wir erreicht: Die WAA ist nicht gekommen. Über 35 Jahre ist das jetzt her. Damals hab ich auch deswegen alles dokumentiert, um später sagen zu können: Wir haben was getan. Schön wär‘s, wenn wir das Erlebte jetzt auch der jungen Generation vermitteln könnten.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+wolfgang"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ' 9/' + this.list[tour].steps,
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'mehr erfahren',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									maximized: true
+								},
+								content: [
+									{
+										"content" : "Wackersdorf heute",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{	
+										"content" : "",
+										"fileCopyright" : "Wikimedia Commons, Author: Alois Köppl, Gleiritsch <a class='link text-pearlwhite' href='https://online-2000.de/'  target='_blank'>online-2000.de</a>, <a class='link text-pearlwhite' href='https://creativecommons.org/licenses/by/3.0/deed.en' target='_blank'>CC BY 3.0</a>, <a class='link text-pearlwhite' href='https://commons.wikimedia.org/wiki/File:Wackersdorf_Gewerbegebiet_Westlicher_Tax%C3%B6ldener_Forst_06_09_2013.jpg' target='_blank'>Wackersdorf Gewerbegebiet Westlicher Taxöldener Forst 06 09 2013.jpg</a>",
+										"filename" : "waa tour - wackersdorf gewerbegebiet.jpg",
+										"imageAlt" : "Wackersdorfer Gewerbegebiet",
+										"imageCaption" : "Statt einer WAA entstand bei Wackersdorf letztendlich ein Gewerbegebiet mit zahlreichen Arbeitsplätzen.",
+										"type" : "image"
+									},
+									{
+										"content" : "Auf dem ehemaligen WAA-Gelände befindet sich heute keine atomare Wiederaufbereitungsanlage, sondern ein Industriepark. Das ist wohl nicht zuletzt Menschen wie Wolfgang zu verdanken, die sich jahrelang mit großem Erfindergeist, mit kreativer Schaffenskraft und Durchhaltevermögen gegen das Vorhaben WAA einsetzten. Von ihrem Engagement und Tatendrang zeugen die hier präsentierten selbstgemachten Gegenstände. Die Akteure entwickelten dabei ein besonderes Selbstbewusstsein, lernten viel über ihre bürgerlichen Rechte in einer Demokratie und auch, nicht zu allem „Ja und Amen“ zu sagen. Diese Erfahrungen prägten sie ihr Leben lang und bestimmen teilweise noch immer einen Großteil ihres Alltags. So ist auch Wolfgang immer noch darauf bedacht, seine Geschichte zu erzählen.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ', Literatur',
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'beenden',
+										color: 'coalgrey',
+									}
+								],
+								options: {
+									maximized: true
+								},
+								content: [
+									{
+										"content" : "Mehr zum Thema",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Du willst mehr zum Thema erfahren? Dann schau doch mal hier rein:",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Döring, Alois: Franziskus in Wackersdorf. Christliche Symbolik im politischen Widerstand – religiöse Riten und Formen in ökologischen und friedensethischen Protestbewegungen, in: Brednich, Rolf Wilhelm/Schmitt, Heinz (Hg.): Symbole. Zur Bedeutung der Zeichen in der Kultur, Münster 1997, S. 435-449.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "literature"
+									},
+									{
+										"content" : "Duschinger, Oskar: Hans Schuierer. Symbolfigur des friedlichen Widerstandes gegen die WAA, Regenstauf 2018.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "literature"
+									},
+									{
+										"content" : "Duschinger, Oskar/Zech-Kleber, Bernhard von: Wiederaufbereitungsanlage Wackersdorf, URL: <a href='https://www.historisches-lexikon-bayerns.de/Lexikon/Wiederaufbereitungsanlage_Wackersdorf' target='_blank'>https://www.historisches-lexikon-bayerns.de/Lexikon/Wiederaufbereitungsanlage_Wackersdorf</a>.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "literature"
+									},
+									{
+										"content" : "Stauber, Michaela: Das Franziskusmarterl bei Wackersdorf. 3D-Scan eines Objekts des Widerstands, URL: <a href='https://wissen.freilandmuseum-oberpfalz.de/franziskusmarterl-3d-scan-hand-gemacht/' target='_blank'>https://wissen.freilandmuseum-oberpfalz.de/franziskusmarterl-3d-scan-hand-gemacht/</a>.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "literature"
+									},
+									{
+										"content" : "BR-Beitrag über Irmgard Gietl: <a href='https://www.br.de/br-fernsehen/sendungen/lebenslinien/irmgard-und-die-widerstandssocken-irmgard-gietl-wackersdorf-oberpfalz-ganze-folge102.html' target='_blank'>https://www.br.de/br-fernsehen/sendungen/lebenslinien/irmgard-und-die-widerstandssocken-irmgard-gietl-wackersdorf-oberpfalz-ganze-folge102.html</a>.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "literature"
+									},
+									{
+										"content" : "Zeitzeugeninterviews des Hauses der Bayerischen Geschichte: <a href='https://hdbg.eu/zeitzeugen/themen/waa-wackersdorf/60' target='_blank'>https://hdbg.eu/zeitzeugen/themen/waa-wackersdorf/60</a>.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "literature"
+									}
+								]
+							}
+						}
+					]
+					return true;
+				}
+
+				if(tour === 'kir'){
+					this.fgFilter = {
+								tags: ['Kirwa'],
+								productionTags: [''],
+								categories: [''],
+								topics: ['']
+							}
+
+					this.steps = [
+						{
+							highlightObject: '',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ' 1/' + this.list[tour].steps,
+								buttons: [
+									{
+										label: 'los geht\'s',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									maximized: true,
+									centered: true
+								},
+								content: [
+									{
+										"content" : "",
+										"fileCopyright" : "Michaela Stauber",
+										"filename" : "kir tour - Kirwa Austanzen und Musik.jpg",
+										"imageAlt" : "Kirwa Austanzen mit Musikern",
+										"imageCaption" : "",
+										"type" : "image+fullsize"
+									},
+									{
+										"content" : "Kirwa in der Oberpfalz",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "„Kirwa ist ein Lebensg’fühl“, heißt es auf einem Internetauftritt zum Kulturerbe Kirwa. Doch was ist das genau? Was gehört dazu? Was macht die Kirwa in der Oberpfalz aus? Die beiden kirwaerprobten Jugendlichen Franzi und Florian zeigen es dir und geben Einblicke hinter die Kulissen.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									}, 
+									{
+										"content" : "Hi, ich bin die Franzi, bin 24 Jahre alt und hab schon auf so einigen Kirwan ausgetanzt. Kirwa ist mein Leben, könnte man sagen. Ich liebe es einfach. Warum? Das findest du heraus, wenn du dich auf die Themen-Tour begibst!",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+kir1"
+									}, 
+									{
+										"content" : "Servus, mein Name ist Flo. Seit ich 16 Jahre alt bin, bin ich als Kirwabursch in meinem Heimatort aktiv. Das ist immer eine Mordsgaudi! Die Franzi, eine alte Freundin von mir, kenne ich bereits seit der Grundschulzeit in einem Dorf im Landkreis Amberg-Sulzbach.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+kir2"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ' 2/' + this.list[tour].steps,
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'weiter',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									maximized: true
+								},
+								content: [
+									{
+										"content" : "Kirwa – was ist das?",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Der Begriff Kirwa leitet sich von „Kirchweih“ ab und bezeichnet in der Oberpfalz ein meist mehrtägiges Fest, welches anlässlich des Patroziniums oder der Weihe eines Gotteshauses begangen wird. Es handelt sich dabei um einen Brauch, zu dem viele verschiedene Traditionen gehören. Sie können sich von Ort zu Ort unterscheiden und werden immer wieder angepasst.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Kirchweih wird in vielen Regionen Deutschlands (und sogar darüber hinaus) gefeiert und hat viele Namen, z. B. „Kirta“, „Kerb“ oder „Kerwa“. Im Folgenden steht die Kirwa in verschiedenen Oberpfälzer Landkreisen im Fokus. Hier tanzen vielerorts junge, unverheiratete Kirwapaare um den Kirwabaum. Dafür studieren die Kirwamoidln und Kirwaburschen bereits Wochen oder sogar Monate im Voraus eigens Tänze ein. Außerdem sind die Jugendlichen maßgeblich an der Organisation und Vorbereitung des Festes beteiligt.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "",
+										"fileCopyright" : "Michaela Stauber",
+										"filename" : "kir tour - Kirwa Austanzen.jpg",
+										"imageAlt" : "Kirwa Austanzen am Kirwabaum",
+										"imageCaption" : "Am Kirwabaum geben die Kirwapaare verschiedene Tänze zum Besten.",
+										"type" : "image"
+									},
+									{
+										"content" : "Übrigens: Die Kirwa im Amberg-Sulzbacher Land wurde 2023 in das Bayerische Landesverzeichnis des Immateriellen Kulturerbes als sogenanntes „Gutes Praxisbeispiel“ aufgenommen. Mehr als 100 Kirchweihfeste werden dort jährlich gefeiert, was den Landkreis und die Identität seiner Bewohner prägt.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									}, 
+									{
+										"content" : "Also ich hätte ja immer gedacht, dass es die Kirwa nur bei uns gibt. Interessant, dass der Brauch auch außerhalb Bayerns existiert!",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+kir2"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '9071D540-2E9C-8645-BBF5-72E13DFEF517',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ' 3/' + this.list[tour].steps,
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'weiter',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									maximized: true
+								},
+								content: [
+									{
+										"content" : "Keine Party ohne Einladung",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Ein wichtiger Bestandteil der Vorbereitungen auf das Fest sind verschiedene Werbemaßnahmen, die auf die bevorstehende Kirwa im Ort aufmerksam machen und Besucher anlocken sollen. In den letzten Jahren geschieht dies zunehmend über Aktivitäten in den sozialen Medien. Hier werden nun Fotos von den Kirwapaaren, eigens produzierte Kurzvideos und Kirwaplakate geteilt.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Doch auch analoge Mittel werden nach wie vor eingesetzt, wie etwa ein Blick in den Landkreis Neumarkt i. d. Oberpfalz zeigt. Die Mitglieder des Oberölsbacher Kirwavereins haben in Eigenleistung eine überlebensgroße Breze aus Holz geschaffen und mit dem Schriftzug „Kirwa Eischba“ sowie dem Datum des Festes versehen. Am Straßenrand aufgestellt, verweist das selbstgebaute Schild die Passanten auf die anstehenden Feierlichkeiten. Eine durchaus kreative Einladung!",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Holzbreze",
+										"fileCopyright" : "",
+										"filename" : "9071D540-2E9C-8645-BBF5-72E13DFEF517",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "link-object"
+									},
+									{
+										"content" : "Ich kann’s kaum mehr erwarten, bis es endlich losgeht! Hoffentlich kommen viele Gäste. In puncto Werbung haben wir uns ordentlich was einfallen lassen und sogar einige Videos für Instagram gedreht. Aber hey, so ein cooles Hinweisschild am Straßenrand wäre natürlich auch noch ne coole Idee.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+kir1"
+									}
+								]
+							}
+						}, 
+						{
+							highlightObject: '',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ' 4/' + this.list[tour].steps,
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'weiter',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									maximized: true
+								},
+								content: [
+									{
+										"content" : "Zusammenhalt und Teamwork",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Die vielen Vorbereitungsarbeiten schweißen die Kirwapaare, deren Zusammensetzung sich jedes Jahr ändert, oftmals zusammen. Eine gemeinsame Aufgabe bietet Gelegenheit, ins Gespräch zu kommen und sich kennenzulernen. Von solchen Erfahrungen berichten die Kirwamoidln etwa, wenn sie über das Backen der Kücheln sprechen. Hunderte Exemplare dieses seit Generationen zur Kirwa servierten Gebäckstückes werden vielerorts von den Kirwamoidln hergestellt.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Küchel Gebenbach",
+										"fileCopyright" : "",
+										"filename" : "4A236316-FD71-F640-8899-A0473D901902",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "link-object"
+									},
+									{
+										"content" : "Das Schöne am Küchelbacken ist, dass sich jeder einen halben oder ganzen Tag Zeit dafür nimmt. Dabei kann man in Ruhe miteinander reden und die Mädels besser kennenlernen. Im Hintergrund läuft Musik und manchmal wird auch das eine oder andere alkoholische Getränk konsumiert – natürlich in Maßen. Das Backen ist schon so ein Highlight, bevor die Kirwa richtig beginnt!",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+kir1"
+									},
+									{
+										"content" : "Zum Bilden einer Gemeinschaft trägt außerdem die Erkenntnis bei, dass sich viele Aufgaben alleine nicht bewerkstelligen lassen. Das trifft einerseits auf das Backen von rund 600 Kücheln zu, andererseits auf das Vorbereiten des Kirwabaumes – einer rund 30 Meter hohen, entasteten und geschmückten Fichte, die am Dorf- oder Kirwaplatz aufgestellt wird und als Wahrzeichen der Kirwa gilt.",
+										"fileCopyright" : "Michaela Stauber",
+										"filename" : "kir tour - Kirwabaum.jpg",
+										"imageAlt" : "Eine gerade gewachsene, hohe Fichte als Kirwabaum",
+										"imageCaption" : "Eine hohe, gerade gewachsene Fichte wird von den männlichen Brauchträgern entastet und aus dem Wald geholt, um später als Kirwabaum zu dienen. Dieser zeichnet sich durch eine geschmückte Spitze und geschmückte Kränze aus. Ebenso sind Schnitzereien am Stamm charakteristisch dafür.",
+										"type" : "paragraph+image"
+									},
+									{
+										"content" : "Beim Baumholen im Wald ist man aufeinander angewiesen. Wenn man die bleischwere Fichte anheben und einige Meter weit tragen muss, merkt jeder, dass es ohne den anderen nicht geht. Auch das Schnitzen und Schälen des Baumes wäre alleine gar nicht machbar. Da ist auf jeden Fall Teamwork gefragt!",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+kir2"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '44633EA0-9CBD-D74C-B96C-1A5EFD30CE3C',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ' 5/' + this.list[tour].steps,
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'weiter',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									maximized: true
+								},
+								content: [
+									{
+										"content" : "Angebandelt",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Kirwa, das ist immer auch eine Gelegenheit zum Anbandeln. Besonders beim gemeinsamen Tanzen (und Feiern) können sich die Jugendlichen näherkommen. Ebenso stehen aber selbstgemachte Utensilien im Zeichen der Tanzpartnerschaft. So bemalen die Burschen und Moidln Krüge füreinander und machen sich bei der Suche nach passenden Motiven Gedanken über ihren Tanzpartner bzw. ihre Tanzpartnerin – oder fragen direkt, was ihm bzw. ihr gefallen würde. Auf diese Weise lernt man sich besser kennen und drückt zudem seine Wertschätzung für das Gegenüber aus. Wenn ein Paar bereits seit Längerem befreundet oder liiert ist, finden oftmals Insider Platz auf dem Krug!",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Krug \"Hund\"",
+										"fileCopyright" : "",
+										"filename" : "44633EA0-9CBD-D74C-B96C-1A5EFD30CE3C",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "link-object"
+									},
+									{
+										"content" : "Puh, ich hab mir einige Gedanken darüber gemacht, was meinem Tanzpartner gefallen könnte und zu ihm passt. Hoffentlich freut er sich über den Krug!",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+kir1"
+									},
+									{
+										"content" : "Darüber hinaus zeigen selbstgefertigte Accessoires mitunter die Zusammengehörigkeit eines Paares an, beispielsweise indem Filzherzen in der gleichen Farbe gestaltet werden.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Filzherz \"Bixn\"",
+										"fileCopyright" : "",
+										"filename" : "D245F8C1-1FE3-3545-A86A-FEE1E8B29CF0",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "link-object"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ' 6/' + this.list[tour].steps,
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'weiter',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									maximized: true
+								},
+								content: [
+									{
+										"content" : "Hauruck! Kirwabaum und Muskelkraft",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Er ist „das Heiligste“ einer Kirwa: der Kirwabaum. Am Morgen des Kirwasamstag – in manchen Ortschaften auch schon vorher – holen ihn die Kirwaburschen und einige forstarbeitserfahrene ortsansässige Männer aus einem nahegelegenen Wald. Hier ist traditionsgemäß Handarbeit gefordert! Der rund 30 Meter lange Baum muss zunächst ohne Maschineneinsatz angehoben und einige Meter weit getragen werden, bis er auf einen Transportwagen gehievt und die restliche Strecke vom Traktor gezogen wird.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Vor allem beim Aufstellen des Kirwabaumes sind viele Brauchträger auf ein traditionelles Vorgehen bedacht. Mit langen Holzstangen, im Dialekt als „Goißn“ oder „Schwalben“ bezeichnet, soll der Baum mithilfe von Muskelkraft in die Senkrechte befördert werden. Dabei darf nicht übersehen werden, dass heute oftmals moderne Hilfsmittel – etwa eine elektrische Seilwinde oder ein Radlader – zum Einsatz kommen. Sie dienen der Absicherung und entlasten zum Teil auch die Männer an den Goißn und Schwalben. Besonders aus Sicherheitsgründen übernimmt mittlerweile in so manchem Dorf ein Kran das Aufstellen des Baumes, was zeigt, welchem Wandel die Bräuche rund um die Kirwa unterliegen.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Das Baumaufstellen mit Muskelkraft ist immer ein Spektakel! Da kommen die Dorfbewohner und schauen zu. Freilich, es ist anstrengend und kostet Kraft. Aber es gehört halt irgendwie dazu. Mit einem Kran ist das Aufstellen zwar sicherer, aber irgendwie auch ein bisschen langweilig.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+kir2"
+									},
+									{
+										"content" : "Übrigens: Das Beispiel des Kirwabaums verdeutlicht, dass viele kirwabezogene Aufgaben nach Geschlechtern getrennt ausgeführt werden. Nicht allen Moidln und Burschen gefällt diese strikte, oft mit dem Argument der Tradition begründete Arbeitsaufteilung. Hier und da kommt es zur Auflösung und Lockerung dieser Strukturen, etwa wenn sich die Moidln am Schnitzen oder sogar am Aufstellen des Baumes beteiligen.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ' 7/' + this.list[tour].steps,
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'weiter',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									maximized: true
+								},
+								content: [
+									{
+										"content" : "Fesch – das passende Outfit",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Besonders am Kirwasonntag, wenn das Austanzen um den Kirwabaum ansteht, sitzen (oder besser gesagt: tanzen) die Kirwapaare auf dem Präsentierteller. Daher wundert es wenig, dass sie sich zu diesem Anlass ordentlich herausputzen. Die Mädchen tragen ihr schönstes und neuestes Dirndl, die Burschen Lederhosen oder schwarze Hosen, dazu ein weißes Hemd und neuerdings immer öfter ein Leibchen. Mancherorts komplettiert ein Hut mit einem selbstgemachten Blumenkranz das Festtagsgewand der Kirwaburschen. Den Kranz binden die Kirwamoidln und achten dabei meist darauf, dass er farblich mit ihrem Dirndl abgestimmt ist.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Solche Accessoires verleihen ihren Trägern einerseits eine individuelle Note. Andererseits zeigen sie deren Status an: Sie heben die Kirwaburschen von Zuschauern ab. Im Falle der Fronberger Kirwa im Landkreis Schwandorf markiert ein mit einer Fasanenfeder versehener Hut, wer den Reigen der Kirwaburschen in diesem Jahr anführt.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Das Austanzen ist einfach der Höhepunkt der Kirwa. Da stehen die Kirwapaare im Mittelpunkt – klar, dass sich die Kirwamoidln und -burschen deshalb besonders schick kleiden. So ein Hut mit Blumenschmuck unterstreicht nochmal den festlichen Charakter und zeigt obendrein, wer zusammengehört.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+kir1"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '4A236316-FD71-F640-8899-A0473D901902',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ' 8/' + this.list[tour].steps,
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'weiter',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									maximized: true
+								},
+								content: [
+									{
+										"content" : "Verköstigung",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Was wäre ein Fest ohne Speis und Trank? Berichte aus dem 19. Jahrhundert lassen verlauten, dass sich die Kirwa in der Oberpfalz besonders durch das reichhaltige Speisenangebot vom Alltag absetzte. Neben großen Mengen an Fleisch wurde mit Kücheln aufgefahren – einem Hefeteiggebäck, das in kostbarem Butterschmalz herausgebacken wird. Noch heute zählt es zu den Kirwa-Klassikern.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Je nach Region sind damit wiederum bestimmte Bräuche verbunden. In Michelfeld ziehen die Kirwapaare bereits am Donnerstag vor dem Kirwawochenende in Gruppen von Haus zu Haus und verkaufen das Gebäck an die Bewohner des Ortes. Entlohnt werden sie mit Spirituosen und einer Brotzeit.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Zitat Physikatsbericht: „Von den Esswaaren [sic] bilden die im Schmalz gebackenen, sogenannten Kücheln einen wesentlichen Bestandtheil, und es wäre in der That keine Kirchweih, wo diese in einem Hause fehlen würden; daher dann auch jede Hausfrau selbst das letzte Pfund Schmalz gerne hiezu verwendet.“ ",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "quote"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ' 9/' + this.list[tour].steps,
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'mehr erfahren',
+										color: 'coalgrey',
+										icon: 'arrow right'
+									}
+								],
+								options: {
+									maximized: true
+								},
+								content: [
+									{
+										"content" : "„O Kirwa, lou niad nou!“ – Erinnerungsstücke an eine schöne Zeit",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Franzi und Florian erinnern sich gerne an das zurück, was sie auf verschiedenen Kirwan erlebt haben. Das Kirwaaustanzen empfinden sie als besonderes Erlebnis, als Event, das ihren Alltag prägt – ähnlich wie ein Urlaub oder ein Festivalbesuch. Es ist ein erinnerungswürdiges Ereignis. Manche Gegenstände werden daher mit dem Hintergedanken geschaffen, sie als Souvenir aufzubewahren. Zum Beispiel bemalen die Kirwapaare eigene Krüge und beschriften diese meist mit der aktuellen Jahreszahl, um sie später datieren zu können. Wenn die Kirwa dann schon lange vorbei ist, vermögen die Krüge, die Erinnerung daran – an die gemeinsame Zeit mit anderen – zu wecken und wachzuhalten.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Krug \"Watschnkirwa\"",
+										"fileCopyright" : "",
+										"filename" : "7E02497F-ADA0-6A46-BA4A-A4FBAA79FD25",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "link-object"
+									},
+									{
+										"content" : "Wenn ich den Krug anschaue, dann denke ich an das Bemalen, an die Kirwa und an die Leute, die dabei waren. An das, was so passiert ist, worüber man gelacht hat – an alles, was dazugehört eben. Ist schon ein cooles Erinnerungsstück an eine tolle Zeit, die leider irgendwann ein Ende nimmt.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "personal+kir2"
+									}
+								]
+							}
+						},
+						{
+							highlightObject: '',
+							message: {
+								type: 'Thema: ' + this.list[tour].title + ', Literatur',
+								buttons: [
+									{
+										label: 'zurück',
+										color: 'coalgrey',
+										icon: ''
+									},
+									{
+										label: 'beenden',
+										color: 'coalgrey',
+									}
+								],
+								options: {
+									maximized: true
+								},
+								content: [
+									{
+										"content" : "Mehr zum Thema",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "headline"
+									},
+									{
+										"content" : "Neugierig geworden? Mehr zum Thema Kirwa erfährst du zum Beispiel hier:",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "paragraph"
+									},
+									{
+										"content" : "Piehler, Uli: Mir hom Kirwa! Kirchweihfreuden in der Oberpfalz, Amberg 2009.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "literature"
+									},
+									{
+										"content" : "Stauber, Michaela: Materialisierte immaterielle Kultur. Bedeutungen und Funktionen selbstgemachter Brauchobjekte am Beispiel der Kirwa, URL: <a href='https://wissen.freilandmuseum-oberpfalz.de/materialisierte-immaterielle-kultur/' target='_blank'>https://wissen.freilandmuseum-oberpfalz.de/materialisierte-immaterielle-kultur/</a>.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "literature"
+									},
+									{
+										"content" : "Stauber, Michaela: Kirwabaum und Kücheln. Bedeutungen und Funktionen selbstgemachter Brauchobjekte, URL: <a href='https://wissen.freilandmuseum-oberpfalz.de/kirwabaum-und-kuecheln-bedeutungen-und-funktionen/' target='_blank'>https://wissen.freilandmuseum-oberpfalz.de/kirwabaum-und-kuecheln-bedeutungen-und-funktionen/</a>.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "literature"
+									},
+									{
+										"content" : "Website des Landratsamtes Amberg-Sulzbach zum Kulturerbe Kirwa im Amberg-Sulzbacher Land: <a href='https://kulturerbe-kirwa.de/' target='_blank'>https://kulturerbe-kirwa.de/</a>.",
+										"fileCopyright" : "",
+										"filename" : "",
+										"imageAlt" : "",
+										"imageCaption" : "",
+										"type" : "literature"
+									}
+								]
+							}
+						}
+					]
+					return true;
+				}
+
+				return false;
+			},
+
+			init() {
+				this.setEventListeners();
+				app.dev && console.log('init --- app > collectionViewer > tour');
+			}, 
+
+			show(step) {
+				if(0 > step || this.steps.length <= step) {return;}
+				app.step = step;
+				this.setTourMessage(step);
+
+				if(this.fgFilter && this.fgFilterUpdated === false){
+					let fgData = app.collectionViewer.proxyfgData.data
+					let loadJSONModelsComponent = document.querySelector('a-scene').components['load-json-models'];
+					loadJSONModelsComponent.filterFgData(fgData, this.fgFilter.tags, this.fgFilter.productionTags, this.fgFilter.categories, this.fgFilter.topics);
+					
+					app.collectionViewer.filter.filteredData.tags = [];
+					app.collectionViewer.filter.filteredData.productionTags = [];
+					app.collectionViewer.filter.filteredData.categories = [];
+					app.collectionViewer.filter.filteredData.topics = [];
+
+					for(let e of this.fgFilter.tags){
+						app.collectionViewer.filter.filteredData.tags.push(e)
+					}
+					for(let e of this.fgFilter.productionTags){
+						app.collectionViewer.filter.filteredData.productionTags.push(e)
+					}
+					for(let e of this.fgFilter.categories){
+						app.collectionViewer.filter.filteredData.categories.push(e)
+					}
+					for(let e of this.fgFilter.topics){
+						app.collectionViewer.filter.filteredData.topics.push(e)
+					}
+					app.collectionViewer.filter.updateCheckboxList();
+
+					this.fgFilterUpdated = true;
+				}
+
+				setTimeout(() => {
+					this.highlightObject(this.steps[step].highlightObject)
+				}, 100);
+
+				let url = '?m=cv';
+				url = app.setURLParams(url);
+				url += '&tour=' + app.tour;
+				url += '&step=' + app.step;
+				window.history.pushState(null, null, url)
+
+				if(step === 0) {
+					app.gui.toolbar.toggleToolbar(false);
+					app.gui.message.setMessage(this.tourMessage);
+					app.gui.message.boxEl.classList.add('first-contact');
+
+					app.gui.message.buttons.button[0].element.addEventListener('click', (e) => {
+						app.gui.message.hideMessage(true)
+						this.show(step+1);
+					}, { signal: app.gui.message.abortController.signal });
+					return;
+				}
+
+				if(step > 0 && step < this.steps.length) {
+					app.gui.toolbar.toggleToolbar(false);
+					app.gui.message.setMessage(this.tourMessage);
+
+					app.gui.message.buttons.button[0].element.addEventListener('click', (e) => {
+						app.gui.message.hideMessage(true);
+						this.show(step-1);
+					}, { signal: app.gui.message.abortController.signal });
+
+					app.gui.message.buttons.button[1].element.addEventListener('click', (e) => {
+						app.gui.message.hideMessage(true);
+						if(step >= app.collectionViewer.tour.list[app.tour].steps){
+							app.tour = null;
+							app.step = null;
+							return;
+						}
+						this.show(step+1);
+					}, { signal: app.gui.message.abortController.signal });
+					return;
+				}
+			}, 
+
+			setTourMessage(step) {
+				let thisMessageMaximized = false;
+				let thisMessageSizeControl = true;
+				let thisMessageShowClose = true;
+				let thisMessageCentered = true;
+				if(Object.keys(this.steps[step].message).includes('showClose')){
+					thisMessageShowClose = this.steps[step].message.showClose;
+				}
+				if(Object.keys(this.steps[step].message).includes('options')){
+					if(Object.keys(this.steps[step].message.options).includes('maximized')) {
+						thisMessageMaximized = this.steps[step].message.options.maximized;
+					}
+					if(Object.keys(this.steps[step].message.options).includes('sizeControl')) {
+						thisMessageSizeControl = this.steps[step].message.options.sizeControl;
+					}
+					if(Object.keys(this.steps[step].message.options).includes('centered')) {
+						thisMessageCentered = this.steps[step].message.options.centered;
+					}
+				}
+				this.tourMessage = {
+					type: this.steps[step].message.type,
+					content: app.createHTMLContentFromJSON(this.steps[step].message.content),
+					color: 'pearlwhite',
+					shadow: 'shadow-coalgrey',
+					buttonSetup: [
+						{ label: this.steps[step].message.buttons[0].label, color: this.steps[step].message.buttons[0].color, icon: this.steps[step].message.buttons[0].icon }
+					], 
+					showClose: thisMessageShowClose,
+					options: {
+						maximized: thisMessageMaximized, 
+						sizeControl: thisMessageSizeControl
+					}
+				}
+
+				if(this.steps[step].message.buttons[1]) {
+					this.tourMessage.buttonSetup = [
+						{ label: this.steps[step].message.buttons[0].label, color: this.steps[step].message.buttons[0].color, icon: this.steps[step].message.buttons[0].icon },
+						{ label: this.steps[step].message.buttons[1].label, color: this.steps[step].message.buttons[1].color, icon: this.steps[step].message.buttons[1].icon }
+					]
+				}
+
+				if('options' in this.steps[step].message) {
+					('maximized' in this.steps[step].message.options) ? this.tourMessage.options.maximized = this.steps[step].message.options.maximized : '';
+					('sizeControl' in this.steps[step].message.options) ? this.tourMessage.options.sizeControl = this.steps[step].message.options.sizeControl : '';
+					('centered' in this.steps[step].message.options) ? this.tourMessage.options.centered = this.steps[step].message.options.centered : '';
+				}
+			}, 
+
+			highlightObject(id) {
+				if(!app.collectionViewer.components['forcegraph'].ready) {return;}
+				let fgElement = document.querySelector('#forcegraph');
+				let aCameraElement = document.querySelector('a-camera');
+				let fgComponent = document.querySelector('#forcegraph').components['forcegraph'];
+				let fgNodes = fgComponent.data.nodes;
+				let node = null;
+
+				for(let n of fgNodes) {
+					if(n.id === id){
+						node = n;
+						// app.dev && console.log('dev --- tour highlight model: ', node);
+					}
+				}
+
+				if(!node) { 
+					app.collectionViewer.resetView.resetCameraView();
+					// app.dev && console.log('dev --- reserCameraView from highlightObject()');
+					app.gui.title.set();
+					return;
+				 }
+
+				aCameraElement.setAttribute('camera-focus-target', {target: node, duration: 1200});
+				app.collectionViewer.highlight.onclickHandler(node, false);
+				fgElement.setAttribute('highlight', {source: node});
+			}, 
+
+			setEventListeners() {
+				document.addEventListener('loadingScreen-ready', (event) => {
+					if(app.tour){
+						app.dev && console.log('event --- loadingScreen-ready - response: setting tour and steps')
+						if(typeof this.list[app.tour] !== 'object'){ return; }
+						const tourFound = this.setSteps(app.tour);
+						const stepFound = (typeof this.steps[app.step] === 'object');
+
+						if(tourFound) {
+							// app.dev && console.log('dev --- tour found: ', app.tour);
+							// app.dev && console.log('dev --- tour found > step found: ', app.step);
+							stepFound ? '' : app.step = 0;
+							stepFound ? this.show(app.step) : this.show(0);
+						}else{
+							app.dev && console.log('dev --- tour not found: ', app.tour);
+							app.tour = null;
+						}
+					}
 				});
 			}
 		},
@@ -3178,31 +5351,35 @@ const app = {
 					setEventlisteners: function() {
 						const comp = this;
 
-						//listen for filter-updated event
-						this.el.sceneEl.addEventListener('filter-updated', (e) => {
+						//listen for forcegraph-filter-updated event
+						this.el.sceneEl.addEventListener('forcegraph-filter-updated', (e) => {
+							app.dev && console.log('event --- forcegraph-filter-updated - response: assigning models, normalizing, setting object names')
 							comp.assignModelsToNodes();	
 							comp.assignMaterialToLinks();
 							comp.normalizeScale(this.scaleFactor, this.normalization);
 							comp.setObjectNames(comp.fgComp.nodes);
 							document.querySelector('#forcegraph').setAttribute('highlight', {noUpdate: false});
-							let event = new Event('load-json-models-ready');
+							let event = new Event('forcegraph-models-ready');
+							app.dev && console.log('event --- forcegraph-models-ready - call')
 							document.querySelector('a-scene').dispatchEvent(event);
 						});
 
 						//listen for JSON-models-loaded event
 						this.el.sceneEl.addEventListener('JSON-models-loaded', (e) => {
 							if(comp.json) {
+								app.dev && console.log('event --- JSON-models-loaded - response: preparing JSON data for forcegraph use, filtering forcegraph data')
 								//prepare JSON data for forcegraph
 								comp.fgData = comp.getDataFromJSON(comp.json);
 								//parse forcegraph data to app.collectionViewer
 								app.collectionViewer.proxyfgData.data = comp.fgData;
 								//filter forcegraph data for default view
-								comp.filterFgData(comp.fgData, comp.fgData.taglist, [], comp.fgData.categorylist, comp.fgData.topiclist); //default: all tags, no production tags, all categories, all topics
+								comp.filterFgData(comp.fgData, [], [], comp.fgData.categorylist, comp.fgData.topiclist); //default: no tags, no production tags, all categories, all topics
 							}
 						}, {once: true});
 					},
 
 					createCategoryAndTagModels: function() {
+						
 						this.imgCategory = document.createElement('img');
 						this.imgCategory.id = 'icon-category';
 						this.imgCategory.crossOrigin = 'anonymous';
@@ -3266,15 +5443,38 @@ const app = {
 
 					loadJSONModels: function () {
 						const fgData = '';
-						const fileJSON = app.filepaths.files + app.filepaths.collectionJSON;
+						const fileJSON = app.filepaths.files + app.filepaths.collectionJSON + '?v=' + app.version;
+
+						function percentLoaded(count, max){
+							let percent = (100 / max) * count;
+							percent = Math.trunc(percent);
+							return percent;
+						}
+
+						function countLoaded(count, max){
+							let loaded = count + '/' + max;
+							return loaded;
+						}
 
 						//fetch json data from file
 						const objectsJSON = fetch(fileJSON)
 							.then((response) => response.json())
 							.then((json) => {
 								this.json = json;
+								// app.dev && console.log(`dev --- fetching ${fileJSON}:`, json)
 								//load models to scene
 								const scene = document.querySelector('a-scene').object3D;
+
+								let loadingTextEl = null;
+								let loadingText = '';
+								let loadedCount = 0;	
+
+								if(typeof app.gui.loadingScreen.animation.textEl != null){
+									loadingTextEl = app.gui.loadingScreen.animation.percentEl;
+									loadingText = loadingTextEl.innerHTML;
+									loadingTextEl.innerHTML = percentLoaded(loadedCount, json.objects.length) + '%';
+								}
+								
 								for(let object of json.objects){
 									if(object.quality512){
 										app.gltfLoader.load(app.filepaths.files + object.quality512, (gltf) => {
@@ -3283,7 +5483,9 @@ const app = {
 											gltf.scene.visible = false;
 											scene.add( gltf.scene );
 										}, (xhr) =>{ 
-											app.dev && console.log( ( 'dev --- load model: ' + object.name + ' - ' + xhr.loaded / xhr.total * 100 ) + '% loaded' );
+											// (xhr.loaded/xhr.total === 1) && app.dev ? console.log( ( 'dev --- load model: ' + object.name + ' - ' + xhr.loaded / xhr.total * 100 ) + '% loaded' ) : '';
+											xhr.loaded/xhr.total === 1 ? loadedCount = loadedCount + 1 : '';
+											loadingTextEl.innerHTML = percentLoaded(loadedCount, json.objects.length) + '%';
 										}, (error) => {		
 											console.log( 'An error happened: ', error );
 										});
@@ -3293,6 +5495,7 @@ const app = {
 								//event dispatcher for JSON-models-loaded event
 								THREE.DefaultLoadingManager.onLoad = function () {
 									let event = new Event('JSON-models-loaded');
+									app.dev && console.log('event --- JSON-models-loaded - call')
 									document.querySelector('a-scene').dispatchEvent(event);
 								};
 							});
@@ -3408,6 +5611,7 @@ const app = {
 									newLink.name = category.title;
 									newLink.type = 'link-category';
 									newLink.material = '';
+									newLink.visibility = 'visible';
 									fgData.links.push(newLink);
 								}
 							}
@@ -3424,6 +5628,7 @@ const app = {
 									newLink.name = topic.title;
 									newLink.type = 'link-topic';
 									newLink.material = '';
+									newLink.visibility = 'visible';
 									fgData.links.push(newLink);
 								}
 							}
@@ -3441,6 +5646,7 @@ const app = {
 										newLink.name = tag;
 										newLink.type = 'link-tag';
 										newLink.material = '';
+										newLink.visibility = 'visible';
 										fgData.links.push(newLink);
 									}
 								}
@@ -3459,6 +5665,7 @@ const app = {
 										newLink.name = productionTag;
 										newLink.type = 'link-productionTag';
 										newLink.material = '';
+										newLink.visibility = 'hidden';
 										fgData.links.push(newLink);
 									}
 								}
@@ -3505,11 +5712,11 @@ const app = {
 					filterFgData: function(fgData, tags = [], productionTags = [], categories = [], topics = []) {
 						let filteredFgData = { 'nodes': [], 'links': [] };
 
-						app.dev && console.log('dev --- forcegraph filter fgData: ', fgData);
-						app.dev && console.log('dev --- forcegraph filter Data tags: ', tags);
-						app.dev && console.log('dev --- forcegraph filter Data production tags: ', productionTags);
-						app.dev && console.log('dev --- forcegraph filter Data categories: ', categories);
-						app.dev && console.log('dev --- forcegraph filter Data topics: ', topics);
+						// app.dev && console.log('dev --- forcegraph filter fgData: ', fgData);
+						// app.dev && console.log('dev --- forcegraph filter Data tags: ', tags);
+						// app.dev && console.log('dev --- forcegraph filter Data production tags: ', productionTags);
+						// app.dev && console.log('dev --- forcegraph filter Data categories: ', categories);
+						// app.dev && console.log('dev --- forcegraph filter Data topics: ', topics);
 
 						for( let link of fgData.links ){
 							if(link.type === 'link-tag' && tags.includes(link.name)){
@@ -3559,7 +5766,8 @@ const app = {
 							links: filteredFgData.links
 						});
 
-						let event = new Event('filter-updated');
+						let event = new Event('forcegraph-filter-updated');
+						app.dev && console.log('event --- forcegraph-filter-updated - call')
 						document.querySelector('a-scene').dispatchEvent(event);
 					},
 
@@ -3571,16 +5779,17 @@ const app = {
 						forcegraphEntity.setAttribute('highlight', { noUpdate: true });
 						forcegraphEntity.setAttribute('forcegraph', {
 							forceEngine: 'd3', //'d3' (default) or 'ngraph'
-							warmupTicks: 15000,
+							warmupTicks: 2000,
 							cooldownTicks: 0,
 							cooldownTime: 0,
 							onEngineStop: e => {
-								let event = new Event('forcegraph-ready');
+								let event = new Event('forcegraph-engine-ready');
+								app.dev && console.log('event --- forcegraph-engine-ready - call')
 								document.querySelector('a-scene').dispatchEvent(event);
 							},
-							d3AlphaMin: 0.5,
-							d3AlphaDecay: 0.028,
-							d3VelocityDecay: 0.6,
+							d3AlphaMin: 0.0,
+							d3AlphaDecay: 0.022,
+							d3VelocityDecay: 0.4,
 							linkWidth: 0.6,
 							linkCurvature: 0.15,
 							linkThreeObjectExtend: false,
@@ -3605,10 +5814,17 @@ const app = {
 							onNodeClick: node => { 
 								app.dev && console.log('dev --- onNodeClick: ', node);
 								if(node.visibility === 'hidden'){ return; };
-								if(document.querySelector('a-camera').components['orbit-controls'].hasUserInput) {return;}
+								if(document.querySelector('a-camera').components['orbit-controls'].hasUserInput) { return; }
 								if(node.id === app.collectionViewer.highlight.focusedNode) {
 									if(node.type === 'node-object'){
-										window.location.href = '?m=mv&model=' + node.id;
+										let href = '?m=mv';
+										app.dev ? href += '&dev=true': '';
+										if(app.tour) {
+											href += '&tour=' + app.tour;
+											href += '&step=' + app.step;
+										}
+										href += '&model=' + node.id;
+										window.location.href = href;
 										return;
 									}
 								}								
@@ -3786,7 +6002,7 @@ const app = {
 							node.model.scale.set(normalizedScale, normalizedScale, normalizedScale);
 						}
 
-						app.dev && console.log(`dev --- normalizeScale > \nsizeLog: `, sizeLog);
+						// app.dev && console.log(`dev --- normalizeScale > \nsizeLog: `, sizeLog);
 					}, 
 
 					setObjectNames(nodes){
@@ -3840,16 +6056,6 @@ const app = {
 								const widthHalf = width / 2;
 								const heightHalf = height / 2;
 
-								const vector = new THREE.Vector3();
-								vector.copy(nodeObject.position);
-								vector.project(threeCamera);
-
-								vector.x = ( vector.x * widthHalf ) + widthHalf;
-								vector.y = - ( vector.y * heightHalf ) + heightHalf;
-
-								element.style.top = vector.y + 'px';
-								element.style.left = vector.x + 'px';
-
 								const meshDistance = camera.position.distanceTo(nodeObject.position);
 								const opacity = mapToRange(meshDistance, [250,150], [0,1]);
 								element.style.opacity = opacity;
@@ -3857,6 +6063,19 @@ const app = {
 
 								const scale = mapToRange(opacity, [0, 1], [0.6, 1]);
 								element.style.scale = scale;
+
+								const vector = new THREE.Vector3();
+								vector.copy(nodeObject.position);
+								vector.project(threeCamera);
+
+								vector.x = ( vector.x * widthHalf ) + widthHalf;
+								vector.y = - ( vector.y * heightHalf ) + heightHalf;
+
+								const offsetX = (80 - (opacity * 30));
+								const offsetY = (5 + (mapToRange(meshDistance, [250,0], [0,1]) * 40) );
+
+								element.style.translate = vector.x + 'px ' + (vector.y + offsetY) + 'px';
+								element.style.transform = 'translateX(-' + offsetX + '%)';
 							}
 						}
 					}
@@ -3882,10 +6101,11 @@ const app = {
 				},
 
 				update: function () {
+					//app.dev && console.log('dev --- camera-focus-target: ', this.data.target);
 					this.moveOrbitTarget();
 					let event = new Event('camera-focus-target-ready');
+					app.dev && console.log('event --- camera-focus-target-ready - call')
 					document.querySelector('a-scene').dispatchEvent(event);
-					//app.dev && console.log('dev --- camera-focus-target: ', this.data.target);
 				},
 
 				tick: function () {},
@@ -3899,16 +6119,19 @@ const app = {
 				moveOrbitTarget: function() {
 					if(!this.data.target){
 						this.target = document.querySelector('#forcegraph').object3D;
+						// app.dev && console.log('dev --- camera-focus-target > target > forcegraph: ', this.target);
 					}else if(this.data.target.type === 'link-tag' || this.data.target.type === 'link-productionTag'){
 						this.target = {};
 						this.target.position = this.data.target.__curve.v1;
+						// app.dev && console.log('dev --- camera-focus-target > target > link: ', this.target);
 					}else{
 						this.target = this.data.target.__threeObj;
+						// app.dev && console.log('dev --- camera-focus-target > target > object: ', this.target);
 					}
 
 					let newCameraPosition = new THREE.Vector3(); 
 					this.target.getWorldPosition(newCameraPosition);
-					app.dev && console.log('dev --- camera-focus-target position: ', newCameraPosition);
+					// app.dev && console.log('dev --- camera-focus-target position: ', newCameraPosition);
 
 					//animation orbitTarget move to target x
 					this.orbitTargetEl.setAttribute('animation__mot-x', {
@@ -3953,14 +6176,15 @@ const app = {
 				schema: {
 					source: { default: '' }, 
 					highestDistance: { default: 0 }, 
-					noUpdate: { default: null }
+					noUpdate: { default: null }, 
+					forceUpdate: { default: false }
 				}, 
 
 				init: function () {
 					this.cameraEl = document.querySelector('a-camera');
 					this.camera = document.querySelector('a-camera').object3D;
 					this.data.highestDistance = {
-						max: 110,
+						max: 999,
 						value: 0
 					}
 
@@ -3988,8 +6212,10 @@ const app = {
 				},
 
 				update: function () {
+					//app.dev && console.log('dev -- comp > highlight > update', this)
 					let source = this.data.source;
 					this.fgComp = this.el.components.forcegraph.data;
+					this.visibleNodes = 0;
 
 					if(this.data.noUpdate){
 						return;
@@ -3998,33 +6224,52 @@ const app = {
 
 					let newDistance = 0;
 					let newDesiredCameraPitch = 0;
+					let newDesiredCameraYaw = 0;
 					let newDesiredDistance = 0
 					let newTarget = '';
 					let newHighestDistance = 0;
+					let newAutoRotate = false;
+					let newAutoRotateSpeed = 5;
 
 					if(!source) {
+						//app.dev && console.log('dev -- comp > highlight > update without source')
 						this.resetHighlight();
 						newTarget = document.querySelector('#forcegraph').object3D.position;
 						newHighestDistance = this.data.highestDistance.max;
-						newDesiredCameraPitch = -5;
+						app.isMobile ? newDesiredCameraPitch = -5 : '';
+						(window.innerWidth > 1023) ? newDesiredCameraYaw = 0 : '';
+						newAutoRotate = true;
+						newAutoRotateSpeed = 5;
 					}
 
-					source ? app.collectionViewer.highlight.focusedNode = source.id : app.collectionViewer.highlight.focusedNode = null;
+					if(source) {
+						//app.dev && console.log('dev -- comp > highlight > update with source: ', source)
+						app.collectionViewer.highlight.focusedNode = source.id
 
-					if(source.type === 'node-object' || source.type === 'node-category' || source.type === 'node-topic' ) {
-						this.highlightModel(source);
-						newTarget = this.data.source.__threeObj.position;
-						newHighestDistance = this.data.highestDistance.value;
-						newDesiredCameraPitch = -10;
-					}
+						if(source.type === 'node-object' || source.type === 'node-category' || source.type === 'node-topic' ) {
+							this.highlightModel(source);
+							newTarget = this.data.source.__threeObj.position;
+							newHighestDistance = this.data.highestDistance.value;
+							app.isMobile ? newDesiredCameraPitch = -15 : '';
+							(window.innerWidth > 1023) ? newDesiredCameraYaw = 25 : '';
+						}
 
-					if(source.type === 'link-tag' || source.type === 'link-category' || source.type === 'link-topic' || source.type === 'link-productionTag' ) {
-						return;
+						if(source.type === 'link-tag' || source.type === 'link-category' || source.type === 'link-topic' || source.type === 'link-productionTag' ) {
+							return;
+						}
+
+						newAutoRotate = true;
+						newAutoRotateSpeed = 2;
+
+					}else{
+						app.collectionViewer.highlight.focusedNode = null;
+						newAutoRotate = true;
+						newAutoRotateSpeed = 5;
 					}
 
 					newDistance = this.camera.position.distanceTo(newTarget);
 
-					newDesiredDistance = newHighestDistance * (2 * (newHighestDistance / window.innerWidth)) + newHighestDistance;
+					newDesiredDistance = 1.0 * newHighestDistance + ((window.innerWidth / 2) / newHighestDistance);
 
 					const distanceLog = {
 						newDistance: newDistance,
@@ -4034,25 +6279,34 @@ const app = {
 						windowInnerWidth: window.innerWidth
 					}
 
-					app.dev && console.log('dev -- highlight > distanceLog: ', distanceLog)
+					// app.dev && console.log('dev --- highlight > distanceLog: ', distanceLog)
 
 					this.cameraEl.setAttribute('orbit-controls', { 
-						autoRotate: false, 
+						autoRotate: newAutoRotate, 
+						autoRotateSpeed: newAutoRotateSpeed,
 						distance: newDistance, 
 						desiredDistance: newDesiredDistance, 
 						activeRotX: true, 
 						desiredRotX: -5, 
 						desiredCameraPitch: newDesiredCameraPitch,
+						desiredCameraYaw: newDesiredCameraYaw,
 						forceUpdate: true 
 					});
+
+					//app.dev && console.log('dev --- comp > highlight > set orbit-controls: ', this.cameraEl.getAttribute('orbit-controls'));
 
 					this.data.highestDistance.value = 0;
 
 					let event = new Event('highlight-ready');
+					app.dev && console.log('event --- highlight-ready - call')
 					document.querySelector('a-scene').dispatchEvent(event);
 				},
 
 				tick: function () {
+					this.data.forceUpdate && this.update();
+					//(app.dev && this.data.forceUpdate) && console.log('dev --- com > highlight > forced update');
+					this.data.forceUpdate = false;
+
 					if(this.data.source){
 
 						let targetPosition = new THREE.Vector3();
@@ -4167,6 +6421,7 @@ const app = {
 				},
 
 				resetHighlight: function () {
+					//app.dev && console.log('dev --- resetHighlight ');
 					let fgComp = this.fgComp;
 
 					for(let link of fgComp.links){
@@ -4178,13 +6433,18 @@ const app = {
 					}
 
 					for(let node of fgComp.nodes){
-						if (node.id != '' && node.model.material && typeof node.__threeObj !== 'undefined') {
+						//app.dev && console.log('dev --- resetHighlight > node', node.__threeObj);
+						if (typeof node.__threeObj === 'undefined') { continue; }
+						if (node.id != '' && node.model.material) {
 							node.visibility = 'visible';
 							node.model.material.opacity = 1;
 							node.model.material.visible = true;
-							let distance = this.data.highestDistance.max;
-							this.setHighestDistance(distance);
 							node.__threeObj.visible = true;
+
+							let distance = this.data.highestDistance.max;
+							distance = node.__threeObj.position.distanceTo({x:0, y:0, z:0});
+							this.setHighestDistance(distance);
+							//app.dev && console.log('dev --- resetHighlight > node distance: ', {node: node.title, distance: distance});
 						}
 					}
 
@@ -4197,6 +6457,7 @@ const app = {
 					if (this.data.highestDistance.value < distance) {
 						this.data.highestDistance.value = distance;
 						this.data.highestDistance.max = distance;
+						this.visibleNodes++;
 						//app.dev && console.log('dev --- highlight > new highest distance set: ', distance);
 					}
 				}, 
@@ -4278,7 +6539,6 @@ const app = {
 					this.highlightMarker.element.style.opacity = opacity;
 					this.highlightMarker.bracket.upper.element.style.borderRadius = (radius * 20) + 'px 0';
 					this.highlightMarker.bracket.lower.element.style.borderRadius = (radius * 20) + 'px 0';
-
 				}
 			});
 			//END highlight
@@ -4299,11 +6559,13 @@ const app = {
 					minDistance: { default: 30 },
 					maxDistance: { default: 700 }, 
 					autoRotate: { default: true }, 
-					autoRotateSpeed: { default: 10 },
+					autoRotateSpeed: { default: 5 },
 					activeRotX: { default: false },
 					desiredRotX: { default: -5 }, 
 					cameraPitch: { default: 0 },
 					desiredCameraPitch: { default: 0 },
+					cameraYaw: { default: 0 },
+					desiredCameraYaw: { default: 25 },
 					forceUpdate: { default: false }
 				},
 
@@ -4328,7 +6590,11 @@ const app = {
 				},
 
 				update: function () {
-					if (!this.data.enabled) { return; }
+					if(!this.data.enabled) { return; }
+					//app.dev && console.log('dev --- comp > orbit-controls > update', this.el.components['orbit-controls']);
+					//(app.dev && !this.data.forceUpdate) && console.log('dev --- orbit-controls > update');
+					//(app.dev && this.data.forceUpdate) && console.log('dev --- orbit-controls > forced update');
+					this.data.forceUpdate = false;
 
 					if(document.querySelector(this.data.target)){
 						this.target3D = document.querySelector(this.data.target).object3D;
@@ -4349,13 +6615,13 @@ const app = {
 					}
 
 					if(this.data.desiredDistance){
-						this.desiredDistance = this.data.desiredDistance;
+						this.desiredDistance = this.data.desiredDistance * 1.0;
 
 						//app.dev && console.log('dev --- orbit-controls > screen.orientation: ', screen.orientation.type);
 						if(screen.orientation.type === 'portrait-primary'){
-							this.desiredDistance = this.desiredDistance * 1.5;
+							this.desiredDistance = this.data.desiredDistance * 1.5;
 						}
-						//app.dev && console.log('dev --- orbit-controls > this.distance: ', this.desiredDistance);
+						//app.dev && console.log('dev --- orbit-controls > this.desiredDistance: ', this.desiredDistance);
 
 						this.data.desiredDistance = null;
 					}
@@ -4378,12 +6644,12 @@ const app = {
 					if(this.data.enabled){
 
 						this.data.forceUpdate && this.update();
-						this.data.forceUpdate = false;
 
 						//this.controls.update();
 						this.updateOrientation();
 						this.updatePosition();
 						this.updateCameraPitch();
+						(window.innerWidth > 1023) && this.updateCameraYaw();
 					}
 				},
 
@@ -4552,27 +6818,31 @@ const app = {
 							z: this.target3D.position.z
 						});
 
-						if(this.distance > this.desiredDistance) {
-							let distFactor = (this.distance - this.desiredDistance)/50;
-							this.distance -= 1 + distFactor;
+						if(this.distance > this.desiredDistance+1) {
+							this.distFactor = (this.distance - this.desiredDistance)*0.05;
+							this.distance -= this.distFactor;
 						}
 						
-						if(this.distance < this.desiredDistance) {
-							let distFactor = (this.desiredDistance - this.distance)/50;
-							this.distance += 1 + distFactor;
+						if(this.distance < this.desiredDistance+1) {
+							this.distFactor = (this.desiredDistance - this.distance)*0.05;
+							this.distance += this.distFactor;
 						}
 				
 						if(this.distance < this.data.minDistance) { 
 							this.distance = this.data.minDistance;
 							this.desiredDistance = this.data.minDistance; 
-						};
+						}
 
 						if(this.distance > this.data.maxDistance) { 
 							this.distance = this.data.maxDistance;
 							this.desiredDistance = this.data.maxDistance; 
-						};
+						}
 
-						//app.dev && console.log('orbit-controls > distance: ', {distance: this.distance, desiredDistance: this.desiredDistance})
+						if(this.distFactor > 1) {
+							//app.dev && console.log('dev --- orbit-controls > distance: ', {distance: this.distance, desiredDistance: this.desiredDistance, distFactor: this.distFactor})
+						}else {
+							this.distFactor = 0;
+						}
 
 						var targetCameraPosition = this.el.object3D.translateOnAxis( new THREE.Vector3(0,0,1), this.distance ).position;
 				
@@ -4598,8 +6868,25 @@ const app = {
 					if(this.data.cameraPitch < this.data.desiredCameraPitch) {
 						this.data.cameraPitch += 0.3;
 					}
-					
+		
 					this.el.object3D.rotation.x += (this.data.cameraPitch * 0.01745);
+				},
+
+				updateCameraYaw: function () {
+					let desiredCameraYaw = 0;
+					desiredCameraYaw = this.data.desiredCameraYaw;
+					app.tour ? desiredCameraYaw = 25 : '';
+					app.isMobile ? desiredCameraYaw = 0 : '';
+					desiredCameraYaw = (window.innerWidth / 1920) * desiredCameraYaw;
+
+					if(this.data.cameraYaw > desiredCameraYaw) {
+						this.data.cameraYaw -= 0.5;
+					}
+					
+					if(this.data.cameraYaw < desiredCameraYaw) {
+						this.data.cameraYaw += 0.5;
+					}
+					this.el.object3D.children[1].rotation.y = (this.data.cameraYaw * 0.01745);
 				},
 
 				calculateDeltaPosition: function () {
@@ -4636,14 +6923,15 @@ const app = {
 				},
 
 				onMouseMove: function (event) {
-					var pitchObject = this.pitchObject;
-					var yawObject = this.yawObject;
-					var previousMouseEvent = this.previousMouseEvent;
-				
+
 					if (!this.mouseDown || !this.data.enabled) { 
 						this.mouseMove = false;
 						return;
 					}
+				
+					var pitchObject = this.pitchObject;
+					var yawObject = this.yawObject;
+					var previousMouseEvent = this.previousMouseEvent;
 				
 					this.mouseMove = true;
 
@@ -4699,9 +6987,9 @@ const app = {
 					}
 				
 					if (scrollDelta > 0) {
-						this.desiredDistance -= 20;
+						this.desiredDistance -= 10;
 					} else if (scrollDelta < 0) {
-						this.desiredDistance += 20;
+						this.desiredDistance += 10;
 					}
 				},
 
@@ -4807,31 +7095,40 @@ const app = {
 		}, 
 
 		setEventListeners() {
-			this.sceneEl.addEventListener('load-json-models-ready', (evt) => {
+			this.sceneEl.addEventListener('forcegraph-models-ready', (evt) => {
+				app.dev && console.log('event --- forcegraph-models-ready - response: call collectionViewer-ready')
 				app.collectionViewer.components['load-json-models'].ready = true;
 				let event = new Event('collectionViewer-ready');
+				app.dev && console.log('event --- collectionViewer-ready - call from forcegraph-models-ready')
 				document.querySelector('a-scene').dispatchEvent(event);
 			}, {once:true});
 
 			this.sceneEl.addEventListener('camera-focus-target-ready', (evt) => {
+				app.dev && console.log('event --- camera-focus-target-ready - response: call collectionViewer-ready')
 				app.collectionViewer.components['camera-focus-target'].ready = true;
 				let event = new Event('collectionViewer-ready');
+				app.dev && console.log('event --- collectionViewer-ready - call from camera-focus-target-ready')
 				document.querySelector('a-scene').dispatchEvent(event);
 			}, {once:true});
 
 			this.sceneEl.addEventListener('highlight-ready', (evt) => {
+				app.dev && console.log('event --- highlight-ready - response: call collectionViewer-ready')
 				app.collectionViewer.components['highlight'].ready = true;
 				let event = new Event('collectionViewer-ready');
+				app.dev && console.log('event --- collectionViewer-ready - call from highlight-ready')
 				document.querySelector('a-scene').dispatchEvent(event);
 			}, {once:true});
 
-			this.sceneEl.addEventListener('forcegraph-ready', (evt) => {
+			this.sceneEl.addEventListener('forcegraph-engine-ready', (evt) => {
 				if(!app.collectionViewer.components['forcegraph'].first) {
+					app.dev && console.log('event --- forcegraph-engine-ready - response (first): ignore')
 					app.collectionViewer.components['forcegraph'].first = true;
 					return;
 				}
+				app.dev && console.log('event --- forcegraph-engine-ready - response: call collectionViewer-ready')
 				app.collectionViewer.components['forcegraph'].ready = true;
 				let event = new Event('collectionViewer-ready');
+				app.dev && console.log('event --- collectionViewer-ready - call from forcegraph-engine-ready')
 				document.querySelector('a-scene').dispatchEvent(event);
 			});
 
@@ -4840,10 +7137,18 @@ const app = {
 					!app.collectionViewer.components['camera-focus-target'].ready || 
 					!app.collectionViewer.components['highlight'].ready ||
 					!app.collectionViewer.components['forcegraph'].ready
-					){
-
+					)
+				{
+					app.dev && console.log('event --- collectionViewer-ready - response: not ready yet')
 					return;
 				}
+
+				if(app.gui.loadingScreen.hidden) { 
+					app.dev && console.log('event --- collectionViewer-ready - response: loadingScreen already hidden')
+					return; 
+				}
+
+				app.dev && console.log('event --- collectionViewer-ready - response: components ready! setting camera view, hiding loadingScreen')
 
 				if(app.collectionViewer.node) {
 					let nodeID = app.collectionViewer.node;
@@ -4856,31 +7161,38 @@ const app = {
 					for(let n of fgNodes) {
 						if(n.id === nodeID){
 							node = n;
-							app.dev && console.log('dev --- URL model: ', node)
+							// app.dev && console.log('dev --- URL model: ', node)
 						}
 					}
 
 					if(node) { 
 						setTimeout(() => {
+							fgElement.setAttribute('highlight', {source: node});
 							aCameraElement.setAttribute('camera-focus-target', {target: node, duration: 1200});
+							app.collectionViewer.node = null;
 						}, 0);					
 						app.collectionViewer.highlight.onclickHandler(node);
-						fgElement.setAttribute('highlight', {source: node});
-						app.collectionViewer.node = null;
+						
 					}else {
 						app.collectionViewer.resetView.resetCameraView();
+						// app.dev && console.log('dev --- reserCameraView from collectionViewer-ready: no node found');
 					}					
-
 				}else {
 					app.collectionViewer.resetView.resetCameraView();
+					// app.dev && console.log('dev --- reserCameraView from collectionViewer-ready: no app.collectionViewer.node found');
 				}
 
 				app.gui.loadingScreen.hideLoadingScreen();
+				let event = new Event('loadingScreen-ready');
+				app.dev && console.log('event --- loadingScreen-ready - call')
+				document.dispatchEvent(event);
 			});
 		}
 	},
 
 	modelViewer: {
+
+		initialized: false,
 
 		toolBarSetup: {
 			color: 'pearlwhite', 
@@ -4896,7 +7208,8 @@ const app = {
 					target[prop] = value;
 					if(typeof app.modelViewer.proxyJSON === 'undefined') { return false; };
 					if(!app.modelViewer.proxyJSON.data) { return false; };
-					app.dev && console.log('dev --- proxyJSON-update', app.modelViewer.proxyJSON);
+					app.dev && console.log('event --- proxyJSON-update - call');
+					// app.dev && console.log('dev --- proxyJSON-update', app.modelViewer.proxyJSON);
 					document.dispatchEvent(app.modelViewer.proxyJSON.update);
 					return true;
 				}
@@ -4917,6 +7230,9 @@ const app = {
 			this.measurement.init();
 			app.gui.toolbar.button[2].addEventListener('click', (e) => app.modelViewer.measurement.toggleMeasurements() );
 			app.gui.toolbar.setButton(this.ar.buttonSetup);
+
+			this.initialized = true;
+			app.dev && console.log('init --- modelViewer complete');
 		},
 
 		info: {
@@ -4964,7 +7280,7 @@ const app = {
 				if(basicData.name){
 					const nameTermEl = document.createElement('dt');
 					descriptionListBasicEl.appendChild(nameTermEl);
-					const nameTermHeadline = document.createElement('h6');
+					const nameTermHeadline = document.createElement('h7');
 					nameTermEl.appendChild(nameTermHeadline);
 					nameTermHeadline.textContent = 'Bezeichnung: ';
 					nameTermHeadline.className = 'text-smokegrey';
@@ -4979,7 +7295,7 @@ const app = {
 				if(basicData.key){
 					const keyTermEl = document.createElement('dt');
 					descriptionListBasicEl.appendChild(keyTermEl);
-					const keyTermHeadline = document.createElement('h6');
+					const keyTermHeadline = document.createElement('h7');
 					keyTermEl.appendChild(keyTermHeadline);
 					keyTermHeadline.textContent = 'Objektnummer: ';
 					keyTermHeadline.className = 'text-smokegrey';
@@ -4992,7 +7308,7 @@ const app = {
 				if(basicData.categories.length > 0) {
 					const categoryTermEl = document.createElement('dt');
 					descriptionListBasicEl.appendChild(categoryTermEl);
-					const categoryTermHeadline = document.createElement('h6');
+					const categoryTermHeadline = document.createElement('h7');
 					categoryTermEl.appendChild(categoryTermHeadline);
 					categoryTermHeadline.textContent = 'Kontexte: ';
 					categoryTermHeadline.className = 'text-smokegrey';
@@ -5016,7 +7332,7 @@ const app = {
 				if(basicData.tags.length > 0) {
 					const tagTermEl = document.createElement('dt');
 					descriptionListBasicEl.appendChild(tagTermEl);
-					const tagTermHeadline = document.createElement('h6');
+					const tagTermHeadline = document.createElement('h7');
 					tagTermEl.appendChild(tagTermHeadline);
 					tagTermHeadline.textContent = 'Tags: ';
 					tagTermHeadline.className = 'text-smokegrey';
@@ -5042,7 +7358,7 @@ const app = {
 				if(objectData.alternativeName){
 					const altNameTermEl = document.createElement('dt');
 					descriptionListObjectEl.appendChild(altNameTermEl);
-					const altNameTermHeadline = document.createElement('h6');
+					const altNameTermHeadline = document.createElement('h7');
 					altNameTermEl.appendChild(altNameTermHeadline);
 					altNameTermHeadline.textContent = 'Alternative Bezeichnung: ';
 					altNameTermHeadline.className = 'text-smokegrey';
@@ -5058,7 +7374,7 @@ const app = {
 
 					const datingFromToTermEl = document.createElement('dt');
 					descriptionListObjectEl.appendChild(datingFromToTermEl);
-					const datingFromToTermHeadline = document.createElement('h6');
+					const datingFromToTermHeadline = document.createElement('h7');
 					datingFromToTermEl.appendChild(datingFromToTermHeadline);
 					datingFromToTermHeadline.textContent = 'Datierung: ';
 					datingFromToTermHeadline.className = 'text-smokegrey';
@@ -5073,7 +7389,7 @@ const app = {
 
 					const locationTermEl = document.createElement('dt');
 					descriptionListObjectEl.appendChild(locationTermEl);
-					const locationTermHeadline = document.createElement('h6');
+					const locationTermHeadline = document.createElement('h7');
 					locationTermEl.appendChild(locationTermHeadline);
 					locationTermHeadline.textContent = 'Verortung: ';
 					locationTermHeadline.className = 'text-smokegrey';
@@ -5088,7 +7404,7 @@ const app = {
 
 					const originTermEl = document.createElement('dt');
 					descriptionListObjectEl.appendChild(originTermEl);
-					const originTermHeadline = document.createElement('h6');
+					const originTermHeadline = document.createElement('h7');
 					originTermEl.appendChild(originTermHeadline);
 					originTermHeadline.textContent = 'Enstehungsort: ';
 					originTermHeadline.className = 'text-smokegrey';
@@ -5108,7 +7424,7 @@ const app = {
 				if(collectionData.collectionDate){
 					const collectionDateTermEl = document.createElement('dt');
 					descriptionListCollectionEl.appendChild(collectionDateTermEl);
-					const collectionDateTermHeadline = document.createElement('h6');
+					const collectionDateTermHeadline = document.createElement('h7');
 					collectionDateTermEl.appendChild(collectionDateTermHeadline);
 					collectionDateTermHeadline.textContent = 'Erhebungsdatum: ';
 					collectionDateTermHeadline.className = 'text-smokegrey';
@@ -5123,7 +7439,7 @@ const app = {
 
 					const collectionLocationTermEl = document.createElement('dt');
 					descriptionListCollectionEl.appendChild(collectionLocationTermEl);
-					const collectionLocationTermHeadline = document.createElement('h6');
+					const collectionLocationTermHeadline = document.createElement('h7');
 					collectionLocationTermEl.appendChild(collectionLocationTermHeadline);
 					collectionLocationTermHeadline.textContent = 'Erhebungsort: ';
 					collectionLocationTermHeadline.className = 'text-smokegrey';
@@ -5136,7 +7452,7 @@ const app = {
 				if(collectionData.collectionScanner){
 					const collectionScannerTermEl = document.createElement('dt');
 					descriptionListCollectionEl.appendChild(collectionScannerTermEl);
-					const collectionScannerTermHeadline = document.createElement('h6');
+					const collectionScannerTermHeadline = document.createElement('h7');
 					collectionScannerTermEl.appendChild(collectionScannerTermHeadline);
 					collectionScannerTermHeadline.textContent = '3D-Scanner: ';
 					collectionScannerTermHeadline.className = 'text-smokegrey';
@@ -5184,8 +7500,6 @@ const app = {
 				const modelViewer = app.modelViewer.element;
 				let contentHTML = '';
 
-				app.dev && console.log('dev--- loadContextStory > typeof: ', typeof modelJSON.objectData.usageContext)
-
 				if(typeof modelJSON.objectData.usageContext === 'object') {
 					contentHTML = app.createHTMLContentFromJSON(modelJSON.objectData.usageContext)
 					this.message = {
@@ -5205,10 +7519,6 @@ const app = {
 						shadow: this.messageSetup.colors.shadow
 					}
 				}
-
-				
-
-				
 			}, 
 
 			setContextStory() {
@@ -5266,9 +7576,10 @@ const app = {
 			},
 
 			init() {
-
 				this.createElements();
 				this.renderModelDimensions();
+
+				app.dev && console.log('init --- modelViewer > measurement');
 			},
 
 			renderModelDimensions() {
@@ -5466,7 +7777,7 @@ const app = {
 				buttonEl.classList.remove(colors.button.background);
 				buttonEl.className = 'button smokegrey disabled';
 
-				app.dev && console.log('dev --- setARButton: ', {isWebXRCapable: app.isWebXRCapable, isARCapable: app.isARCapable});
+				// app.dev && console.log('dev --- setARButton: ', {isWebXRCapable: app.isWebXRCapable, isARCapable: app.isARCapable});
 
 				if(app.isMobile && app.isWebXRCapable) {
 					buttonEl.setAttribute('data-webxr', true);
@@ -5498,6 +7809,12 @@ const app = {
 		annotations: {
 
 			annotationSetup: {
+					unset: {
+						icon: 'quiz',
+						buttonColor: 'smokegrey', 
+						messageColor: 'pearlwhite', 
+						messageShadowColor: 'shadow-smokegrey'
+					},
 					read: {
 						icon: 'read',
 						buttonColor: 'skyblue', 
@@ -5521,6 +7838,12 @@ const app = {
 						buttonColor: 'terracotta', 
 						messageColor: 'pearlwhite', 
 						messageShadowColor: 'shadow-terracotta'
+					},
+					move: {
+						icon: 'move',
+						buttonColor: 'skyblue', 
+						messageColor: 'pearlwhite', 
+						messageShadowColor: 'shadow-skyblue'
 					}
 			},
 
@@ -5536,6 +7859,8 @@ const app = {
 
 				for(let a in modelJSON.appData.annotations){
 					const annotation = modelJSON.appData.annotations[a];
+
+					annotation.mediaType ? '' : annotation.mediaType = 'unset';
 
 					//button creation
 					this.annotationArray[a] = {};
@@ -5582,11 +7907,13 @@ const app = {
 						type: 'Annotation',
 						content: app.createHTMLContentFromJSON(annotation.contents),
 						color: this.annotationSetup[annotation.mediaType].messageColor,
-						shadow: this.annotationSetup[annotation.mediaType].messageShadowColor
+						shadow: this.annotationSetup[annotation.mediaType].messageShadowColor,
+						showClose: false,
+						showBack: true
 					}
 				}  
 
-				app.gui.message.closeEl.addEventListener('click', () => {
+				app.gui.message.backEl.addEventListener('click', () => {
 					for(let a in this.annotationArray){
 						const thisButton = this.annotationArray[a].button.element;
 						thisButton.classList.remove('focus');
@@ -5630,6 +7957,7 @@ const app = {
 			const self = this;
 
 			document.addEventListener('proxyJSON-update', (e) => {
+				app.dev && console.log('event --- proxyJSON-update - response: loading model, loading annotataions, loading contextStory, creating tab content')
 				const json = app.modelViewer.proxyJSON.data;
 				self.loadModel(json);
 				json.appData.annotations && self.annotations.loadAnnotations(json);
@@ -5641,14 +7969,41 @@ const app = {
 				app.isARCapable = app.modelViewer.checkARSupport();
 				app.modelViewer.ar.setARButton();
 				app.gui.loadingScreen.hideLoadingScreen();
+				if(app.embedded){ return; }
+				if(app.fileMaker){ return; }
 				app.modelViewer.contextStory.setContextStory();
 			});
+
+			this.element.addEventListener('progress', (e) => this.setLoadingText(e));
+
+			document.addEventListener('wheel', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				event.stopImmediatePropagation();
+				let deltaY = event.deltaY;
+				let zoomSensitivity = 0.1;
+				let direction = 0;
+
+				deltaY > 0 ? direction = -1 : direction = 1;
+
+				direction = direction * zoomSensitivity;
+
+				app.dev && console.log('dev --- scroll event: ', event)
+				app.dev && console.log('dev --- scroll direction: ', direction)
+
+				//self.element.zoom(direction);
+			})
 		},
 
 		getJSONData: async function(url) {
 			//JSON fetch and loading model viewer
+			let headers = null;
+			if(app.fileMaker) {
+				headers = { headers: { 'Cache-Control': 'no-cache' } }
+			}
+
 			try{
-				const response = await fetch(url);
+				const response = await fetch(url, headers);
 				if(!response.ok) {
 					throw new Error(`Response status: ${response.status}`);
 					return false;
@@ -5668,7 +8023,7 @@ const app = {
 			app.gui.title.set(modelJSON.basicData.name, 'node-object', modelJSON.primaryKey, true)
 
 			//set modelViewer data
-			app.hideGUI ? modelViewer.src = app.filepaths.files + modelJSON.appData.model.quality1k : modelViewer.src = app.filepaths.files + modelJSON.appData.model.quality2k;
+			modelViewer.src = app.filepaths.files + modelJSON.appData.model.quality2k;
 			modelViewer.cameraOrbit = modelJSON.appData.modelViewer.cameraOrbit;
 			modelViewer.cameraTarget = modelJSON.appData.modelViewer.cameraTarget;
 			modelViewer.fieldOfView = modelJSON.appData.modelViewer.cameraField;
@@ -5678,10 +8033,10 @@ const app = {
 			const modelViewer = app.modelViewer.element;
 			//test if WebXR AR is supported
 			if(modelViewer.canActivateAR){
-				app.dev && console.log('dev --- checkARSupport:', true);
+				// app.dev && console.log('dev --- checkARSupport:', true);
 				return true;
 			}else{
-				app.dev && console.log('dev --- checkARSupport:', false);
+				// app.dev && console.log('dev --- checkARSupport:', false);
 				return false;
 			}
 			return false;
@@ -5699,20 +8054,20 @@ const app = {
 			this.element.setAttribute('src', '');
 			this.element.setAttribute('shadow-intensity', '1');
 			this.element.setAttribute('camera-controls', '');
-			//this.element.setAttribute('touch-action', 'pan-y');
 			this.element.setAttribute('disable-tap', '');
 			this.element.setAttribute('camera-orbit', '');
 			this.element.setAttribute('orbit-sensitivity', '2');
-			this.element.setAttribute('min-camera-orbit', '-Infinity 15deg 0.1m');
+			this.element.setAttribute('zoom-sensitivity', '0.01');
+			this.element.setAttribute('min-camera-orbit', '-Infinity 15deg 0.2m');
 			this.element.setAttribute('max-camera-orbit', '-Infinity 165ddeg 12.5m');
 			this.element.setAttribute('camera-target', '');
 			this.element.setAttribute('field-of-view', '');
 			this.element.setAttribute('interpolation-decay', '150');
 			this.element.setAttribute('data-dimension', 'false');
-			app.hideGUI && this.element.setAttribute('auto-rotate', '');
-			app.hideGUI && this.element.setAttribute('rotation-per-second', '0.3rad');
 			app.hideGUI && this.element.setAttribute('disable-zoom', '');
 			app.hideGUI && this.element.setAttribute('interaction-prompt', 'none');
+			app.embedded && this.element.setAttribute('disable-zoom', '');
+			app.embedded && this.element.setAttribute('interaction-prompt', 'none');
 
 			this.default = {};
 
@@ -5731,6 +8086,12 @@ const app = {
 			this.element.remove();
 			app.gui.toolbar.button[1].removeEventListener('click', (e) => app.modelViewer.contextStory.setContextStory() );
 			app.gui.toolbar.button[2].removeEventListener('click', (e) => app.modelViewer.measurement.toggleMeasurements() );
+		},
+
+		setLoadingText(event) {
+			let progress = Math.trunc(event.detail.totalProgress * 100);
+			app.gui.loadingScreen.animation.percentEl.innerHTML = progress + '%'
+			// app.dev && console.log('dev --- progress: ', progress)
 		}
 	},
 
@@ -5756,7 +8117,7 @@ const app = {
 			this.firstContactTool = "<h3>Tools</h3> <p>Willkommen bei den Tools. Hier kannst du das Objekt mit Clipping genauer untersuchen. Bewege die Kamera dazu nahe an das Objekt, um das Objekt abzuschneiden. Außerdem kannst du einen Schnitt festhalten mit Freeze oder die Entfernung des Schnitts einstellen. </br> Du kannst die Textur, also die Beschaffenheit der Oberfläche, sowie das Wireframe, also das visuelle Modell des 3D-Object an- bzw. ausschalten.";
 			this.goodbyeMessage = "<h3>Entdecker-Modus verlassen</h3> <p>Was möchtest du tun?</p>";
 			this.goodbyeMessageButton1 = "Entdeckermodus erneut starten";
-			this.goodbyeMessageButton2 = "Zum Modelviewer zurückkehren";
+			this.goodbyeMessageButton2 = "Zur Modellansicht zurückkehren";
 			this.startPlacing = '<img src="' + app.assets.icon['move'].src.pearlwhite + '" alt="' + app.assets.icon['move'].alt + '" height="50px" loading="lazy" /> <p>Um das Objekt zu platzieren, suche eine freie Boden- oder Tischfläche. Das Objekt soll dort in realer Größe platziert werden.</p>';
 			this.leaveAR = '<p>Entdecker-Modus wirklich verlassen?</p>';
 			this.startPlacingButton = 'Platzierung starten!';
@@ -6321,9 +8682,7 @@ const app = {
 
 			  cancelAR: function () {
 				let url = '?m=mv&model=' + app.primaryKey;
-				app.dev ? url += '&dev=true' : '';
-				app.stats ? url += '&stats=true' : '';
-				app.embedded ? url += '&embedded=true' : '';
+				url = app.setURLParams(url);
 				window.location.href = url;
 			  },
 
@@ -6714,7 +9073,7 @@ const app = {
 					  self.hideMissionBtn();
 					  self.missionExisting = false;
 					}
-					app.dev && console.log('dev --- arViewer > json: \n', json);
+					// app.dev && console.log('dev --- arViewer > json: \n', json);
 				  })
 				  .catch((error) => {
 					app.dev && console.error("There was a problem with the fetch operation:", error);
@@ -9115,57 +11474,148 @@ const app = {
 				const headlineHTML = '<h3>' + content.content + '</h3>';
 				contentHTML = contentHTML.concat(headlineHTML);
 
-			}else if(content.type === 'subheadline'){
+			}
+
+			if(content.type === 'subheadline'){
 				let imageHTML = '';
 				if(content.filename) {
 					let iconBackgroundColor = '';
 					('iconBackgroundColor' in content) ? iconBackgroundColor = content.iconBackgroundColor : '';
 					imageHTML = '<div class="icon ' + iconBackgroundColor + '"><img src="' + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px"></div>'
 				}
-				const subHeadlineHTML = '<h5>' + imageHTML + content.content + '</h5>';
+				const subHeadlineHTML = '<h4 class="subheadline">' + imageHTML + content.content + '</h4>';
 				contentHTML = contentHTML.concat(subHeadlineHTML);
 
-			}else if(content.type === 'paragraph'){
+			}
+
+			if(content.type === 'paragraph'){
 				const paragraphHTML = '<p class="content-text">' + content.content + '</p>';
 				contentHTML = contentHTML.concat(paragraphHTML);
 
-			}else if(content.type === 'paragraph+image'){
+			}
+
+			if(content.type === 'paragraph+image'){
 				const imageHTML = '<img src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px">' 
 				const captionHTML = '<span class="content-image-caption">' + content.imageCaption + '<span class="copyright"> Foto: ' + content.fileCopyright + '</span></span>';
-				const paragraphAndImageHTML = '<div class="content-image in-paragraph"><div class="content-image-box">' + imageHTML + '</div>' + captionHTML + '</div><p class="content-text">' + content.content + '</p>';
+				const paragraphAndImageHTML = '<div class="content-image in-paragraph terracotta"><div class="content-image-box">' + imageHTML + '</div>' + captionHTML + '</div><p class="content-text">' + content.content + '</p>';
 				contentHTML = contentHTML.concat(paragraphAndImageHTML);
 
-			}else if(content.type === 'paragraph+audio'){
-				
-			}else if(content.type === 'paragraph+video'){
-				
-			}else if(content.type === 'quote'){
+			}
+
+			if(content.type === 'description+onboarding'){
+				const paragraphHTML = '<div class="description onboarding shadow-smokegrey"><h5>Leitfaden</h5><p class="content-text">' + content.content + '</p><button class="button onboarding smokegrey" data-link="onboarding">zum Leitfaden</button></div>';
+				contentHTML = contentHTML.concat(paragraphHTML);
+
+			}
+
+			if(content.type === 'description+tour'){
+				const imageHTML = '<img src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px">' 
+				const captionHTML = '<span class="copyright text-small"> Foto: ' + content.fileCopyright + '</span>';
+				const paragraphAndImageHTML = '<div class="description tour shadow-duckyellow"><div class="content-image"><div class="content-image-box">' + imageHTML + captionHTML + '</div></div><h5>' + content.content + '</h5><p class="content-text">' + content.imageCaption + '</p><button class="button tour duckyellow" data-link="' + content.content + '">zum Thema</button></div>';
+				contentHTML = contentHTML.concat(paragraphAndImageHTML);
+
+			}
+
+			if(content.type === 'description+object'){
+				const imageHTML = '<img src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px">' 
+				const captionHTML = '<span class="copyright text-small"> Foto: ' + content.fileCopyright + '</span>';
+				const paragraphAndImageHTML = '<div class="description object shadow-skyblue"><div class="content-image"><div class="content-image-box">' + imageHTML + captionHTML + '</div></div><h5>' + content.content + '</h5><p class="content-text text-small">' + content.imageCaption + '</p><button class="button object skyblue" data-link="' + content.objectLink + '">ansehen</button></div>';
+				contentHTML = contentHTML.concat(paragraphAndImageHTML);
+
+			}
+
+			if(content.type === 'quote'){
 				const quoteHTML = '<p class="content-text quote">' + content.content + '</p>';
 				contentHTML = contentHTML.concat(quoteHTML);
 
-			}else if(content.type === 'literature'){
+			}
+
+			if(content.type === 'literature'){
 				const quoteHTML = '<p class="content-text literature">' + content.content + '</p>';
 				contentHTML = contentHTML.concat(quoteHTML);
 
-			}else if(content.type === 'image'){
+			}
+
+			if(content.type === 'image'){
 				const imageHTML = '<img src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px">' 
 				const captionHTML = '<p class="content-image-caption">' + content.imageCaption + '<span class="copyright"> Foto: ' + content.fileCopyright + '</span></p>';
-				const imageAndCaptionHTML = '<div class="content-image"><div class="content-image-box">' + imageHTML + '</div>' + captionHTML + '</div>';
+				const imageAndCaptionHTML = '<div class="content-image terracotta"><div class="content-image-box">' + imageHTML + '</div>' + captionHTML + '</div>';
 				contentHTML = contentHTML.concat(imageAndCaptionHTML);
 
-			}else if(content.type === 'audio'){
-				const audioHTML = '<audio controls><source src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" type="audio/mpeg"></audio>';
+			}
+
+			if(content.type === 'image+fullsize'){
+				const imageHTML = '<img src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px">' 
+				const copyrightHTML = '<p class="content-image-caption"><span class="copyright text-coalgrey"> Foto: ' + content.fileCopyright + '</span></p>';
+				const imageAndCaptionHTML = '<div class="content-image fullsize"><div class="content-image-box">' + imageHTML + '</div>' + copyrightHTML + '</div>';
+				contentHTML = contentHTML.concat(imageAndCaptionHTML);
+				
+			}
+
+			if(content.type === 'image+patronage'){
+				const imageHTML = '<div class="content-image fullsize nozoom patronage"><div class="content-image-box"><img src="' + app.filepaths.assets + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px"></div></div>';
+				contentHTML = contentHTML.concat(imageHTML);				
+			}
+
+			if(content.type === 'audio'){
+				const playerHTML = '<div class="content-audio"><audio controls><source src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" type="audio/mpeg"></audio></div>';
+				const transcriptHTML = '<h7 class="subheadline text-smokegrey">Transkript:</h7><p class="content-text quote">' + content.content + '</p><br/>';
+
+				let audioHTML = playerHTML;
+				content.content ? audioHTML += transcriptHTML : '';
+
 				contentHTML = contentHTML.concat(audioHTML);
 
-			}else if(content.type === 'video'){
-				
-			}else if(content.type === 'link'){
-				const linkHTML = '<a class="content-link" href="">' + content.content + '</a>';
+			}
+
+			if(content.type === 'link'){
+				const linkHTML = '<a class="content-link" href="' + content.filename + '">' + content.content + '</a>';
 				contentHTML = contentHTML.concat(linkHTML);
 
-			}else if(content.type === 'button'){
-				const linkHTML = '<a href="' + content.filename + '"><button class="button duckyellow">' + content.content + '</button></a>';
+			}
+
+			if(content.type === 'link-object'){
+				let href = '?m=mv';
+				app.dev ? href += '&dev=true': '';
+				if(app.tour) {
+					href += '&tour=' + app.tour;
+					href += '&step=' + app.step;
+				}
+				href += '&model=' + content.filename;
+
+				const linkHTML = '<a href="' + href + '"><button class="button content-object-link skyblue"><img src="' + app.assets.icon['watch'].src.pearlwhite + '" alt="' + app.assets.icon['watch'].alt + '" width="100" height="100">' + content.content + '</button></a>';
 				contentHTML = contentHTML.concat(linkHTML);
+
+			}
+
+			if(content.type === 'link-button'){
+				const linkHTML = '<a href="' + content.filename + '"><button class="button skyblue">' + content.content + '</button></a>';
+				contentHTML = contentHTML.concat(linkHTML);
+
+			}
+
+			if(content.type === 'button'){
+				const linkHTML = '<button class="button coalgrey">' + content.content + '</button>';
+				contentHTML = contentHTML.concat(linkHTML);
+
+			}
+
+			if(content.type === 'personal+waa'){
+				const imageHTML = '<img src="' + app.assets.illustration.personal['waa'].src + '" alt="' + app.assets.illustration.personal['waa'].alt + '" width="100px" height="100px">' 
+				const personalHTML = '<div class="content-image personal shadow-skyblue"><div class="content-image-box">' + imageHTML + '</div><p class="content-text personal">' + content.content + '</p></div>';
+				contentHTML = contentHTML.concat(personalHTML);
+			}
+
+			if(content.type === 'personal+kir1'){
+				const imageHTML = '<img src="' + app.assets.illustration.personal['kir1'].src + '" alt="' + app.assets.illustration.personal['kir1'].alt + '" width="100px" height="100px">' 
+				const personalHTML = '<div class="content-image personal shadow-skyblue"><div class="content-image-box">' + imageHTML + '</div><p class="content-text personal">' + content.content + '</p></div>';
+				contentHTML = contentHTML.concat(personalHTML);
+			}
+
+			if(content.type === 'personal+kir2'){
+				const imageHTML = '<img src="' + app.assets.illustration.personal['kir2'].src + '" alt="' + app.assets.illustration.personal['kir2'].alt + '" width="100px" height="100px">' 
+				const personalHTML = '<div class="content-image personal shadow-skyblue"><div class="content-image-box">' + imageHTML + '</div><p class="content-text personal">' + content.content + '</p></div>';
+				contentHTML = contentHTML.concat(personalHTML);
 			}
 		}
 		return contentHTML;
@@ -9214,12 +11664,14 @@ const app = {
 		const node = this.getURLParameter('node');
 		const model = this.getURLParameter('model');
 		const isFrom = this.getURLParameter('from');
+		this.tour = this.getURLParameter('tour');
+		this.step = Number(this.getURLParameter('step'));
 		this.dev = (this.getURLParameter('dev') === 'true');
 		this.stats = (this.getURLParameter('stats') === 'true');
 		this.hideGUI = (this.getURLParameter('gui') === 'false');
 		this.embedded = (this.getURLParameter('embedded') === 'true');
-
-		this.embedded ? this.hideGUI = true : '';
+		this.fileMaker = (this.getURLParameter('fm') === 'true');
+		this.showWelcome = (this.getURLParameter('welcome') !== 'false');
 
 		//set viewerMode
 		if(!this.viewerModes.includes(mode)){
@@ -9228,6 +11680,16 @@ const app = {
 			this.viewerMode = mode;
 		}
 
+		//handle session storage
+		if(this.showWelcome) {
+			let sessionWelcome = this.getSessionStorage('welcome');
+			!sessionWelcome ? sessionWelcome = this.setSessionStorage('welcome', true) : this.showWelcome = false;
+		}
+
+		//handdle filemaker
+		this.fileMaker ? app.filepaths.files = '../files/' : '';
+		// (this.fileMaker && app.dev) && console.log('dev --- fileMaker active, filepath changed to: ', app.filepaths.files)
+
 		//handle mv model uuid
 		(this.viewerMode === 'mv' && !model) && this.handleError('mv-000');
 		(this.viewerMode === 'mv' && !regex.test(model)) && this.handleError('mv-001');
@@ -9235,31 +11697,50 @@ const app = {
 
 		//handle from parameter
 		(this.viewerMode === 'cv' && node) ? this.collectionViewer.node = node : '';
+		(this.viewerMode === 'cv' && this.tour) ? this.collectionViewer.node = null : '';
 
 		//reset URL with pushState if node is set
-		let url = '?m=' + this.viewerMode;
-		this.dev ? url += '&dev=true' : '';
-		this.stats ? url += '&stats=true' : '';
-		this.hideGUI ? url += '&gui=false' : '';
-		this.embedded ? url += '&embedded=true' : '';
-		(this.viewerMode === 'cv' && node) ? window.history.pushState(null, null, url) : '';
-	}, 
+		// let url = '?m=' + this.viewerMode;
+		// url = app.setURLParams(url);
+		// (this.viewerMode === 'cv' && node) ? window.history.pushState(null, null, url) : '';
 
-	handleLocalStorage() {
-		this.showOnboarding = (localStorage.getItem('onboardingComplete') !== 'true');
-		localStorage.setItem('onboardingComplete', 'true');
-		app.dev && console.log('dev --- handleLocalStorage > showOnboarding: ', this.showOnboarding);
+		//prevent welcome message
+		(this.viewerMode === 'cv' && this.tour) ? this.showWelcome = false : '';
+		(this.viewerMode === 'cv' && node) ? this.showWelcome = false : '';
+		(this.viewerMode === 'cv' && isFrom) ? this.showWelcome = false : '';
+	},
+
+	setSessionStorage(key, value) {
+		sessionStorage.setItem(key, value);
+		app.dev && console.log('dev --- setSessionStorage: ', {key, value});
+	},
+
+	getSessionStorage(key) {
+		let data = sessionStorage.getItem(key);
+		app.dev && console.log('dev --- getSessionStorage: ', {key, data});
+		return data;
+	},
+
+	setURLParams(url) {
+		app.dev ? url += '&dev=true' : '';
+		app.stats ? url += '&stats=true' : '';
+
+		app.hideGUI ? url += '&gui=false' : '';
+		app.embedded ? url += '&embedded=true' : '';
+		app.fileMaker ? url += '&fm=true' : '';
+
+		return url;
 	},
 
 	checkMobile() {
 		// from: https://stackoverflow.com/questions/11381673/detecting-a-mobile-browser
 		let check = false;
 		(function(a){
-			if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0,4))) {
+			if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substring(0,4))) {
 				check = true;
 			}
 		})(navigator.userAgent||navigator.vendor||window.opera);
-		app.dev && console.log('dev --- checkMobile:', check);
+		// app.dev && console.log('dev --- checkMobile:', check);
 		return check;
 	},
 
@@ -9268,11 +11749,11 @@ const app = {
 		if(navigator.xr){
 			return true;
 			navigator.xr.isSessionSupported('immersive-ar').then((isSupported) => {
-				app.dev && console.log('dev --- checkWebXRSupport:', isSupported);
+				// app.dev && console.log('dev --- checkWebXRSupport:', isSupported);
 				
 			});
 		}else{
-			app.dev && console.log('dev --- checkWebXRSupport:', false);
+			// app.dev && console.log('dev --- checkWebXRSupport:', false);
 			return false;
 		}
 	},
@@ -9291,7 +11772,7 @@ const app = {
 		} catch (err) {
 			passiveSupported = false;
 		} finally {
-			app.dev && console.log('dev --- checkEventlistenerPassiveSupport: ', passiveSupported)
+			// app.dev && console.log('dev --- checkEventlistenerPassiveSupport: ', passiveSupported)
 			return passiveSupported;
 		}
 	},
