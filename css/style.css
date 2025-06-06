@@ -1034,6 +1034,10 @@ div.gui-message > div.button-container > button.button > img.button-icon {
   margin-block-end: 0.5em;
 }
 
+.content > h1.subheadline, h2.subheadline, h3.subheadline, h4.subheadline, h5.subheadline, h6.subheadline, h7.subheadline {
+  margin-block-start: 0;
+}
+
 .content button { 
   font-weight: 700;
   margin-right: 1em;
@@ -1084,6 +1088,10 @@ button.content-object-link > img {
   width: 25px;
   height: 25px;
   margin: -5px 5px -5px -5px;
+}
+
+.content-audio {
+  width: 100%;
 }
 
 .content-image {

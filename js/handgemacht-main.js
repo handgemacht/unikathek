@@ -11483,7 +11483,7 @@ const app = {
 					('iconBackgroundColor' in content) ? iconBackgroundColor = content.iconBackgroundColor : '';
 					imageHTML = '<div class="icon ' + iconBackgroundColor + '"><img src="' + content.filename + '" alt="' + content.imageAlt + '" width="100px" height="100px"></div>'
 				}
-				const subHeadlineHTML = '<h4>' + imageHTML + content.content + '</h4>';
+				const subHeadlineHTML = '<h4 class="subheadline">' + imageHTML + content.content + '</h4>';
 				contentHTML = contentHTML.concat(subHeadlineHTML);
 
 			}
@@ -11566,7 +11566,11 @@ const app = {
 			}
 
 			if(content.type === 'audio'){
-				const audioHTML = '<audio controls><source src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" type="audio/mpeg"></audio>';
+				const playerHTML = '<div class="content-audio"><audio controls><source src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" type="audio/mpeg"></audio></div>';
+				const transcriptHTML = '<h7 class="subheadline text-smokegrey">Transkript:</h7><p class="content-text quote">' + content.content + '</p><br/>';
+
+				let audioHTML = playerHTML;
+				content.content ? audioHTML += transcriptHTML : '';
 
 				contentHTML = contentHTML.concat(audioHTML);
 
