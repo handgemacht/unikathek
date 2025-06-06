@@ -5373,7 +5373,7 @@ const app = {
 								//parse forcegraph data to app.collectionViewer
 								app.collectionViewer.proxyfgData.data = comp.fgData;
 								//filter forcegraph data for default view
-								comp.filterFgData(comp.fgData, comp.fgData.taglist, [], comp.fgData.categorylist, comp.fgData.topiclist); //default: all tags, no production tags, all categories, all topics
+								comp.filterFgData(comp.fgData, [], [], comp.fgData.categorylist, comp.fgData.topiclist); //default: no tags, no production tags, all categories, all topics
 							}
 						}, {once: true});
 					},
