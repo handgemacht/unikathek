@@ -7809,6 +7809,12 @@ const app = {
 		annotations: {
 
 			annotationSetup: {
+					unset: {
+						icon: 'quiz',
+						buttonColor: 'smokegrey', 
+						messageColor: 'pearlwhite', 
+						messageShadowColor: 'shadow-smokegrey'
+					},
 					read: {
 						icon: 'read',
 						buttonColor: 'skyblue', 
@@ -7832,6 +7838,12 @@ const app = {
 						buttonColor: 'terracotta', 
 						messageColor: 'pearlwhite', 
 						messageShadowColor: 'shadow-terracotta'
+					},
+					move: {
+						icon: 'move',
+						buttonColor: 'skyblue', 
+						messageColor: 'pearlwhite', 
+						messageShadowColor: 'shadow-skyblue'
 					}
 			},
 
@@ -7847,6 +7859,8 @@ const app = {
 
 				for(let a in modelJSON.appData.annotations){
 					const annotation = modelJSON.appData.annotations[a];
+
+					annotation.mediaType ? '' : annotation.mediaType = 'unset';
 
 					//button creation
 					this.annotationArray[a] = {};
@@ -7983,8 +7997,13 @@ const app = {
 
 		getJSONData: async function(url) {
 			//JSON fetch and loading model viewer
+			let headers = null;
+			if(app.fileMaker) {
+				headers = { headers: { 'Cache-Control': 'no-cache' } }
+			}
+
 			try{
-				const response = await fetch(url);
+				const response = await fetch(url, headers);
 				if(!response.ok) {
 					throw new Error(`Response status: ${response.status}`);
 					return false;
