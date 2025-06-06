@@ -5,7 +5,7 @@
 //START app 
 const app = {
 	title: 'Unikathek',
-	version: 'beta 1.9 25/06/02',
+	version: 'beta 1.9 25/06/06',
 	dev: false,
 	stats: false,
 	viewerMode: false,
@@ -5443,7 +5443,7 @@ const app = {
 
 					loadJSONModels: function () {
 						const fgData = '';
-						const fileJSON = app.filepaths.files + app.filepaths.collectionJSON;
+						const fileJSON = app.filepaths.files + app.filepaths.collectionJSON + '?v=' + app.version;
 
 						function percentLoaded(count, max){
 							let percent = (100 / max) * count;
