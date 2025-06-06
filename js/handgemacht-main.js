@@ -5,7 +5,7 @@
 //START app 
 const app = {
 	title: 'Unikathek',
-	version: 'beta 1.9 25/06/06',
+	version: 'release 1.9 25/06/06',
 	dev: false,
 	stats: false,
 	viewerMode: false,
