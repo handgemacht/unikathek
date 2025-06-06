@@ -11502,14 +11502,6 @@ const app = {
 
 			}
 
-			if(content.type === 'paragraph+audio'){
-				
-			}
-
-			if(content.type === 'paragraph+video'){
-				
-			}
-
 			if(content.type === 'description+onboarding'){
 				const paragraphHTML = '<div class="description onboarding shadow-smokegrey"><h5>Leitfaden</h5><p class="content-text">' + content.content + '</p><button class="button onboarding smokegrey" data-link="onboarding">zum Leitfaden</button></div>';
 				contentHTML = contentHTML.concat(paragraphHTML);
@@ -11574,24 +11566,6 @@ const app = {
 
 				contentHTML = contentHTML.concat(audioHTML);
 
-			}
-
-			if(content.type === 'audio+new'){
-				const audioHTML = '<audio id="' + content.filename + '"><source src="' + app.filepaths.files + app.filepaths.annotationMedia + content.filename + '" type="audio/mpeg"></audio>';
-
-				const playButtonHTML = '<button onclick="document.getElementById("' + content.filename + '").play()">Play</button>';
-				const pauseButtonHTML = '<button onclick="document.getElementById("' + content.filename + '").pause()">Pause</button>';
-				const volumeUpButtonHTML = '<button onclick="document.getElementById("' + content.filename + '").volume += 0.1">Vol +</button>';
-				const volumeDownButtonHTML = '<button onclick="document.getElementById("' + content.filename + '").volume -= 0.1">Vol -</button>'; 
-
-				const playerHTML = audioHTML + '<div>' + playButtonHTML + pauseButtonHTML + volumeUpButtonHTML + volumeDownButtonHTML + '</div>'
-
-				contentHTML = contentHTML.concat(playerHTML);
-
-			}
-
-			if(content.type === 'video'){
-				
 			}
 
 			if(content.type === 'link'){
