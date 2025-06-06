@@ -3341,7 +3341,7 @@ const app = {
 					//app.dev && console.log('dev --- cv > filter > proxyfgData-update: ', app.collectionViewer.proxyfgData.data);
 					this.generateCheckBoxList('#cv-filter-category-list', app.collectionViewer.proxyfgData.data.categorylist, app.collectionViewer.elementColor.category);
 					this.generateCheckBoxList('#cv-filter-topic-list', app.collectionViewer.proxyfgData.data.topiclist, app.collectionViewer.elementColor.topic);
-					this.generateCheckBoxList('#cv-filter-tag-list', app.collectionViewer.proxyfgData.data.taglist, app.collectionViewer.elementColor.tag);
+					this.generateCheckBoxList('#cv-filter-tag-list', app.collectionViewer.proxyfgData.data.taglist, app.collectionViewer.elementColor.tag, false);
 					this.generateCheckBoxList('#cv-filter-production-tag-list', app.collectionViewer.proxyfgData.data.productionTaglist, app.collectionViewer.elementColor.productionTag, false);
 
 					app.collectionViewer.filter.updateForcegraph();
@@ -5718,7 +5718,9 @@ const app = {
 						// app.dev && console.log('dev --- forcegraph filter Data categories: ', categories);
 						// app.dev && console.log('dev --- forcegraph filter Data topics: ', topics);
 
+
 						for( let link of fgData.links ){
+							if(!link.source || !link.target) { continue; }
 							if(link.type === 'link-tag' && tags.includes(link.name)){
 								filteredFgData.links.push(link);
 							}
@@ -5734,6 +5736,7 @@ const app = {
 						}
 
 						for( let node of fgData.nodes ){
+							if(!node.id) { continue; }
 							let newNode = null;
 							let filteredTags = node.tags.filter(value => tags.includes(value));
 							let filteredProductionTags = node.productionTags.filter(value => productionTags.includes(value));
@@ -5757,6 +5760,8 @@ const app = {
 								filteredFgData.nodes.push(newNode);
 							}
 						}
+
+						app.dev & console.log('dev --- filteredFgData.nodes: ', filteredFgData.nodes)
 
 						filteredFgData.nodes = JSON.stringify(filteredFgData.nodes);
 						filteredFgData.links = JSON.stringify(filteredFgData.links);
