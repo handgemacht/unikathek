@@ -713,6 +713,7 @@ div.gui-title-container > * > div.back > img.icon {
   width: 100%;
   height: 100%;
   aspect-ratio: auto;
+  pointer-events: none;
 }
 
 div.gui-title-container:hover > * > div.arrow:last-of-type > img.icon {

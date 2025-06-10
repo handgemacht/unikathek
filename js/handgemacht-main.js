@@ -468,8 +468,9 @@ const app = {
 					this.break = document.createElement('br');
 					this.element.appendChild(this.break);
 
-					const back = this.backEl.cloneNode(true);
-					this.element.appendChild(back);
+					this.arrowBack = this.backEl.cloneNode(true);
+					this.arrowBack.id = 'arrow-back';
+					this.element.appendChild(this.arrowBack);
 
 					this.titleBack = document.createElement('span');
 					this.element.appendChild(this.titleBack);
@@ -484,6 +485,10 @@ const app = {
 					this.titleBack ? this.titleBack.setAttribute('data-url', urlBreadcrumb) : '';
 					this.titleBack ? this.titleBack.removeEventListener('click', app.gui.title.titleClickHandler) : '';
 					this.titleBack ? this.titleBack.addEventListener('click', app.gui.title.titleClickHandler) : '';
+
+					this.arrowBack ? this.arrowBack.setAttribute('data-url', urlBreadcrumb) : '';
+					this.arrowBack ? this.arrowBack.removeEventListener('click', app.gui.title.titleClickHandler) : '';
+					this.arrowBack ? this.arrowBack.addEventListener('click', app.gui.title.titleClickHandler) : '';
 
 					document.title = 'hand.gemacht Unikathek' + ' > ' + breadcrumb + ' > ' + 'Modellansicht'
 
@@ -502,6 +507,7 @@ const app = {
 
 			titleClickHandler(event) {
 				event.srcElement.removeEventListener('click', app.gui.title.titleClickHandler);
+				app.dev && console.log('dev --- event: ', event);
 				let url = event.srcElement.getAttribute('data-url');
 				url = app.setURLParams(url);
 				app.tour ? url+='&tour=' + app.tour : '';
@@ -1735,7 +1741,7 @@ const app = {
 								"type" : "headline"
 							},
 							{
-								"content" : "Mehr als 100 handgemachte Oberpfälzer Objekte kannst du hier mitsamt ihren Geschichten entdecken. Erfahre anhand der Gegenstände, was die Menschen in der Oberpfalz in den letzten 80 Jahren beschäftigte – und was sie immer wieder dazu antrieb und antreibt, Dinge selbst in die Hand zu nehmen.",
+								"content" : "Mehr als 100 handgemachte Oberpfälzer Objekte haben in unserer Projektlaufzeit gesammelt. In der Unikathek kann man die meisten davon mitsamt ihrer Geschichten entdecken. Erfahre anhand der Gegenstände, was die Menschen in der Oberpfalz in den letzten 80 Jahren beschäftigte – und was sie immer wieder dazu antrieb und antreibt, Dinge selbst in die Hand zu nehmen.",
 								"fileCopyright" : "",
 								"filename" : "",
 								"imageAlt" : "",
@@ -2749,7 +2755,7 @@ const app = {
 
 			texts: {
 				title: 'Die Unikathek',
-				intro: 'Mehr als 100 handgemachte Oberpfälzer Objekte kannst du hier mitsamt ihren Geschichten entdecken. Erfahre anhand der Gegenstände, was die Menschen in der Oberpfalz in den letzten 80 Jahren beschäftigte – und was sie immer wieder dazu antrieb und antreibt, Dinge selbst in die Hand zu nehmen. ',
+				intro: 'Mehr als 100 handgemachte Oberpfälzer Objekte haben in unserer Projektlaufzeit gesammelt. In der Unikathek kann man die meisten davon mitsamt ihrer Geschichten entdecken. Erfahre anhand der Gegenstände, was die Menschen in der Oberpfalz in den letzten 80 Jahren beschäftigte – und was sie immer wieder dazu antrieb und antreibt, Dinge selbst in die Hand zu nehmen.',
 				toursTitle: 'Themen-Touren',
 				collectionTitle: 'Sammlungsinformation'
 			},
@@ -5761,7 +5767,7 @@ const app = {
 							}
 						}
 
-						app.dev & console.log('dev --- filteredFgData.nodes: ', filteredFgData.nodes)
+						// app.dev && console.log('dev --- filteredFgData.nodes: ', filteredFgData.nodes)
 
 						filteredFgData.nodes = JSON.stringify(filteredFgData.nodes);
 						filteredFgData.links = JSON.stringify(filteredFgData.links);
