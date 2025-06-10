@@ -10,6 +10,6 @@ Die von uns generierten Daten stellen wir Forschungs- und Bildungseinrichtungen 
 
 ## Links: 
 
--[Website Projekt hand.gemacht](https://www.handgemacht.bayern/)
+-[Website Projekt hand.gemacht](https://www.handgemacht.bayern/)  
 -[WebApp Unikathek](https://app.handgemacht.bayern/)
 
