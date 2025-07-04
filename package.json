@@ -1,10 +1,14 @@
 {
-  "name": "my-turborepo",
-  "version": "0.0.0",
+  "name": "unikathek",
+  "version": "alpha 2.0",
   "private": true,
   "description": "",
-  "author": "",
+  "author": "julianmoder",
   "license": "UNLICENSED",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
