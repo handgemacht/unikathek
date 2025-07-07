@@ -21,10 +21,10 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@editor/*": ["./src/*"],
-      "@ui/*": ["@repo/ui/src/*"],
-      "@lib/*": ["@repo/lib/src/*"],
-      "@types/*": ["@repo/types/*"]
+      "@editor": ["./src/*"],
+      "@repo/ui": ["@repo/ui/src/*"],
+      "@repo/lib": ["@repo/lib/src/*"],
+      "@repo/types": ["@repo/types/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

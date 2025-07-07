@@ -8,9 +8,9 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@explorer/*": ["./src/*"],
-      "@lib/*": ["@repo/lib/src/*"],
-      "@types/*": ["@repo/types/*"]
+      "@explorer": ["./src/*"],
+      "@repo/lib": ["@repo/lib/src"],
+      "@repo/types": ["@repo/types"]
     }
   },
   "outDir": "build"
