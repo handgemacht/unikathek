@@ -2,6 +2,8 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+console.log('Seed-Script startet');
+
 async function main() {
   await prisma.culturalObject.deleteMany();
 
