@@ -20,6 +20,10 @@
     }, 
     "test": {
       "outputs": ["coverage/**"]
+    },
+    "tree": {
+      "cache": false,
+      "outputs": []
     }
   }
 }

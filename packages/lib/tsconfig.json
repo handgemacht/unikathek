@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "outDir": "dist",
+    "rootDir": "src",
+    "paths": {
+      "@repo/lib": ["@repo/lib/src/*"],
+      "@repo/types": ["@repo/types/*"],
+      "@repo/database": ["@repo/database/*"]
+    },
+  },
+  "include": ["src"]
+}
