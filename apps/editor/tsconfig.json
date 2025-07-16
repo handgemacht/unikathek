@@ -24,7 +24,8 @@
       "@editor": ["./src/*"],
       "@repo/ui": ["@repo/ui/src/*"],
       "@repo/lib": ["@repo/lib/src/*"],
-      "@repo/types": ["@repo/types/*"]
+      "@repo/types": ["@repo/types/*"],
+      "@repo/database": ["@repo/database/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

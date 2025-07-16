@@ -10,7 +10,8 @@
     "paths": {
       "@explorer": ["./src/*"],
       "@repo/lib": ["@repo/lib/src"],
-      "@repo/types": ["@repo/types"]
+      "@repo/types": ["@repo/types"],
+      "@repo/database": ["@repo/database/*"]
     }
   },
   "outDir": "build"
