@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { slugify, truncate, generateId } from "@unikathek/lib";
 
 export default function Home() {
   return (
