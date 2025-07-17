@@ -12,19 +12,19 @@ In short: Unikathek creates a virtual environment where handmade uniques from th
 ## This repository
 Unikathek consists of several main modules that together provide its core functionality:
 
-- `apps/api`: A central RESTful API that manages all data for the Unikathek. This API handles object information, 3D and media files, aswell as curated stories, storing everything in a PostgreSQL database and providing data to the frontend apps
-- `apps/editor`: An internal web app for media and asset management. This admin frontend enables the project team to upload new 3D models, add descriptions, images, audio clips, and edit content. The editor offers a user-friendly interface to expand and curate the digital collection.
-- `apps/explorer`: The 3D frontend for end users. In this application, visitors can interactively explore virtual objects. The explorer allows users to rotate, zoom, and examine 3D models, and access associated stories, contexts, and media. This is the virtual “exhibition space” for the Unikathek.
-- `apps/docs`: A documentation platform for developers and contributors.
-- `apps/web`: An informative companion website.
+- Backend & API: A central RESTful API that manages all data for the Unikathek. This API handles object information, 3D and media files, aswell as curated stories, storing everything in a PostgreSQL database and providing data to the frontend apps
+- Editor: An internal web app for media and asset management. This admin frontend enables the project team to upload new 3D models, add descriptions, images, audio clips, and edit content. The editor offers a user-friendly interface to expand and curate the digital collection.
+- Explorer: The 3D frontend for end users. In this application, visitors can interactively explore virtual objects. The explorer allows users to rotate, zoom, and examine 3D models, and access associated stories, contexts, and media. This is the virtual “exhibition space” for the Unikathek.
+- Documentation: A documentation platform for developers and contributors.
+- Website: An informative companion website.
 
 ## Tech Stack and Architecture
 The Unikathek codebase is managed as a monorepo (using [Turborepo](https://turborepo.com/)). This means all modules are developed together in a single repository, allowing for tight integration and code sharing. 
 
-- Backend & API: The backend uses [NestJS](https://nestjs.com/)and [Prisma ORM](https://www.prisma.io/). Data is stored in [PostgreSQL](https://www.postgresql.org/).
-- Editor: The editor is built with [Next.js](https://nextjs.org/) and [React](https://react.dev/), allowing for shared UI components and libraries with the Web/Docs modules. [Tailwind CSS](https://tailwindcss.com/) ensures a consistent and user-friendly interface.
-- Explorer: The explorer uses a slightly different stack, optimized for real-time 3D browser rendering: [Vite](https://vite.dev/) as build tool, [React](https://react.dev/), [Three.js](https://threejs.org/), [React Three Fiber](https://r3f.docs.pmnd.rs/getting-started/introduction), and [drei](https://drei.docs.pmnd.rs/getting-started/introduction) for helpful 3D abstractions. [Tailwind CSS](https://tailwindcss.com/) is used for UI overlays. This combination enables smooth, interactive 3D experiences directly in the browser.
-- Frontend (Web & Docs): Both the information website and documentation are built with [Next.js](https://nextjs.org/), which supports server-side rendering and static site generation—resulting in fast load times and good SEO. Both use [React](https://react.dev/) and [Tailwind CSS](https://tailwindcss.com/) for styling.
+- `apps/api`: The backend uses [NestJS](https://nestjs.com/)and [Prisma ORM](https://www.prisma.io/). Data is stored in [PostgreSQL](https://www.postgresql.org/).
+- `apps/editor`: The editor is built with [Next.js](https://nextjs.org/) and [React](https://react.dev/), allowing for shared UI components and libraries with the Web/Docs modules. [Tailwind CSS](https://tailwindcss.com/) ensures a consistent and user-friendly interface.
+- `apps/explorer`: The explorer uses a slightly different stack, optimized for real-time 3D browser rendering: [Vite](https://vite.dev/) as build tool, [React](https://react.dev/), [Three.js](https://threejs.org/), [React Three Fiber](https://r3f.docs.pmnd.rs/getting-started/introduction), and [drei](https://drei.docs.pmnd.rs/getting-started/introduction) for helpful 3D abstractions. [Tailwind CSS](https://tailwindcss.com/) is used for UI overlays. This combination enables smooth, interactive 3D experiences directly in the browser.
+- `apps/web` + `apps/docs`: Both the information website and documentation are built with [Next.js](https://nextjs.org/), which supports server-side rendering and static site generation—resulting in fast load times and good SEO. Both use [React](https://react.dev/) and [Tailwind CSS](https://tailwindcss.com/) for styling.
 
 All applications communicate through clearly defined interfaces like a centralized library for unilities and types. 
 
