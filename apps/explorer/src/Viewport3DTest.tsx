@@ -1,8 +1,8 @@
-import React from 'react'
+import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber'
 
 export function Viewport3DTest() {
-  const myMesh = React.useRef()
+  const myMesh = useRef()
 
   useFrame(({ clock }) => {
     myMesh.current.rotation.x = clock.elapsedTime
