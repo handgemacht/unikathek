@@ -4,8 +4,9 @@
   "compilerOptions": {
     "plugins": [{ "name": "next" }],
     "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "moduleResolution": "bundler",
     "allowJs": true,
-    "noEmit": true
+    "noEmit": true,
+    "jsx": "preserve"
   }
 }

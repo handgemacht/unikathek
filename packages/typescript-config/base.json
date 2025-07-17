@@ -1,20 +1,31 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "lib": ["es2022", "DOM", "DOM.Iterable"],
+    "lib": ["ES2022", "ES2023", "ESNext", "DOM", "DOM.Iterable"],
+    "target": "ES2022", // ESNext, ES2023
     "module": "NodeNext",
     "moduleDetection": "force",
     "moduleResolution": "NodeNext",
+
     "jsx": "react-jsx",
+
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+
+    "esModuleInterop": true,
+    "isolatedModules": true,
     "noUncheckedIndexedAccess": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "ES2022"
+    "paths": {
+      "@repo/database": ["@repo/database/*"],
+      "@repo/lib": ["@repo/lib/src/*"],
+      "@repo/types": ["@repo/types/*"],
+      "@repo/typescript-config": ["@repo/typescript-config/*"],
+      "@repo/ui": ["@repo/ui/*"]
+    }
   }
 }

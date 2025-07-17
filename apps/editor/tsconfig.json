@@ -2,22 +2,10 @@
   "extends": "@repo/typescript-config/base.json",
   "compilerOptions": {
     "target": "ES2017",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
+    "module": "ESNext",
     "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "composite": true,
+    "allowJs": true,
+    "noEmit": true,
     "plugins": [
       {
         "name": "next"
@@ -27,21 +15,10 @@
     "paths": {
       "@editor": [
         "./src/*"
-      ],
-      "@repo/ui": [
-        "@repo/ui/src/*"
-      ],
-      "@repo/lib": [
-        "@repo/lib/src/*"
-      ],
-      "@repo/types": [
-        "@repo/types/*"
-      ],
-      "@repo/database": [
-        "@repo/database/*"
       ]
     },
-    "incremental": true
+    "incremental": true,
+    "jsx": "preserve"
   },
   "include": [
     "next-env.d.ts",

@@ -1,8 +1,7 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "@repo/typescript-config/base.json",
   "compilerOptions": {
-    "target": "ES2020",
-    "composite": true,
+    "baseUrl": ".",
     "outDir": "dist",
     "rootDir": "."
   },

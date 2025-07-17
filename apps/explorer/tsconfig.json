@@ -6,12 +6,9 @@
   ],
   "compilerOptions": {
     "baseUrl": ".",
+    "outDir": "dist",
     "paths": {
-      "@explorer": ["./src/*"],
-      "@repo/lib": ["@repo/lib/src"],
-      "@repo/types": ["@repo/types"],
-      "@repo/database": ["@repo/database/*"]
+      "@explorer": ["./src/*"]
     }
-  },
-  "outDir": "build"
+  }
 }
