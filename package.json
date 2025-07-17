@@ -3,8 +3,9 @@
   "private": true,
   "scripts": {
     "postinstall": "pnpm --filter=@repo/database exec prisma generate",
+    "db:start": "docker run --name unikathek-db -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=unikathek -p 5432:5432 -d postgres:14",
     "build": "turbo run build",
-    "dev": "turbo run dev",
+    "dev": "turbo run db:start; turbo run start:dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
