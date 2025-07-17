@@ -17,7 +17,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "incremental": true,
+    "composite": true,
     "plugins": [
       {
         "name": "next"
@@ -40,7 +40,8 @@
       "@repo/database": [
         "@repo/database/*"
       ]
-    }
+    },
+    "incremental": true
   },
   "include": [
     "next-env.d.ts",
