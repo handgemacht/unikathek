@@ -1,135 +1,44 @@
-# Turborepo starter
+# Unikathek – The Virtual Showcase for Handmade Uniques
 
-This Turborepo starter is maintained by the Turborepo core team.
+Unikathek is a web platform for the presentation and digital archiving of handcrafted everyday and utility objects from the Upper Palatinate region of Germany. The project originated as part of the hand.gemacht research initiative and serves as an open-access virtual collection where users can explore unique 3D objects and discover the stories behind them. Unikathek is intended as a freely accessible virtual cultural memory for the region.
 
-## Using this example
+## Background and Goals
+The hand.gemacht project (running from 07/2022–06/2025) aims to preserve cultural heritage in digital form and make it accessible to everyone. Rather than storing physical objects in a museum, 3D scans are created and enriched with background information. Through qualitative interviews with the owners or creators, the object histories are documented, ensuring that not only the object itself, but also its creation and usage context, are preserved and communicated.
 
-Run the following command:
+Through the Unikathek web app, these digitally preserved items and their stories can be interactively explored. Each object can be virtually inspected from all sides; accompanying texts provide cultural and historical context and highlight the connections to the people who created or used them. Additional photos, audio recordings, and detailed information bring the presentation to life. The 3D models—enriched with personal stories—act as “virtual memory objects” that safeguard the region’s intangible heritage. Unikathek also highlights connections between the objects: Seven thematic contexts link the exhibits by their manufacturing and usage stories, while distinctive characteristics showcase typical features of handmade items. Two curated guided tours offer special user experiences by connecting multiple objects in a narrative arc—for example, relating to the history of the WAA Wackersdorf or the Kirchweih (Kirwa) tradition in Upper Palatinate.
 
-```sh
-npx create-turbo@latest
-```
+In short: Unikathek creates a virtual environment where handmade uniques from the Upper Palatinate—and their stories—can be explored anytime, anywhere. This helps preserve traditional knowledge and personal memories, making them accessible to a wide audience now and in the future.
 
-## What's inside?
+## This repository
+Unikathek consists of several main modules that together provide its core functionality:
 
-This Turborepo includes the following packages/apps:
+- `apps/api`: A central RESTful API that manages all data for the Unikathek. This API handles object information, 3D and media files, aswell as curated stories, storing everything in a PostgreSQL database and providing data to the frontend apps
+- `apps/editor`: An internal web app for media and asset management. This admin frontend enables the project team to upload new 3D models, add descriptions, images, audio clips, and edit content. The editor offers a user-friendly interface to expand and curate the digital collection.
+- `apps/explorer`: The 3D frontend for end users. In this application, visitors can interactively explore virtual objects. The explorer allows users to rotate, zoom, and examine 3D models, and access associated stories, contexts, and media. This is the virtual “exhibition space” for the Unikathek.
+- `apps/docs`: A documentation platform for developers and contributors.
+- `apps/web`: An informative companion website.
 
-### Apps and Packages
+## Tech Stack and Architecture
+The Unikathek codebase is managed as a monorepo (using [Turborepo](https://turborepo.com/)). This means all modules are developed together in a single repository, allowing for tight integration and code sharing. 
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+- Backend & API: The backend uses [NestJS](https://nestjs.com/)and [Prisma ORM](https://www.prisma.io/). Data is stored in [PostgreSQL](https://www.postgresql.org/).
+- Editor: The editor is built with [Next.js](https://nextjs.org/) and [React](https://react.dev/), allowing for shared UI components and libraries with the Web/Docs modules. [Tailwind CSS](https://tailwindcss.com/) ensures a consistent and user-friendly interface.
+- Explorer: The explorer uses a slightly different stack, optimized for real-time 3D browser rendering: [Vite](https://vite.dev/) as build tool, [React](https://react.dev/), [Three.js](https://threejs.org/), [React Three Fiber](https://r3f.docs.pmnd.rs/getting-started/introduction), and [drei](https://drei.docs.pmnd.rs/getting-started/introduction) for helpful 3D abstractions. [Tailwind CSS](https://tailwindcss.com/) is used for UI overlays. This combination enables smooth, interactive 3D experiences directly in the browser.
+- Frontend (Web & Docs): Both the information website and documentation are built with [Next.js](https://nextjs.org/), which supports server-side rendering and static site generation—resulting in fast load times and good SEO. Both use [React](https://react.dev/) and [Tailwind CSS](https://tailwindcss.com/) for styling.
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+All applications communicate through clearly defined interfaces like a centralized library for unilities and types. 
 
-### Utilities
+[Turborepo](https://turborepo.com/) has some additional tools already setup:
 
-This Turborepo has some additional tools already setup for you:
+- [TypeScript](https://www.typescriptlang.org/)
+- [ESLint](https://eslint.org/)
+- [Prettier](https://prettier.io)
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
-
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
+### Outlook and Upcoming Additions
+This README is a work in progress. Future updates will include detailed installation instructions (how to run Unikathek locally), contribution guidelines for open-source collaborators, a feature roadmap, and more. Stay tuned—the documentation will evolve alongside the project.
 
 ## Useful Links
+Learn more about project hand.gemacht:
 
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+- [Project Website (German)](https://www.handgemacht.bayern)
+- [Unikathek (German)](https://app.handgemacht.bayern)
