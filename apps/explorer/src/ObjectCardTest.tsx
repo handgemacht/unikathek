@@ -1,4 +1,4 @@
-import type { CulturalObject } from '@repo/types';
+import type { CulturalObject } from "@repo/types";
 
 export function ObjectCardTest({ object }: { object: CulturalObject }) {
   return (

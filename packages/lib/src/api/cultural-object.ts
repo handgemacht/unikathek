@@ -1,6 +1,6 @@
-import type { CulturalObject } from '@repo/types';
+import type { CulturalObject } from "@repo/types";
 
-const API_BASE = 'http://localhost:3000';
+const API_BASE = "http://localhost:3000";
 
 //create
 export async function createCulturalObject(data: {
@@ -8,18 +8,18 @@ export async function createCulturalObject(data: {
   description?: string;
 }): Promise<CulturalObject> {
   const res = await fetch(`${API_BASE}/cultural-object`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error('Fehler beim Erstellen eines Objekts');
+  if (!res.ok) throw new Error("Fehler beim Erstellen eines Objekts");
   return res.json();
 }
 
 //read
 export async function fetchCulturalObjects(): Promise<CulturalObject[]> {
   const res = await fetch(`${API_BASE}/cultural-object`);
-  if (!res.ok) throw new Error('Fehler beim Laden der Objekte');
+  if (!res.ok) throw new Error("Fehler beim Laden der Objekte");
   return res.json();
 }
 
@@ -29,23 +29,22 @@ export async function updateCulturalObject(
   data: {
     title?: string;
     description?: string;
-  }
+  },
 ): Promise<CulturalObject> {
   const res = await fetch(`${API_BASE}/cultural-object/${id}`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error(`Fehler beim Aktualisieren des Objekts mit ID ${id}`);
+  if (!res.ok)
+    throw new Error(`Fehler beim Aktualisieren des Objekts mit ID ${id}`);
   return res.json();
 }
 
 //delete
 export async function deleteCulturalObject(id: string): Promise<void> {
   const res = await fetch(`${API_BASE}/cultural-object/${id}`, {
-    method: 'DELETE',
+    method: "DELETE",
   });
   if (!res.ok) throw new Error(`Fehler beim Löschen des Objekts mit ID ${id}`);
 }
-
-
