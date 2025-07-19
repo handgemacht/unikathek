@@ -1,6 +1,7 @@
 import type { CulturalObject } from "@repo/types";
 
-const API_BASE = "http://localhost:3000";
+const API_BASE =
+  process.env.API_BASE ?? "http://localhost:3000";
 
 //create
 export async function createCulturalObject(data: {
