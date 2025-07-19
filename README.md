@@ -12,7 +12,7 @@ In short: Unikathek creates a virtual environment where handmade uniques from th
 ## This repository
 Unikathek consists of several main modules that together provide its core functionality:
 
-- Backend & API: A central RESTful API that manages all data for the Unikathek. This API handles object information, 3D and media files, aswell as curated stories, storing everything in a PostgreSQL database and providing data to the frontend apps
+- Backend & API: A central RESTful API that manages all data for the Unikathek. This API handles object information, 3D and media files, as well as curated stories, storing everything in a PostgreSQL database and providing data to the frontend apps
 - Editor: An internal web app for media and asset management. This admin frontend enables the project team to upload new 3D models, add descriptions, images, audio clips, and edit content. The editor offers a user-friendly interface to expand and curate the digital collection.
 - Explorer: The 3D frontend for end users. In this application, visitors can interactively explore virtual objects. The explorer allows users to rotate, zoom, and examine 3D models, and access associated stories, contexts, and media. This is the virtual “exhibition space” for the Unikathek.
 - Documentation: A documentation platform for developers and contributors.
@@ -26,9 +26,9 @@ The Unikathek codebase is managed as a monorepo (using [Turborepo](https://turbo
 - `apps/explorer`: The explorer uses a slightly different stack, optimized for real-time 3D browser rendering: [Vite](https://vite.dev/) as build tool, [React](https://react.dev/), [Three.js](https://threejs.org/), [React Three Fiber](https://r3f.docs.pmnd.rs/getting-started/introduction), and [drei](https://drei.docs.pmnd.rs/getting-started/introduction) for helpful 3D abstractions. [Tailwind CSS](https://tailwindcss.com/) is used for UI overlays. This combination enables smooth, interactive 3D experiences directly in the browser.
 - `apps/web` + `apps/docs`: Both the information website and documentation are built with [Next.js](https://nextjs.org/), which supports server-side rendering and static site generation—resulting in fast load times and good SEO. Both use [React](https://react.dev/) and [Tailwind CSS](https://tailwindcss.com/) for styling.
 
-All applications communicate through clearly defined interfaces like a centralized library for unilities and types. 
+All applications communicate through clearly defined interfaces like a centralized library for utilities and types. 
 
-[Turborepo](https://turborepo.com/) has some additional tools already setup:
+[Turborepo](https://turborepo.com/) has some additional tools already set up:
 
 - [TypeScript](https://www.typescriptlang.org/)
 - [ESLint](https://eslint.org/)
