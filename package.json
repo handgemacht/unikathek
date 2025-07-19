@@ -9,7 +9,8 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
-    "tree": "pnpm --package=tree-cli dlx tree -l 5 --ignore \"node_modules|dist|.turbo|.git\" -o structure.txt -f"
+    "tree": "pnpm --package=tree-cli dlx tree -l 5 --ignore \"node_modules|dist|.turbo|.git\" -o structure.txt -f",
+    "test": "pnpm -r test"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
