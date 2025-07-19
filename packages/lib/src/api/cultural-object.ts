@@ -25,7 +25,7 @@ export async function fetchCulturalObjects(): Promise<CulturalObject[]> {
 
 //update
 export async function updateCulturalObject(
-  id: number,
+  id: string,
   data: {
     title?: string;
     description?: string;
@@ -41,7 +41,7 @@ export async function updateCulturalObject(
 }
 
 //delete
-export async function deleteCulturalObject(id: number): Promise<void> {
+export async function deleteCulturalObject(id: string): Promise<void> {
   const res = await fetch(`${API_BASE}/cultural-object/${id}`, {
     method: 'DELETE',
   });
