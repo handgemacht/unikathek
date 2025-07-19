@@ -12,15 +12,15 @@ export class CulturalObjectService {
     return db.culturalObject.findUnique({ where: { id } });
   }
 
-  async create(data: any): Promise<CulturalObject | null> {
+  async create(data: any): Promise<CulturalObject> {
     return db.culturalObject.create({ data });
   }
 
-  async update(id: string, data: any): Promise<CulturalObject | null> {
+  async update(id: string, data: any): Promise<CulturalObject> {
     return db.culturalObject.update({ where: { id }, data });
   }
 
-  async remove(id: string): Promise<CulturalObject | null> {
+  async remove(id: string): Promise<CulturalObject> {
     return db.culturalObject.delete({ where: { id } });
   }
 }
